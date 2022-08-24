@@ -11,6 +11,8 @@ import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 
+// new cide by manan
+
 abstract class BaseStatefulWidget extends StatefulWidget
     with WidgetsBindingObserver {}
 
