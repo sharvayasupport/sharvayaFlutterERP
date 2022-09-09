@@ -1,6 +1,5 @@
 part of 'leave_request_bloc.dart';
 
-
 abstract class LeaveRequestStates extends BaseStates {
   const LeaveRequestStates();
 }
@@ -9,25 +8,23 @@ abstract class LeaveRequestStates extends BaseStates {
 
 class LeaveRequestStatesInitialState extends LeaveRequestStates {}
 
-
-class LeaveRequestStatesResponseState extends LeaveRequestStates{
+class LeaveRequestStatesResponseState extends LeaveRequestStates {
   LeaveRequestListResponse leaveRequestListResponse;
   final int newPage;
 
-
-  LeaveRequestStatesResponseState(this.newPage,this.leaveRequestListResponse);
+  LeaveRequestStatesResponseState(this.newPage, this.leaveRequestListResponse);
 }
+
 class LeaveRequestEmployeeListResponseState extends LeaveRequestStates {
   final AttendanceEmployeeListResponse response;
   LeaveRequestEmployeeListResponseState(this.response);
 }
+
 class LeaveRequestDeleteCallResponseState extends LeaveRequestStates {
   final LeaveRequestDeleteResponse leaveRequestDeleteResponse;
 
   LeaveRequestDeleteCallResponseState(this.leaveRequestDeleteResponse);
 }
-
-
 
 class LeaveRequestSaveResponseState extends LeaveRequestStates {
   final LeaveRequestSaveResponse response;
@@ -42,4 +39,16 @@ class LeaveApprovalSaveResponseState extends LeaveRequestStates {
 class LeaveRequestTypeResponseState extends LeaveRequestStates {
   final LeaveRequestTypeResponse response;
   LeaveRequestTypeResponseState(this.response);
+}
+
+class FCMNotificationResponseState extends LeaveRequestStates {
+  final FCMNotificationResponse response;
+
+  FCMNotificationResponseState(this.response);
+}
+
+class GetReportToTokenResponseState extends LeaveRequestStates {
+  final GetReportToTokenResponse response;
+
+  GetReportToTokenResponseState(this.response);
 }

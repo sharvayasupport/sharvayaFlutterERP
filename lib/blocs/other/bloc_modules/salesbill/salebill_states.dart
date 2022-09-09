@@ -70,6 +70,12 @@ class SalesBill_SO_ListResponseState extends SalesBillStates {
   SalesBill_SO_ListResponseState(this.response);
 }
 
+class SearchCustomerListByNumberCallResponseState extends SalesBillStates {
+  final CustomerDetailsResponse response;
+
+  SearchCustomerListByNumberCallResponseState(this.response);
+}
+
 /*
 
 class SearchQuotationListByNameCallResponseState extends QuotationStates {

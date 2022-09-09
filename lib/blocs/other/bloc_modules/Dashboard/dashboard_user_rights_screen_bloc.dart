@@ -13,6 +13,7 @@ import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/attendance_response_list.dart';
 import 'package:soleoserp/models/api_responses/attendance_save_response.dart';
 import 'package:soleoserp/models/api_responses/employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/firebase_token/firebase_token_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
 import 'package:soleoserp/models/api_responses/menu_rights_response.dart';
@@ -70,6 +71,9 @@ class DashBoardScreenBloc
     }
     if (event is APITokenUpdateRequestEvent) {
       yield* _map_api_token_updateEventState(event);
+    }
+    if (event is PunchOutWebMethodEvent) {
+      yield* _map_api_PunchOut_webMethod(event);
     }
 /*    if(event is CloserReasonTypeListByNameCallEvent)
     {
@@ -330,10 +334,30 @@ class DashBoardScreenBloc
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      String response = await userRepository
+      FirebaseTokenResponse response = await userRepository
           .getAPIUpdateTokenAPI(event.apiTokenUpdateRequest);
 
+      // print("ldjdsf" + response);
       yield APITokenUpdateState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates> _map_api_PunchOut_webMethod(
+      PunchOutWebMethodEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      var response =
+          await userRepository.getPunchOutWebMethodAPI(event.getrequest);
+
+      print("ldjdsf" + response.toString());
+      yield PunchOutWebMethodState(response.toString());
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

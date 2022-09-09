@@ -34,10 +34,10 @@ class SearchDetails {
       {this.custoemerName, this.salesOrderNo, this.quotationNo, this.value});
 
   SearchDetails.fromJson(Map<String, dynamic> json) {
-    custoemerName = json['CustomerName'];
-    salesOrderNo = json['SalesOrderNo'];
-    quotationNo = json['QuotationNo'];
-    value = json['value'];
+    custoemerName = json['CustomerName'] == null ? "" : json['CustomerName'];
+    salesOrderNo = json['SalesOrderNo'] == null ? "" : json['SalesOrderNo'];
+    quotationNo = json['QuotationNo'] == null ? "" : json['QuotationNo'];
+    value = json['value'] == null ? 0 : json['value'];
   }
 
   Map<String, dynamic> toJson() {

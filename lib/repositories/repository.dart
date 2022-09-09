@@ -13,6 +13,7 @@ import 'package:soleoserp/models/api_requests/SalesBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_list_Request.dart';
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
+import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
 import 'package:soleoserp/models/api_requests/ToDo_request/to_do_delete_request.dart';
 import 'package:soleoserp/models/api_requests/all_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
@@ -39,6 +40,9 @@ import 'package:soleoserp/models/api_requests/complaint_search_by_Id_request.dar
 import 'package:soleoserp/models/api_requests/complaint_search_request.dart';
 import 'package:soleoserp/models/api_requests/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/cust_id_inq_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_delete_document_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_fetch_document_api_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_upload_document_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer_category_request.dart';
 import 'package:soleoserp/models/api_requests/customer_delete_request.dart';
@@ -185,6 +189,7 @@ import 'package:soleoserp/models/api_responses/MissedPunch/missed_punch_add_edit
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/bank_details_list_response.dart';
+import 'package:soleoserp/models/api_responses/SaleOrder/multi_no_to_product_details_response.dart';
 import 'package:soleoserp/models/api_responses/ToDo_delete_response/to_do_delete_response.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
@@ -209,6 +214,9 @@ import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response_for_packing_checking.dart';
 import 'package:soleoserp/models/api_responses/cust_id_to_inq_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_delete_document_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_fetch_document_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_upload_document_response.dart';
 import 'package:soleoserp/models/api_responses/customer_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/customer_category_list.dart';
 import 'package:soleoserp/models/api_responses/customer_contact_save_response.dart';
@@ -246,6 +254,7 @@ import 'package:soleoserp/models/api_responses/final_checking_items_response.dar
 import 'package:soleoserp/models/api_responses/final_checking_list_response.dart';
 import 'package:soleoserp/models/api_responses/final_checking_sub_details_response.dart';
 import 'package:soleoserp/models/api_responses/final_cheking_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/firebase_token/firebase_token_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup_Image_Upload_response.dart';
 import 'package:soleoserp/models/api_responses/followup_delete_Image_response.dart';
@@ -349,6 +358,9 @@ import 'package:soleoserp/models/common/final_checking_items.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
 import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
+import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 import 'api_client.dart';
@@ -1615,6 +1627,20 @@ class Repository {
           ApiClient.END_POINT_CUSTOMER_SEARCH_BY_ID + request.CustomerID,
           request.toJson());
       CustomerDetailsResponse response = CustomerDetailsResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<FCMNotificationResponse> fcm_get_api(var request) async {
+    try {
+      Map<String, dynamic> json =
+          await apiClient.api_call_fcm_notification("/fcm/send", request);
+
+      print("ritu" + json.toString());
+      FCMNotificationResponse response = FCMNotificationResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -3749,6 +3775,20 @@ class Repository {
     }
   }
 
+  Future<MultiNoToProductDetailsResponse> getProductDetailsFrom_No(
+      MultiNoToProductDetailsRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_INQ_QT_SO_NO_PRODUCT_LIST_API, request.toJson());
+      MultiNoToProductDetailsResponse response =
+          MultiNoToProductDetailsResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   /****************************************Manage Accounts*****************************************/
   Future<MaterialInwardListResponse> materialInwardListAPI(
       int pageNo, MaterialInwardListRequest materialInwardListRequest) async {
@@ -3784,12 +3824,95 @@ class Repository {
     }
   }
 
-  Future<String> getAPIUpdateTokenAPI(
+  /* Future<String> getAPIUpdateTokenAPI(
       APITokenUpdateRequest apiTokenUpdateRequest) async {
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
           ApiClient.API_TOKEN_UPDATE, apiTokenUpdateRequest.toJson());
 
+      print("d456" + json.toString());
+      return json.toString();
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }*/
+
+  Future<FirebaseTokenResponse> getAPIUpdateTokenAPI(
+      APITokenUpdateRequest apiTokenUpdateRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.API_TOKEN_UPDATE, apiTokenUpdateRequest.toJson());
+      FirebaseTokenResponse response = FirebaseTokenResponse.fromJson(json);
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<GetReportToTokenResponse> getreporttoTokenAPI(
+      GetReportToTokenRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.API_GET_REPORT_TO_TOKEN_API, request.toJson());
+      GetReportToTokenResponse response =
+          GetReportToTokenResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CustomerUploadDocumentResponse> getCustomerploadDocumentAPI(
+      File imagesfiles, CustomerUploadDocumentApiRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPostMultipart(
+          ApiClient.API_UPLOAD_CUSTOMER_DOCUMENT, request.toJson(),
+          imageFilesToUpload: [imagesfiles]);
+
+      print("response - ${json}");
+
+      CustomerUploadDocumentResponse response =
+          CustomerUploadDocumentResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CustomerFetchDocumentResponse> fetch_customer_document_API(
+      CustomerFetchDocumentApiRequest customerFetchDocumentApiRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.API_FETCH_CUSTOMER_DOCUMENT,
+          customerFetchDocumentApiRequest.toJson());
+      CustomerFetchDocumentResponse designationApiResponse =
+          CustomerFetchDocumentResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CustomerDeleteDocumentResponse> delete_customer_document_API(
+      String pkID,
+      CustomerDeleteDocumentApiRequest customerFetchDocumentApiRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.API_DELETE_CUSTOMER_DOCUMENT + pkID + "/DeleteDocument",
+          customerFetchDocumentApiRequest.toJson());
+      CustomerDeleteDocumentResponse designationApiResponse =
+          CustomerDeleteDocumentResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> getPunchOutWebMethodAPI(String apiWebRequest) async {
+    try {
+      var json = await apiClient.apiwebMethodCallGet(apiWebRequest);
       return json.toString();
     } on ErrorResponseException catch (e) {
       rethrow;

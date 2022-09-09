@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
+import 'package:http/http.dart' as http;
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
@@ -60,6 +61,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   int _pageNo = 0;
   QuotationListResponse _quotationListResponse;
   bool expanded = true;
+  var isRedirect = true;
 
   double sizeboxsize = 12;
   double _fontSize_Label = 9;
@@ -686,30 +688,41 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                             SizedBox(
                               width: 15,
                             ),
-                            GestureDetector(
-                              onTap: () async {
-                                //FetchCustomerDetails(model.customerID);
-                                /*
-                                sddsfdj ds;jdsfdsj sdljdsj
-                                */
+                            Visibility(
+                              visible: true,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  String sendemailreq = SiteURL +
+                                      "Quotation.aspx?MobilePdf=yes&userid=" +
+                                      LoginUserID +
+                                      "&password=" +
+                                      Password +
+                                      "&pQuotID=" +
+                                      model.pkID.toString() +
+                                      "&CustomerID=" +
+                                      model.customerID.toString();
 
-                                EmailTO.text = model.emailAddress;
-                                showcustomdialogSendEmail(
-                                    context1: context,
-                                    Email: model.emailAddress);
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                    color: colorPrimary,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: Icon(
-                                  Icons.email,
-                                  size: 24,
-                                  color: colorWhite,
-                                )),
+                                  print("webreqj" + sendemailreq);
+                                  _showEmailMyDialog(model);
+                                  /*
+                                  EmailTO.text = model.emailAddress;
+                                  showcustomdialogSendEmail(
+                                      context1: context,
+                                      Email: model.emailAddress)*/
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                      color: colorPrimary,
+                                      shape: BoxShape.circle),
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.email,
+                                    size: 24,
+                                    color: colorWhite,
+                                  )),
+                                ),
                               ),
                             ),
                           ]),
@@ -1019,6 +1032,95 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     );
   }
 
+  Future<void> _showEmailMyDialog(QuotationDetails model) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Send Email '),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: GenerateQTSendEmail(model, context123),
+                )
+                //GetCircular123(),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context)
+                    .pop(), //  We can return any object from here
+                child: Text('Close')),
+          ],
+        );
+      },
+    );
+  }
+
+  void getStatusCodeOfSendEmail(String URLOFQTSendEmail) async {
+    /*
+
+    while (isRedirect) {
+    final client = http.Client();
+    final request = http.Request('GET', Uri.parse(url))
+          ..followRedirects = false
+          ..headers['cookie'] = 'security=true';
+    print(request.headers);
+    final response = await client.send(request);
+
+    if (response.statusCode == HttpStatus.movedTemporarily) {
+      isRedirect = response.isRedirect;
+      url = response.headers['location'];
+      // final receivedCookies = response.headers['set-cookie'];
+    } else if (response.statusCode == HttpStatus.ok) {
+      print(await response.stream.join(''));
+    }
+  }
+    */
+
+    while (isRedirect) {
+      final client = http.Client();
+      final request = http.Request('GET', Uri.parse(URLOFQTSendEmail))
+        ..followRedirects = false
+        ..headers['cookie'] = 'security=true';
+      print(request.headers);
+      final response = await client.send(request);
+
+      if (response.statusCode == HttpStatus.movedTemporarily) {
+        isRedirect = response.isRedirect;
+
+        if (response.statusCode == 200) {
+          // isRedirect = response.isRedirect;
+          print("akjshds" + 'exists');
+          break;
+        } else {
+          print("akjshds" + 'not exists');
+        }
+        // url = response.headers['location'];
+        // final receivedCookies = response.headers['set-cookie'];
+      } else if (response.statusCode == HttpStatus.ok) {
+        print(await response.stream.join(''));
+      }
+    }
+
+    /*final client = http.Client();
+    final request = http.Request('GET', Uri.parse(URLOFQTSendEmail))
+      ..followRedirects = false;
+    print(request.headers);
+    final response = await client.send(request);
+
+    if (response.statusCode == 200) {
+      // isRedirect = response.isRedirect;
+      print("akjshds" + 'exists');
+    } else {
+      print("akjshds" + 'not exists');
+    }*/
+  }
+
   GenerateQT(QuotationDetails model, BuildContext context123) {
     return Container(
       height: 200,
@@ -1035,6 +1137,120 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                   Password +
                   "&pQuotID=" +
                   model.pkID.toString())),
+          // initialFile: "assets/index.html",
+          initialUserScripts: UnmodifiableListView<UserScript>([]),
+          initialOptions: options,
+          pullToRefreshController: pullToRefreshController,
+
+          onWebViewCreated: (controller) {
+            webViewController = controller;
+          },
+
+          onLoadStart: (controller, url) {
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          androidOnPermissionRequest: (controller, origin, resources) async {
+            return PermissionRequestResponse(
+                resources: resources,
+                action: PermissionRequestResponseAction.GRANT);
+          },
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            var uri = navigationAction.request.url;
+
+            if (![
+              "http",
+              "https",
+              "file",
+              "chrome",
+              "data",
+              "javascript",
+              "about"
+            ].contains(uri.scheme)) {
+              if (await canLaunch(url)) {
+                // Launch the App
+                await launch(
+                  url,
+                );
+
+                // and cancel the request
+                return NavigationActionPolicy.CANCEL;
+              }
+            }
+
+            return NavigationActionPolicy.ALLOW;
+          },
+          onLoadStop: (controller, url) async {
+            pullToRefreshController.endRefreshing();
+
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          onLoadError: (controller, url, code, message) {
+            pullToRefreshController.endRefreshing();
+            isLoading = false;
+          },
+          onProgressChanged: (controller, progress) {
+            if (progress == 100) {
+              pullToRefreshController.endRefreshing();
+              this.prgresss = progress;
+              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+
+            }
+
+            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+            setState(() {
+              this.progress = progress / 100;
+              this.prgresss = progress;
+
+              urlController.text = this.url;
+            });
+          },
+          onUpdateVisitedHistory: (controller, url, androidIsReload) {
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          onConsoleMessage: (controller, consoleMessage) {
+            print("LoadWeb" + consoleMessage.message.toString());
+          },
+        ),
+      ),
+    );
+  }
+
+  GenerateQTSendEmail(QuotationDetails model, BuildContext context123) {
+    return Container(
+      height: 50,
+      child: Visibility(
+        visible: true,
+        child: InAppWebView(
+          /*
+            Uri.parse(SiteURL +
+                "/Quotation.aspx?MobilePdf=yes&userid=" +
+                LoginUserID +
+                "&password=" +
+                Password +
+                "&pQuotID=" +
+                model.pkID.toString()))*/
+          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
+          initialUrlRequest: URLRequest(
+              url: Uri.parse(SiteURL +
+                  "Quotation.aspx?MobilePdf=yes&userid=" +
+                  LoginUserID +
+                  "&password=" +
+                  Password +
+                  "&pQuotID=" +
+                  model.pkID.toString() +
+                  "&CustomerID=" +
+                  model.customerID.toString())),
+
           // initialFile: "assets/index.html",
           initialUserScripts: UnmodifiableListView<UserScript>([]),
           initialOptions: options,

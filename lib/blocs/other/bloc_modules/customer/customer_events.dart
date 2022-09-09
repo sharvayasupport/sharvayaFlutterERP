@@ -8,11 +8,8 @@ class CustomerListCallEvent extends CustomerEvents {
   final int pageNo;
   final CustomerPaginationRequest customerPaginationRequest;
 
-  CustomerListCallEvent(this.pageNo,this.customerPaginationRequest);
+  CustomerListCallEvent(this.pageNo, this.customerPaginationRequest);
 }
-
-
-
 
 class SearchCustomerListByNameCallEvent extends CustomerEvents {
   final CustomerLabelValueRequest request;
@@ -26,7 +23,6 @@ class SearchCustomerListByNumberCallEvent extends CustomerEvents {
   SearchCustomerListByNumberCallEvent(this.request);
 }
 
-
 class CountryCallEvent extends CustomerEvents {
   final CountryListRequest countryListRequest;
   CountryCallEvent(this.countryListRequest);
@@ -36,7 +32,6 @@ class StateCallEvent extends CustomerEvents {
   final StateListRequest stateListRequest;
   StateCallEvent(this.stateListRequest);
 }
-
 
 class DistrictCallEvent extends CustomerEvents {
   final DistrictApiRequest districtApiRequest;
@@ -53,7 +48,6 @@ class CityCallEvent extends CustomerEvents {
   CityCallEvent(this.cityApiRequest);
 }
 
-
 class CustomerAddEditCallEvent extends CustomerEvents {
   final CustomerAddEditApiRequest customerAddEditApiRequest;
   CustomerAddEditCallEvent(this.customerAddEditApiRequest);
@@ -64,11 +58,10 @@ class CustomerDeleteByNameCallEvent extends CustomerEvents {
 
   final CustomerDeleteRequest customerDeleteRequest;
 
-  CustomerDeleteByNameCallEvent(this.pkID,this.customerDeleteRequest);
+  CustomerDeleteByNameCallEvent(this.pkID, this.customerDeleteRequest);
 }
 
 class CustomerContactSaveCallEvent extends CustomerEvents {
-
   final List<ContactModel> _contactsList;
   CustomerContactSaveCallEvent(this._contactsList);
 }
@@ -83,8 +76,10 @@ class CustomerIdToDeleteAllContactCallEvent extends CustomerEvents {
 
   final CustomerIdToDeleteAllContactRequest customerIdToDeleteAllContactRequest;
 
-  CustomerIdToDeleteAllContactCallEvent(this.pkID,this.customerIdToDeleteAllContactRequest);
+  CustomerIdToDeleteAllContactCallEvent(
+      this.pkID, this.customerIdToDeleteAllContactRequest);
 }
+
 class CustomerCategoryCallEvent extends CustomerEvents {
   final CustomerCategoryRequest request1;
   CustomerCategoryCallEvent(this.request1);
@@ -98,4 +93,29 @@ class CustomerSourceCallEvent extends CustomerEvents {
 class DesignationCallEvent extends CustomerEvents {
   final DesignationApiRequest designationApiRequest;
   DesignationCallEvent(this.designationApiRequest);
+}
+
+class CustomerUploadDocumentApiRequestEvent extends CustomerEvents {
+  String HeaderMsg;
+  final List<File> documentList;
+
+  final CustomerUploadDocumentApiRequest expenseImageUploadServerAPIRequest;
+
+  CustomerUploadDocumentApiRequestEvent(this.HeaderMsg, this.documentList,
+      this.expenseImageUploadServerAPIRequest);
+}
+
+class CustomerFetchDocumentApiRequestEvent extends CustomerEvents {
+  bool isforViewDoc;
+  final CustomerDetails customerDetails;
+  final CustomerFetchDocumentApiRequest designationApiRequest;
+  CustomerFetchDocumentApiRequestEvent(
+      this.isforViewDoc, this.customerDetails, this.designationApiRequest);
+}
+
+class CustomerDeleteDocumentApiRequestEvent extends CustomerEvents {
+  String CustomerpkID;
+  final CustomerDeleteDocumentApiRequest customerDeleteDocumentApiRequest;
+  CustomerDeleteDocumentApiRequestEvent(
+      this.CustomerpkID, this.customerDeleteDocumentApiRequest);
 }

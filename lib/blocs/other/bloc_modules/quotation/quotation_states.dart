@@ -1,6 +1,5 @@
 part of 'quotation_bloc.dart';
 
-
 abstract class QuotationStates extends BaseStates {
   const QuotationStates();
 }
@@ -11,7 +10,7 @@ class QuotationInitialState extends QuotationStates {}
 class QuotationListCallResponseState extends QuotationStates {
   final QuotationListResponse response;
   final int newPage;
-  QuotationListCallResponseState(this.response,this.newPage);
+  QuotationListCallResponseState(this.response, this.newPage);
 }
 
 class SearchQuotationListByNameCallResponseState extends QuotationStates {
@@ -41,7 +40,7 @@ class QuotationCustomerListByNameCallResponseState extends QuotationStates {
 class QuotationNoToProductListCallResponseState extends QuotationStates {
   final QuotationNoToProductResponse response;
   int StateCode;
-  QuotationNoToProductListCallResponseState(this.StateCode,this.response);
+  QuotationNoToProductListCallResponseState(this.StateCode, this.response);
 }
 
 class SpecificationListResponseState extends QuotationStates {
@@ -50,13 +49,11 @@ class SpecificationListResponseState extends QuotationStates {
   SpecificationListResponseState(this.response);
 }
 
-
 class QuotationKindAttListResponseState extends QuotationStates {
   final QuotationKindAttListResponse response;
 
   QuotationKindAttListResponseState(this.response);
 }
-
 
 class QuotationProjectListResponseState extends QuotationStates {
   final QuotationProjectListResponse response;
@@ -77,37 +74,36 @@ class CustIdToInqListResponseState extends QuotationStates {
 }
 
 class InqNoToProductListResponseState extends QuotationStates {
-
   final InqNoToProductListResponse response;
 
   InqNoToProductListResponseState(this.response);
 }
 
-class InquiryProductSearchByStateCodeResponseState extends QuotationStates{
+class InquiryProductSearchByStateCodeResponseState extends QuotationStates {
   int ProductID;
   String ProductName;
   double Quantity;
   double UnitRate;
   final InquiryProductSearchResponse inquiryProductSearchResponse;
-  InquiryProductSearchByStateCodeResponseState(this.ProductID,this.ProductName,this.Quantity,this.UnitRate,this.inquiryProductSearchResponse);
+  InquiryProductSearchByStateCodeResponseState(this.ProductID, this.ProductName,
+      this.Quantity, this.UnitRate, this.inquiryProductSearchResponse);
 }
 
 class QuotationHeaderSaveResponseState extends QuotationStates {
-
   int pkID;
   final QuotationSaveHeaderResponse response;
   BuildContext context;
-  QuotationHeaderSaveResponseState(this.context,this.pkID,this.response);
+  QuotationHeaderSaveResponseState(this.context, this.pkID, this.response);
 }
 
-class QuotationProductSaveResponseState extends QuotationStates{
+class QuotationProductSaveResponseState extends QuotationStates {
   final QuotationProductSaveResponse quotationProductSaveResponse;
   BuildContext context;
-  QuotationProductSaveResponseState(this.context,this.quotationProductSaveResponse);
+  QuotationProductSaveResponseState(
+      this.context, this.quotationProductSaveResponse);
 }
 
 class QuotationProductDeleteResponseState extends QuotationStates {
-
   final QuotationProductDeleteResponse response;
 
   QuotationProductDeleteResponseState(this.response);
@@ -117,16 +113,14 @@ class QuotationDeleteCallResponseState extends QuotationStates {
   BuildContext context;
   final QuotationDeleteResponse quotationDeleteResponse;
 
-  QuotationDeleteCallResponseState(this.context,this.quotationDeleteResponse);
+  QuotationDeleteCallResponseState(this.context, this.quotationDeleteResponse);
 }
-
 
 class QuotationOtherChargeListResponseState extends QuotationStates {
   final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
 
   QuotationOtherChargeListResponseState(this.quotationOtherChargesListResponse);
 }
-
 
 class QuotationBankDropDownResponseState extends QuotationStates {
   final BankDorpDownResponse response;
@@ -138,4 +132,15 @@ class SearchCustomerListByNumberCallResponseState extends QuotationStates {
   final CustomerDetailsResponse response;
 
   SearchCustomerListByNumberCallResponseState(this.response);
+}
+
+class FCMNotificationResponseState extends QuotationStates {
+  final FCMNotificationResponse response;
+
+  FCMNotificationResponseState(this.response);
+}
+class GetReportToTokenResponseState extends QuotationStates {
+  final GetReportToTokenResponse response;
+
+  GetReportToTokenResponseState(this.response);
 }

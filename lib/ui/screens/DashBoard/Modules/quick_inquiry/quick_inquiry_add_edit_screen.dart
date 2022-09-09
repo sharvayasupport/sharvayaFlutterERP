@@ -30,6 +30,7 @@ import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_country_screen.dart';
@@ -151,6 +152,8 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
   String Token;
   bool emailValid;
 
+  String ReportToToken = "";
+
   ///------------------------------------------------Inquiry Intialized___________________
 
   DateTime selectedDate = DateTime.now();
@@ -189,6 +192,10 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
     checkPermissionStatus();
     screenStatusBarColor = colorPrimary;
     _CustomerBloc = QuickInquiryBloc(baseBloc);
+
+    _CustomerBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+        CompanyId: CompanyID.toString(),
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
     myFocusNode = FocusNode();
     PicCodeFocus = FocusNode();
     FetchInquiryPriorityDetails();
@@ -267,6 +274,10 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
             _onInquiryListByNumberCallSuccess(state);
           }
 
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
+
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
@@ -284,7 +295,10 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
           } else if (currentState
               is SearchCustomerListByNumberCallResponseState) {
             return true;
+          } else if (currentState is GetReportToTokenResponseState) {
+            return true;
           }
+          //
 
           return false;
         },
@@ -314,7 +328,9 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
           if (state is InquiryLeadStatusListCallResponseState) {
             _onLeadStatusListTypeCallSuccess(state);
           }
-
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
           /*  if (state is DistrictListEventResponseState) {
             _onDistrictListSuccess(state);
           }
@@ -343,8 +359,10 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
             return true;
           } else if (currentState is InquiryProductSaveResponseState) {
             return true;
+          } else if (currentState is FCMNotificationResponseState) {
+            return true;
           }
-
+//
           return false;
         },
       ),
@@ -2672,6 +2690,31 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
 
     updateRetrunInquiryNoToDB(
         state.inquiryHeaderSaveResponse.details[0].column3);
+
+    String notiTitle = "Quick Inquiry";
+
+    ///state.inquiryHeaderSaveResponse.details[0].column3;
+    String notibody = "Quick Inquiry " +
+        state.inquiryHeaderSaveResponse.details[0].column3 +
+        " Created " +
+        " For " +
+        edt_Customer_Name.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _CustomerBloc.add(FCMNotificationRequestEvent(request123));
+
     _CustomerBloc.add(InquiryProductSaveCallEvent(_inquiryProductList));
   }
 
@@ -2691,6 +2734,7 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
         "Quick Inquiry Added Successfully !"; //_isForUpdate == true ? "Inquiry Updated Successfully" : "Inquiry Added Successfully";
     await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK");
+
     navigateTo(context, HomeScreen.routeName, clearAllStack: true);
   }
 
@@ -2802,5 +2846,18 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
       edt_Email_Name.text = state.response.details[i].emailAddress;
       edt_GST_Name.text = state.response.details[i].gSTNO;
     }
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
   }
 }

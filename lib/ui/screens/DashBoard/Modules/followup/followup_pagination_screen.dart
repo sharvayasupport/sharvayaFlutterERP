@@ -33,8 +33,17 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../home_screen.dart';
 
+class FollowupListScreenArguments {
+  String EmployeeName;
+
+  FollowupListScreenArguments(this.EmployeeName);
+}
+
 class FollowupListScreen extends BaseStatefulWidget {
   static const routeName = '/FollowupListScreen';
+  final FollowupListScreenArguments arguments;
+
+  FollowupListScreen(this.arguments);
 
   @override
   _FollowupListScreenState createState() => _FollowupListScreenState();
@@ -75,6 +84,9 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
   var _url = "https://api.whatsapp.com/send?phone=91";
   bool isDeleteVisible = true;
   int TotalCount = 0;
+  bool _isForUpdate;
+
+  String NotificationEmpName = "";
 
   @override
   void initState() {
@@ -87,16 +99,24 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+    _isForUpdate = widget.arguments != null;
+    if (_isForUpdate) {
+      NotificationEmpName = widget.arguments.EmployeeName;
+
+      print("sdlfjf" + " Body :" + NotificationEmpName);
+    }
+
     _FollowupBloc = FollowupBloc(baseBloc);
 
     edt_FollowupStatus.text = "Todays";
 
     FetchFollowupStatusDetails();
-    _onFollowerEmployeeListByStatusCallSuccess(
-        _offlineFollowerEmployeeListData);
     edt_FollowupEmployeeList.text =
         _offlineLoggedInData.details[0].employeeName;
     edt_FollowupEmployeeUserID.text = _offlineLoggedInData.details[0].userID;
+    _onFollowerEmployeeListByStatusCallSuccess(
+        _offlineFollowerEmployeeListData);
+
     edt_FollowupStatus.addListener(followupStatusListener);
     edt_FollowupEmployeeList.addListener(followerEmployeeList);
     edt_FollowupEmployeeUserID.addListener(followerEmployeeList);
@@ -1100,7 +1120,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                     /*  SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
-                   
+
                     _buildTitleWithValueView("Created by", model.createdBy),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
@@ -1224,6 +1244,32 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
       }
     }
+    if (NotificationEmpName.toString() != "") {
+      for (int i = 0; i < arr_ALL_Name_ID_For_Folowup_EmplyeeList.length; i++) {
+        print("sdlfjddff" +
+            " Body :" +
+            NotificationEmpName +
+            " ArrayItem : " +
+            arr_ALL_Name_ID_For_Folowup_EmplyeeList[i].Name);
+        if (NotificationEmpName.trim().toString().toLowerCase() ==
+            arr_ALL_Name_ID_For_Folowup_EmplyeeList[i]
+                .Name
+                .trim()
+                .toString()
+                .toLowerCase()) {
+          edt_FollowupEmployeeList.text =
+              arr_ALL_Name_ID_For_Folowup_EmplyeeList[i].Name;
+          edt_FollowupEmployeeUserID.text =
+              arr_ALL_Name_ID_For_Folowup_EmplyeeList[i].Name1.toString();
+
+          print("dsljdfj12" + arr_ALL_Name_ID_For_Folowup_EmplyeeList[i].Name);
+          break;
+        } else {
+          print("dsljdfj" + arr_ALL_Name_ID_For_Folowup_EmplyeeList[i].Name);
+        }
+      }
+    }
+    setState(() {});
   }
 
   void _onTapOfDeleteCustomer(int id) {

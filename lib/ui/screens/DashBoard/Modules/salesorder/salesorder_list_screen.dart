@@ -7,13 +7,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesorder/salesorder_bloc.dart';
+import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/search_salesorder_list_response.dart';
@@ -36,6 +39,17 @@ class SalesOrderListScreen extends BaseStatefulWidget {
 
   @override
   _SalesOrderListScreenState createState() => _SalesOrderListScreenState();
+}
+
+enum Share {
+  facebook,
+  twitter,
+  whatsapp,
+  whatsapp_personal,
+  whatsapp_business,
+  share_system,
+  share_instagram,
+  share_telegram
 }
 
 class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
@@ -77,6 +91,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   bool isLoading = true;
   int prgresss = 0;
   double progress = 0;
+  CustomerDetails customerDetails = CustomerDetails();
 
   @override
   void initState() {
@@ -134,6 +149,9 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     SiteURL = _offlineCompanyData.details[0].siteURL;
     Password = _offlineLoggedInData.details[0].userPassword;
     _SalesOrderBloc = SalesOrderBloc(baseBloc);
+
+    _SalesOrderBloc.add(PaymentScheduleDeleteAllItemEvent());
+
     baseBloc.emit(ShowProgressIndicatorState(true));
   }
 
@@ -153,11 +171,15 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
           if (state is SearchSalesOrderListByNumberCallResponseState) {
             _onInquiryListByNumberCallSuccess(state);
           }
+          if (state is PaymentScheduleDeleteAllResponseState) {
+            _OnDeleteAllPaymentScheduleTable(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is SalesOrderListCallResponseState ||
-              currentState is SearchSalesOrderListByNumberCallResponseState) {
+              currentState is SearchSalesOrderListByNumberCallResponseState ||
+              currentState is PaymentScheduleDeleteAllResponseState) {
             return true;
           }
           return false;
@@ -166,9 +188,13 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
           if (state is SalesOrderPDFGenerateResponseState) {
             _onGenerateQuotationPDFCallSuccess(state);
           }
+          if (state is SearchCustomerListByNumberCallResponseState) {
+            _ONOnlyCustomerDetails(state);
+          }
         },
         listenWhen: (oldState, currentState) {
-          if (currentState is SalesOrderPDFGenerateResponseState) {
+          if (currentState is SalesOrderPDFGenerateResponseState ||
+              currentState is SearchCustomerListByNumberCallResponseState) {
             return true;
           }
 
@@ -391,6 +417,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
       }
       _pageNo = state.newPage;
     }
+    _SalesOrderBloc.add(PaymentScheduleDeleteAllItemEvent());
   }
 
   ///checks if already all records are arrive or not
@@ -469,6 +496,245 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Container(
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () async {
+                                //await _makePhoneCall(model.contactNo1);
+                                await _makePhoneCall(model.contactNo1);
+                              },
+                              child: Container(
+                                child: Image.asset(
+                                  PHONE_CALL_IMAGE,
+                                  width: 30,
+                                  height: 30,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                //await _makePhoneCall(model.contactNo1);
+                                //await _makeSms(model.contactNo1);
+                                showCommonDialogWithTwoOptions(
+                                    context,
+                                    "Do you have Two Accounts of WhatsApp ?" +
+                                        "\n" +
+                                        "Select one From below Option !",
+                                    positiveButtonTitle: "WhatsApp",
+                                    onTapOfPositiveButton: () {
+                                      // _url = "https://api.whatsapp.com/send?phone=91";
+                                      /* _url = "https://wa.me/";
+                                                        _launchURL(model.contactNo1,_url);*/
+                                      Navigator.pop(context);
+                                      onButtonTap(Share.whatsapp_personal,
+                                          model.contactNo1);
+                                    },
+                                    negativeButtonTitle: "Business",
+                                    onTapOfNegativeButton: () {
+                                      Navigator.pop(context);
+                                      _launchWhatsAppBuz(model.contactNo1);
+                                    });
+                              },
+                              child: Container(
+                                /*decoration: BoxDecoration(
+                                                              shape: BoxShape.rectangle,
+                                                              color: colorPrimary,
+                                                              borderRadius: BorderRadius.all(Radius.circular(30)),
+
+                                                            ),*/
+                                child: /*Icon(
+
+                                                              Icons.message_sharp,
+                                                              color: colorWhite,
+                                                              size: 20,
+                                                            )*/
+                                    Image.asset(
+                                  WHATSAPP_IMAGE,
+                                  width: 30,
+                                  height: 30,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                FetchCustomerDetails(model.customerID);
+                              },
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                decoration: const BoxDecoration(
+                                    color: colorPrimary,
+                                    shape: BoxShape.circle),
+                                child: Center(
+                                    child: Icon(
+                                  Icons.account_box,
+                                  size: 24,
+                                  color: colorWhite,
+                                )),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                print("jdlfdjf" +
+                                    SiteURL +
+                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString());
+
+                                String URLPDFF = SiteURL +
+                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString();
+
+                                /*  http.Response response =
+                                    await http.get(Uri.parse(URLPDFF));
+
+                                if (response.statusCode == 200) {
+                                  // await _showMyDialog(model);
+
+                                  showCommonDialogWithSingleOption(
+                                      context, "PDF RUN Sucess !",
+                                      positiveButtonTitle: "OK");
+                                } else {
+                                  showCommonDialogWithSingleOption(
+                                      context, "Something Went Wrong !",
+                                      positiveButtonTitle: "OK");
+                                }*/
+                                await _showMyDialog(model);
+
+                                /* var progesCount23;
+                               webViewController.getProgress().whenComplete(() async =>  {
+                                 progesCount23 = await webViewController.getProgress(),
+                                 print("PAgeLoaded" + progesCount23.toString())
+                               });*/
+
+                                /*  await _makePhoneCall(
+                                        model.contactNo1);*/
+
+                                // baseBloc.emit(ShowProgressIndicatorState(true));
+                                /* setState(() {
+                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
+
+
+                                });*/
+
+                                // await Future.delayed(const Duration(milliseconds: 500), (){});
+                                // baseBloc.emit(ShowProgressIndicatorState(false));
+                                //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                              },
+                              child: Container(
+                                child: Image.asset(
+                                  PDF_ICON,
+                                  width: 30,
+                                  height: 30,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Visibility(
+                              visible: true,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  String sendemailreq = SiteURL +
+                                      "Quotation.aspx?MobilePdf=yes&userid=" +
+                                      LoginUserID +
+                                      "&password=" +
+                                      Password +
+                                      "&pQuotID=" +
+                                      model.pkID.toString() +
+                                      "&CustomerID=" +
+                                      model.customerID.toString();
+
+                                  print("webreqj" + sendemailreq);
+                                  _showEmailSOMyDialog(model);
+                                  /*
+                                  EmailTO.text = model.emailAddress;
+                                  showcustomdialogSendEmail(
+                                      context1: context,
+                                      Email: model.emailAddress)*/
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                      color: colorPrimary,
+                                      shape: BoxShape.circle),
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.email,
+                                    size: 24,
+                                    color: colorWhite,
+                                  )),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Visibility(
+                              visible: true,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  String sendemailreq = SiteURL +
+                                      "Quotation.aspx?MobilePdf=yes&userid=" +
+                                      LoginUserID +
+                                      "&password=" +
+                                      Password +
+                                      "&pQuotID=" +
+                                      model.pkID.toString() +
+                                      "&CustomerID=" +
+                                      model.customerID.toString();
+
+                                  print("webreqj" + sendemailreq);
+                                  _showEmailPIMyDialog(model);
+                                  /*
+                                  EmailTO.text = model.emailAddress;
+                                  showcustomdialogSendEmail(
+                                      context1: context,
+                                      Email: model.emailAddress)*/
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                      color: colorPrimary,
+                                      shape: BoxShape.circle),
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.email,
+                                    size: 24,
+                                    color: colorWhite,
+                                  )),
+                                ),
+                              ),
+                            ),
+                          ]),
+                    ),
+                    SizedBox(
+                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                    ),
+                    SizedBox(
+                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                    ),
                     Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -484,28 +750,28 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                             child: _buildTitleWithValueView(
                                 "Order #", model.orderNo ?? "-"),
                           ),
-                          Row(
+                          /*Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: <Widget>[
                                 GestureDetector(
                                   onTap: () async {
                                     await _showMyDialog(model);
 
-                                    /* var progesCount23;
+                                    */ /* var progesCount23;
                                webViewController.getProgress().whenComplete(() async =>  {
                                  progesCount23 = await webViewController.getProgress(),
                                  print("PAgeLoaded" + progesCount23.toString())
-                               });*/
+                               });*/ /*
 
-                                    /*  await _makePhoneCall(
-                                        model.contactNo1);*/
+                                    */ /*  await _makePhoneCall(
+                                        model.contactNo1);*/ /*
 
                                     // baseBloc.emit(ShowProgressIndicatorState(true));
-                                    /* setState(() {
+                                    */ /* setState(() {
                                   urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
 
 
-                                });*/
+                                });*/ /*
 
                                     // await Future.delayed(const Duration(milliseconds: 500), (){});
                                     // baseBloc.emit(ShowProgressIndicatorState(false));
@@ -519,7 +785,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                     ),
                                   ),
                                 ),
-                              ])
+                              ])*/
                         ]),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
@@ -656,6 +922,63 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
         ],
       ),
     );
+  }
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
+    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
+    // such as spaces in the input, which would cause `launch` to fail on some
+    // platforms.
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launch(launchUri.toString());
+  }
+
+  Future<void> onButtonTap(Share share, String customerDetails) async {
+    String msg =
+        "_"; //"Thank you for contacting us! We will be in touch shortly";
+    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
+    String url = 'https://pub.dev/packages/flutter_share_me';
+
+    String response;
+    final FlutterShareMe flutterShareMe = FlutterShareMe();
+    switch (share) {
+      case Share.facebook:
+        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
+        break;
+      case Share.twitter:
+        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
+        break;
+
+      case Share.whatsapp_business:
+        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
+        break;
+      case Share.share_system:
+        response = await flutterShareMe.shareToSystem(msg: msg);
+        break;
+      case Share.whatsapp_personal:
+        response = await flutterShareMe.shareWhatsAppPersonalMessage(
+            message: msg, phoneNumber: '+91' + customerDetails);
+        break;
+      case Share.share_telegram:
+        response = await flutterShareMe.shareToTelegram(msg: msg);
+        break;
+    }
+    debugPrint(response);
+  }
+
+  void _launchWhatsAppBuz(String MobileNo) async {
+    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
+  }
+
+  void FetchCustomerDetails(int customerID321) {
+    _SalesOrderBloc.add(SearchCustomerListByNumberCallEvent(
+        CustomerSearchByIdRequest(
+            companyId: CompanyID,
+            loginUserID: LoginUserID,
+            CustomerID: customerID321.toString())));
   }
 
   Future<bool> _onBackPressed() {
@@ -846,5 +1169,890 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     } else {
       throw 'Could not launch $url123';
     }
+  }
+
+  void _ONOnlyCustomerDetails(
+      SearchCustomerListByNumberCallResponseState state) {
+    for (int i = 0; i < state.response.details.length; i++) {
+      print("CustomerDetailsw" +
+          "CustomerName : " +
+          state.response.details[i].customerName +
+          " Customer ID : " +
+          state.response.details[i].customerID.toString());
+    }
+
+    customerDetails = CustomerDetails();
+    customerDetails.customerName = state.response.details[0].customerName;
+    customerDetails.customerType = state.response.details[0].customerType;
+    customerDetails.customerSourceName =
+        state.response.details[0].customerSourceName;
+    customerDetails.contactNo1 = state.response.details[0].contactNo1;
+    customerDetails.emailAddress = state.response.details[0].emailAddress;
+    customerDetails.address = state.response.details[0].address;
+    customerDetails.area = state.response.details[0].area;
+    customerDetails.pinCode = state.response.details[0].pinCode;
+    customerDetails.countryName = state.response.details[0].countryName;
+    customerDetails.stateName = state.response.details[0].stateName;
+    customerDetails.cityName = state.response.details[0].cityName;
+    customerDetails.cityName = state.response.details[0].cityName;
+
+    showcustomdialog(
+      context1: context,
+      customerDetails123: customerDetails,
+    );
+  }
+
+  showcustomdialog({
+    BuildContext context1,
+    CustomerDetails customerDetails123,
+  }) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    "Customer Details",
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(left: 20, right: 20),
+                      child: Row(
+                        //crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              customerDetails123.customerName,
+                              style: TextStyle(color: colorBlack),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                        margin: EdgeInsets.all(20),
+                        child: Container(
+                            child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Expanded(
+                              flex: 1,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Category  ",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123
+                                                        .customerType
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Source",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123
+                                                                .customerSourceName ==
+                                                            "--Not Available--"
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .customerSourceName,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Text("Contact No1.",
+                                                      style: TextStyle(
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          color: Color(
+                                                              label_color),
+                                                          fontSize:
+                                                              _fontSize_Label,
+                                                          letterSpacing: .3)),
+                                                  SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  Text(
+                                                      customerDetails123
+                                                                  .contactNo1 ==
+                                                              ""
+                                                          ? "N/A"
+                                                          : customerDetails123
+                                                              .contactNo1,
+                                                      style: TextStyle(
+                                                          color: Color(
+                                                              title_color),
+                                                          fontSize:
+                                                              _fontSize_Title,
+                                                          letterSpacing: .3))
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Container(
+                                                child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: <Widget>[
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          await _makePhoneCall(
+                                                              customerDetails123
+                                                                  .contactNo1);
+                                                        },
+                                                        child: Container(
+                                                          child: Image.asset(
+                                                            PHONE_CALL_IMAGE,
+                                                            width: 32,
+                                                            height: 32,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 15,
+                                                      ),
+                                                      GestureDetector(
+                                                        onTap: () async {
+                                                          showCommonDialogWithTwoOptions(
+                                                              context,
+                                                              "Do you have Two Accounts of WhatsApp ?" +
+                                                                  "\n" +
+                                                                  "Select one From below Option !",
+                                                              positiveButtonTitle:
+                                                                  "WhatsApp",
+                                                              onTapOfPositiveButton:
+                                                                  () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                onButtonTapCustomer(
+                                                                    Share
+                                                                        .whatsapp_personal,
+                                                                    customerDetails123);
+                                                              },
+                                                              negativeButtonTitle:
+                                                                  "Business",
+                                                              onTapOfNegativeButton:
+                                                                  () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                _launchWhatsAppBuz(
+                                                                    customerDetails123
+                                                                        .contactNo1);
+
+                                                                //onButtonTap(Share.whatsapp_business,model);
+                                                              });
+                                                        },
+                                                        child: Container(
+                                                          child: Image.asset(
+                                                            WHATSAPP_IMAGE,
+                                                            width: 32,
+                                                            height: 32,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ]),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: sizeboxsize,
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Text("Email",
+                                                style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Color(label_color),
+                                                    fontSize: _fontSize_Label,
+                                                    letterSpacing: .3)),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                                customerDetails123
+                                                            .emailAddress ==
+                                                        ""
+                                                    ? "N/A"
+                                                    : customerDetails123
+                                                        .emailAddress,
+                                                style: TextStyle(
+                                                    color: Color(title_color),
+                                                    fontSize: _fontSize_Title,
+                                                    letterSpacing: .3)),
+                                          ],
+                                        )
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Address",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123
+                                                                .address ==
+                                                            ""
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .address,
+                                                    style:
+                                                        TextStyle(
+                                                            color: Color(
+                                                                title_color),
+                                                            fontSize:
+                                                                _fontSize_Title,
+                                                            letterSpacing: .3)),
+                                              ],
+                                            ))
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Area",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123.area ==
+                                                            ""
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .area,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Pin-Code",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123
+                                                                .pinCode ==
+                                                            ""
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .pinCode,
+                                                    style:
+                                                        TextStyle(
+                                                            color: Color(
+                                                                title_color),
+                                                            fontSize:
+                                                                _fontSize_Title,
+                                                            letterSpacing: .3)),
+                                              ],
+                                            )),
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Country",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123
+                                                                .countryName
+                                                                .toString() ==
+                                                            ""
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .countryName
+                                                            .toString(),
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("State",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123.stateName
+                                                                .toString() ==
+                                                            ""
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .stateName
+                                                            .toString(),
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("City",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    customerDetails123
+                                                                .cityName ==
+                                                            null
+                                                        ? "N/A"
+                                                        : customerDetails123
+                                                            .cityName,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context1);
+                                      },
+                                      child: Center(
+                                          child: Text(
+                                        "Close",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight.bold),
+                                      )))
+                                ],
+                              ),
+                            ),
+                          ],
+                        ))),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> onButtonTapCustomer(
+      Share share, CustomerDetails customerDetails) async {
+    String msg =
+        "_"; //"Thank you for contacting us! We will be in touch shortly";
+    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
+    String url = 'https://pub.dev/packages/flutter_share_me';
+
+    String response;
+    final FlutterShareMe flutterShareMe = FlutterShareMe();
+    switch (share) {
+      case Share.facebook:
+        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
+        break;
+      case Share.twitter:
+        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
+        break;
+
+      case Share.whatsapp_business:
+        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
+        break;
+      case Share.share_system:
+        response = await flutterShareMe.shareToSystem(msg: msg);
+        break;
+      case Share.whatsapp_personal:
+        response = await flutterShareMe.shareWhatsAppPersonalMessage(
+            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
+        break;
+      case Share.share_telegram:
+        response = await flutterShareMe.shareToTelegram(msg: msg);
+        break;
+    }
+    debugPrint(response);
+  }
+
+  Future<void> _showEmailSOMyDialog(SalesOrderDetails model) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Send Email '),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: GenerateQTSendEmailSO(model, context123),
+                )
+                //GetCircular123(),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context)
+                    .pop(), //  We can return any object from here
+                child: Text('Close')),
+          ],
+        );
+      },
+    );
+  }
+
+  GenerateQTSendEmailSO(SalesOrderDetails model, BuildContext context123) {
+    return Container(
+      height: 50,
+      child: Visibility(
+        visible: true,
+        child: InAppWebView(
+          /*
+            Uri.parse(SiteURL +
+                "/Quotation.aspx?MobilePdf=yes&userid=" +
+                LoginUserID +
+                "&password=" +
+                Password +
+                "&pQuotID=" +
+                model.pkID.toString()))*/
+          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
+          initialUrlRequest: URLRequest(
+              url: Uri.parse(SiteURL +
+                  "SalesOrder.aspx?MobilePdf=yes&userid=" +
+                  LoginUserID +
+                  "&password=" +
+                  Password +
+                  "&pQuotID=" +
+                  model.pkID.toString() +
+                  "&CustomerID=" +
+                  model.customerID.toString() +
+                  "&pageType=so")),
+
+          // initialFile: "assets/index.html",
+          initialUserScripts: UnmodifiableListView<UserScript>([]),
+          initialOptions: options,
+          pullToRefreshController: pullToRefreshController,
+
+          onWebViewCreated: (controller) {
+            webViewController = controller;
+          },
+
+          onLoadStart: (controller, url) {
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          androidOnPermissionRequest: (controller, origin, resources) async {
+            return PermissionRequestResponse(
+                resources: resources,
+                action: PermissionRequestResponseAction.GRANT);
+          },
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            var uri = navigationAction.request.url;
+
+            if (![
+              "http",
+              "https",
+              "file",
+              "chrome",
+              "data",
+              "javascript",
+              "about"
+            ].contains(uri.scheme)) {
+              if (await canLaunch(url)) {
+                // Launch the App
+                await launch(
+                  url,
+                );
+
+                // and cancel the request
+                return NavigationActionPolicy.CANCEL;
+              }
+            }
+
+            return NavigationActionPolicy.ALLOW;
+          },
+          onLoadStop: (controller, url) async {
+            pullToRefreshController.endRefreshing();
+
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          onLoadError: (controller, url, code, message) {
+            pullToRefreshController.endRefreshing();
+            isLoading = false;
+          },
+          onProgressChanged: (controller, progress) {
+            if (progress == 100) {
+              pullToRefreshController.endRefreshing();
+              this.prgresss = progress;
+              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+
+            }
+
+            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+            setState(() {
+              this.progress = progress / 100;
+              this.prgresss = progress;
+
+              urlController.text = this.url;
+            });
+          },
+          onUpdateVisitedHistory: (controller, url, androidIsReload) {
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          onConsoleMessage: (controller, consoleMessage) {
+            print("LoadWeb" + consoleMessage.message.toString());
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showEmailPIMyDialog(SalesOrderDetails model) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Send Email '),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: GenerateQTSendEmailPI(model, context123),
+                )
+                //GetCircular123(),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context)
+                    .pop(), //  We can return any object from here
+                child: Text('Close')),
+          ],
+        );
+      },
+    );
+  }
+
+  GenerateQTSendEmailPI(SalesOrderDetails model, BuildContext context123) {
+    return Container(
+      height: 50,
+      child: Visibility(
+        visible: true,
+        child: InAppWebView(
+          /*
+            Uri.parse(SiteURL +
+                "/Quotation.aspx?MobilePdf=yes&userid=" +
+                LoginUserID +
+                "&password=" +
+                Password +
+                "&pQuotID=" +
+                model.pkID.toString()))*/
+          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
+          initialUrlRequest: URLRequest(
+              url: Uri.parse(SiteURL +
+                  "SalesOrder.aspx?MobilePdf=yes&userid=" +
+                  LoginUserID +
+                  "&password=" +
+                  Password +
+                  "&pQuotID=" +
+                  model.pkID.toString() +
+                  "&CustomerID=" +
+                  model.customerID.toString() +
+                  "&pageType=pro")),
+
+          // initialFile: "assets/index.html",
+          initialUserScripts: UnmodifiableListView<UserScript>([]),
+          initialOptions: options,
+          pullToRefreshController: pullToRefreshController,
+
+          onWebViewCreated: (controller) {
+            webViewController = controller;
+          },
+
+          onLoadStart: (controller, url) {
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          androidOnPermissionRequest: (controller, origin, resources) async {
+            return PermissionRequestResponse(
+                resources: resources,
+                action: PermissionRequestResponseAction.GRANT);
+          },
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            var uri = navigationAction.request.url;
+
+            if (![
+              "http",
+              "https",
+              "file",
+              "chrome",
+              "data",
+              "javascript",
+              "about"
+            ].contains(uri.scheme)) {
+              if (await canLaunch(url)) {
+                // Launch the App
+                await launch(
+                  url,
+                );
+
+                // and cancel the request
+                return NavigationActionPolicy.CANCEL;
+              }
+            }
+
+            return NavigationActionPolicy.ALLOW;
+          },
+          onLoadStop: (controller, url) async {
+            pullToRefreshController.endRefreshing();
+
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          onLoadError: (controller, url, code, message) {
+            pullToRefreshController.endRefreshing();
+            isLoading = false;
+          },
+          onProgressChanged: (controller, progress) {
+            if (progress == 100) {
+              pullToRefreshController.endRefreshing();
+              this.prgresss = progress;
+              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+
+            }
+
+            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+            setState(() {
+              this.progress = progress / 100;
+              this.prgresss = progress;
+
+              urlController.text = this.url;
+            });
+          },
+          onUpdateVisitedHistory: (controller, url, androidIsReload) {
+            setState(() {
+              this.url = url.toString();
+              urlController.text = this.url;
+            });
+          },
+          onConsoleMessage: (controller, consoleMessage) {
+            print("LoadWeb" + consoleMessage.message.toString());
+          },
+        ),
+      ),
+    );
+  }
+
+  void _OnDeleteAllPaymentScheduleTable(
+      PaymentScheduleDeleteAllResponseState state) {
+    print("deleteallpayment" + state.response);
   }
 }

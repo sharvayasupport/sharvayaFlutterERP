@@ -16,6 +16,8 @@ import 'package:soleoserp/models/api_responses/login_user_details_api_response.d
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
+import 'package:soleoserp/models/pushnotification/fcm_notification_request.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/customer_search/customer_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
@@ -106,6 +108,9 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
       TextEditingController();
   bool ISDisQualified = false;
   bool ISDisQualifiedEmpty = false;
+  FCMNotificationRequest fcmNotificationRequest;
+
+  String ReportToToken = "";
 
   @override
   void initState() {
@@ -113,6 +118,7 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
     screenStatusBarColor = colorPrimary;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
     // _offlineCustomerSource = SharedPrefHelper.instance.getCustomerSourceData();
     //  _offlineInquiryLeadStatusData = SharedPrefHelper.instance.getInquiryLeadStatus();
     // _onLeadSourceListTypeCallSuccess(_offlineCustomerSource);
@@ -134,6 +140,19 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
         }
       });
     });
+
+    fcmNotificationRequest = new FCMNotificationRequest();
+
+    // FCMNotificationRequest().notification.body = Notification;
+    /* fcmNotificationRequest.notification.title = "Inquiry Save Success";
+    fcmNotificationRequest.data.body = "NOV03-2022";
+    fcmNotificationRequest.data.title = "Inquiry Save Success";
+    fcmNotificationRequest.data.clickAction = "FLUTTER_NOTIFICATION_CLICK";
+*/
+
+    _inquiryBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+        CompanyId: CompanyID.toString(),
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
 
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
@@ -182,9 +201,15 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
       create: (BuildContext context) => _inquiryBloc,
       child: BlocConsumer<InquiryBloc, InquiryStates>(
         builder: (BuildContext context, InquiryStates state) {
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
+          if (currentState is GetReportToTokenResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, InquiryStates state) {
@@ -209,6 +234,11 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
           if (state is CloserReasonListCallResponseState) {
             _onCloserReasonStatusListTypeCallSuccess(state);
           }
+
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
+
           /* if (state is SearchInquiryListByNameCallResponseState) {
             _onSearchInquiryListCallSuccess(state);
           }*/
@@ -220,7 +250,8 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
               currentState is InquiryNotoProductResponseState ||
               currentState is InquiryLeadStatusListCallResponseState ||
               currentState is CustomerSourceCallEventResponseState ||
-              currentState is CloserReasonListCallResponseState) {
+              currentState is CloserReasonListCallResponseState ||
+              currentState is FCMNotificationResponseState) {
             return true;
           }
           return false;
@@ -1082,9 +1113,35 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
         state.inquiryHeaderSaveResponse.details[0].column2 +
         "\n" +
         state.inquiryHeaderSaveResponse.details[0].column3);
+    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
 
     updateRetrunInquiryNoToDB(
         state.inquiryHeaderSaveResponse.details[0].column3);
+
+    String notiTitle = "Inquiry";
+
+    ///state.inquiryHeaderSaveResponse.details[0].column3;
+    String notibody = "Inquiry " +
+        state.inquiryHeaderSaveResponse.details[0].column3 +
+        updatemsg +
+        " For " +
+        edt_CustomerName.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _inquiryBloc.add(FCMNotificationRequestEvent(request123));
+
     _inquiryBloc.add(InquiryProductSaveCallEvent(_inquiryProductList));
   }
 
@@ -1442,5 +1499,18 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
           controllerID: edt_CloserReasonStatusTypepkID,
           lable: "Select DisQualified Reason");
     }
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
   }
 }

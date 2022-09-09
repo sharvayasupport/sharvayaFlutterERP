@@ -93,7 +93,13 @@ class EmployeeListResponseState extends DashBoardScreenStates {
 }
 
 class APITokenUpdateState extends DashBoardScreenStates {
-  final String apiresponse;
+  final FirebaseTokenResponse firebaseTokenResponse;
 
-  APITokenUpdateState(this.apiresponse);
+  APITokenUpdateState(this.firebaseTokenResponse);
+}
+
+class PunchOutWebMethodState extends DashBoardScreenStates {
+  final String response;
+
+  PunchOutWebMethodState(this.response);
 }

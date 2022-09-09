@@ -1,6 +1,5 @@
 part of 'external_lead_bloc.dart';
 
-
 @immutable
 abstract class ExternalLeadEvents {}
 
@@ -15,7 +14,7 @@ class ExternalLeadListCallEvent extends ExternalLeadEvents {
 class ExternalLeadListCallEvent extends ExternalLeadEvents {
   final int pageNo;
   final ExternalLeadListRequest request1;
-  ExternalLeadListCallEvent(this.pageNo,this.request1);
+  ExternalLeadListCallEvent(this.pageNo, this.request1);
 }
 
 class CountryCallEvent extends ExternalLeadEvents {
@@ -27,7 +26,6 @@ class StateCallEvent extends ExternalLeadEvents {
   final StateListRequest stateListRequest;
   StateCallEvent(this.stateListRequest);
 }
-
 
 class DistrictCallEvent extends ExternalLeadEvents {
   final DistrictApiRequest districtApiRequest;
@@ -54,7 +52,7 @@ class ExternalLeadDeleteCallEvent extends ExternalLeadEvents {
 
   final CustomerDeleteRequest customerDeleteRequest;
 
-  ExternalLeadDeleteCallEvent(this.pkID,this.customerDeleteRequest);
+  ExternalLeadDeleteCallEvent(this.pkID, this.customerDeleteRequest);
 }
 
 class ExternalLeadSearchByNameCallEvent extends ExternalLeadEvents {
@@ -70,5 +68,16 @@ class ExternalLeadSearchByIDCallEvent extends ExternalLeadEvents {
 class ExternalLeadSaveCallEvent extends ExternalLeadEvents {
   final int pkID;
   final ExternalLeadSaveRequest request1;
-  ExternalLeadSaveCallEvent(this.pkID,this.request1);
+  ExternalLeadSaveCallEvent(this.pkID, this.request1);
+}
+
+class FCMNotificationRequestEvent extends ExternalLeadEvents {
+  //final FCMNotificationRequest request;
+  var request123;
+  FCMNotificationRequestEvent(this.request123);
+}
+class GetReportToTokenRequestEvent extends ExternalLeadEvents {
+  final GetReportToTokenRequest request;
+
+  GetReportToTokenRequestEvent(this.request);
 }

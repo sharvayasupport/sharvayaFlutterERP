@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/SalesOrder/salesorder_bloc.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -12,9 +10,6 @@ import 'package:soleoserp/models/api_responses/search_salesorder_list_response.d
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/date_time_extensions.dart';
-import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class SearchSalesOrderScreen extends BaseStatefulWidget {
@@ -77,8 +72,7 @@ class _SearchSalesOrderScreenState extends BaseState<SearchSalesOrderScreen>
         NewGradientAppBar(
           title: Text('Search SalesOrder'),
           gradient:
-          LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
-
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -115,7 +109,7 @@ class _SearchSalesOrderScreenState extends BaseState<SearchSalesOrderScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -178,7 +172,11 @@ class _SearchSalesOrderScreenState extends BaseState<SearchSalesOrderScreen>
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.custoemerName+"\n"+model.quotationNo+"\n"+model.salesOrderNo,
+              model.custoemerName + "\n" + model.quotationNo == ""
+                  ? ""
+                  : model.quotationNo + "\n" + model.salesOrderNo == ""
+                      ? ""
+                      : model.salesOrderNo,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -192,7 +190,11 @@ class _SearchSalesOrderScreenState extends BaseState<SearchSalesOrderScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _SalesOrderBloc.add(SearchSalesOrderListByNameCallEvent(
-          SearchSalesOrderListByNameRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID,NameOnly: "1")));
+          SearchSalesOrderListByNameRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              NameOnly: "1")));
     }
   }
 

@@ -10,7 +10,7 @@ class CustomerInitialState extends CustomerStates {}
 class CustomerListCallResponseState extends CustomerStates {
   final CustomerDetailsResponse response;
   final int newPage;
-  CustomerListCallResponseState(this.response,this.newPage);
+  CustomerListCallResponseState(this.response, this.newPage);
 }
 
 class CustomerListByNameCallResponseState extends CustomerStates {
@@ -25,46 +25,47 @@ class SearchCustomerListByNumberCallResponseState extends CustomerStates {
   SearchCustomerListByNumberCallResponseState(this.response);
 }
 
-
-
-class CountryListEventResponseState extends CustomerStates{
+class CountryListEventResponseState extends CustomerStates {
   final CountryListResponse countrylistresponse;
   CountryListEventResponseState(this.countrylistresponse);
 }
-class StateListEventResponseState extends CustomerStates{
+
+class StateListEventResponseState extends CustomerStates {
   final StateListResponse statelistresponse;
   StateListEventResponseState(this.statelistresponse);
 }
 
-class DistrictListEventResponseState extends CustomerStates{
+class DistrictListEventResponseState extends CustomerStates {
   final DistrictApiResponse districtApiResponseList;
   DistrictListEventResponseState(this.districtApiResponseList);
 }
-class TalukaListEventResponseState extends CustomerStates{
+
+class TalukaListEventResponseState extends CustomerStates {
   final TalukaApiRespose talukaApiRespose;
   TalukaListEventResponseState(this.talukaApiRespose);
 }
 
-class CityListEventResponseState extends CustomerStates{
+class CityListEventResponseState extends CustomerStates {
   final CityApiRespose cityApiRespose;
   CityListEventResponseState(this.cityApiRespose);
 }
 
-
-
-class CustomerAddEditEventResponseState extends CustomerStates{
+class CustomerAddEditEventResponseState extends CustomerStates {
   final CustomerAddEditApiResponse customerAddEditApiResponse;
   CustomerAddEditEventResponseState(this.customerAddEditApiResponse);
 }
+
 class CustomerDeleteCallResponseState extends CustomerStates {
   final CustomerDeleteResponse customerDeleteResponse;
 
   CustomerDeleteCallResponseState(this.customerDeleteResponse);
 }
+
 class CustomerContactSaveResponseState extends CustomerStates {
   final CustomerContactSaveResponse contactSaveResponse;
   CustomerContactSaveResponseState(this.contactSaveResponse);
 }
+
 class CustomerIdToCustomerListResponseState extends CustomerStates {
   final CustomerIdToContactListResponse customerIdToContactListResponse;
   CustomerIdToCustomerListResponseState(this.customerIdToContactListResponse);
@@ -76,18 +77,38 @@ class CustomerIdToDeleteAllContactResponseState extends CustomerStates {
   CustomerIdToDeleteAllContactResponseState(this.response);
 }
 
-
-class CustomerCategoryCallEventResponseState extends CustomerStates{
+class CustomerCategoryCallEventResponseState extends CustomerStates {
   final CustomerCategoryResponse categoryResponse;
   CustomerCategoryCallEventResponseState(this.categoryResponse);
 }
-class CustomerSourceCallEventResponseState extends CustomerStates{
+
+class CustomerSourceCallEventResponseState extends CustomerStates {
   final CustomerSourceResponse sourceResponse;
   CustomerSourceCallEventResponseState(this.sourceResponse);
 }
 
-class DesignationListEventResponseState extends CustomerStates{
+class DesignationListEventResponseState extends CustomerStates {
   final DesignationApiResponse designationApiResponse;
   DesignationListEventResponseState(this.designationApiResponse);
 }
 
+class CustomerUploadDocumentResponseState extends CustomerStates {
+  final CustomerUploadDocumentResponse designationApiResponse;
+  final String HeaderMsg;
+  CustomerUploadDocumentResponseState(
+      this.HeaderMsg, this.designationApiResponse);
+}
+
+class CustomerFetchDocumentResponseState extends CustomerStates {
+  bool isforViewDoc;
+  CustomerDetails customerDetails;
+  final CustomerFetchDocumentResponse customerFetchDocumentResponse;
+  CustomerFetchDocumentResponseState(this.isforViewDoc, this.customerDetails,
+      this.customerFetchDocumentResponse);
+}
+//
+
+class CustomerDeleteDocumentResponseState extends CustomerStates {
+  final CustomerDeleteDocumentResponse customerDeleteDocumentResponse;
+  CustomerDeleteDocumentResponseState(this.customerDeleteDocumentResponse);
+}

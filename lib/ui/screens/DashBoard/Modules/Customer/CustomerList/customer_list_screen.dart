@@ -1,14 +1,22 @@
+import 'dart:io';
+
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
+import 'package:http/http.dart' as http;
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_fetch_document_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/customer_paggination_request.dart';
 import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_fetch_document_response.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -76,6 +84,9 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
   //var _url = "https://api.whatsapp.com/send?phone=91";
   var _url = "https://wa.me/91";
   bool isDeleteVisible = true;
+
+  List<CustomerFetchDocumentResponseDetails> documentAPIList = [];
+
 /*
   bool _hasPermission;
 */
@@ -173,10 +184,14 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
           if (state is CustomerDeleteCallResponseState) {
             _onCustomerDeleteCallSucess(state, context);
           }
+          if (state is CustomerFetchDocumentResponseState) {
+            _onFetchCustomer_document_List(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
-          if (currentState is CustomerDeleteCallResponseState) {
+          if (currentState is CustomerDeleteCallResponseState ||
+              currentState is CustomerFetchDocumentResponseState) {
             return true;
           }
           return false;
@@ -444,6 +459,150 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
+                          Container(
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onTap: () async {
+                                      //await _makePhoneCall(model.contactNo1);
+                                      await _makePhoneCall(model.contactNo1);
+                                      //navigateTo(context, AddContactPage.routeName);
+                                    },
+                                    child: Container(
+                                      /* decoration: BoxDecoration(
+                                                            shape: BoxShape.rectangle,
+                                                            color: colorPrimary,
+                                                            borderRadius: BorderRadius.all(Radius.circular(30)),
+
+                                                          ),*/
+                                      child: /*Icon(
+
+                                                            Icons.call,
+                                                            color: colorWhite,
+                                                            size: 24,
+                                                          )*/
+                                          Image.asset(
+                                        PHONE_CALL_IMAGE,
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      //await _makePhoneCall(model.contactNo1);
+                                      //await _makeSms(model.contactNo1);
+                                      // _launchURL(model.contactNo1,_url);
+                                      showCommonDialogWithTwoOptions(
+                                          context,
+                                          "Do you have Two Accounts of WhatsApp ?" +
+                                              "\n" +
+                                              "Select one From below Option !",
+                                          positiveButtonTitle: "WhatsApp",
+                                          onTapOfPositiveButton: () {
+                                            // _url = "https://api.whatsapp.com/send?phone=91";
+                                            /* _url = "https://wa.me/";
+                                                        _launchURL(model.contactNo1,_url);*/
+                                            Navigator.pop(context);
+                                            onButtonTap(
+                                                Share.whatsapp_personal, model);
+                                          },
+                                          negativeButtonTitle: "Business",
+                                          onTapOfNegativeButton: () {
+                                            Navigator.pop(context);
+                                            /*onButtonTap(
+                                                            Share
+                                                                .whatsapp_business,
+                                                            model);*/
+
+                                            _launchWhatsAppBuz(
+                                                model.contactNo1);
+                                            //onButtonTap(Share.whatsapp_business,model);
+                                          });
+                                    },
+                                    child: Container(
+                                      /*decoration: BoxDecoration(
+                                                            shape: BoxShape.rectangle,
+                                                            color: colorPrimary,
+                                                            borderRadius: BorderRadius.all(Radius.circular(30)),
+
+                                                          ),*/
+                                      child: /*Icon(
+
+                                                            Icons.message_sharp,
+                                                            color: colorWhite,
+                                                            size: 20,
+                                                          )*/
+                                          Image.asset(
+                                        WHATSAPP_IMAGE,
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      _CustomerBloc.add(
+                                          CustomerFetchDocumentApiRequestEvent(
+                                              true,
+                                              model,
+                                              CustomerFetchDocumentApiRequest(
+                                                  CompanyID:
+                                                      CompanyID.toString(),
+                                                  CustomerID: model.customerID
+                                                      .toString())));
+                                      /*showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              content: Container(
+                                                width: double.maxFinite,
+                                                child: ListView(
+                                                    children: <Widget>[
+
+
+                                                    ]
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                      );*/
+                                    },
+                                    child: Container(
+                                      /*decoration: BoxDecoration(
+                                                            shape: BoxShape.rectangle,
+                                                            color: colorPrimary,
+                                                            borderRadius: BorderRadius.all(Radius.circular(30)),
+
+                                                          ),*/
+                                      child: /*Icon(
+
+                                                            Icons.message_sharp,
+                                                            color: colorWhite,
+                                                            size: 20,
+                                                          )*/
+                                          Image.asset(
+                                        CUSTOMER_DOC,
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                          ),
+                          SizedBox(
+                            height: sizeboxsize,
+                          ),
+                          SizedBox(
+                            height: sizeboxsize,
+                          ),
                           Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -530,103 +689,6 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                                   fontSize: _fontSize_Title,
                                                   letterSpacing: .3))
                                         ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: <Widget>[
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  //await _makePhoneCall(model.contactNo1);
-                                                  await _makePhoneCall(
-                                                      model.contactNo1);
-                                                  //navigateTo(context, AddContactPage.routeName);
-                                                },
-                                                child: Container(
-                                                  /* decoration: BoxDecoration(
-                                                            shape: BoxShape.rectangle,
-                                                            color: colorPrimary,
-                                                            borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                          ),*/
-                                                  child: /*Icon(
-
-                                                            Icons.call,
-                                                            color: colorWhite,
-                                                            size: 24,
-                                                          )*/
-                                                      Image.asset(
-                                                    PHONE_CALL_IMAGE,
-                                                    width: 32,
-                                                    height: 32,
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 15,
-                                              ),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  //await _makePhoneCall(model.contactNo1);
-                                                  //await _makeSms(model.contactNo1);
-                                                  // _launchURL(model.contactNo1,_url);
-                                                  showCommonDialogWithTwoOptions(
-                                                      context,
-                                                      "Do you have Two Accounts of WhatsApp ?" +
-                                                          "\n" +
-                                                          "Select one From below Option !",
-                                                      positiveButtonTitle:
-                                                          "WhatsApp",
-                                                      onTapOfPositiveButton:
-                                                          () {
-                                                        // _url = "https://api.whatsapp.com/send?phone=91";
-                                                        /* _url = "https://wa.me/";
-                                                        _launchURL(model.contactNo1,_url);*/
-                                                        Navigator.pop(context);
-                                                        onButtonTap(
-                                                            Share
-                                                                .whatsapp_personal,
-                                                            model);
-                                                      },
-                                                      negativeButtonTitle:
-                                                          "Business",
-                                                      onTapOfNegativeButton:
-                                                          () {
-                                                        Navigator.pop(context);
-                                                        /*onButtonTap(
-                                                            Share
-                                                                .whatsapp_business,
-                                                            model);*/
-
-                                                        _launchWhatsAppBuz(
-                                                            model.contactNo1);
-                                                        //onButtonTap(Share.whatsapp_business,model);
-                                                      });
-                                                },
-                                                child: Container(
-                                                  /*decoration: BoxDecoration(
-                                                            shape: BoxShape.rectangle,
-                                                            color: colorPrimary,
-                                                            borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                          ),*/
-                                                  child: /*Icon(
-
-                                                            Icons.message_sharp,
-                                                            color: colorWhite,
-                                                            size: 20,
-                                                          )*/
-                                                      Image.asset(
-                                                    WHATSAPP_IMAGE,
-                                                    width: 32,
-                                                    height: 32,
-                                                  ),
-                                                ),
-                                              ),
-                                            ]),
                                       ),
                                     ),
                                   ],
@@ -885,7 +947,14 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4.0)),
                     onPressed: () {
-                      _onTapOfEditCustomer(model);
+                      // _onTapOfEditCustomer(model);
+
+                      _CustomerBloc.add(CustomerFetchDocumentApiRequestEvent(
+                          false,
+                          model,
+                          CustomerFetchDocumentApiRequest(
+                              CompanyID: CompanyID.toString(),
+                              CustomerID: model.customerID.toString())));
                     },
                     child: Column(
                       children: <Widget>[
@@ -985,9 +1054,11 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
     navigateTo(context, CustomerListScreen.routeName, clearAllStack: true);
   }
 
-  void _onTapOfEditCustomer(CustomerDetails model) {
+  void _onTapOfEditCustomer(CustomerDetails model,
+      List<CustomerFetchDocumentResponseDetails> documentAPIList1) {
     navigateTo(context, Customer_ADD_EDIT.routeName,
-            arguments: AddUpdateCustomerScreenArguments(model))
+            arguments:
+                AddUpdateCustomerScreenArguments(model, documentAPIList1))
         .then((value) {
       _CustomerBloc
         ..add(CustomerListCallEvent(
@@ -1061,6 +1132,163 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
       phone: "91"+contactNo1,
       package: Package.businessWhatsapp
     );*/
+  }
+
+  void _onFetchCustomer_document_List(
+      CustomerFetchDocumentResponseState state) {
+    if (state.isforViewDoc == true) {
+      if (state.customerFetchDocumentResponse.details.length != 0) {
+        documentAPIList.clear();
+
+        for (int i = 0;
+            i < state.customerFetchDocumentResponse.details.length;
+            i++) {
+          CustomerFetchDocumentResponseDetails
+              customerFetchDocumentResponseDetails =
+              CustomerFetchDocumentResponseDetails();
+          customerFetchDocumentResponseDetails.pkID =
+              state.customerFetchDocumentResponse.details[i].pkID;
+          customerFetchDocumentResponseDetails.customerID =
+              state.customerFetchDocumentResponse.details[i].customerID;
+          customerFetchDocumentResponseDetails.name =
+              state.customerFetchDocumentResponse.details[i].name;
+          ;
+          customerFetchDocumentResponseDetails.customerName =
+              state.customerFetchDocumentResponse.details[i].customerName;
+          customerFetchDocumentResponseDetails.createdBy =
+              state.customerFetchDocumentResponse.details[i].createdBy;
+          customerFetchDocumentResponseDetails.createdDate =
+              state.customerFetchDocumentResponse.details[i].createdDate;
+
+          documentAPIList.add(customerFetchDocumentResponseDetails);
+        }
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("View File"),
+                    getCommonButton(baseTheme, () {
+                      Navigator.pop(context);
+                    }, "Close", width: 100, height: 30)
+                  ],
+                ),
+                content: Container(
+                    width: double.maxFinite,
+                    child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          child: Row(
+                            children: [
+                              Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          urlToFile(
+                                              _offlineCompanyData
+                                                      .details[0].siteURL +
+                                                  "/CustomerDocs/" +
+                                                  documentAPIList[index]
+                                                      .name
+                                                      .toString(),
+                                              documentAPIList[index].name);
+                                        },
+                                        child: Text(
+                                          documentAPIList[index].name,
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              color: colorPrimary),
+                                        ),
+                                      )),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      shrinkWrap: true,
+                      itemCount: documentAPIList.length,
+                    )),
+              );
+            });
+      }
+    } else {
+      if (state.customerFetchDocumentResponse.details.length != 0) {
+        documentAPIList.clear();
+
+        for (int i = 0;
+            i < state.customerFetchDocumentResponse.details.length;
+            i++) {
+          CustomerFetchDocumentResponseDetails
+              customerFetchDocumentResponseDetails =
+              CustomerFetchDocumentResponseDetails();
+          customerFetchDocumentResponseDetails.pkID =
+              state.customerFetchDocumentResponse.details[i].pkID;
+          customerFetchDocumentResponseDetails.customerID =
+              state.customerFetchDocumentResponse.details[i].customerID;
+          customerFetchDocumentResponseDetails.name =
+              state.customerFetchDocumentResponse.details[i].name;
+          ;
+          customerFetchDocumentResponseDetails.customerName =
+              state.customerFetchDocumentResponse.details[i].customerName;
+          customerFetchDocumentResponseDetails.createdBy =
+              state.customerFetchDocumentResponse.details[i].createdBy;
+          customerFetchDocumentResponseDetails.createdDate =
+              state.customerFetchDocumentResponse.details[i].createdDate;
+
+          documentAPIList.add(customerFetchDocumentResponseDetails);
+        }
+
+        _onTapOfEditCustomer(state.customerDetails, documentAPIList);
+      } else {
+        _onTapOfEditCustomer(state.customerDetails, documentAPIList);
+      }
+    }
+  }
+
+  urlToFile(String imageUrl, String filenamee) async {
+    if (Uri.parse(imageUrl).isAbsolute == true) {
+      try {
+        http.Response response = await http.get(Uri.parse(imageUrl));
+
+        if (response.statusCode == 200) {
+          Directory dir = await getApplicationDocumentsDirectory();
+          dir.exists();
+          String pathName = p.join(dir.path, filenamee);
+
+          print("77575sdd7" + imageUrl);
+
+          File file = new File(pathName);
+
+          // var fileexist = file.exists();
+
+          print("7757sds5sdd7" + file.path);
+
+          try {
+            await file.writeAsBytes(response.bodyBytes);
+          } catch (e) {
+            print("hdfhjfdhh" + e.toString());
+          }
+          OpenFile.open(file.path);
+          // MultipleVideoList.add(file);
+        }
+      } catch (e) {
+        print("775757" + e.toString());
+      }
+
+      setState(() {});
+    }
   }
 
 /*  Future<void> _askPermissions() async {

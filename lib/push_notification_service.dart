@@ -4,6 +4,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sale_bill_list/sales_bill_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
+import 'package:soleoserp/utils/general_utils.dart';
 
 // ignore: slash_for_doc_comments
 /**
@@ -61,7 +72,7 @@ class PushNotificationService {
       //   //     arguments: ChatArguments(message));
       // }
 
-      print("messageData" + message.data.toString());
+      print("messageData1232" + message.notification.toString());
     });
     await enableIOSNotifications();
     await registerNotificationListeners();
@@ -92,7 +103,7 @@ class PushNotificationService {
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
     var androidSettings =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
+        const AndroidInitializationSettings('@drawable/sharvaya_logo');
     var iOSSettings = const IOSInitializationSettings(
       requestSoundPermission: true,
       requestBadgePermission: true,
@@ -109,14 +120,66 @@ class PushNotificationService {
       if (dataMap != null) {
         {
           print("DataMap" + dataMap.toString());
+          print("On Forgorund Notification" +
+              " Body : " +
+              dataMap['body'] +
+              " Title : " +
+              dataMap['title']);
+
+          if (dataMap['title'] == "Inquiry") {
+            navigateTo(Globals.context, InquiryListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "FollowUp") {
+            List<String> SplitSTr = dataMap['body'].split("By");
+            print("NotificationSplitedValue" +
+                " Value : " +
+                SplitSTr[0].toString() +
+                " 2nd : " +
+                SplitSTr[1].toString());
+            //navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+
+            navigateTo(Globals.context, FollowupListScreen.routeName,
+                    clearAllStack: true,
+                    arguments:
+                        FollowupListScreenArguments(SplitSTr[1].toString()))
+                .then((value) {
+              SplitSTr = [];
+            });
+            //navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+          } else if (dataMap['title'] == "Quotation") {
+            navigateTo(Globals.context, QuotationListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "Sales Order") {
+            navigateTo(Globals.context, SalesOrderListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "Sales Invoice") {
+            navigateTo(Globals.context, SalesBillListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "Complaint") {
+            navigateTo(Globals.context, ComplaintPaginationListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "To-Do") {
+            navigateTo(Globals.context, ToDoListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "Leave Request") {
+            navigateTo(Globals.context, LeaveRequestListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "TeleCaller") {
+            navigateTo(Globals.context, TeleCallerListScreen.routeName,
+                clearAllStack: true);
+          } else if (dataMap['title'] == "Quick Inquiry") {
+            navigateTo(Globals.context, InquiryListScreen.routeName,
+                clearAllStack: true);
+          }
         }
       }
     });
 // onMessage is called when the app is in foreground and a notification is received
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       // Get.find<HomeController>().getNotificationsNumber();
-      print(message);
+      print("Remotttt" + message.data['body']);
       String data;
+
       if (message != null) {
         data = jsonEncode(message.data);
       }
@@ -132,15 +195,19 @@ class PushNotificationService {
             notification.body,
             NotificationDetails(
               android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                channel.description,
-                icon: android.smallIcon,
-                playSound: true,
-              ),
+                  channel.id, channel.name, channel.description,
+                  channelShowBadge: true,
+                  importance: Importance.min,
+                  priority: Priority.low,
+                  timeoutAfter: 100000,
+                  styleInformation: DefaultStyleInformation(true, true),
+                  playSound: true,
+                  ongoing: true,
+                  visibility: NotificationVisibility.public),
             ),
             payload: data);
       }
+      //  message = null;
     });
   }
 

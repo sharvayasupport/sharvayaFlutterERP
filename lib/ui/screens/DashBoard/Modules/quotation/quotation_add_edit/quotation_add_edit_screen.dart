@@ -20,6 +20,7 @@ import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_general_customer_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_other_charges_screen.dart';
@@ -162,7 +163,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_BankDropDownList = [];
   final TextEditingController edt_Portal_details = TextEditingController();
   final TextEditingController edt_Portal_details_ID = TextEditingController();
-
+  String ReportToToken = "";
   @override
   void initState() {
     super.initState();
@@ -181,6 +182,11 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       ReferenceFocusNode.requestFocus();
     });
     edt_HeaderDisc.text = "0.00";
+
+    _inquiryBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+        CompanyId: CompanyID.toString(),
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
+
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
@@ -219,9 +225,15 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       create: (BuildContext context) => _inquiryBloc,
       child: BlocConsumer<QuotationBloc, QuotationStates>(
         builder: (BuildContext context, QuotationStates state) {
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
+          if (currentState is GetReportToTokenResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, QuotationStates state) {
@@ -262,6 +274,11 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           if (state is QuotationBankDropDownResponseState) {
             _onBankVoucherSaveResponse(state);
           }
+
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -273,7 +290,8 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   currentState is InqNoToProductListResponseState ||
                   currentState is QuotationHeaderSaveResponseState ||
                   currentState is QuotationProductSaveResponseState ||
-                  currentState is QuotationBankDropDownResponseState
+                  currentState is QuotationBankDropDownResponseState ||
+                  currentState is FCMNotificationResponseState
 /*
               currentState is QuotationOtherChargeListResponseState
 */
@@ -1830,6 +1848,30 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       retrunQT_No = state.response.details[i].column4;
     }
     updateRetrunInquiryNoToDB(state.context, returnPKID, retrunQT_No);
+    String notiTitle = "Quotation";
+    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+    ///state.inquiryHeaderSaveResponse.details[0].column3;
+    String notibody = "Quotation " +
+        retrunQT_No +
+        updatemsg +
+        " For " +
+        edt_CustomerName.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _inquiryBloc.add(FCMNotificationRequestEvent(request123));
   }
 
   void _OnQuotationProductSaveSucessResponse(
@@ -2049,5 +2091,18 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         controller: edt_Portal_details,
         controllerID: edt_Portal_details_ID,
         lable: "Select Bank Portal");
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
   }
 }

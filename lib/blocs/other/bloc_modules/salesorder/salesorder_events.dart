@@ -46,3 +46,59 @@ class QuotationTermsConditionCallEvent extends SalesOrderEvents {
 
   QuotationTermsConditionCallEvent(this.request);
 }
+
+class SearchCustomerListByNumberCallEvent extends SalesOrderEvents {
+  final CustomerSearchByIdRequest request;
+
+  SearchCustomerListByNumberCallEvent(this.request);
+}
+
+class SaleBill_INQ_QT_SO_NO_ListRequestEvent extends SalesOrderEvents {
+  final SaleBill_INQ_QT_SO_NO_ListRequest request;
+  SaleBill_INQ_QT_SO_NO_ListRequestEvent(this.request);
+}
+
+class MultiNoToProductDetailsRequestEvent extends SalesOrderEvents {
+  final MultiNoToProductDetailsRequest request;
+  MultiNoToProductDetailsRequestEvent(this.request);
+}
+
+class SalesBillEmailContentRequestEvent extends SalesOrderEvents {
+  final SalesBillEmailContentRequest request;
+  SalesBillEmailContentRequestEvent(this.request);
+}
+
+//MultiNoToProductDetailsRequest
+class FCMNotificationRequestEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  var request123;
+  FCMNotificationRequestEvent(this.request123);
+}
+
+class PaymentScheduleEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  SoPaymentScheduleTable soPaymentScheduleTable;
+  PaymentScheduleEvent(this.soPaymentScheduleTable);
+}
+
+class PaymentScheduleListEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  PaymentScheduleListEvent();
+}
+
+class PaymentScheduleDeleteEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+
+  int id;
+  PaymentScheduleDeleteEvent(this.id);
+}
+class PaymentScheduleEditEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  SoPaymentScheduleTable soPaymentScheduleTable;
+  PaymentScheduleEditEvent(this.soPaymentScheduleTable);
+}
+
+class PaymentScheduleDeleteAllItemEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  PaymentScheduleDeleteAllItemEvent();
+}

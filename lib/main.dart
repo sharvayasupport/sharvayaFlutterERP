@@ -340,7 +340,7 @@ class MyApp extends StatefulWidget {
       case AddContactScreen.routeName:
         return getMaterialPageRoute(AddContactScreen(settings.arguments));
       case FollowupListScreen.routeName:
-        return getMaterialPageRoute(FollowupListScreen());
+        return getMaterialPageRoute(FollowupListScreen(settings.arguments));
       case FollowUpAddEditScreen.routeName:
         return getMaterialPageRoute(FollowUpAddEditScreen(settings.arguments));
       case ToDoPaginationListScreen.routeName:

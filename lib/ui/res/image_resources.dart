@@ -36,3 +36,4 @@ const CREDIT_INFORMATION =
     "assets/images/custom_logo_icon/credit_information.png";
 
 const EMAIL = "assets/images/custom_logo_icon/email.png";
+const CUSTOMER_DOC = "assets/images/custom_logo_icon/sutomer_doc.png";

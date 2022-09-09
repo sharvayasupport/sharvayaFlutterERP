@@ -6,6 +6,7 @@ import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_search_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/bank_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_requests/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/sales_bill_list_request.dart';
@@ -14,6 +15,7 @@ import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_search_by_name_response.dart';
 import 'package:soleoserp/models/api_responses/bank_drop_down_response.dart';
+import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/quotation_terms_condition_response.dart';
 import 'package:soleoserp/models/api_responses/sales_bill_generate_pdf_response.dart';
 import 'package:soleoserp/models/api_responses/sales_bill_list_response.dart';
@@ -63,6 +65,9 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
 
     if (event is SaleBill_INQ_QT_SO_NO_ListRequestEvent) {
       yield* _mapSaleBill_INQ_QT_SO_NO_ListEventState(event);
+    }
+    if (event is SearchCustomerListByNumberCallEvent) {
+      yield* _mapSearchCustomerListByNumberCallEventToState(event);
     }
   }
 
@@ -215,6 +220,23 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesBillStates> _mapSearchCustomerListByNumberCallEventToState(
+      SearchCustomerListByNumberCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      CustomerDetailsResponse response =
+          await userRepository.getCustomerListSearchByNumber(event.request);
+      yield SearchCustomerListByNumberCallResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

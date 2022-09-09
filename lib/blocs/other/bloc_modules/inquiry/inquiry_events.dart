@@ -149,3 +149,15 @@ class SearchCustomerListByNumberCallEvent extends InquiryEvents {
 
   SearchCustomerListByNumberCallEvent(this.request);
 }
+
+class FCMNotificationRequestEvent extends InquiryEvents {
+  //final FCMNotificationRequest request;
+  var request123;
+  FCMNotificationRequestEvent(this.request123);
+}
+class GetReportToTokenRequestEvent extends InquiryEvents {
+  final GetReportToTokenRequest request;
+
+  GetReportToTokenRequestEvent(this.request);
+}
+

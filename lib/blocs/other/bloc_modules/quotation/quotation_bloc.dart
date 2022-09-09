@@ -40,6 +40,9 @@ import 'package:soleoserp/models/api_responses/quotation_terms_condition_respons
 import 'package:soleoserp/models/api_responses/search_quotation_list_response.dart';
 import 'package:soleoserp/models/api_responses/specification_list_response.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
+import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'quotation_events.dart';
@@ -127,6 +130,14 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
 
     if (event is SearchCustomerListByNumberCallEvent) {
       yield* _mapSearchCustomerListByNumberCallEventToState(event);
+    }
+
+    if (event is FCMNotificationRequestEvent) {
+      yield* _map_fcm_notificationEvent_state(event);
+    }
+
+    if (event is GetReportToTokenRequestEvent) {
+      yield* _map_GetReportToTokenRequestEventState(event);
     }
   }
 
@@ -442,4 +453,39 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+  Stream<QuotationStates> _map_fcm_notificationEvent_state(
+      FCMNotificationRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FCMNotificationResponse response =
+          await userRepository.fcm_get_api(event.request123);
+      yield FCMNotificationResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _map_GetReportToTokenRequestEventState(
+      GetReportToTokenRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      GetReportToTokenResponse response =
+      await userRepository.getreporttoTokenAPI(event.request);
+      yield GetReportToTokenResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
 }

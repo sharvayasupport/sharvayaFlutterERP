@@ -1,6 +1,5 @@
 part of 'telecaller_bloc.dart';
 
-
 @immutable
 abstract class TeleCallerEvents {}
 
@@ -15,7 +14,7 @@ class ExternalLeadListCallEvent extends ExternalLeadEvents {
 class TeleCallerListCallEvent extends TeleCallerEvents {
   final int pageNo;
   final TeleCallerListRequest request1;
-  TeleCallerListCallEvent(this.pageNo,this.request1);
+  TeleCallerListCallEvent(this.pageNo, this.request1);
 }
 
 class CountryCallEvent extends TeleCallerEvents {
@@ -27,7 +26,6 @@ class StateCallEvent extends TeleCallerEvents {
   final StateListRequest stateListRequest;
   StateCallEvent(this.stateListRequest);
 }
-
 
 class DistrictCallEvent extends TeleCallerEvents {
   final DistrictApiRequest districtApiRequest;
@@ -54,7 +52,7 @@ class TeleCallerDeleteCallEvent extends TeleCallerEvents {
 
   final CustomerDeleteRequest customerDeleteRequest;
 
-  TeleCallerDeleteCallEvent(this.pkID,this.customerDeleteRequest);
+  TeleCallerDeleteCallEvent(this.pkID, this.customerDeleteRequest);
 }
 
 class TeleCallerSearchByNameCallEvent extends TeleCallerEvents {
@@ -70,7 +68,7 @@ class TeleCallerSearchByIDCallEvent extends TeleCallerEvents {
 class TeleCallerSaveCallEvent extends TeleCallerEvents {
   final int pkID;
   final TeleCallerSaveRequest request1;
-  TeleCallerSaveCallEvent(this.pkID,this.request1);
+  TeleCallerSaveCallEvent(this.pkID, this.request1);
 }
 
 class SearchCustomerListByNameCallEvent extends TeleCallerEvents {
@@ -80,15 +78,27 @@ class SearchCustomerListByNameCallEvent extends TeleCallerEvents {
 }
 
 class TeleCallerUploadImageNameCallEvent extends TeleCallerEvents {
-
   final File telecallerImageFile;
   final TeleCallerUploadImgApiRequest teleCallerUploadImgApiRequest;
 
-  TeleCallerUploadImageNameCallEvent(this.telecallerImageFile,this.teleCallerUploadImgApiRequest);
+  TeleCallerUploadImageNameCallEvent(
+      this.telecallerImageFile, this.teleCallerUploadImgApiRequest);
 }
 
 class TeleCallerImageDeleteRequestCallEvent extends TeleCallerEvents {
   final int pkID;
   final TeleCallerImageDeleteRequest request1;
-  TeleCallerImageDeleteRequestCallEvent(this.pkID,this.request1);
+  TeleCallerImageDeleteRequestCallEvent(this.pkID, this.request1);
+}
+
+class FCMNotificationRequestEvent extends TeleCallerEvents {
+  //final FCMNotificationRequest request;
+  var request123;
+  FCMNotificationRequestEvent(this.request123);
+}
+
+class GetReportToTokenRequestEvent extends TeleCallerEvents {
+  final GetReportToTokenRequest request;
+
+  GetReportToTokenRequestEvent(this.request);
 }

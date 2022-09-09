@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:soleoserp/models/common/globals.dart';
@@ -277,11 +278,16 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       "Quatation/0/GeneralEmailList";
   static const END_POINT_SALES_BILL_INQ_QT_SO_NO_LIST_API =
       "SalesBill/CustomerIDToModuleDetails";
-
+  static const END_POINT_INQ_QT_SO_NO_PRODUCT_LIST_API =
+      "SalesBill/FetDetailByInqQuotSo";
   /******************************Material Inward******************************/
   static const END_POINT_MATERIAL_INWARD_LIST = 'Inward';
   static const END_POINT_MATERIAL_OUTWARD_LIST = 'Outward';
   static const API_TOKEN_UPDATE = 'Common/UserWiseTokenUpdate';
+  static const API_GET_REPORT_TO_TOKEN_API = 'GetToken/ReportPerson';
+  static const API_UPLOAD_CUSTOMER_DOCUMENT = 'Customer/UploadAttachments';
+  static const API_FETCH_CUSTOMER_DOCUMENT = 'Customer/AttachmentsList';
+  static const API_DELETE_CUSTOMER_DOCUMENT = 'Customer/';
 
   final http.Client httpClient;
 
@@ -553,8 +559,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
                   (requestJsonMap == null) ? null : json.encode(requestJsonMap))
           .timeout(const Duration(seconds: 60));
 
-      responseJson =
-          await _responseLogin(response, showSuccessDialog: showSuccessDialog);
+      responseJson = response;
+      await _responseLogin(response, showSuccessDialog: showSuccessDialog);
     } on SocketException {
       throw FetchDataException('No Internet Connection');
     } on TimeoutException {
@@ -1083,6 +1089,41 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     return responseJson;
   }
 
+  Future<dynamic> api_call_fcm_notification(
+    String url,
+    Map<String, dynamic> requestJsonMap, {
+    String baseUrl = "https://fcm.googleapis.com",
+    bool showSuccessDialog = false,
+    //dynamic jsontemparray,
+  }) async {
+    var responseJson;
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      "Authorization":
+          "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
+    };
+    print("Headers - $headers");
+    //String asd = json.encode(jsontemparray);
+    print(
+        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap" /*+ "JSON Array $asd"*/);
+    try {
+      final response = await httpClient
+          .post(Uri.parse("$baseUrl$url"),
+              headers: headers,
+              body:
+                  (requestJsonMap == null) ? null : json.encode(requestJsonMap))
+          .timeout(const Duration(seconds: 60));
+
+      responseJson = await _responseGoogle(response);
+      //await _response(response, showSuccessDialog: showSuccessDialog);
+    } on SocketException {
+      throw FetchDataException('No Internet Connection');
+    } on TimeoutException {
+      throw FetchDataException('Request time out');
+    }
+    return responseJson;
+  }
+
   Future<dynamic> _responseGoogle(http.Response response,
       {bool showSuccessDialog = false}) async {
     debugPrint("Api response\n${response.body}");
@@ -1127,5 +1168,87 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
         throw FetchDataException(
             'Error occurred while Communication with Server with StatusCode : ${response.statusCode}');
     }
+  }
+
+  Future<String> apiwebMethodCallGet(String url) async {
+    // var responseJson;
+    var responseJson;
+    var getUrl;
+
+    if (url.isNotEmpty) {
+      getUrl = '$url';
+    } else {
+      getUrl = '$url';
+    }
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    print("Api request url : $getUrl");
+    String authToken =
+        SharedPrefHelper.instance.getString(SharedPrefHelper.AUTH_TOKEN_STRING);
+    if (authToken != null && authToken.isNotEmpty) {
+      headers['access-token'] = "$authToken";
+    }
+
+    try {
+      String timeZone = await getCurrentTimeZone();
+      if (timeZone != null && timeZone.isNotEmpty) {
+        headers['timeZone'] = timeZone;
+      }
+    } catch (e) {}
+    print("Api request url : $getUrl\nHeaders - $headers");
+    try {
+      final response = await httpClient.get(Uri.parse(url));
+      var document = parse(response.body);
+      print("HTMResponse" + document.body.localName);
+      return "Web method Sucess"; //document.body.localName;
+
+      /*if (response.statusCode == 200) {
+        var document = parse(response.body);
+        print("HTMResponse" + document.body.localName);
+        return "Web method Sucess"; //document.body.localName;
+      } else {
+        return "Something Went Wrong";
+      }*/
+      // responseJson = await _response(response);
+    } on SocketException {
+      throw FetchDataException('No Internet Connection');
+    } catch (error, stacktrace) {
+      print(stacktrace);
+      //print("tetssdg" + error);
+    }
+    // return responseJson;
+  }
+
+  Future<dynamic> getUrlLocation(String url) async {
+    final client = HttpClient();
+    var uri = Uri.parse(url);
+    var request = await client.getUrl(uri);
+    request.followRedirects = false;
+    var response = await request.close();
+
+    while (response.isRedirect) {
+      response.drain();
+      final location = response.headers.value(HttpHeaders.locationHeader);
+      if (location != null) {
+        uri = uri.resolve(location);
+        request = await client.getUrl(uri);
+        // Set the body or headers as desired.
+        request.followRedirects = false;
+        response = await request.close();
+        return response.statusCode;
+      }
+    }
+
+    /*if (response.statusCode == 200) {
+      var document = parse(response.toString());
+      print("HTMResponse" + document.body.localName);
+      return response.toString(); //document.body.localName;
+    } else {
+      return "Something Went Wrong";
+    }*/
+
+    // return response.headers.value(HttpHeaders.locationHeader);
   }
 }

@@ -11,6 +11,7 @@ import 'package:soleoserp/models/api_responses/follower_employee_list_response.d
 import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
@@ -81,6 +82,7 @@ class _LeaveRequestAddEditScreenState
   DateTime ToDate = DateTime.now();
   FocusNode LeaveAppliedForFocusNode;
 
+  String ReportToToken = "";
   @override
   void initState() {
     super.initState();
@@ -101,7 +103,11 @@ class _LeaveRequestAddEditScreenState
     edt_LeaveType.addListener(() {
       LeaveAppliedForFocusNode.requestFocus();
     });
-
+    _leaveRequestScreenBloc.add(GetReportToTokenRequestEvent(
+        GetReportToTokenRequest(
+            CompanyId: CompanyID.toString(),
+            EmployeeID:
+                _offlineLoggedInData.details[0].employeeID.toString())));
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
@@ -157,9 +163,15 @@ class _LeaveRequestAddEditScreenState
 
       child: BlocConsumer<LeaveRequestScreenBloc, LeaveRequestStates>(
         builder: (BuildContext context, LeaveRequestStates state) {
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
+          if (currentState is GetReportToTokenResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, LeaveRequestStates state) {
@@ -170,11 +182,16 @@ class _LeaveRequestAddEditScreenState
           if (state is LeaveRequestTypeResponseState) {
             _onLeaveRequestTypeSuccessResponse(state);
           }
+
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
           if (currentState is LeaveRequestSaveResponseState ||
-              currentState is LeaveRequestTypeResponseState) {
+              currentState is LeaveRequestTypeResponseState ||
+              currentState is FCMNotificationResponseState) {
             return true;
           }
           return false;
@@ -1172,6 +1189,35 @@ class _LeaveRequestAddEditScreenState
   void _onLeaveSaveStatusCallSuccess(
       LeaveRequestSaveResponseState state) async {
     print("SaveResponseLeave : " + state.response.toString());
+
+    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+    String notiTitle = "Leave Request";
+
+    ///state.inquiryHeaderSaveResponse.details[0].column3;
+    String notibody = "Leave Request" +
+        updatemsg +
+        " For " +
+        //dgdg;
+        _offlineLoggedInData.details[0].employeeName +
+        // edt_CustomerName.text +
+        " From " +
+        edt_fromDateController.text +
+        " To " +
+        edt_toDateController.text;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _leaveRequestScreenBloc.add(FCMNotificationRequestEvent(request123));
     /* navigateTo(context, LeaveRequestListScreen.routeName,
         clearAllStack: true);*/
     Navigator.of(context).pop();
@@ -1295,5 +1341,18 @@ class _LeaveRequestAddEditScreenState
   TimeOfDay stringToTimeOfDay(String tod) {
     final format = DateFormat.jm(); //"6:00 AM"
     return TimeOfDay.fromDateTime(format.parse(tod));
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
   }
 }

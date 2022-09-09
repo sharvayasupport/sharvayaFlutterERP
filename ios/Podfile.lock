@@ -1,12 +1,12 @@
 PODS:
-  - DKImagePickerController/Core (4.3.3):
+  - DKImagePickerController/Core (4.3.4):
     - DKImagePickerController/ImageDataManager
     - DKImagePickerController/Resource
-  - DKImagePickerController/ImageDataManager (4.3.3)
-  - DKImagePickerController/PhotoGallery (4.3.3):
+  - DKImagePickerController/ImageDataManager (4.3.4)
+  - DKImagePickerController/PhotoGallery (4.3.4):
     - DKImagePickerController/Core
     - DKPhotoGallery
-  - DKImagePickerController/Resource (4.3.3)
+  - DKImagePickerController/Resource (4.3.4)
   - DKPhotoGallery (0.0.17):
     - DKPhotoGallery/Core (= 0.0.17)
     - DKPhotoGallery/Model (= 0.0.17)
@@ -30,14 +30,14 @@ PODS:
   - DKPhotoGallery/Resource (0.0.17):
     - SDWebImage
     - SwiftyGif
-  - FBAEMKit (13.2.0):
-    - FBSDKCoreKit_Basics (= 13.2.0)
-  - FBSDKCoreKit (13.2.0):
-    - FBAEMKit (= 13.2.0)
-    - FBSDKCoreKit_Basics (= 13.2.0)
-  - FBSDKCoreKit_Basics (13.2.0)
-  - FBSDKShareKit (13.2.0):
-    - FBSDKCoreKit (= 13.2.0)
+  - FBAEMKit (14.1.0):
+    - FBSDKCoreKit_Basics (= 14.1.0)
+  - FBSDKCoreKit (14.1.0):
+    - FBAEMKit (= 14.1.0)
+    - FBSDKCoreKit_Basics (= 14.1.0)
+  - FBSDKCoreKit_Basics (14.1.0)
+  - FBSDKShareKit (14.1.0):
+    - FBSDKCoreKit (= 14.1.0)
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -147,14 +147,14 @@ PODS:
     - GoogleUtilities/Network (~> 7.6)
     - "GoogleUtilities/NSData+zlib (~> 7.6)"
     - nanopb (~> 2.30908.0)
-  - GoogleDataTransport (9.1.4):
+  - GoogleDataTransport (9.2.0):
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleMaps (5.2.0):
-    - GoogleMaps/Maps (= 5.2.0)
-  - GoogleMaps/Base (5.2.0)
-  - GoogleMaps/Maps (5.2.0):
+  - GoogleMaps (6.2.1):
+    - GoogleMaps/Maps (= 6.2.1)
+  - GoogleMaps/Base (6.2.1)
+  - GoogleMaps/Maps (6.2.1):
     - GoogleMaps/Base
   - GoogleUtilities/AppDelegateSwizzler (7.7.0):
     - GoogleUtilities/Environment
@@ -188,6 +188,8 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - open_file (0.0.1):
+    - Flutter
   - OrderedSet (5.0.0)
   - package_info_plus (0.4.5):
     - Flutter
@@ -195,11 +197,11 @@ PODS:
     - Flutter
   - "permission_handler (5.1.0+2)":
     - Flutter
-  - PromisesObjC (2.1.0)
-  - SDWebImage (5.12.5):
-    - SDWebImage/Core (= 5.12.5)
-  - SDWebImage/Core (5.12.5)
-  - shared_preferences (0.0.1):
+  - PromisesObjC (2.1.1)
+  - SDWebImage (5.13.2):
+    - SDWebImage/Core (= 5.13.2)
+  - SDWebImage/Core (5.13.2)
+  - shared_preferences_ios (0.0.1):
     - Flutter
   - sqflite (0.0.2):
     - Flutter
@@ -226,10 +228,11 @@ DEPENDENCIES:
   - location (from `.symlinks/plugins/location/ios`)
   - location_permissions (from `.symlinks/plugins/location_permissions/ios`)
   - maps_launcher (from `.symlinks/plugins/maps_launcher/ios`)
+  - open_file (from `.symlinks/plugins/open_file/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
-  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
   - uri_to_file (from `.symlinks/plugins/uri_to_file/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -290,14 +293,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/location_permissions/ios"
   maps_launcher:
     :path: ".symlinks/plugins/maps_launcher/ios"
+  open_file:
+    :path: ".symlinks/plugins/open_file/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_ios:
     :path: ".symlinks/plugins/path_provider_ios/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
-  shared_preferences:
-    :path: ".symlinks/plugins/shared_preferences/ios"
+  shared_preferences_ios:
+    :path: ".symlinks/plugins/shared_preferences_ios/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
   uri_to_file:
@@ -306,12 +311,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
-  DKImagePickerController: 72fd378f244cef3d27288e0aebf217a4467e4012
+  DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
-  FBAEMKit: c2b2895363b7e57192013d1dc49fdf498b28624c
-  FBSDKCoreKit: 58139803d861e72c7661dc875611a759352a55ac
-  FBSDKCoreKit_Basics: 1ffc68326a5ece051d85574f02a0adcf27c2a5f2
-  FBSDKShareKit: 079497bb0cfeb049dc8ff6aee2702698680a2806
+  FBAEMKit: a899515e45476027f73aef377b5cffadcd56ca3a
+  FBSDKCoreKit: 24f8bc8d3b5b2a8c5c656a1329492a12e8efa792
+  FBSDKCoreKit_Basics: 6e578c9bdc7aa1365dbbbde633c9ebb536bcaa98
+  FBSDKShareKit: b9c1cd1fa6a320a50f0f353cf30d589049c8db77
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   Firebase: 13d8d96499e2635428d5bf0ec675df21f95d9a95
   firebase_analytics: cc1ab30e479b7089c0a952c0cae7ba286d464c68
@@ -331,21 +336,22 @@ SPEC CHECKSUMS:
   geolocator: f7622e0e7e2a24718285b73916d60c4a54b9f5b6
   google_maps_flutter: abdb8dee6c52d4be36ad131ee6ebfacd14417c5a
   GoogleAppMeasurement: 837649ad3987936c232f6717c5680216f6243d24
-  GoogleDataTransport: 5fffe35792f8b96ec8d6775f5eccd83c998d5a3b
-  GoogleMaps: 025272d5876d3b32604e5c080dc25eaf68764693
+  GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
+  GoogleMaps: 20d7b12be49a14287f797e88e0e31bc4156aaeb4
   GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
   location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
   location_permissions: 7e0f9aa0f60deb8ff93ddf0e2a164c7e8197bc94
   maps_launcher: 2e5b6a2d664ec6c27f82ffa81b74228d770ab203
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_ios: 7d7ce634493af4477d156294792024ec3485acd5
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
-  PromisesObjC: 99b6f43f9e1044bd87a95a60beff28c2c44ddb72
-  SDWebImage: 0905f1b7760fc8ac4198cae0036600d67478751e
-  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  SDWebImage: 72f86271a6f3139cc7e4a89220946489d4b9a866
+  shared_preferences_ios: aef470a42dc4675a1cdd50e3158b42e3d1232b32
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   SwiftyGif: 6c3eafd0ce693cad58bb63d2b2fb9bacb8552780
   uri_to_file: c4726881848febf4806f0a5707bd12903e02b0f0

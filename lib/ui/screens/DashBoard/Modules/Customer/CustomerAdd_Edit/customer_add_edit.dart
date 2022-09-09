@@ -1,9 +1,20 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
 import 'package:soleoserp/models/api_requests/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/country_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_delete_document_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_upload_document_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer_category_request.dart';
 import 'package:soleoserp/models/api_requests/customer_id_to_contact_list_request.dart';
@@ -15,6 +26,7 @@ import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_fetch_document_response.dart';
 import 'package:soleoserp/models/api_responses/customer_category_list.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
@@ -47,8 +59,8 @@ class AddUpdateCustomerScreenArguments {
   // SearchDetails editModel;
 
   CustomerDetails editModel;
-
-  AddUpdateCustomerScreenArguments(this.editModel);
+  List<CustomerFetchDocumentResponseDetails> documentAPIList1;
+  AddUpdateCustomerScreenArguments(this.editModel, this.documentAPIList1);
 }
 
 class Customer_ADD_EDIT extends BaseStatefulWidget {
@@ -73,6 +85,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
   CustomerBloc _CustomerBloc;
   LoginUserDetialsResponse _offlineLoggedInData;
   CompanyDetailsResponse _offlineCompanyData;
+
   //CustomerCategoryResponse _offlineCustomerCategoryData;
   // CustomerSourceResponse _offlineCustomerSourceData;
 
@@ -93,6 +106,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
   final TextEditingController edt_Category = TextEditingController();
 
   final TextEditingController edt_Source = TextEditingController();
+
   //final TextEditingController edt_Country = TextEditingController();
   //final TextEditingController edt_CountryID = TextEditingController();
 
@@ -140,6 +154,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
   bool _isSwitched;
   bool _isForUpdate;
   CustomerDetails _editModel;
+  List<CustomerFetchDocumentResponseDetails> _documentAPIList1;
   int customerID = 0;
   List<ContactModel> _contactsList = [];
 
@@ -157,6 +172,10 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
   final TextEditingController edt_QualifiedCity = TextEditingController();
   final TextEditingController edt_QualifiedCityCode = TextEditingController();
   bool emailValid;
+
+  List<File> MultipleVideoList = [];
+  final imagepicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -206,6 +225,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
 
     if (widget.arguments != null) {
       _editModel = widget.arguments.editModel;
+      _documentAPIList1 = widget.arguments.documentAPIList1;
       fillData();
     } else {
       _searchStateDetails = SearchStateDetails();
@@ -321,7 +341,13 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
           if (state is CustomerSourceCallEventResponseState) {
             _onSourceSuccess(state);
           }
+          if (state is CustomerUploadDocumentResponseState) {
+            _onUploadDocumentResponse(state);
+          }
 
+          if (state is CustomerDeleteDocumentResponseState) {
+            _onCustomerDeletedocumentSucess(state);
+          }
           /*  if (state is DistrictListEventResponseState) {
             _onDistrictListSuccess(state);
           }
@@ -351,7 +377,13 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
             return true;
           } else if (currentState is CustomerSourceCallEventResponseState) {
             return true;
+          } else if (currentState is CustomerUploadDocumentResponseState) {
+            return true;
+          } else if (currentState is CustomerDeleteDocumentResponseState) {
+            return true;
           }
+
+          //
 
           return false;
         },
@@ -529,6 +561,13 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                         navigateTo(context, ContactsListScreen.routeName);
                       }, "Add Contact + ",
                           width: 600, backGroundColor: Color(0xff4d62dc)),
+                    ),
+                    SizedBox(
+                      height: Constant.SIZEBOXHEIGHT,
+                    ),
+                    Attachments(),
+                    SizedBox(
+                      height: Constant.SIZEBOXHEIGHT,
                     ),
                     Container(
                       margin: EdgeInsets.all(10),
@@ -729,9 +768,9 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                       children: [
                         Expanded(
                           child: TextField(
-                              onChanged: (value) => {
-                                    myFocusNode.requestFocus()
-                                  }, //myFocusNode.requestFocus(),
+                              onChanged: (value) =>
+                                  {myFocusNode.requestFocus()},
+                              //myFocusNode.requestFocus(),
                               controller: controllerForRight,
                               enabled: false,
                               decoration: InputDecoration(
@@ -2252,8 +2291,8 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
         " Testttt " +
         state.customerAddEditApiResponse.details[0].column1.toString());
 
-    // if(state.customerAddEditApiResponse.details[0].column2 !="Duplicate Customer Name")
-    //  {
+    // _CustomerBloc.add(CustomerUploadDocumentApiRequestEvent())
+
     if (_contactsList.length != 0) {
       if (state.customerAddEditApiResponse.details[0].column2 ==
               "Customer Information Added Successfully" ||
@@ -2272,24 +2311,37 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
       } else {
         await showCommonDialogWithSingleOption(Globals.context,
             state.customerAddEditApiResponse.details[0].column2,
-            positiveButtonTitle: "OK");
+            positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+          if (state.customerAddEditApiResponse.details[0].column2 ==
+                  "Customer Information Added Successfully" ||
+              state.customerAddEditApiResponse.details[0].column2 ==
+                  "Customer Information Updated Successfully") {
+            navigateTo(context, CustomerListScreen.routeName,
+                clearAllStack: true);
+          }
+        });
         //Navigator.of(context).pop();
 
-        if (state.customerAddEditApiResponse.details[0].column2 ==
-                "Customer Information Added Successfully" ||
-            state.customerAddEditApiResponse.details[0].column2 ==
-                "Customer Information Updated Successfully") {
-          navigateTo(context, CustomerListScreen.routeName,
-              clearAllStack: true);
-        }
       }
     } else {
-      /*showCommonDialogWithSingleOption(context, state.customerAddEditApiResponse.details[0].column2 ,
-              positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-                navigateTo(context, CustomerListScreen.routeName, clearAllStack: true);
-              });*/
-      //String Msg = _isForUpdate == true ? "Followup Information. Updated Successfully" : "Followup Information. Added Successfully";
-      await showCommonDialogWithSingleOption(
+      if (MultipleVideoList.length != 0) {
+        _CustomerBloc.add(CustomerDeleteDocumentApiRequestEvent(
+            state.customerAddEditApiResponse.details[0].column1.toString(),
+            CustomerDeleteDocumentApiRequest(CompanyID: CompanyID.toString())));
+
+        _CustomerBloc.add(CustomerUploadDocumentApiRequestEvent(
+            state.customerAddEditApiResponse.details[0].column2,
+            MultipleVideoList,
+            CustomerUploadDocumentApiRequest(
+                pkID: "0",
+                Name: MultipleVideoList[0].path.split('/').last,
+                CustomerID: state.customerAddEditApiResponse.details[0].column1
+                    .toString(),
+                CompanyID: CompanyID.toString(),
+                LoginUserId: LoginUserID.toString(),
+                file: MultipleVideoList[0])));
+      }
+      /*  await showCommonDialogWithSingleOption(
           Globals.context, state.customerAddEditApiResponse.details[0].column2,
           positiveButtonTitle: "OK");
 
@@ -2298,16 +2350,8 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
           state.customerAddEditApiResponse.details[0].column2 ==
               "Customer Information Updated Successfully") {
         navigateTo(context, CustomerListScreen.routeName, clearAllStack: true);
-      }
-    }
-    //  }
-    /* else
-      {
-        await showCommonDialogWithSingleOption(Globals.context, state.customerAddEditApiResponse.details[0].column2+",Customer Contact No is already Exists !",
-            positiveButtonTitle: "OK");
-        Navigator.of(context).pop();
-
       }*/
+    }
   }
 
   Widget SwitchNoFollowup() {
@@ -2405,6 +2449,19 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
           CustomerIdToCustomerListRequest(
               CustomerID: customerID.toString(),
               CompanyId: CompanyID.toString())));
+    }
+
+    if (_documentAPIList1.length != 0) {
+      for (int i = 0; i < _documentAPIList1.length; i++) {
+        if (_documentAPIList1[i].name != "") {
+          String ImageURLFromListing = _offlineCompanyData.details[0].siteURL +
+              "/CustomerDocs/" +
+              _documentAPIList1[i].name.toString();
+
+          getDetailsOfImage(
+              ImageURLFromListing, _documentAPIList1[i].name.toString());
+        }
+      }
     }
 
     /* if (_editModel.blockCustomer == _editModel.blockCustomer) {
@@ -2775,5 +2832,293 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
         )
       ],
     );
+  }
+
+  Attachments() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Attachment",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                leading: Container(child: Icon(Icons.attachment)),
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        AttachedFileList(),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        getCommonButton(baseTheme, () async {
+                          if (await Permission.storage.isDenied) {
+                            //await Permission.storage.request();
+
+                            checkPhotoPermissionStatus();
+                          } else {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext bc) {
+                                  return SafeArea(
+                                    child: Container(
+                                      child: new Wrap(
+                                        children: <Widget>[
+                                          new ListTile(
+                                              leading:
+                                                  new Icon(Icons.photo_library),
+                                              title: new Text('Choose Files'),
+                                              onTap: () async {
+                                                Navigator.of(context).pop();
+                                                FilePickerResult result =
+                                                    await FilePicker.platform
+                                                        .pickFiles(
+                                                  type: FileType.custom,
+                                                  allowedExtensions: [
+                                                    'jpg',
+                                                    'pdf',
+                                                    'doc',
+                                                    'png'
+                                                  ],
+                                                  allowMultiple: true,
+                                                );
+                                                if (result != null) {
+                                                  List<File> files = result
+                                                      .paths
+                                                      .map((path) => File(path))
+                                                      .toList();
+                                                  setState(() {
+                                                    MultipleVideoList.addAll(
+                                                        files);
+                                                  });
+                                                } else {
+                                                  // User canceled the picker
+                                                }
+                                              }),
+                                          new ListTile(
+                                            leading:
+                                                new Icon(Icons.photo_camera),
+                                            title: new Text('Choose Image'),
+                                            onTap: () async {
+                                              Navigator.of(context).pop();
+
+                                              XFile file =
+                                                  await imagepicker.pickImage(
+                                                source: ImageSource.camera,
+                                              );
+                                              setState(() {
+                                                MultipleVideoList.add(
+                                                    File(file.path));
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                });
+                          }
+                        }, "Choose File",
+                            radius: 20,
+                            backGroundColor: Color(0xff02b1fc),
+                            textColor: colorWhite)
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  AttachedFileList() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Container(
+                margin: EdgeInsets.only(top: 5, bottom: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  //crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showCommonDialogWithTwoOptions(context,
+                            "Are you sure you want to delete this File ?",
+                            negativeButtonTitle: "No",
+                            positiveButtonTitle: "Yes",
+                            onTapOfPositiveButton: () {
+                          Navigator.of(context).pop();
+
+                          // print("sdjdsfj" + MultipleVideoList[index].path);
+                          // OpenFile.open(MultipleVideoList[index].path);
+                          MultipleVideoList.removeAt(index);
+                          setState(() {});
+                        });
+                      },
+                      child: Icon(
+                        Icons.delete_forever,
+                        size: 32,
+                        color: colorPrimary,
+                      ),
+                    ),
+                    Card(
+                      elevation: 5,
+                      color: colorLightGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        width: 300,
+                        /* decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      color: colorLightGray,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),*/
+                        child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                OpenFile.open(MultipleVideoList[index].path);
+                              },
+                              child: Text(
+                                MultipleVideoList[index].path.split('/').last,
+                                softWrap: true,
+
+                                //overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 10, color: colorPrimary),
+                              ),
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              // }
+            },
+            shrinkWrap: true,
+            itemCount: MultipleVideoList.length,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void checkPhotoPermissionStatus() async {
+    bool granted = await Permission.storage.isGranted;
+    bool Denied = await Permission.storage.isDenied;
+    bool PermanentlyDenied = await Permission.storage.isPermanentlyDenied;
+    print("PermissionStatus" +
+        "Granted : " +
+        granted.toString() +
+        " Denied : " +
+        Denied.toString() +
+        " PermanentlyDenied : " +
+        PermanentlyDenied.toString());
+    if (Denied == true) {
+      await Permission.storage.request();
+    }
+    if (await Permission.location.isRestricted) {
+      openAppSettings();
+    }
+    if (PermanentlyDenied == true) {
+      openAppSettings();
+    }
+    if (granted == true) {}
+  }
+
+  void _onUploadDocumentResponse(
+      CustomerUploadDocumentResponseState state) async {
+    //print("sdffg" + state.designationApiResponse.totalCount.t);
+
+    await showCommonDialogWithSingleOption(Globals.context, state.HeaderMsg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      navigateTo(context, CustomerListScreen.routeName, clearAllStack: true);
+    });
+  }
+
+  void getDetailsOfImage(String docURLFromListing, String docname) async {
+    await urlToFile(docURLFromListing, docname.toString());
+  }
+
+  urlToFile(String imageUrl, String filenamee) async {
+    if (Uri.parse(imageUrl).isAbsolute == true) {
+      try {
+        http.Response response = await http.get(Uri.parse(imageUrl));
+
+        if (response.statusCode == 200) {
+          Directory dir = await getApplicationDocumentsDirectory();
+          dir.exists();
+          String pathName = p.join(dir.path, filenamee);
+
+          print("77575sdd7" + imageUrl);
+
+          File file = new File(pathName);
+
+          print("7757sds5sdd7" + file.path);
+
+          try {
+            await file.writeAsBytes(response.bodyBytes);
+          } catch (e) {
+            print("hdfhjfdhh" + e.toString());
+          }
+
+          MultipleVideoList.add(file);
+        }
+      } catch (e) {
+        print("775757" + e.toString());
+      }
+
+      setState(() {});
+    }
+  }
+
+  void _onCustomerDeletedocumentSucess(
+      CustomerDeleteDocumentResponseState state) {
+    print("documentdelete" +
+        state.customerDeleteDocumentResponse.details[0].column2);
   }
 }

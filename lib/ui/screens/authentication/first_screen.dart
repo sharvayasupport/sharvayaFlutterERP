@@ -6,6 +6,7 @@ import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/designation_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -186,19 +187,33 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
   _onLoginCallSuccess(LoginUserDetialsResponse response) {
     if (response.details.length != 0) {
-      SharedPrefHelper.instance
-          .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, true);
-      SharedPrefHelper.instance.setLoginUserData(response);
-      _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
-      _offlineLoggedInDetailsData =
-          SharedPrefHelper.instance.getLoginUserData();
-      print("LoginAuthenticateSucess123" +
-          "CompanyID : " +
-          _offlineCompanyData.details[0].pkId.toString() +
-          "LoginUserID : " +
-          _offlineLoggedInDetailsData.details[0].userID);
+      if (response.details[0].activeFlagDesc != "Inactive") {
+        SharedPrefHelper.instance
+            .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, true);
+        SharedPrefHelper.instance.setLoginUserData(response);
+        _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+        _offlineLoggedInDetailsData =
+            SharedPrefHelper.instance.getLoginUserData();
+        print("LoginAuthenticateSucess123" +
+            "CompanyID : " +
+            _offlineCompanyData.details[0].pkId.toString() +
+            "LoginUserID : " +
+            _offlineLoggedInDetailsData.details[0].userID);
 
-      navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+        navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+      } else {
+        // fdffdsf
+
+        showCommonDialogWithSingleOption(Globals.context, "User Is InActive",
+            positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+          //navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+
+          _userNameController.text = "";
+          _passwordController.text = "";
+
+          Navigator.pop(context);
+        });
+      }
     }
   }
 

@@ -14,6 +14,7 @@ class ToDoHeaderSaveRequest {
   String Longitude;
   String ClosingRemarks;
   String CompanyId;
+  String CustomerID;
 
   ToDoHeaderSaveRequest(
       {this.Priority,
@@ -30,7 +31,8 @@ class ToDoHeaderSaveRequest {
       this.Latitude,
       this.Longitude,
       this.ClosingRemarks,
-      this.CompanyId});
+      this.CompanyId,
+      this.CustomerID});
 
   /*Priority:High
 TaskDescription:Test For ToDo Check In Live
@@ -49,7 +51,21 @@ ClosingRemarks:Test INS Done And Check For Update Now
 CompanyId:10032*/
 
   // ToDoHeaderSaveRequest({this.CompanyId,this.pkID,this.StatusCategory,this.LoginUserID,this.SearchKey});
-
+/*Priority:High
+TaskDescription:Test For ToDo Check In Live
+Location:Sharvaya Test
+TaskCategoryID:6
+StartDate:2022-08-30
+DueDate:2022-09-01
+CompletionDate:
+LoginUserID:hiral
+EmployeeID:47
+Reminder:
+ReminderMonth:
+Latitude:
+Longitude:
+ClosingRemarks:
+CompanyId:4132*/
   ToDoHeaderSaveRequest.fromJson(Map<String, dynamic> json) {
     Priority = json['Priority'];
     TaskDescription = json['TaskDescription'];
@@ -66,6 +82,7 @@ CompanyId:10032*/
     Longitude = json['Longitude'];
     ClosingRemarks = json['ClosingRemarks'];
     CompanyId = json['CompanyId'];
+    CustomerID = json['CustomerID'];
   }
 
   Map<String, dynamic> toJson() {
@@ -85,7 +102,7 @@ CompanyId:10032*/
     data['Longitude'] = this.Longitude;
     data['ClosingRemarks'] = this.ClosingRemarks;
     data['CompanyId'] = this.CompanyId;
-
+    data['CustomerID'] = this.CustomerID;
     return data;
   }
 }

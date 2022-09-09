@@ -14,6 +14,7 @@ import 'package:soleoserp/models/api_responses/login_user_details_api_response.d
 import 'package:soleoserp/models/api_responses/todo_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_serach_customer_screen.dart';
@@ -125,6 +126,8 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
 
   bool IsForClient =false;
 
+  String ReportToToken="";
+
   void showWidgetCompletionDate(){
     setState(() {
       viewVisibleCompletionDate = true ;
@@ -219,6 +222,10 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
       NotesFocusNode.requestFocus();
     });
     _toDoBloc = ToDoBloc(baseBloc);
+
+    _toDoBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+        CompanyId: CompanyID.toString(),
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
     _isForUpdate = widget.arguments != null;
 
     if (_isForUpdate) {
@@ -382,11 +389,19 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
           {
             _onFollowerEmployeeListByStatusCallSuccess(state);
           }*/
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
 
+          if(currentState is GetReportToTokenResponseState)
+            {
+              return true;
+
+            }
           return false;
         },
         listener: (BuildContext context, ToDoStates state) {
@@ -403,6 +418,10 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
           {
             _OnSaveToDoSubResponse(state);
           }
+
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
          /* if(state is DailyActivitySaveCallResponseState)
           {
            // _onLeaveSaveStatusCallSuccess(state);
@@ -410,7 +429,8 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
-          if (currentState is TaskCategoryCallResponseState|| currentState is ToDoSaveHeaderState || currentState is ToDoSaveSubDetailsState) {
+          if (currentState is TaskCategoryCallResponseState|| currentState is ToDoSaveHeaderState
+              || currentState is ToDoSaveSubDetailsState || currentState is FCMNotificationResponseState) {
             return true;
           }
           return false;
@@ -586,9 +606,9 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                         ),
                         _buildDueTime(),
 
-                        IsForClient==true? Container(
+                        /*IsForClient==true? Container(
                             margin: EdgeInsets.only(top: 30),
-                            child: _buildSearchView()) : Container(),
+                            child: _buildSearchView()) : Container(),*/
                         SizedBox(
                           width: 20,
                           height: 30,
@@ -1012,7 +1032,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                         CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
                                                                         LoginUserID: LoginUserID,EmployeeID: edt_EmployeeID.text,Reminder: ISCHECKED==true ? "1":"0",ReminderMonth: "",Latitude: "",
                                                                         Longitude: "",ClosingRemarks: edt_CloserDetails.text==null?"":edt_CloserDetails.text,
-                                                                        CompanyId: CompanyID.toString()
+                                                                        CompanyId: CompanyID.toString(),CustomerID:edt_CustomerpkID.text!=""?edt_CustomerpkID.text:""
 
                                                                     )));
                                                                   });
@@ -1034,7 +1054,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                           CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
                                                                           LoginUserID: LoginUserID,EmployeeID: edt_EmployeeID.text,Reminder: ISCHECKED==true ? "1":"0",ReminderMonth: "",  Latitude: SharedPrefHelper.instance.getLatitude(),
                                                                           Longitude: SharedPrefHelper.instance.getLongitude(),ClosingRemarks: edt_CloserDetails.text==null?"":edt_CloserDetails.text,
-                                                                          CompanyId: CompanyID.toString()
+                                                                          CompanyId: CompanyID.toString(),CustomerID:edt_CustomerpkID.text!=""?edt_CustomerpkID.text:""
 
                                                                       )));
                                                                     });
@@ -1062,7 +1082,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                       CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
                                                                       LoginUserID: LoginUserID,EmployeeID: edt_EmployeeID.text,Reminder: ISCHECKED==true ? "1":"0",ReminderMonth: "", Latitude: SharedPrefHelper.instance.getLatitude(),
                                                                       Longitude: SharedPrefHelper.instance.getLongitude(),ClosingRemarks: edt_CloserDetails.text==null?"":edt_CloserDetails.text,
-                                                                      CompanyId: CompanyID.toString()
+                                                                      CompanyId: CompanyID.toString(),CustomerID:edt_CustomerpkID.text!=""?edt_CustomerpkID.text:""
 
                                                                   )));
                                                                 });
@@ -1087,7 +1107,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                       CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
                                                                       LoginUserID: LoginUserID,EmployeeID: edt_EmployeeID.text,Reminder: ISCHECKED==true ? "1":"0",ReminderMonth: "", Latitude: SharedPrefHelper.instance.getLatitude(),
                                                                       Longitude: SharedPrefHelper.instance.getLongitude(),ClosingRemarks: edt_CloserDetails.text==null?"":edt_CloserDetails.text,
-                                                                      CompanyId: CompanyID.toString()
+                                                                      CompanyId: CompanyID.toString(),CustomerID:edt_CustomerpkID.text!=""?edt_CustomerpkID.text:""
 
                                                                   )));
                                                                 });
@@ -2488,12 +2508,45 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
 
   void _OnSaveToDoHeaderResponse(ToDoSaveHeaderState state) {
 
+
+    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+
+
+    String  notiTitle = "To-Do";
+
+    ///state.inquiryHeaderSaveResponse.details[0].column3;
+    String notibody  = "To-Do " +
+        edt_TaskDetails.text + " is " +
+        updatemsg +
+        " And AssignTo " +
+        //dgdg;
+        edt_EmployeeName.text +
+       // edt_CustomerName.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _toDoBloc.add(FCMNotificationRequestEvent(request123));
+
     for(var i=0;i<state.toDoSaveHeaderResponse.details.length;i++)
       {
-        int pk = state.toDoSaveHeaderResponse.details[i].column3;
+        int pk = state.toDoSaveHeaderResponse.details[i].column1;
         String ActionTaken="";
         String ActionDescription="";
         String EmpID = "";
+
+
 
         if(edt_TransferTo.text =="Complete Task"){
           if(edt_CompletionDate.text==null || edt_CompletionDate.text=="")
@@ -2764,6 +2817,23 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
 
       });
     }
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
+
+
+
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
   }
 
 

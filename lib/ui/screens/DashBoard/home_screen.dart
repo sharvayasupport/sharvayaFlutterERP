@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io' show Platform, exit;
 import 'dart:math';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_shine/flutter_shine.dart';
 import 'package:geolocator/geolocator.dart'
@@ -16,8 +18,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
+import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/Dashboard/dashboard_user_rights_screen_bloc.dart';
 import 'package:soleoserp/firebase_options.dart';
 import 'package:soleoserp/models/api_requests/all_employee_list_request.dart';
@@ -33,22 +35,26 @@ import 'package:soleoserp/models/api_responses/login_user_details_api_response.d
 import 'package:soleoserp/models/api_responses/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
-import 'package:soleoserp/models/common/push_notification_model.dart';
 import 'package:soleoserp/push_notification_service.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sale_bill_list/sales_bill_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../main.dart';
 
@@ -92,19 +98,51 @@ class _HomeScreenState extends BaseState<HomeScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Account = [];
 
   String ABC = "HArshit";
+  List<String> SplitSTr = [];
 
   final TextEditingController PuchInTime = TextEditingController();
   final TextEditingController PuchOutTime = TextEditingController();
   final TextEditingController ImgFromTextFiled = TextEditingController();
-
+  String SiteURL = "";
+  String Password = "";
   bool isPunchIn = false;
   bool isPunchOut = false;
+  TextEditingController EmailTO = TextEditingController();
+  TextEditingController EmailBCC = TextEditingController();
+  bool isLoading = true;
 
+  bool islodding = true;
+
+  InAppWebViewController webViewController;
+  String url = "";
+
+  final urlController = TextEditingController();
+
+  bool onWebLoadingStop = false;
+
+  InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
+      crossPlatform: InAppWebViewOptions(
+        useShouldOverrideUrlLoading: true,
+        mediaPlaybackRequiresUserGesture: false,
+      ),
+      android: AndroidInAppWebViewOptions(
+        useHybridComposition: true,
+      ),
+      ios: IOSInAppWebViewOptions(
+        allowsInlineMediaPlayback: true,
+      ));
+
+  PullToRefreshController pullToRefreshController;
+
+  ContextMenu contextMenu;
+
+  double progress = 0;
+  int prgresss = 0;
   bool isCurrentTime = true;
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-
+  var delay = const Duration(seconds: 3);
   FirebaseMessaging _messaging;
 
   //final FirebaseMessaging _firebaseMessaging;//= FirebaseMessaging();
@@ -137,96 +175,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
       sound: true,
     );
 
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-    /* await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: selectNotification);
-*/
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("message Id - onMessage ${message.messageId}" +
-          " TItle : " +
-          message.notification.title);
-      if (Globals.objectedNotifications.contains(message.messageId)) {
-        return;
-      }
-      Globals.objectedNotifications.add(message.messageId);
-
-      PushNotification pushNotification = new PushNotification(
-          title: message.notification.title,
-          body: message.notification.body,
-          dataTitle: message.data['title'],
-          databody: message.data['body']);
-
-      if (message != null) {
-        print("pushbbbh" + message.data['title'].toString());
-        showOverlayNotification((context) {
-          return Container(
-            height: 70,
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 60),
-            child: Container(
-              height: 70,
-              child: Card(
-                color: colorBlack,
-                margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                child: InkWell(
-                  onTap: () {
-                    if (message.notification.title == "Inquiry") {
-                      navigateTo(context, InquiryListScreen.routeName,
-                          clearAllStack: true);
-                    } else if (message.notification.title == "FollowUp") {
-                      navigateTo(context, FollowupListScreen.routeName,
-                          clearAllStack: true);
-                    } else if (message.data['title'] == "Quotation") {
-                      navigateTo(Globals.context, QuotationListScreen.routeName,
-                          clearAllStack: true);
-                    } else if (message.data['title'] == "Sales Order") {
-                      navigateTo(
-                          Globals.context, SalesOrderListScreen.routeName,
-                          clearAllStack: true);
-                    } else if (message.data['title'] == "Sales Invoice") {
-                      navigateTo(Globals.context, SalesBillListScreen.routeName,
-                          clearAllStack: true);
-                    }
-
-                    OverlaySupportEntry.of(context).dismiss();
-                  },
-                  child: ListTile(
-                    leading: ClipOval(
-                        child: Icon(
-                      Icons.notifications_active,
-                      color: colorWhite,
-                    )),
-                    title: Text(
-                      pushNotification.title,
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: colorWhite,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      pushNotification.body,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: true,
-                      style: TextStyle(fontSize: 10, color: colorWhite),
-                    ),
-                    trailing: IconButton(
-                        icon: Icon(Icons.close),
-                        color: colorWhite,
-                        onPressed: () {
-                          OverlaySupportEntry.of(context).dismiss();
-                        }),
-                  ),
-                ),
-              ),
-            ),
-          );
-        }, duration: Duration(milliseconds: 10000));
-      }
-
-      setState(() {});
-    });
-
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
       print('A new onMessageOpenedApp event was published!' +
           message.notification.title);
@@ -243,8 +191,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
           arguments: MessageArguments(message, true),
         );
       } else if (message.data['title'] == "FollowUp") {
-        navigateTo(Globals.context, FollowupListScreen.routeName,
-            clearAllStack: true);
+        MovetoFollowupScreen(Globals.context, message.notification.title,
+            message.notification.body);
       } else if (message.data['title'] == "Quotation") {
         navigateTo(Globals.context, QuotationListScreen.routeName,
             clearAllStack: true);
@@ -253,6 +201,21 @@ class _HomeScreenState extends BaseState<HomeScreen>
             clearAllStack: true);
       } else if (message.data['title'] == "Sales Invoice") {
         navigateTo(Globals.context, SalesBillListScreen.routeName,
+            clearAllStack: true);
+      } else if (message.data['title'] == "Complaint") {
+        navigateTo(Globals.context, ComplaintPaginationListScreen.routeName,
+            clearAllStack: true);
+      } else if (message.data['title'] == "To-Do") {
+        navigateTo(Globals.context, ToDoListScreen.routeName,
+            clearAllStack: true);
+      } else if (message.data['title'] == "Leave Request") {
+        navigateTo(Globals.context, LeaveRequestListScreen.routeName,
+            clearAllStack: true);
+      } else if (message.data['title'] == "TeleCaller") {
+        navigateTo(Globals.context, TeleCallerListScreen.routeName,
+            clearAllStack: true);
+      } else if (message.data['title'] == "Quick Inquiry") {
+        navigateTo(Globals.context, InquiryListScreen.routeName,
             clearAllStack: true);
       }
     });
@@ -285,7 +248,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
       if (intialMessage.data['title'] == "Inquiry") {
         navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
       } else if (intialMessage.data['title'] == "FollowUp") {
-        navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+        MovetoFollowupScreen(
+            context, intialMessage.data['title'], intialMessage.data['body']);
+
+        //navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
       } else if (intialMessage.data['title'] == "Quotation") {
         navigateTo(Globals.context, QuotationListScreen.routeName,
             clearAllStack: true);
@@ -295,46 +261,29 @@ class _HomeScreenState extends BaseState<HomeScreen>
       } else if (intialMessage.data['title'] == "Sales Invoice") {
         navigateTo(Globals.context, SalesBillListScreen.routeName,
             clearAllStack: true);
+      } else if (intialMessage.data['title'] == "Complaint") {
+        navigateTo(Globals.context, ComplaintPaginationListScreen.routeName,
+            clearAllStack: true);
+      } else if (intialMessage.data['title'] == "To-Do") {
+        navigateTo(Globals.context, ToDoListScreen.routeName,
+            clearAllStack: true);
+      } else if (intialMessage.data['title'] == "Leave Request") {
+        navigateTo(Globals.context, LeaveRequestListScreen.routeName,
+            clearAllStack: true);
+      } else if (intialMessage.data['title'] == "TeleCaller") {
+        navigateTo(Globals.context, TeleCallerListScreen.routeName,
+            clearAllStack: true);
+      } else if (intialMessage.data['title'] == "Quick Inquiry") {
+        navigateTo(Globals.context, InquiryListScreen.routeName,
+            clearAllStack: true);
       }
+      //
     }
   }
 
   final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
   String Address;
-
-/*
-  pushMessagingService() async{
-    FirebaseMessaging messagingreference;
-    FirebaseBack
-    configure(
-      onMessage: (Map<String, dynamic> message) {
-
-        print("I am here in on message");
-        print(message);
-      },
-      onLaunch: (Map<String, dynamic> message) {
-        print("I am here onLaunch");
-        print(message);
-      },
-      onResume: (Map<String, dynamic> message) {
-        print("I am hereonResume");
-        print(message);
-      },
-    );
-    messagingreference.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-    messagingreference.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-    messagingreference.getToken().then((String token) async {
-
-
-      print(token);
-    });
-  }
-*/
 
   @override
   void initState() {
@@ -345,7 +294,63 @@ class _HomeScreenState extends BaseState<HomeScreen>
     screenStatusBarColor = colorWhite;
     ABC = "Ruchit";
     Xyz(ABC);
-    print("GetGenLatitude" + SharedPrefHelper.instance.getLatitude());
+
+    contextMenu = ContextMenu(
+        menuItems: [
+          ContextMenuItem(
+              androidId: 1,
+              iosId: "1",
+              title: "Special",
+              action: () async {
+                print("Menu item Special clicked!");
+                print(await webViewController?.getSelectedText());
+                await webViewController?.clearFocus();
+              })
+        ],
+        options: ContextMenuOptions(hideDefaultSystemContextMenuItems: false),
+        onCreateContextMenu: (hitTestResult) async {
+          print("onCreateContextMenu");
+          print(hitTestResult.extra);
+          print(await webViewController?.getSelectedText());
+        },
+        onHideContextMenu: () {
+          print("onHideContextMenu");
+        },
+        onContextMenuActionItemClicked: (contextMenuItemClicked) async {
+          var id = (Platform.isAndroid)
+              ? contextMenuItemClicked.androidId
+              : contextMenuItemClicked.iosId;
+          print("onContextMenuActionItemClicked: " +
+              id.toString() +
+              " " +
+              contextMenuItemClicked.title);
+        });
+
+    pullToRefreshController = PullToRefreshController(
+      options: PullToRefreshOptions(
+        color: Colors.blue,
+      ),
+      onRefresh: () async {
+        if (Platform.isAndroid) {
+          webViewController?.reload();
+        } else if (Platform.isIOS) {
+          webViewController?.loadUrl(
+              urlRequest: URLRequest(url: await webViewController?.getUrl()));
+        }
+      },
+    );
+
+    EmailTO.text = "";
+    //  Email
+    //  print("GetGenLatitude" + SharedPrefHelper.instance.getLatitude());
+
+    String Sample = 'Followup Updated For Synchro Electricals By Bhavini Desai';
+    var SplitSTr = Sample.split("By");
+    print("SplitedValue" +
+        " Value : " +
+        SplitSTr[0].toString() +
+        " 2nd : " +
+        SplitSTr[1].toString());
 
     //When App is in Background
 
@@ -385,6 +390,16 @@ class _HomeScreenState extends BaseState<HomeScreen>
     MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
     IOSAPPStatus = _offlineCompanyData.details[0].IOSApp;
     AndroidAppStatus = _offlineCompanyData.details[0].AndroidApp;
+    SiteURL = _offlineCompanyData.details[0].siteURL;
+    Password = _offlineLoggedInData.details[0].userPassword;
+    print("SiteURL345" +
+        " Site URL : " +
+        SiteURL +
+        " LoginUserID : " +
+        LoginUserID +
+        " PassWord : " +
+        Password);
+
     ImgFromTextFiled.text = "https://img.icons8.com/color/2x/no-image.png";
 
     _dashBoardScreenBloc = DashBoardScreenBloc(baseBloc);
@@ -477,6 +492,17 @@ class _HomeScreenState extends BaseState<HomeScreen>
     // print("ISIOS" + "IOSVersion : " + isIOS.toString());
   }
 
+  @override
+  void dispose() {
+    // Clean up the focus node when the Form is disposed.
+
+    super.dispose();
+    SplitSTr = [];
+    PuchInTime.dispose();
+    PuchOutTime.dispose();
+    ImgFromTextFiled.dispose();
+  }
+
   Xyz(String name) {
     return name;
   }
@@ -532,10 +558,15 @@ class _HomeScreenState extends BaseState<HomeScreen>
           if (state is AttendanceSaveCallResponseState) {
             _onAttandanceSaveResponse(state);
           }
+
+          if (state is PunchOutWebMethodState) {
+            _OnwebSucessResponse(state);
+          }
           //handle states
         },
         listenWhen: (oldState, currentState) {
-          if (currentState is AttendanceSaveCallResponseState) {
+          if (currentState is AttendanceSaveCallResponseState ||
+              currentState is PunchOutWebMethodState) {
             return true;
           }
           //return true for state for which listener method should be called
@@ -1594,6 +1625,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
   Future<void> _onTapOfLogOut() async {
     await SharedPrefHelper.instance
         .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
+    _dashBoardScreenBloc
+      ..add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
+          CompanyId: CompanyID.toString(), UserID: LoginUserID, TokenNo: "")));
     navigateTo(context, FirstScreen.routeName, clearAllStack: true);
   }
 
@@ -1635,9 +1669,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         arr_ALL_Name_ID_For_Lead.add(all_name_id);*/
 
         if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SW0T-GLA5-IND7-AS71" ||
+                "SW0T-GLA5-IND7-AS71" /*||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SI08-SB94-MY45-RY15") {
+                "SI08-SB94-MY45-RY15"*/
+            ) {
           ALL_Name_ID all_name_id1 = ALL_Name_ID();
           all_name_id1.Name = "Quick Follow-up";
           all_name_id1.Name1 =
@@ -1652,14 +1687,11 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgQuotation") {
-        if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
-            "dol2-6uh7-ph03-in5h") {
-          ALL_Name_ID all_name_id = ALL_Name_ID();
-          all_name_id.Name = "Quotation";
-          all_name_id.Name1 =
-              "http://demo.sharvayainfotech.in/images/payment.png";
-          arr_ALL_Name_ID_For_Lead.add(all_name_id);
-        }
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = "Quotation";
+        all_name_id.Name1 =
+            "http://demo.sharvayainfotech.in/images/payment.png";
+        arr_ALL_Name_ID_For_Lead.add(all_name_id);
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgExternalLeads") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -1727,7 +1759,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
       }
 
       ///__________________________________Production____________________________________________________
-      else if (response.menuRightsResponse.details[i].menuName ==
+      /*else if (response.menuRightsResponse.details[i].menuName ==
           "pgPackingChecklist") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = "Packing Checklist";
@@ -1824,7 +1856,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id2.Name1 =
             "http://demo.sharvayainfotech.in/images/survey.png";
         arr_ALL_Name_ID_For_Production.add(all_name_id2);
-      }
+      }*/
 
       ///-------------------------------------Account---------------------------------------------------------
 
@@ -1834,7 +1866,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name = "BankVoucher";
         all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/bank.png";
         arr_ALL_Name_ID_For_Account.add(all_name_id);
-      } else if (response.menuRightsResponse.details[i].menuName ==
+      }
+      /*else if (response.menuRightsResponse.details[i].menuName ==
           "pgCashVoucher") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = "CashVoucher";
@@ -1873,7 +1906,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
             "http://demo.sharvayainfotech.in/images/journal.png";
         arr_ALL_Name_ID_For_Account.add(all_name_id);
       }
-
+*/
       ///-------------------------------------HR---------------------------------------------------------
       else if (response.menuRightsResponse.details[i].menuName ==
           "pgLeaveRequest") {
@@ -1993,10 +2026,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name = "To-Do";
         all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
         arr_ALL_Name_ID_For_Office.add(all_name_id);
-        ALL_Name_ID all_name_id2 = ALL_Name_ID();
+        /*ALL_Name_ID all_name_id2 = ALL_Name_ID();
         all_name_id2.Name = "Office Task";
         all_name_id2.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
-        arr_ALL_Name_ID_For_Office.add(all_name_id2);
+        arr_ALL_Name_ID_For_Office.add(all_name_id2);*/
       }
 
       ///------------------------------------Support_________________________________________________________
@@ -2071,6 +2104,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
   _onFollowerEmployeeListByStatusCallSuccess(
       FollowerEmployeeListByStatusCallResponseState state) {
+    print("testweb" + state.response.details[0].employeeName);
     SharedPrefHelper.instance.setFollowerEmployeeListData(state.response);
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
@@ -2204,15 +2238,499 @@ class _HomeScreenState extends BaseState<HomeScreen>
         LoginUserID: LoginUserID)));
   }
 
+  showcustomdialogSendEmail({
+    BuildContext context1,
+    String Email,
+    AttendanceSaveApiRequest att
+  }) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    "Send Email",
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Email To.",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 20, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller: EmailTO,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter email To",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    /*  Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Email BCC",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 25, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller: EmailBCC,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter email BCC",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),*/
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () async {
+                              if (EmailTO.text != "") {
+                                bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(EmailTO.text);
+
+                                if(emailValid==true)
+                                  {
+                                    String webreq = SiteURL +
+                                        "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
+                                        LoginUserID +
+                                        "&password=" +
+                                        Password +
+                                        "&emailaddress=" +
+                                        EmailTO.text;
+
+                                    print("webreq" + webreq);
+
+                                    _dashBoardScreenBloc
+                                        .add(PunchOutWebMethodEvent(webreq));
+
+                                    //APITokenUpdateRequestEvent
+
+                                    _showMyDialog(EmailTO.text,att);
+                                  }
+                                else
+                                  {
+                                    showCommonDialogWithSingleOption(
+                                        context, "Email is not valid !",
+                                        positiveButtonTitle: "OK");
+                                  }
+                                // GenerateQT(context123, EmailTO.text);
+
+
+
+                              } else {
+                                showCommonDialogWithSingleOption(
+                                    context, "Email TO is Required !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            },
+                            "YES",
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () {
+                              Navigator.pop(context);
+                            },
+                            "NO",
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showMyDialog(String textEmaill, AttendanceSaveApiRequest att) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Please wait ...!'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: GenerateQT(context123, textEmaill,att),
+                ),
+
+                //GetCircular123(),
+              ],
+            ),
+          ),
+          /*actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context)
+                    .pop(), //  We can return any object from here
+                child: Text('NO')),
+            */ /* prgresss!=100 ? CircularProgressIndicator() :*/ /* FlatButton(
+                onPressed: () => {
+                      Navigator.of(context).pop(),
+                    }, //  We can return any object from here
+                child: Text('YES'))
+          ],*/
+        );
+      },
+    );
+  }
+
+  void _onLoading(BuildContext contectdislog) {
+    showDialog(
+      context: contectdislog,
+      barrierDismissible: false,
+      builder: (BuildContext contectdislog1) {
+        return Dialog(
+          child: new Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              new CircularProgressIndicator(),
+              new Text("Loading"),
+            ],
+          ),
+        );
+      },
+    );
+    new Future.delayed(new Duration(seconds: 5), () {
+      Navigator.pop(contectdislog); //pop dialog
+      //_login();
+    });
+  }
+
+  GenerateQT(BuildContext context123, String emailTOstr, AttendanceSaveApiRequest att) {
+    return Center(
+      child: Container(
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&emailaddress=" +
+                          emailTOstr)),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+                        //  islodding = false;
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+                    //islodding = false;
+
+                    return NavigationActionPolicy.CANCEL;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      islodding = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    Navigator.pop(context123);
+                    showCommonDialogWithSingleOption(
+                        context, "Email Sent Successfully ",
+                        onTapOfPositiveButton: () {
+                      //Navigator.pop(context);
+                      navigateTo(context, HomeScreen.routeName,
+                          clearAllStack: true);
+                    });
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  /*  onPageFinished: (String url) {
+                    print('Page finished loading: $url');
+                    //hide you progressbar here
+                    setState(() {
+                      islodding = false;
+                    });
+                  },*/
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      islodding = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            //CircularProgressIndicator(),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+            // LinearProgressIndicator(value: this.progress)
+            /* this.progress < 1.0
+                ? LinearProgressIndicator(value: this.progress)
+                : Container(),*/
+            //
+          ],
+        ),
+      ),
+    );
+  }
+
   punchoutLogic() {
     if (isPunchIn == true) {
+      //EmailTO.text = model.emailAddress;
+      AttendanceSaveApiRequest attendanceSaveApiRequest = AttendanceSaveApiRequest(
+          EmployeeID:
+          _offlineLoggedInData.details[0].employeeID.toString(),
+          PresenceDate: selectedDate.year.toString() +
+              "-" +
+              selectedDate.month.toString() +
+              "-" +
+              selectedDate.day.toString(),
+          TimeIn: PuchInTime.text,
+          TimeOut: selectedTime.hour.toString() +
+              ":" +
+              selectedTime.minute.toString(),
+          Latitude: Latitude,
+          LocationAddress: Address,
+          Longitude: Longitude,
+          Notes: "",
+          LoginUserID: LoginUserID,
+          CompanyId: CompanyID.toString());
+
+      _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+          "SW0T-GLA5-IND7-AS71" ||
+          _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+              "SI08-SB94-MY45-RY15" ||
+          _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+              "TEST-0000-SI0F-0208"
+          ? showcustomdialogSendEmail(context1: context,att:attendanceSaveApiRequest):Container();
+      // _showMyDialog();
       isPunchOut == true
-          ? showCommonDialogWithSingleOption(
+          ? /* showCommonDialogWithSingleOption(
               context,
               _offlineLoggedInData.details[0].employeeName +
                   " \n Punch Out : " +
                   PuchOutTime.text,
               positiveButtonTitle: "OK")
+
+              Contract License Information : SI08-SB94-MY45-RY15*/
+          _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                      "SW0T-GLA5-IND7-AS71" ||
+                  _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                      "SI08-SB94-MY45-RY15" ||
+                  _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                      "TEST-0000-SI0F-0208"
+              ? showcustomdialogSendEmail(context1: context,att:attendanceSaveApiRequest)
+              : showCommonDialogWithSingleOption(
+                  context,
+                  _offlineLoggedInData.details[0].employeeName +
+                      " \n Punch Out : " +
+                      PuchOutTime.text,
+                  positiveButtonTitle: "OK")
           : _dashBoardScreenBloc.add(AttendanceSaveCallEvent(
               AttendanceSaveApiRequest(
                   EmployeeID:
@@ -2279,8 +2797,34 @@ class _HomeScreenState extends BaseState<HomeScreen>
   }
 
   void _OnTokenUpdateResponse(APITokenUpdateState state) {
-    if (state.apiresponse != "") {
-      print("APDdfd" + " API Token Response : " + state.apiresponse);
+    if (state.firebaseTokenResponse.details[0].column2 != "") {
+      print("APDdfd" +
+          " API Token Response : " +
+          state.firebaseTokenResponse.details[0].column2);
     }
+  }
+
+  void MovetoFollowupScreen(
+      BuildContext Notifycontext, String Title, String BodyDetails) {
+    SplitSTr = BodyDetails.split("By");
+    print("NotificationSplitedValue" +
+        " Value : " +
+        SplitSTr[0].toString() +
+        " 2nd : " +
+        SplitSTr[1].toString());
+    //navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+
+    navigateTo(Notifycontext, FollowupListScreen.routeName,
+            clearAllStack: true,
+            arguments: FollowupListScreenArguments(SplitSTr[1].toString()))
+        .then((value) {
+      SplitSTr = [];
+    });
+  }
+
+  onTimerFinished() {}
+
+  void _OnwebSucessResponse(PunchOutWebMethodState state) {
+    print("Webresponse" + state.response);
   }
 }

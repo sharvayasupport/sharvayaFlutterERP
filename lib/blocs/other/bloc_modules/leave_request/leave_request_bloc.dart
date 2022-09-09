@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/attendance_employee_list_request.dart';
@@ -12,18 +13,21 @@ import 'package:soleoserp/models/api_responses/leave_request_delete_response.dar
 import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';
 import 'package:soleoserp/models/api_responses/leave_request_save_response.dart';
 import 'package:soleoserp/models/api_responses/leave_request_type_response.dart';
+import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
-import 'package:flutter/material.dart';
 
 part 'leave_request_event.dart';
-
 part 'leave_request_states.dart';
 
-class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates> {
+class LeaveRequestScreenBloc
+    extends Bloc<LeaveRequestEvents, LeaveRequestStates> {
   Repository userRepository = Repository.getInstance();
   BaseBloc baseBloc;
 
-  LeaveRequestScreenBloc(this.baseBloc) : super(LeaveRequestStatesInitialState());
+  LeaveRequestScreenBloc(this.baseBloc)
+      : super(LeaveRequestStatesInitialState());
 
   @override
   Stream<LeaveRequestStates> mapEventToState(LeaveRequestEvents event) async* {
@@ -31,43 +35,44 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
     if (event is LeaveRequestCallEvent) {
       yield* _mapLeaveRequestListCallEventToState(event);
     }
-    if(event is LeaveRequestEmployeeListCallEvent)
-    {
+    if (event is LeaveRequestEmployeeListCallEvent) {
       yield* _mapAttendanceEmployeeListCallEventToState(event);
     }
-    if(event is LeaveRequestDeleteByNameCallEvent)
-      {
-        yield*  _mapDeleteLeaveRequestCallEventToState(event);
-      }
+    if (event is LeaveRequestDeleteByNameCallEvent) {
+      yield* _mapDeleteLeaveRequestCallEventToState(event);
+    }
 
-    if(event is LeaveRequestSaveCallEvent)
-    {
+    if (event is LeaveRequestSaveCallEvent) {
       yield* _mapLeaveRequestSaveCallEventToState(event);
     }
-    if(event is LeaveRequestApprovalSaveCallEvent)
-      {
-        yield* _mapLeaveApprovalSaveCallEventToState(event);
-      }
+    if (event is LeaveRequestApprovalSaveCallEvent) {
+      yield* _mapLeaveApprovalSaveCallEventToState(event);
+    }
 
-    if(event is LeaveRequestTypeCallEvent)
-    {
+    if (event is LeaveRequestTypeCallEvent) {
       yield* _mapLeaveRequestTypeCallEventToState(event);
     }
 
+    if (event is FCMNotificationRequestEvent) {
+      yield* _map_fcm_notificationEvent_state(event);
+    }
+    if (event is GetReportToTokenRequestEvent) {
+      yield* _map_GetReportToTokenRequestEventState(event);
+    }
   }
 
   Stream<LeaveRequestStates> _mapLeaveRequestListCallEventToState(
       LeaveRequestCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      LeaveRequestListResponse response =
-      await userRepository.getLeaveRequestList(event.pageNo,event.leaveRequestListAPIRequest);
-      yield LeaveRequestStatesResponseState(event.pageNo,response);
+      LeaveRequestListResponse response = await userRepository
+          .getLeaveRequestList(event.pageNo, event.leaveRequestListAPIRequest);
+      yield LeaveRequestStatesResponseState(event.pageNo, response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
@@ -76,9 +81,9 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
       LeaveRequestEmployeeListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      AttendanceEmployeeListResponse respo =  await userRepository.attendanceEmployeeList(event.attendanceEmployeeListRequest);
+      AttendanceEmployeeListResponse respo = await userRepository
+          .attendanceEmployeeList(event.attendanceEmployeeListRequest);
       yield LeaveRequestEmployeeListResponseState(respo);
-
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -91,7 +96,9 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
       LeaveRequestDeleteByNameCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      LeaveRequestDeleteResponse leaveRequestDeleteResponse = await userRepository.deleteLeaveRequest(event.pkID,event.leaverequestdelete);
+      LeaveRequestDeleteResponse leaveRequestDeleteResponse =
+          await userRepository.deleteLeaveRequest(
+              event.pkID, event.leaverequestdelete);
       yield LeaveRequestDeleteCallResponseState(leaveRequestDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -101,16 +108,14 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
     }
   }
 
-///event functions to states implementation
-
-
+  ///event functions to states implementation
 
   Stream<LeaveRequestStates> _mapLeaveRequestSaveCallEventToState(
       LeaveRequestSaveCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      LeaveRequestSaveResponse response =
-      await userRepository.getLeaveRequestSave(event.pkID,event.leaveRequestSaveAPIRequest);
+      LeaveRequestSaveResponse response = await userRepository
+          .getLeaveRequestSave(event.pkID, event.leaveRequestSaveAPIRequest);
       yield LeaveRequestSaveResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -124,8 +129,8 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
       LeaveRequestApprovalSaveCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      LeaveApprovalSaveResponse response =
-      await userRepository.getLeaveApprovalSave(event.pkID,event.leaveApprovalSaveAPIRequest);
+      LeaveApprovalSaveResponse response = await userRepository
+          .getLeaveApprovalSave(event.pkID, event.leaveApprovalSaveAPIRequest);
       yield LeaveApprovalSaveResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -139,8 +144,8 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
       LeaveRequestTypeCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      LeaveRequestTypeResponse response =
-      await userRepository.getLeaveRequestType(event.leaveRequestTypeAPIRequest);
+      LeaveRequestTypeResponse response = await userRepository
+          .getLeaveRequestType(event.leaveRequestTypeAPIRequest);
       yield LeaveRequestTypeResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -150,4 +155,37 @@ class LeaveRequestScreenBloc extends Bloc<LeaveRequestEvents, LeaveRequestStates
     }
   }
 
+  Stream<LeaveRequestStates> _map_fcm_notificationEvent_state(
+      FCMNotificationRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FCMNotificationResponse response =
+          await userRepository.fcm_get_api(event.request123);
+      yield FCMNotificationResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<LeaveRequestStates> _map_GetReportToTokenRequestEventState(
+      GetReportToTokenRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      GetReportToTokenResponse response =
+          await userRepository.getreporttoTokenAPI(event.request);
+      yield GetReportToTokenResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
 }

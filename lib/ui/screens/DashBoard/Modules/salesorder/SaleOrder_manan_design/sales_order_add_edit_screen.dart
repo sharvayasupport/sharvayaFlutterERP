@@ -6,7 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesorder/salesorder_bloc.dart';
+import 'package:soleoserp/models/api_requests/SalesBill/sale_bill_email_content_request.dart';
+import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_list_Request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
+import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
 import 'package:soleoserp/models/api_requests/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
@@ -25,14 +28,17 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_country_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_state_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/customer_search/customer_search_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/module_no_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/saleorder_other_charges_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/saleorder_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
+import 'package:soleoserp/utils/sales_order_payment_schedule.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateSalesOrderNewScreenArguments {
@@ -128,6 +134,9 @@ class _SaleOrderNewAddEditScreenState
   TextEditingController _contrller_payment_terms = TextEditingController();
   TextEditingController _controller_select_email_subject =
       TextEditingController();
+  TextEditingController _controller_select_email_subject_ID =
+      TextEditingController();
+
   TextEditingController _contrller_email_subject = TextEditingController();
   TextEditingController _contrller_email_introcuction = TextEditingController();
   TextEditingController _controller_amount = TextEditingController();
@@ -171,6 +180,7 @@ class _SaleOrderNewAddEditScreenState
 
   TextEditingController _controller_state = TextEditingController();
   TextEditingController _controller_city = TextEditingController();
+  TextEditingController _controller_Module_NO = TextEditingController();
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales_Order_Bank_Name = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales_Order_Select_Inquiry = [];
@@ -179,6 +189,9 @@ class _SaleOrderNewAddEditScreenState
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Terms_And_Condition = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Email_Subject = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_ProjectList = [];
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_INQ_QT_SO_List = [];
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List = [];
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Payment_Schedual_List = [];
 
   TextEditingController _controller_projectName = TextEditingController();
   TextEditingController _controller_projectID = TextEditingController();
@@ -198,6 +211,12 @@ class _SaleOrderNewAddEditScreenState
   List<SalesOrderTable> _inquiryProductList = [];
   final TextEditingController edt_StateCode = TextEditingController();
 
+  List<SoPaymentScheduleTable> arr_PaymentScheduleList = [];
+
+  TextEditingController _controllerAmountDialog = TextEditingController();
+  TextEditingController _controllerDueDateDialog = TextEditingController();
+  TextEditingController _controllerRevDueDateDialog = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -209,9 +228,10 @@ class _SaleOrderNewAddEditScreenState
     LoginUserID = _offlineLoggedInData.details[0].userID;
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getALLEmployeeList();
-
+    arr_ALL_Name_ID_For_Payment_Schedual_List.clear();
     _onFollowerEmployeeListByStatusCallSuccess(
         _offlineFollowerEmployeeListData);
+    getSelectOptionList();
 
     _salesOrderBloc.add(SaleOrderBankDetailsListRequestEvent(
         SaleOrderBankDetailsListRequest(
@@ -225,8 +245,37 @@ class _SaleOrderNewAddEditScreenState
     _salesOrderBloc.add(QuotationTermsConditionCallEvent(
         QuotationTermsConditionRequest(
             CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
-    _isForUpdate = widget.arguments != null;
 
+    _salesOrderBloc.add(SalesBillEmailContentRequestEvent(
+        SalesBillEmailContentRequest(
+            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    _salesOrderBloc.add(PaymentScheduleListEvent());
+
+    _isForUpdate = widget.arguments != null;
+    _controller_select_inquiry.addListener(() {
+      setState(() {
+        if (_controller_customer_pkID.text != null ||
+            _controller_customer_pkID.text != "") {
+          if (_controller_select_inquiry.text == "Inquiry") {
+            _salesOrderBloc.add(SaleBill_INQ_QT_SO_NO_ListRequestEvent(
+                SaleBill_INQ_QT_SO_NO_ListRequest(
+                    CompanyId: CompanyID.toString(),
+                    CustomerID: _controller_customer_pkID.text.toString(),
+                    ModuleType: "Inquiry")));
+          } else if (_controller_select_inquiry.text == "Quotation") {
+            _salesOrderBloc.add(SaleBill_INQ_QT_SO_NO_ListRequestEvent(
+                SaleBill_INQ_QT_SO_NO_ListRequest(
+                    CompanyId: CompanyID.toString(),
+                    CustomerID: _controller_customer_pkID.text.toString(),
+                    ModuleType: "Quotation")));
+          }
+        } else {
+          showCommonDialogWithSingleOption(
+              context, "Customer name is required To view Option !",
+              positiveButtonTitle: "OK");
+        }
+      });
+    });
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
       fillData();
@@ -264,24 +313,55 @@ class _SaleOrderNewAddEditScreenState
           if (state is BankDetailsListResponseState) {
             _onBankDetailsList(state);
           }
+          if (state is SaleBillEmailContentResponseState) {
+            _OnEmailContentResponse(state);
+          }
+          if (state is PaymentScheduleListResponseState) {
+            _OnPaymentScheduleSucessList(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           //return true for state for which builder method should be called
           if (currentState is BankDetailsListResponseState ||
               currentState is QuotationProjectListResponseState ||
-              currentState is QuotationTermsCondtionResponseState) {
+              currentState is QuotationTermsCondtionResponseState ||
+              currentState is SaleBillEmailContentResponseState ||
+              currentState is PaymentScheduleListResponseState) {
             return true;
           }
           return false;
         },
         listener: (BuildContext context, SalesOrderStates state) {
+          if (state is SalesBill_INQ_QT_SO_NO_ListResponseState) {
+            _OnINQ_QT_SO_NO_Response(state);
+          }
+          if (state is MultiNoToProductDetailsResponseState) {
+            _On_No_To_ProductDetails(state);
+          }
+          if (state is PaymentScheduleResponseState) {
+            _onInsertPaymentScheduleSucess(state);
+          }
+          if (state is PaymentScheduleDeleteResponseState) {
+            _ondeletePaymentSchedule(state);
+          }
+
+          if (state is PaymentScheduleEditResponseState) {
+            OnUpdatePaymentSchedule(state);
+          }
           return super.build(context);
           //handle states
         },
         listenWhen: (oldState, currentState) {
           //return true for state for which listener method should be called
 
+          if (currentState is SalesBill_INQ_QT_SO_NO_ListResponseState ||
+              currentState is MultiNoToProductDetailsResponseState ||
+              currentState is PaymentScheduleResponseState ||
+              currentState is PaymentScheduleDeleteResponseState ||
+              currentState is PaymentScheduleEditResponseState) {
+            return true;
+          }
           return false;
         },
       ),
@@ -290,74 +370,82 @@ class _SaleOrderNewAddEditScreenState
 
   @override
   Widget buildBody(BuildContext context) {
-    return DefaultTabController(
-      length: 7,
-      child: Scaffold(
-          appBar: NewGradientAppBar(
-            gradient: LinearGradient(
-                colors: [Colors.blue, Colors.purple, Colors.red]),
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_ios,
-                color: Colors.white,
-                size: 19,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(
-                    Icons.water_damage_sharp,
-                    color: colorWhite,
-                  ),
-                  onPressed: () {
-                    //_onTapOfLogOut();
-                    navigateTo(context, HomeScreen.routeName,
-                        clearAllStack: true);
-                  })
-            ],
-            title: Text("Manage Sales Order"),
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      mandetoryDetails(),
-                      space(10),
-                      productDetails(),
-                      space(10),
-                      productOtherCharges(),
-                      space(20),
-                      basicInformation(),
-                      space(10),
-                      termsAndCondition(),
-                      space(5),
-                      emailContent(),
-                      space(5),
-                      paymentSchedule(),
-                      space(5),
-                      shipmentDetail(),
-                      space(5),
-                      attachment(),
-                      space(5),
-                      shipmentAddress(),
-                      space(20),
-                      otherCharges(),
-                      space(10),
-                      save(),
-                    ],
-                  ),
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: DefaultTabController(
+        length: 7,
+        child: Scaffold(
+            appBar: NewGradientAppBar(
+              gradient: LinearGradient(
+                  colors: [Colors.blue, Colors.purple, Colors.red]),
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: 19,
                 ),
+                onPressed: () => navigateTo(
+                    context, SalesOrderListScreen.routeName,
+                    clearAllStack: true),
+              ),
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(
+                      Icons.water_damage_sharp,
+                      color: colorWhite,
+                    ),
+                    onPressed: () {
+                      //_onTapOfLogOut();
+                      navigateTo(context, HomeScreen.routeName,
+                          clearAllStack: true);
+                    })
               ],
+              title: Text("Manage Sales Order"),
             ),
-          )),
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        mandetoryDetails(),
+                        space(10),
+                        productDetails(),
+                        space(10),
+                        otherCharges(),
+                        space(20),
+                        basicInformation(),
+                        space(10),
+                        termsAndCondition(),
+                        space(5),
+                        emailContent(),
+                        space(5),
+                        paymentSchedule(),
+                        space(5),
+                        shipmentDetail(),
+                        space(5),
+                        attachment(),
+                        space(5),
+                        shipmentAddress(),
+                        space(20),
+                        save(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )),
+      ),
     );
   } // Widget build(BuildContext context)
+
+  Future<bool> _onBackPressed() async {
+    // await _onTapOfDeleteALLProduct();
+    navigateTo(context, SalesOrderListScreen.routeName, clearAllStack: true);
+  }
 
   Widget ProductDetails() {
     return Container(
@@ -1340,6 +1428,29 @@ class _SaleOrderNewAddEditScreenState
                   Flexible(flex: 2, child: _buildPIDate())
                 ],
               ),
+              SizedBox(
+                height: 15,
+              ),
+              _isForUpdate != true
+                  ? Column(
+                      children: [
+                        createTextLabel("Select Option", 10.0, 0.0),
+                        CustomDropDown1("Option",
+                            enable1: false,
+                            title: "Select Option",
+                            hintTextvalue: "Tap to select",
+                            icon: Icon(Icons.arrow_drop_down),
+                            controllerForLeft: _controller_select_inquiry,
+                            Custom_values1:
+                                arr_ALL_Name_ID_For_Sales_Order_Select_Inquiry),
+                        // createTextLabel("Inq/QT/SO No.", 10.0, 0.0),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        _ModuleDropDown(context)
+                      ],
+                    )
+                  : Container(),
             ],
           ),
         ),
@@ -1351,19 +1462,53 @@ class _SaleOrderNewAddEditScreenState
   productDetails() {
     return Container(
         margin: EdgeInsets.only(left: 5, right: 5),
-        child: getCommonButton(baseTheme, () {
-          if (_controller_customer_name.text != "") {
-            // print("INWWWE" + InquiryNo.toString());
-            navigateTo(context, SalesOrderProductListScreen.routeName,
-                arguments: AddSalesOrderProductListArgument(
-                    SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
-          } else {
-            showCommonDialogWithSingleOption(
-                context, "Customer name is required To view Product !",
-                positiveButtonTitle: "OK");
-          }
-        }, "Add Product Details",
-            radius: 18, backGroundColor: Color(0xff362d8b)));
+        child: getCommonButton(
+          baseTheme,
+          () {
+            List<String> ModuleNoList = [];
+            if (_controller_customer_name.text != "") {
+              // print("INWWWE" + InquiryNo.toString());
+              if (arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length != 0) {
+                for (int i = 0;
+                    i < arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length;
+                    i++) {
+                  print("sldsdf" +
+                      " Filter InqList : " +
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name +
+                      " ISChecked : " +
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i]
+                          .isChecked
+                          .toString());
+                  ModuleNoList.add(
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name);
+                }
+
+                if (ModuleNoList.length != 0) {
+                  var stringwe = "," + ModuleNoList.join(',') + ",";
+                  print("commaseprated" + stringwe);
+                  _salesOrderBloc.add(MultiNoToProductDetailsRequestEvent(
+                      MultiNoToProductDetailsRequest(
+                          FetchType: _controller_select_inquiry.text,
+                          No: stringwe.toString(),
+                          CustomerID: _controller_customer_pkID.text,
+                          CompanyId: CompanyID.toString())));
+                }
+              } else {
+                navigateTo(context, SalesOrderProductListScreen.routeName,
+                    arguments: AddSalesOrderProductListArgument(
+                        SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
+              }
+            } else {
+              showCommonDialogWithSingleOption(
+                  context, "Customer name is required To view Product !",
+                  positiveButtonTitle: "OK");
+            }
+          },
+          "Add Product Details",
+          radius: 18,
+          backGroundColor: Color(0xfffbb034),
+          textColor: Color(0xff362d8b),
+        ));
   }
 
   productOtherCharges() {
@@ -1465,40 +1610,22 @@ class _SaleOrderNewAddEditScreenState
                             bottomLeft: Radius.circular(15))),
                     child: Column(
                       children: [
-                        Row(
+                        /* Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
                               child:
-                                  createTextLabel("Select Inquiry", 10.0, 0.0),
+                                  createTextLabel("Select Option", 10.0, 0.0),
                             ),
                             Flexible(
-                              child: createTextLabel("Inquiry No.", 10.0, 0.0),
+                              child:
+                                  createTextLabel("Inq/QT/SO No.", 10.0, 0.0),
                             ),
                           ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Flexible(
-                              // flex: 2,
-                              child: CustomDropDown1("Inquiry",
-                                  enable1: false,
-                                  title: "Select Option",
-                                  hintTextvalue: "Tap to Select Inquiry",
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  controllerForLeft: _controller_select_inquiry,
-                                  Custom_values1:
-                                      arr_ALL_Name_ID_For_Sales_Order_Select_Inquiry),
-                            ),
-                            Flexible(
-                                // flex: 1,
-                                child: createTextFormField(
-                                    _controller_inquiry_no, "Inquiry No.")),
-                          ],
-                        ),
+                        ),*/
+
                         SizedBox(
-                          height: 5,
+                          height: 10,
                         ),
                         createTextLabel("Sales Executive", 10.0, 0.0),
                         SizedBox(
@@ -1815,26 +1942,32 @@ class _SaleOrderNewAddEditScreenState
                         SizedBox(
                           height: 3,
                         ),
-                        CustomDropDown1("Email Subject",
+                        EmailSubjectWithMultiID1("Email Subject",
+                            enable1: false,
+                            title: "Email Subject",
+                            hintTextvalue: "Tap to Select Subject",
+                            icon: Icon(Icons.arrow_drop_down),
+                            Custom_values1: arr_ALL_Name_ID_For_Email_Subject),
+                        /*CustomDropDown1("Email Subject",
                             enable1: false,
                             title: "Email Subject",
                             hintTextvalue: "Tap to Select Subject",
                             icon: Icon(Icons.arrow_drop_down),
                             controllerForLeft: _controller_select_email_subject,
-                            Custom_values1: arr_ALL_Name_ID_For_Email_Subject),
+                            Custom_values1: arr_ALL_Name_ID_For_Email_Subject),*/
                         SizedBox(
                           height: 10,
                         ),
                         createTextLabel("Subject", 10.0, 0.0),
                         createTextFormField(
-                            _contrller_email_subject, "Email Subject",
+                            _controller_select_email_subject, "Email Subject",
                             keyboardInput: TextInputType.text),
                         SizedBox(
                           height: 3,
                         ),
                         createTextLabel("Email Introduction", 10.0, 0.0),
                         createTextFormField(
-                            _contrller_email_introcuction, "Email Introduction",
+                            _contrller_email_subject, "Email Introduction",
                             minLines: 2,
                             maxLines: 5,
                             height: 70,
@@ -1865,14 +1998,8 @@ class _SaleOrderNewAddEditScreenState
         elevation: 2,
         child: Container(
           decoration: BoxDecoration(
-              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
-              // boxShadow: [
-              //   BoxShadow(
-              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
-              //       spreadRadius: 1.0
-              //   ),
-              // ]
-              ),
+              color: Color(0xff362d8b),
+              borderRadius: BorderRadius.circular(20)),
           child: Theme(
             data: ThemeData().copyWith(
               dividerColor: Colors.white70,
@@ -1904,31 +2031,261 @@ class _SaleOrderNewAddEditScreenState
                             bottomLeft: Radius.circular(15))),
                     child: Column(
                       children: [
+                        arr_PaymentScheduleList.length != 0
+                            ? ListView.builder(
+                                shrinkWrap: true,
+                                physics: ScrollPhysics(),
+                                itemCount: arr_PaymentScheduleList.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  //return _buildSearchInquiryListItem(index);
+                                  return Card(
+                                      elevation: 10,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                      ),
+                                      child: Container(
+                                        child: Column(children: <Widget>[
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  child: ListTile(
+                                                    title: Text(
+                                                      'Amount',
+                                                      style: TextStyle(
+                                                          color: colorPrimary),
+                                                    ),
+                                                    subtitle: Text(
+                                                      '${arr_PaymentScheduleList[index].amount.toString()}',
+                                                      style: TextStyle(
+                                                          color: colorBlack,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Container(
+                                                  child: Container(
+                                                    child: ListTile(
+                                                      title: Text(
+                                                        'Date',
+                                                        style: TextStyle(
+                                                            color:
+                                                                colorPrimary),
+                                                      ),
+                                                      subtitle: Text(
+                                                        '${arr_PaymentScheduleList[index].dueDate.toString()}',
+                                                        style: TextStyle(
+                                                            color: colorBlack,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Divider(
+                                            thickness: 1,
+                                            color: colorPrimary,
+                                          ),
+                                          ButtonBar(
+                                              alignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              buttonMinWidth: 90.0,
+                                              children: <Widget>[
+                                                FlatButton(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4.0)),
+                                                  onPressed: () {
+                                                    //_onTapOfEditContact(index);
+                                                    _controllerAmountDialog
+                                                            .text =
+                                                        arr_PaymentScheduleList[
+                                                                index]
+                                                            .amount
+                                                            .toStringAsFixed(2);
+                                                    _controllerDueDateDialog
+                                                            .text =
+                                                        arr_PaymentScheduleList[
+                                                                index]
+                                                            .dueDate
+                                                            .toString();
+                                                    _controllerRevDueDateDialog
+                                                            .text =
+                                                        arr_PaymentScheduleList[
+                                                                index]
+                                                            .revdueDate
+                                                            .toString();
+
+                                                    showcustomdialogSendEmail(
+                                                        context1: context,
+                                                        updatedID:
+                                                            arr_PaymentScheduleList[
+                                                                    index]
+                                                                .id);
+                                                  },
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Icon(
+                                                        Icons.edit,
+                                                        color: colorPrimary,
+                                                        size: 20,
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                vertical: 2.0),
+                                                      ),
+                                                      Text(
+                                                        'Edit',
+                                                        style: TextStyle(
+                                                            color: colorPrimary,
+                                                            fontSize: 12),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                FlatButton(
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4.0)),
+                                                  onPressed: () {
+                                                    // _onTapOfDeleteContact(index);
+
+                                                    _salesOrderBloc.add(
+                                                        PaymentScheduleDeleteEvent(
+                                                            arr_PaymentScheduleList[
+                                                                    index]
+                                                                .id));
+                                                  },
+                                                  child: Column(
+                                                    children: <Widget>[
+                                                      Icon(
+                                                        Icons.delete,
+                                                        color: colorPrimary,
+                                                        size: 20,
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                vertical: 2.0),
+                                                      ),
+                                                      Text(
+                                                        'Delete',
+                                                        style: TextStyle(
+                                                            color: colorPrimary,
+                                                            fontSize: 12),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ]),
+                                        ]),
+                                      ));
+                                  /*return Row(
+                                    children: [
+                                      Text(arr_PaymentScheduleList[index]
+                                          .dueDate
+                                          .toString()),
+                                      Flexible(
+                                          child: getCommonButton(baseTheme, () {
+                                        print("deleteID" +
+                                            arr_PaymentScheduleList[index]
+                                                .id
+                                                .toString());
+                                        _salesOrderBloc.add(
+                                            PaymentScheduleDeleteEvent(
+                                                arr_PaymentScheduleList[index]
+                                                    .id));
+
+                                      }, "del"))
+                                    ],
+                                  );*/
+                                },
+                              )
+                            : Container(),
+                        SizedBox(height: 15),
                         Row(
                           children: [
-                            Flexible(
+                            Expanded(
                               child: createTextLabel("Amount", 10.0, 0.0),
                             ),
-                            Flexible(
+                            Expanded(
+                              flex: 2,
                               child: createTextLabel("Due Date", 10.0, 0.0),
                             ),
-                            Flexible(child: Container())
+                            Expanded(
+                              child: createTextLabel("", 10.0, 0.0),
+                            ),
                           ],
                         ),
                         SizedBox(
                           height: 3,
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Flexible(
+                            Expanded(
                                 child: createTextFormField(
-                                    _controller_amount, "Enter Amount")),
-                            Flexible(
+                                    _controller_amount, "Amount")),
+                            Expanded(
                               flex: 2,
                               child: _buildDueDate(),
                             ),
-                            Flexible(
-                                child: getCommonButton(baseTheme, () {}, "+"))
+                            Expanded(
+                                child: Container(
+                              margin: EdgeInsets.only(left: 5),
+                              child: getCommonButton(baseTheme, () {
+                                //  ALL_Name_ID all_name_id = ALL_Name_ID();
+
+                                /* all_name_id.Name = _controller_amount.text;
+                              all_name_id.PresentDate =
+                                    _controller_rev_due_date.text;
+
+                              arr_ALL_Name_ID_For_Payment_Schedual_List
+                                    .add(all_name_id);
+                              _controllers.add(new TextEditingController());
+                              _controllers1.add(new TextEditingController());
+                              _controllers2.add(new TextEditingController());*/
+                                //  SoPaymentScheduleTable()
+
+                                if (_controller_amount.text != "") {
+                                  if (_controller_due_date.text != "") {
+                                    setState(() {
+                                      _salesOrderBloc.add(PaymentScheduleEvent(
+                                          SoPaymentScheduleTable(
+                                              double.parse(
+                                                  _controller_amount.text),
+                                              _controller_due_date.text,
+                                              _controller_rev_due_date.text)));
+
+                                      _controller_amount.text = "";
+                                      _controller_due_date.text = "";
+                                      _controller_rev_due_date.text = "";
+                                    });
+                                  } else {
+                                    showCommonDialogWithSingleOption(
+                                        context, "Date is Required !",
+                                        positiveButtonTitle: "OK");
+                                  }
+                                } else {
+                                  showCommonDialogWithSingleOption(
+                                      context, "Amount is Required !",
+                                      positiveButtonTitle: "OK");
+                                }
+                              }, "+", width: 42, height: 42, radius: 15),
+                            ))
                           ],
                         ),
                         SizedBox(
@@ -2325,8 +2682,33 @@ class _SaleOrderNewAddEditScreenState
   otherCharges() {
     return Container(
         margin: EdgeInsets.only(left: 8, right: 8),
-        child: getCommonButton(baseTheme, () {}, "Other Charges",
-            radius: 18, backGroundColor: Color(0xff362d8b)));
+        child: getCommonButton(baseTheme, () async {
+          await getInquiryProductDetails();
+          if (_inquiryProductList.length != 0) {
+            print("HeaderDiscll" + edt_HeaderDisc.text.toString());
+            navigateTo(context, SalesOrderOtherChargeScreen.routeName,
+                    arguments: SalesOrderOtherChargesScreenArguments(
+                        int.parse(
+                            edt_StateCode == null ? 0 : edt_StateCode.text),
+                        _editModel,
+                        edt_HeaderDisc.text))
+                .then((value) {
+              if (value == null) {
+                print("HeaderDiscount From QTOtherCharges 0.00");
+              } else {
+                print("HeaderDiscount From QTOtherCharges $value");
+                edt_HeaderDisc.text = value;
+              }
+            });
+          } else {
+            showCommonDialogWithSingleOption(context,
+                "Atleast one product is required to view other charges !",
+                positiveButtonTitle: "OK");
+          }
+        }, "Other Charges",
+            radius: 18,
+            backGroundColor: Color(0xfffbb034),
+            textColor: Color(0xff362d8b)));
   }
 
   save() {
@@ -2791,6 +3173,8 @@ class _SaleOrderNewAddEditScreenState
 
     _controller_customer_name.text = _editModel.customerName.toString();
     _controller_customer_pkID.text = _editModel.customerID.toString();
+    _controller_sales_executive.text = _editModel.employeeName;
+    _controller_sales_executiveID.text = _editModel.employeeID.toString();
   }
 
   BankDetails(BuildContext context) {
@@ -2813,5 +3197,621 @@ class _SaleOrderNewAddEditScreenState
           color: colorGrayDark,
           size: 32,
         ));
+  }
+
+  Widget _ModuleDropDown(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        if (_controller_select_inquiry.text != "") {
+          navigateTo(context, ModuleNoListScreen.routeName,
+                  arguments: AddModuleNoScreenArguments(
+                      arr_ALL_Name_ID_For_INQ_QT_SO_List))
+              .then((value) {
+            setState(() {
+              arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List = value;
+
+              if (arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length != 0) {
+                List<String> ModuleNoList = [];
+                for (int i = 0;
+                    i < arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length;
+                    i++) {
+                  print("sldsdf" +
+                      " Filter InqList : " +
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name +
+                      " ISChecked : " +
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i]
+                          .isChecked
+                          .toString());
+                  ModuleNoList.add(
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name);
+                  if (ModuleNoList.length != 0) {
+                    var stringwe = ModuleNoList.join('|');
+                    print("commaseprated" + stringwe);
+                    _controller_Module_NO.text = stringwe.toString();
+                  }
+                }
+              }
+            });
+          });
+        } else {
+          showCommonDialogWithSingleOption(
+              context, "Customer name is required To view Option !",
+              positiveButtonTitle: "OK");
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          createTextLabel("Inq/QT/SO No.", 10.0, 0.0),
+          Card(
+            elevation: 5,
+            color: colorLightGray,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              padding: EdgeInsets.only(left: 20, right: 20),
+              width: double.maxFinite,
+              height: 40,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                        controller: _controller_Module_NO,
+                        enabled: false,
+                        //expands: true,
+                        decoration: InputDecoration(
+                          hintText: "Select Module No.",
+                          labelStyle: TextStyle(
+                            color: Color(0xFF000000),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.only(bottom: 7),
+                        ),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF000000),
+                        ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                        ),
+                  ),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: colorGrayDark,
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  ModuleNo(BuildContext context) {
+    return EditText(context,
+        hint: "View Module No",
+        radius: 10,
+        readOnly: true,
+        boxheight: 40, onPressed: () {
+      if (_controller_select_inquiry.text != "") {
+        navigateTo(context, ModuleNoListScreen.routeName,
+                arguments: AddModuleNoScreenArguments(
+                    arr_ALL_Name_ID_For_INQ_QT_SO_List))
+            .then((value) {
+          setState(() {
+            arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List = value;
+          });
+        });
+      } else {
+        showCommonDialogWithSingleOption(
+            context, "Customer name is required To view Option !",
+            positiveButtonTitle: "OK");
+      }
+    },
+        inputTextStyle: TextStyle(fontSize: 15),
+        suffixIcon: Icon(
+          Icons.arrow_drop_down,
+          color: colorGrayDark,
+          size: 32,
+        ));
+  }
+
+  void _OnINQ_QT_SO_NO_Response(
+      SalesBill_INQ_QT_SO_NO_ListResponseState state) {
+    arr_ALL_Name_ID_For_INQ_QT_SO_List.clear();
+
+    if (state.response.details.length != 0) {
+      for (int i = 0; i < state.response.details.length; i++) {
+        print("lsdfsdf" + " Order No " + state.response.details[i].orderNo);
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].orderNo;
+        all_name_id.isChecked = false;
+        arr_ALL_Name_ID_For_INQ_QT_SO_List.add(all_name_id);
+      }
+    }
+  }
+
+  void getSelectOptionList() {
+    arr_ALL_Name_ID_For_Sales_Order_Select_Inquiry.clear();
+    for (var i = 0; i < 2; i++) {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+
+      if (i == 0) {
+        all_name_id.Name = "Inquiry";
+      } else if (i == 1) {
+        all_name_id.Name = "Quotation";
+      }
+      arr_ALL_Name_ID_For_Sales_Order_Select_Inquiry.add(all_name_id);
+    }
+  }
+
+  void _On_No_To_ProductDetails(
+      MultiNoToProductDetailsResponseState state) async {
+    if (state.response.details.length != 0) {
+      /* for (int i = 0; i < state.response.details.length; i++) {
+        print("producttdf" +
+            "ProductName : " +
+            state.response.details[i].productName);
+
+
+      }*/
+
+      await OfflineDbHelper.getInstance().deleteALLSalesOrderProduct();
+
+      for (var i = 0; i < state.response.details.length; i++) {
+        double Quantity = state.response.details[i].quantity;
+        double UnitPrice = state.response.details[i].unitPrice;
+        double DisPer = 0.00;
+        double NetRate = 0.00;
+        double Amount = 0.00;
+        double TaxPer = state.response.details[i].taxRate;
+        double TaxAmount = 0.00;
+        int TaxType = state.response.details[i].taxType;
+        double Amount1 = 0.00;
+        double TaxAmount1 = 0.00;
+        double TotalAmount = 0.00;
+        double NetRate1 = 0.00; //(UnitPrice * DisPer) / 100;
+        /* double CGSTPer1 =0.00;
+      double SGSTPer1 =0.00;
+      double IGSTPer1 =0.00;
+      double CGSTAmount1 =0.00;
+      double SGSTAmount1 =0.00;
+      double IGSTAmount1 =0.00;*/
+        double CGSTPer = 0.00;
+        double SGSTPer = 0.00;
+        double IGSTPer = 0.00;
+        double CGSTAmount = 0.00;
+        double SGSTAmount = 0.00;
+        double IGSTAmount = 0.00;
+
+        NetRate1 = UnitPrice;
+        NetRate = NetRate1;
+        if (TaxType == 1) {
+          Amount1 = Quantity * NetRate1;
+          Amount = Amount1;
+          TaxAmount1 = (Amount1 * TaxPer) / 100;
+          TaxAmount = TaxAmount1;
+          TotalAmount = Amount1 + TaxAmount1;
+        } else {
+          Amount1 = 0.00;
+          TaxAmount1 = 0.00;
+          TotalAmount = 0.00;
+
+          TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
+          TaxAmount = getNumber(TaxAmount1, precision: 2);
+
+          Amount1 = (Quantity * NetRate1) - getNumber(TaxAmount1, precision: 2);
+          Amount = getNumber(Amount1, precision: 2);
+
+          TotalAmount =
+              (Quantity * NetRate1) + getNumber(TaxAmount1, precision: 2);
+          // _totalAmountController.text = getNumber(TotalAmount,precision: 2).toString();
+        }
+
+        if (_offlineLoggedInData.details[0].stateCode ==
+            int.parse(edt_StateCode.text)) {
+          CGSTPer = TaxPer / 2;
+          SGSTPer = TaxPer / 2;
+          CGSTAmount = TaxAmount / 2;
+          SGSTAmount = TaxAmount / 2;
+          IGSTPer = 0.00;
+          IGSTAmount = 0.00;
+        } else {
+          CGSTPer = 0.00;
+          SGSTPer = 0.00;
+          CGSTAmount = 0.00;
+          SGSTAmount = 0.00;
+          IGSTPer = TaxPer;
+          IGSTAmount = TaxAmount;
+        }
+
+        await OfflineDbHelper.getInstance().insertSalesOrderProduct(
+            SalesOrderTable(
+                "",
+                state.response.details[i].productSpecification,
+                state.response.details[i].productID,
+                state.response.details[i].productName,
+                state.response.details[i].unit,
+                Quantity,
+                UnitPrice,
+                0.00,
+                0.00,
+                NetRate,
+                Amount,
+                TaxPer,
+                TaxAmount,
+                TotalAmount,
+                TaxType,
+                CGSTPer,
+                SGSTPer,
+                IGSTPer,
+                CGSTAmount,
+                SGSTAmount,
+                IGSTAmount,
+                int.parse(edt_StateCode.text),
+                0,
+                LoginUserID,
+                CompanyID.toString(),
+                0,
+                0.00,
+                ""));
+      }
+
+      navigateTo(context, SalesOrderProductListScreen.routeName,
+          arguments: AddSalesOrderProductListArgument(
+              SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
+    }
+  }
+
+  double getNumber(double input, {int precision = 2}) => double.parse(
+      '$input'.substring(0, '$input'.indexOf('.') + precision + 1));
+
+  void _OnEmailContentResponse(SaleBillEmailContentResponseState state) {
+    if (state.response.details.length != 0) {
+      arr_ALL_Name_ID_For_Email_Subject.clear();
+      for (var i = 0; i < state.response.details.length; i++) {
+        print("InquiryStatus : " + state.response.details[i].contentData);
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].subject;
+        all_name_id.pkID = state.response.details[i].pkID;
+        all_name_id.Name1 = state.response.details[i].contentData;
+
+        arr_ALL_Name_ID_For_Email_Subject.add(all_name_id);
+      }
+    }
+  }
+
+  Widget EmailSubjectWithMultiID1(String Category,
+      {bool enable1,
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      List<ALL_Name_ID> Custom_values1}) {
+    return Container(
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => showcustomdialogWithMultipleID(
+                values: arr_ALL_Name_ID_For_Email_Subject,
+                context1: context,
+                controller: _controller_select_email_subject,
+                controllerID: _controller_select_email_subject_ID,
+                controller2: _contrller_email_subject,
+                lable: "Select Term & Condition "),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /*SizedBox(
+                  height: 5,
+                ),*/
+                Card(
+                  elevation: 3,
+                  color: colorLightGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                              controller: _controller_select_email_subject,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.only(bottom: 7),
+                                hintText: hintTextvalue,
+                                labelStyle: TextStyle(
+                                  color: Color(0xFF000000),
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                              ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Clean up the focus node when the Form is disposed.
+
+    super.dispose();
+  }
+
+  void _OnPaymentScheduleSucessList(PaymentScheduleListResponseState state) {
+    //arr_PaymentScheduleList.add(state.response);
+    arr_PaymentScheduleList.clear();
+    for (int i = 0; i < state.response.length; i++) {
+      arr_PaymentScheduleList.add(SoPaymentScheduleTable(
+          state.response[i].amount,
+          state.response[i].dueDate,
+          state.response[i].revdueDate,
+          id: state.response[i].id));
+    }
+  }
+
+  void _onInsertPaymentScheduleSucess(PaymentScheduleResponseState state) {
+    print("Paymenf" + state.response);
+    _salesOrderBloc.add(PaymentScheduleListEvent());
+  }
+
+  void _ondeletePaymentSchedule(PaymentScheduleDeleteResponseState state) {
+    print("Paymenf" + state.response);
+    _salesOrderBloc.add(PaymentScheduleListEvent());
+  }
+
+  showcustomdialogSendEmail({
+    BuildContext context1,
+    int updatedID,
+    // SoPaymentScheduleTable paymentScheduleModel
+  }) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    "Update Payment Schedule",
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Amount",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 20, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller: _controllerAmountDialog,
+                                          textInputAction: TextInputAction.next,
+                                          keyboardType:
+                                              TextInputType.numberWithOptions(
+                                                  decimal: true),
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter Amount",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Date",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 25, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          _selectDate(
+                                              context,
+                                              _controllerDueDateDialog,
+                                              _controllerRevDueDateDialog);
+                                        },
+                                        child: TextField(
+                                            controller:
+                                                _controllerDueDateDialog,
+                                            enabled: false,
+                                            decoration: InputDecoration(
+                                              hintText: "DD-MM-YYYY",
+                                              labelStyle: TextStyle(
+                                                color: Color(0xFF000000),
+                                              ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF000000),
+                                            ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () async {
+                              //soPaymentScheduleTable
+
+                              // SoPaymentScheduleTable soPaymentScheduleTable =
+
+                              if (_controllerAmountDialog.text != "") {
+                                if (_controllerDueDateDialog.text != "") {
+                                  _salesOrderBloc.add(PaymentScheduleEditEvent(
+                                      SoPaymentScheduleTable(
+                                          double.parse(
+                                              _controllerAmountDialog.text),
+                                          _controllerDueDateDialog.text,
+                                          _controllerRevDueDateDialog.text,
+                                          id: updatedID)));
+                                } else {
+                                  showCommonDialogWithSingleOption(
+                                      context, "Date is Required !",
+                                      positiveButtonTitle: "OK");
+                                }
+                              } else {
+                                showCommonDialogWithSingleOption(
+                                    context, "Amount is Required !",
+                                    positiveButtonTitle: "OK");
+                              }
+
+                              Navigator.pop(context);
+                            },
+                            "Update",
+                            textSize: 12,
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () {
+                              Navigator.pop(context);
+                            },
+                            "Close",
+                            textSize: 12,
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  void OnUpdatePaymentSchedule(PaymentScheduleEditResponseState state) {
+    print("UpdatePayment" + state.response);
+    _salesOrderBloc.add(PaymentScheduleListEvent());
   }
 }

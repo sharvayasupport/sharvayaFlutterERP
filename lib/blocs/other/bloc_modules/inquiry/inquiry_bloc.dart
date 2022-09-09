@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/InquiryShareModel.dart';
 import 'package:soleoserp/models/api_requests/city_list_request.dart';
@@ -25,7 +26,6 @@ import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/closer_reason_list_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response_for_packing_checking.dart';
-import 'package:soleoserp/models/api_responses/customer_contact_save_response.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
@@ -38,18 +38,18 @@ import 'package:soleoserp/models/api_responses/inquiry_no_to_delete_product_resp
 import 'package:soleoserp/models/api_responses/inquiry_no_to_product_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_product_save_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_search_by_pk_id_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_share_emp_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_share_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
 import 'package:soleoserp/models/api_responses/search_inquiry_list_response.dart';
 import 'package:soleoserp/models/api_responses/state_list_response.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
+import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'inquiry_events.dart';
-
 part 'inquiry_states.dart';
 
 class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
@@ -88,91 +88,70 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     if (event is InquiryProductSaveCallEvent) {
       yield* _mapInquiryProductSaveEventToState(event);
     }
-    if(event is InquiryNotoProductCallEvent)
-      {
-        yield* _mapInquryNoToProductEventToState(event);
+    if (event is InquiryNotoProductCallEvent) {
+      yield* _mapInquryNoToProductEventToState(event);
+    }
+    if (event is InquiryNotoDeleteProductCallEvent) {
+      yield* _mapInquryNoToDeleteProductEventToState(event);
+    }
+    if (event is InquirySearchByPkIDCallEvent) {
+      yield* _mapInqurySearchByEventToState(event);
+    }
+    if (event is SearchInquiryCustomerListByNameCallEvent) {
+      yield* _mapCustomerListByNameCallEventToState(event);
+    }
 
-      }
-    if(event is InquiryNotoDeleteProductCallEvent)
-      {
-        yield* _mapInquryNoToDeleteProductEventToState(event);
+    if (event is InquiryLeadStatusTypeListByNameCallEvent) {
+      yield* _mapFollowupInquiryStatusListCallEventToState(event);
+    }
 
-      }
-    if(event is InquirySearchByPkIDCallEvent)
-      {
-        yield* _mapInqurySearchByEventToState(event);
-
-      }
-    if(event is SearchInquiryCustomerListByNameCallEvent)
-      {
-        yield* _mapCustomerListByNameCallEventToState(event);
-
-      }
-
-    if(event is InquiryLeadStatusTypeListByNameCallEvent)
-      {
-        yield* _mapFollowupInquiryStatusListCallEventToState(event);
-      }
-
-    if(event is CustomerSourceCallEvent)
-      {
-        yield* _mapCustomerSourceCallEventToState(event);
-
-      }
-    if(event is InquiryNoToFollowupDetailsRequestCallEvent)
-    {
+    if (event is CustomerSourceCallEvent) {
+      yield* _mapCustomerSourceCallEventToState(event);
+    }
+    if (event is InquiryNoToFollowupDetailsRequestCallEvent) {
       yield* _mapInquiry_No_To_CallEventToState(event);
-
     }
 
-    if(event is InquiryShareModelCallEvent)
-      {
-        yield* _mapInquiryShareSaveEventToState(event);
+    if (event is InquiryShareModelCallEvent) {
+      yield* _mapInquiryShareSaveEventToState(event);
+    }
 
-      }
-
-    if(event is FollowerEmployeeListCallEvent){
+    if (event is FollowerEmployeeListCallEvent) {
       yield* _mapFollowerEmployeeByStatusCallEventToState(event);
-
     }
 
-    if(event is InquiryShareEmpListRequestEvent)
-      {
-        yield* _mapInquiryShareEmpListEventToState(event);
+    if (event is InquiryShareEmpListRequestEvent) {
+      yield* _mapInquiryShareEmpListEventToState(event);
+    }
 
-      }
-
-    if(event is CloserReasonTypeListByNameCallEvent)
-    {
+    if (event is CloserReasonTypeListByNameCallEvent) {
       yield* _mapCloserReasonStatusListCallEventToState(event);
-
     }
 
-
-    if(event is CountryCallEvent)
-    {
+    if (event is CountryCallEvent) {
       yield* _mapCountryListCallEventToState(event);
     }
-    if(event is StateCallEvent)
-    {
+    if (event is StateCallEvent) {
       yield* _mapStateListCallEventToState(event);
     }
 
-    if(event is CityCallEvent)
-    {
+    if (event is CityCallEvent) {
       yield* _mapCityListCallEventToState(event);
     }
-    if(event is SearchInquiryListFillterByNameRequestEvent)
-    {
+    if (event is SearchInquiryListFillterByNameRequestEvent) {
       yield* _mapSearchInquiryFillterCallEventToState(event);
     }
-    if(event is SearchCustomerListByNumberCallEvent)
-    {
+    if (event is SearchCustomerListByNumberCallEvent) {
       yield* _mapSearchCustomerListByNumberCallEventToState(event);
     }
 
+    if (event is FCMNotificationRequestEvent) {
+      yield* _map_fcm_notificationEvent_state(event);
+    }
 
-
+    if (event is GetReportToTokenRequestEvent) {
+      yield* _map_GetReportToTokenRequestEventState(event);
+    }
   }
 
   ///event functions to states implementation
@@ -187,7 +166,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
@@ -219,7 +198,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
@@ -245,8 +224,8 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       InquiryDeleteByNameCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      InquiryDeleteResponse inquiryDeleteResponse = await userRepository.deleteInquiry(
-          event.pkID, event.followupDeleteRequest);
+      InquiryDeleteResponse inquiryDeleteResponse = await userRepository
+          .deleteInquiry(event.pkID, event.followupDeleteRequest);
       yield InquiryDeleteCallResponseState(inquiryDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -271,13 +250,12 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
 
-
   Stream<InquiryStates> _mapInquiryHeaderSaveEventToState(
       InquiryHeaderSaveNameCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       InquiryHeaderSaveResponse response = await userRepository
-          .getInquiryHeaderSave(event.pkID,event.inquiryHeaderSaveRequest);
+          .getInquiryHeaderSave(event.pkID, event.inquiryHeaderSaveRequest);
       yield InquiryHeaderSaveResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -302,6 +280,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
   Stream<InquiryStates> _mapInquryNoToProductEventToState(
       InquiryNotoProductCallEvent event) async* {
     try {
@@ -321,8 +300,9 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       InquiryNotoDeleteProductCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      InquiryNoToDeleteProductResponse response = await userRepository
-          .getInquiryNoToDeleteProductList(event.InqNo,event.inquiryNoToDeleteProductRequest);
+      InquiryNoToDeleteProductResponse response =
+          await userRepository.getInquiryNoToDeleteProductList(
+              event.InqNo, event.inquiryNoToDeleteProductRequest);
       yield InquiryNotoDeleteProductResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -331,12 +311,13 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
   Stream<InquiryStates> _mapInqurySearchByEventToState(
       InquirySearchByPkIDCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      InquiryListResponse response = await userRepository
-          .getInquiryByPkID(event.pkID,event.inquirySearchByPkIdRequest);
+      InquiryListResponse response = await userRepository.getInquiryByPkID(
+          event.pkID, event.inquirySearchByPkIdRequest);
       yield InquirySearchByPkIDResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -351,7 +332,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       CustomerLabelvalueRsponse response =
-      await userRepository.getCustomerListSearchByName(event.request);
+          await userRepository.getCustomerListSearchByName(event.request);
       yield InquiryCustomerListByNameCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -366,7 +347,8 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       InquiryStatusListResponse response =
-      await userRepository.getFollowupInquiryStatusList(event.followupInquiryStatusTypeListRequest);
+          await userRepository.getFollowupInquiryStatusList(
+              event.followupInquiryStatusTypeListRequest);
       yield InquiryLeadStatusListCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -381,9 +363,9 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      CustomerSourceResponse respo =  await userRepository.customer_Source_List_call(event.request1);
+      CustomerSourceResponse respo =
+          await userRepository.customer_Source_List_call(event.request1);
       yield CustomerSourceCallEventResponseState(respo);
-
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -391,16 +373,16 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
-
 
   Stream<InquiryStates> _mapInquiry_No_To_CallEventToState(
       InquiryNoToFollowupDetailsRequestCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      FollowupHistoryListResponse respo =  await userRepository.inquiry_no_to_followup_details(event.inquiryNoToFollowupDetailsRequest);
-      yield FollowupHistoryListResponseState(event.inquiryDetails,respo);
-
+      FollowupHistoryListResponse respo =
+          await userRepository.inquiry_no_to_followup_details(
+              event.inquiryNoToFollowupDetailsRequest);
+      yield FollowupHistoryListResponseState(event.inquiryDetails, respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -409,14 +391,13 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
 
-
   Stream<InquiryStates> _mapInquiryShareSaveEventToState(
       InquiryShareModelCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      InquiryShareResponse respo = await userRepository
-          .inquiryShareSaveDetails(event.inquiryShareModel);
+      InquiryShareResponse respo =
+          await userRepository.inquiryShareSaveDetails(event.inquiryShareModel);
       yield InquiryShareResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -430,8 +411,8 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       FollowerEmployeeListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      FollowerEmployeeListResponse response =
-      await userRepository.getFollowerEmployeeList(event.followerEmployeeListRequest);
+      FollowerEmployeeListResponse response = await userRepository
+          .getFollowerEmployeeList(event.followerEmployeeListRequest);
       yield FollowerEmployeeListByStatusCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -445,9 +426,10 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       InquiryShareEmpListRequestEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      InquiryShareEmpListResponse response =
-      await userRepository.getInquiryShareEmpList(event.inquiryShareEmpListRequest);
-      yield InquiryShareEmpListResponseState(event.inquiryShareEmpListRequest.InquiryNo,response);
+      InquiryShareEmpListResponse response = await userRepository
+          .getInquiryShareEmpList(event.inquiryShareEmpListRequest);
+      yield InquiryShareEmpListResponseState(
+          event.inquiryShareEmpListRequest.InquiryNo, response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -456,13 +438,12 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
 
-
   Stream<InquiryStates> _mapCloserReasonStatusListCallEventToState(
       CloserReasonTypeListByNameCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      CloserReasonListResponse response =
-      await userRepository.getCloserReasonStatusList(event.closerReasonTypeListRequest);
+      CloserReasonListResponse response = await userRepository
+          .getCloserReasonStatusList(event.closerReasonTypeListRequest);
       yield CloserReasonListCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -472,14 +453,13 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
 
-
   Stream<InquiryStates> _mapCountryListCallEventToState(
       CountryCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      CountryListResponseForPacking respo =  await userRepository.country_list_call_For_Packing(event.countryListRequest);
+      CountryListResponseForPacking respo = await userRepository
+          .country_list_call_For_Packing(event.countryListRequest);
       yield CountryListEventResponseState(respo);
-
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -493,9 +473,9 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      StateListResponse respo =  await userRepository.state_list_call(event.stateListRequest);
+      StateListResponse respo =
+          await userRepository.state_list_call(event.stateListRequest);
       yield StateListEventResponseState(respo);
-
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -504,17 +484,14 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
 
-
-
-
   Stream<InquiryStates> _mapCityListCallEventToState(
       CityCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      CityApiRespose respo =  await userRepository.city_list_details(event.cityApiRequest);
+      CityApiRespose respo =
+          await userRepository.city_list_details(event.cityApiRequest);
       yield CityListEventResponseState(respo);
-
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -528,31 +505,65 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       InquiryListResponse response =
-      await userRepository.getInquiryListSearchByNameFillter(event.searchInquiryListFillterByNameRequest);
+          await userRepository.getInquiryListSearchByNameFillter(
+              event.searchInquiryListFillterByNameRequest);
       yield SearchInquiryFillterResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
-
 
   Stream<InquiryStates> _mapSearchCustomerListByNumberCallEventToState(
       SearchCustomerListByNumberCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       CustomerDetailsResponse response =
-      await userRepository.getCustomerListSearchByNumber(event.request);
+          await userRepository.getCustomerListSearchByNumber(event.request);
       yield SearchCustomerListByNumberCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _map_fcm_notificationEvent_state(
+      FCMNotificationRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FCMNotificationResponse response =
+          await userRepository.fcm_get_api(event.request123);
+      yield FCMNotificationResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _map_GetReportToTokenRequestEventState(
+      GetReportToTokenRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      GetReportToTokenResponse response =
+          await userRepository.getreporttoTokenAPI(event.request);
+      yield GetReportToTokenResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }

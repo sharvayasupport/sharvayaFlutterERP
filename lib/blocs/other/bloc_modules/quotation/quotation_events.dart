@@ -143,3 +143,14 @@ class SearchCustomerListByNumberCallEvent extends QuotationEvents {
 
   SearchCustomerListByNumberCallEvent(this.request);
 }
+
+class FCMNotificationRequestEvent extends QuotationEvents {
+  //final FCMNotificationRequest request;
+  var request123;
+  FCMNotificationRequestEvent(this.request123);
+}
+class GetReportToTokenRequestEvent extends QuotationEvents {
+  final GetReportToTokenRequest request;
+
+  GetReportToTokenRequestEvent(this.request);
+}

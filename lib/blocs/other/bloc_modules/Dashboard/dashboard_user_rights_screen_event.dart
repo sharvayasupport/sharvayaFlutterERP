@@ -31,15 +31,19 @@ class FollowerEmployeeListCallEvent extends DashBoardScreenEvents {
   final FollowerEmployeeListRequest followerEmployeeListRequest;
   FollowerEmployeeListCallEvent(this.followerEmployeeListRequest);
 }
+
 /*class FollowupTypeListByNameCallEvent extends DashBoardScreenEvents {
   final FollowupTypeListRequest followupTypeListRequest;
 
   FollowupTypeListByNameCallEvent(this.followupTypeListRequest);
 }*/
-class FollowupInquiryStatusTypeListByNameCallEvent extends DashBoardScreenEvents {
-  final FollowupInquiryStatusTypeListRequest followupInquiryStatusTypeListRequest;
+class FollowupInquiryStatusTypeListByNameCallEvent
+    extends DashBoardScreenEvents {
+  final FollowupInquiryStatusTypeListRequest
+      followupInquiryStatusTypeListRequest;
 
-  FollowupInquiryStatusTypeListByNameCallEvent(this.followupInquiryStatusTypeListRequest);
+  FollowupInquiryStatusTypeListByNameCallEvent(
+      this.followupInquiryStatusTypeListRequest);
 }
 
 class NavigateToView extends DashBoardScreenEvents {
@@ -48,13 +52,11 @@ class NavigateToView extends DashBoardScreenEvents {
   NavigateToView(this.path);
 }
 
-
 class ALLEmployeeNameCallEvent extends DashBoardScreenEvents {
   final ALLEmployeeNameRequest allEmployeeNameRequest;
 
   ALLEmployeeNameCallEvent(this.allEmployeeNameRequest);
 }
-
 
 /*
 class CloserReasonTypeListByNameCallEvent extends DashBoardScreenEvents {
@@ -77,30 +79,29 @@ class ExpenseTypeByNameCallEvent extends DashBoardScreenEvents {
 
   ExpenseTypeByNameCallEvent(this.expenseTypeAPIRequest);
 }*/
-class AttendanceCallEvent extends DashBoardScreenEvents
-{
+class AttendanceCallEvent extends DashBoardScreenEvents {
   final AttendanceApiRequest attendanceApiRequest;
   AttendanceCallEvent(this.attendanceApiRequest);
 }
 
-class AttendanceSaveCallEvent extends DashBoardScreenEvents
-{
+class AttendanceSaveCallEvent extends DashBoardScreenEvents {
   final AttendanceSaveApiRequest attendanceSaveApiRequest;
   AttendanceSaveCallEvent(this.attendanceSaveApiRequest);
 }
 
-
 class EmployeeListCallEvent extends DashBoardScreenEvents {
-
   final int pageNo;
   final EmployeeListRequest employeeListRequest;
 
-  EmployeeListCallEvent(this.pageNo,this.employeeListRequest);
+  EmployeeListCallEvent(this.pageNo, this.employeeListRequest);
 }
 
-class APITokenUpdateRequestEvent extends DashBoardScreenEvents
-{
+class APITokenUpdateRequestEvent extends DashBoardScreenEvents {
   final APITokenUpdateRequest apiTokenUpdateRequest;
   APITokenUpdateRequestEvent(this.apiTokenUpdateRequest);
 }
 
+class PunchOutWebMethodEvent extends DashBoardScreenEvents {
+  final String getrequest;
+  PunchOutWebMethodEvent(this.getrequest);
+}

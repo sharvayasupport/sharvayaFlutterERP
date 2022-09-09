@@ -66,3 +66,14 @@ class FollowupCustomerListByNameCallResponseState extends ToDoStates {
 
   FollowupCustomerListByNameCallResponseState(this.response);
 }
+
+class FCMNotificationResponseState extends ToDoStates {
+  final FCMNotificationResponse response;
+
+  FCMNotificationResponseState(this.response);
+}
+class GetReportToTokenResponseState extends ToDoStates {
+  final GetReportToTokenResponse response;
+
+  GetReportToTokenResponseState(this.response);
+}

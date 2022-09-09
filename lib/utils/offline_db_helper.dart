@@ -11,6 +11,7 @@ import 'package:soleoserp/models/common/sale_bill_other_charge_table.dart';
 import 'package:soleoserp/models/common/sales_bill_table.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
 import 'package:soleoserp/models/common/so_other_charge_table.dart';
+import 'package:soleoserp/utils/sales_order_payment_schedule.dart';
 import 'package:sqflite/sqflite.dart';
 
 class OfflineDbHelper {
@@ -29,6 +30,8 @@ class OfflineDbHelper {
   static const TABLE_FINAL_CHECKING_ITEM_TABLE = "final_checking_table";
   static const TABLE_SALES_ORDER_OTHERCHARGE_TABLE = "sales_order_other_charge";
   static const TABLE_SALES_BILL_OTHERCHARGE_TABLE = "sales_bill_other_charge";
+  static const TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE =
+      "sales_order_payment_schedule";
 
 /*  static createInstance() async {
     _offlineDbHelper = OfflineDbHelper();
@@ -87,6 +90,11 @@ class OfflineDbHelper {
     db.execute(
       'CREATE TABLE $TABLE_SALES_BILL_OTHERCHARGE_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,Headerdiscount DOUBLE,Tot_BasicAmt DOUBLE,OtherChargeWithTaxamt DOUBLE,Tot_GstAmt DOUBLE,OtherChargeExcludeTaxamt DOUBLE,Tot_NetAmount DOUBLE,ChargeID1 INTEGER,ChargeAmt1 DOUBLE,ChargeBasicAmt1 DOUBLE,ChargeGSTAmt1 DOUBLE,ChargeID2 INTEGER,ChargeAmt2 DOUBLE,ChargeBasicAmt2 DOUBLE,ChargeGSTAmt2 DOUBLE,ChargeID3 INTEGER,ChargeAmt3 DOUBLE,ChargeBasicAmt3 DOUBLE,ChargeGSTAmt3 DOUBLE,ChargeID4 INTEGER,ChargeAmt4 DOUBLE,ChargeBasicAmt4 DOUBLE,ChargeGSTAmt4 DOUBLE,ChargeID5 INTEGER,ChargeAmt5 DOUBLE,ChargeBasicAmt5 DOUBLE,ChargeGSTAmt5 DOUBLE)',
     );
+
+    db.execute(
+      'CREATE TABLE $TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,Amount DOUBLE, DueDate TEXT, RevDueDate TEXT)',
+    );
+    //
   }
 
   static OfflineDbHelper getInstance() {
@@ -844,5 +852,49 @@ class OfflineDbHelper {
     final db = await database;
 
     await db.delete(TABLE_FINAL_CHECKING_ITEM_TABLE);
+  }
+
+  /// Sales_ORder PaymentSchedule CRUD/////
+  Future<int> insertPaymentScheduleItems(SoPaymentScheduleTable model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<SoPaymentScheduleTable>> getPaymentScheduleItems() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE);
+
+    return List.generate(maps.length, (i) {
+      return SoPaymentScheduleTable(
+          maps[i]['Amount'], maps[i]['DueDate'], maps[i]['RevDueDate'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<void> updatePaymentScheduleItems(SoPaymentScheduleTable model) async {
+    final db = await database;
+
+    await db.update(
+        TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE, model.toJson(),
+        where: 'id = ?', whereArgs: [model.id]);
+  }
+
+  Future<void> deletePaymentScheduleItem(int id) async {
+    final db = await database;
+    await db.delete(TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE,
+        where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllPaymentScheduleItems() async {
+    final db = await database;
+
+    db.delete(TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE);
   }
 }

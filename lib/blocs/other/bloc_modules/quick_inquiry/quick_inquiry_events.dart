@@ -15,7 +15,6 @@ class StateCallEvent extends QuickInquiryEvents {
   StateCallEvent(this.stateListRequest);
 }
 
-
 class DistrictCallEvent extends QuickInquiryEvents {
   final DistrictApiRequest districtApiRequest;
   DistrictCallEvent(this.districtApiRequest);
@@ -31,13 +30,10 @@ class CityCallEvent extends QuickInquiryEvents {
   CityCallEvent(this.cityApiRequest);
 }
 
-
 class CustomerAddEditCallEvent extends QuickInquiryEvents {
   final CustomerAddEditApiRequest customerAddEditApiRequest;
   CustomerAddEditCallEvent(this.customerAddEditApiRequest);
 }
-
-
 
 class CustomerCategoryCallEvent extends QuickInquiryEvents {
   final CustomerCategoryRequest request1;
@@ -55,9 +51,11 @@ class DesignationCallEvent extends QuickInquiryEvents {
 }
 
 class InquiryLeadStatusTypeListByNameCallEvent extends QuickInquiryEvents {
-  final FollowupInquiryStatusTypeListRequest followupInquiryStatusTypeListRequest;
+  final FollowupInquiryStatusTypeListRequest
+      followupInquiryStatusTypeListRequest;
 
-  InquiryLeadStatusTypeListByNameCallEvent(this.followupInquiryStatusTypeListRequest);
+  InquiryLeadStatusTypeListByNameCallEvent(
+      this.followupInquiryStatusTypeListRequest);
 }
 
 class InquiryHeaderSaveNameCallEvent extends QuickInquiryEvents {
@@ -65,12 +63,14 @@ class InquiryHeaderSaveNameCallEvent extends QuickInquiryEvents {
 
   final InquiryHeaderSaveRequest inquiryHeaderSaveRequest;
 
-  InquiryHeaderSaveNameCallEvent(this.pkID,this.inquiryHeaderSaveRequest);
+  InquiryHeaderSaveNameCallEvent(this.pkID, this.inquiryHeaderSaveRequest);
 }
+
 class InquiryProductSaveCallEvent extends QuickInquiryEvents {
   final List<InquiryProductModel> inquiryProductModel;
   InquiryProductSaveCallEvent(this.inquiryProductModel);
 }
+
 class FollowupTypeListByNameCallEvent extends QuickInquiryEvents {
   final FollowupTypeListRequest followupTypeListRequest;
 
@@ -87,4 +87,16 @@ class SearchCustomerListByNumberCallEvent extends QuickInquiryEvents {
   final CustomerSearchByIdRequest request;
 
   SearchCustomerListByNumberCallEvent(this.request);
+}
+
+class FCMNotificationRequestEvent extends QuickInquiryEvents {
+  //final FCMNotificationRequest request;
+  var request123;
+  FCMNotificationRequestEvent(this.request123);
+}
+
+class GetReportToTokenRequestEvent extends QuickInquiryEvents {
+  final GetReportToTokenRequest request;
+
+  GetReportToTokenRequestEvent(this.request);
 }

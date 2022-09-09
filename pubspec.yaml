@@ -80,6 +80,7 @@ dependencies:
   percent_indicator:
   open_file:
   random_color: ^1.0.5
+  html:
 
 dev_dependencies:
   flutter_test:

@@ -29,6 +29,7 @@ import 'package:soleoserp/models/api_responses/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_country_screen.dart';
@@ -192,6 +193,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   bool isforbluechem =false;
 
   String MapAPIKey="";
+  String ReportToToken = "";
 
   @override
   void initState() {
@@ -238,6 +240,11 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
         selectedDate.month.toString() +
         "-" +
         selectedDate.day.toString();
+
+    _expenseBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+        CompanyId: CompanyID.toString(),
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
+
 
     _isForUpdate = widget.arguments != null;
     edt_ExpenseType.addListener(() {
@@ -331,9 +338,17 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
             _onFollowerEmployeeListByStatusCallSuccess(state);
           }*/
 
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
+
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
+
+          if (currentState is GetReportToTokenResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, TeleCallerStates state) {
@@ -360,6 +375,10 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
             {
               _OnDeleteTeleCallerImageResponseSucess(state);
             }
+
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -369,7 +388,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
               currentState is CustomerSourceCallEventResponseState ||
               currentState is ExternalLeadSaveResponseState ||
               currentState is TeleCallerUploadImgApiResponseState ||
-              currentState is TeleCallerImageDeleteResponseState
+              currentState is TeleCallerImageDeleteResponseState ||
+              currentState is FCMNotificationResponseState
 
           ) {
             return true;
@@ -3998,6 +4018,33 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       {
         gotoimageUpload = true;
       }
+    else
+      {
+        String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+        String notiTitle= "TeleCaller";
+
+        ///state.inquiryHeaderSaveResponse.details[0].column3;
+        String notibody  = "TeleCaller " +
+            //state.inquiryHeaderSaveResponse.details[0].column3 +
+            updatemsg +
+            " Successfully " +
+            // edt_CustomerName.text +
+            " By " +
+            _offlineLoggedInData.details[0].employeeName;
+
+        var request123 = {
+          "to": ReportToToken,
+          "notification": {"body": notibody, "title": notiTitle},
+          "data": {
+            "body": notibody,
+            "title": notiTitle,
+            "click_action": "FLUTTER_NOTIFICATION_CLICK"
+          }
+        };
+
+        print("Notificationdf" + request123.toString());
+        _expenseBloc.add(FCMNotificationRequestEvent(request123));
+      }
     //String Msg = _isForUpdate == true ? "Inquiry Updated Successfully" : "Inquiry Added Successfully";
 
     /* showCommonDialogWithSingleOption(context, Msg,
@@ -4048,6 +4095,9 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
           }
 
       }
+
+
+
     }
     else
       {
@@ -4354,5 +4404,21 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
     setState(() {
       _selectedImageFile = null;
     });
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
+
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
   }
 }

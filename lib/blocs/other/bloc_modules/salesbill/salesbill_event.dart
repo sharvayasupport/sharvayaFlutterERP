@@ -16,6 +16,12 @@ class SearchSaleBillListByNameCallEvent extends SalesBillEvents {
   SearchSaleBillListByNameCallEvent(this.request);
 }
 
+class SearchCustomerListByNumberCallEvent extends SalesBillEvents {
+  final CustomerSearchByIdRequest request;
+
+  SearchCustomerListByNumberCallEvent(this.request);
+}
+
 /*
 class SearchQuotationListByNameCallEvent extends QuotationEvents {
   final SearchQuotationListByNameRequest request;

@@ -143,3 +143,16 @@ class SearchCustomerListByNumberCallResponseState extends InquiryStates {
 
   SearchCustomerListByNumberCallResponseState(this.response);
 }
+//FCMNotificationResponse
+
+class FCMNotificationResponseState extends InquiryStates {
+  final FCMNotificationResponse response;
+
+  FCMNotificationResponseState(this.response);
+}
+
+class GetReportToTokenResponseState extends InquiryStates {
+  final GetReportToTokenResponse response;
+
+  GetReportToTokenResponseState(this.response);
+}

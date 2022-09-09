@@ -27,6 +27,7 @@ import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/search_followup_customer_screen.dart';
@@ -135,7 +136,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   bool is_LocationService_Permission;
   bool SaveSucess;
   bool is_Storage_Service_Permission;
-
+  String ReportToToken="";
   @override
   void initState() {
     super.initState();
@@ -172,7 +173,9 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
       ..add(FollowupInquiryStatusTypeListByNameCallEvent(
           FollowupInquiryStatusTypeListRequest(
               CompanyId: CompanyID.toString(), pkID: "", StatusCategory: "Inquiry",LoginUserID: LoginUserID,SearchKey: "")));*/
-
+    _FollowupBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+        CompanyId: CompanyID.toString(),
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
@@ -306,13 +309,18 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           if (state is FollowupCustomerListByNameCallResponseState) {
             _onInquiryListByNumberCallSuccess(state);
           }
-
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is FollowupCustomerListByNameCallResponseState ||
               currentState is FollowupInquiryStatusListCallResponseState ||
-              currentState is FollowupInquiryNoListCallResponseState) {
+              currentState is FollowupInquiryNoListCallResponseState ||
+              currentState is GetReportToTokenResponseState
+
+          ) {
             return true;
           }
           return false;
@@ -340,6 +348,11 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           if (state is CloserReasonListCallResponseState) {
             _onCloserReasonStatusListTypeCallSuccess(state);
           }
+
+          if (state is FCMNotificationResponseState) {
+            _onRecevedNotification(state);
+          }
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -349,7 +362,10 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
               currentState is FollowupUploadImageCallResponseState ||
               currentState is FollowupTypeListCallResponseState ||
               currentState is InquiryLeadStatusListCallResponseState ||
-              currentState is CloserReasonListCallResponseState) {
+              currentState is CloserReasonListCallResponseState ||
+              currentState is FCMNotificationResponseState
+
+          ) {
             return true;
           }
           return false;
@@ -1190,11 +1206,42 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   void _onInquiryListByNumberCallSuccess(
       FollowupCustomerListByNameCallResponseState state) {}
 
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
+  }
+
   void _onFollowupSaveCallSuccess(FollowupSaveCallResponseState state) async {
     // if( state.followupSaveResponse.details[0].column2==" state.followupSaveResponse.details[0].column2")
     print("FollowupSav123" +
         " Response : " +
         state.followupSaveResponse.details[0].column2);
+
+    String notiTitle = "FollowUp";
+    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+    ///state.inquiryHeaderSaveResponse.details[0].column3;
+    String notibody = "FollowUp " +
+
+        updatemsg +
+        " For " +
+        edt_CustomerName.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _FollowupBloc.add(FCMNotificationRequestEvent(request123));
+
     if (_selectedImageFile != null) {
       _FollowupBloc.add(FollowupUploadImageNameCallEvent(
           _selectedImageFile,
@@ -1227,6 +1274,9 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
       //Navigator.of(context).pop();
 
     }
+
+
+
   }
 
   void _onFollowupListTypeCallSuccess(FollowupTypeListCallResponseState state) {
@@ -1305,6 +1355,15 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
         arr_ALL_Name_ID_For_InquiryNoListType.add(all_name_id);
       }
     }
+  }
+
+  void _onRecevedNotification(FCMNotificationResponseState state) {
+    print("fcm_notification" +
+        state.response.canonicalIds.toString() +
+        state.response.failure.toString() +
+        state.response.multicastId.toString() +
+        state.response.success.toString() +
+        state.response.results[0].messageId);
   }
 
   Widget CustomDropDown1(String Category,
