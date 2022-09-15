@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -1671,8 +1670,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
                 "SW0T-GLA5-IND7-AS71" /*||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SI08-SB94-MY45-RY15"*/
-            ) {
+                "TEST-0000-SI0F-0208"*/) {
           ALL_Name_ID all_name_id1 = ALL_Name_ID();
           all_name_id1.Name = "Quick Follow-up";
           all_name_id1.Name1 =
@@ -2238,11 +2236,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         LoginUserID: LoginUserID)));
   }
 
-  showcustomdialogSendEmail({
-    BuildContext context1,
-    String Email,
-    AttendanceSaveApiRequest att
-  }) async {
+  showcustomdialogSendEmail(
+      {BuildContext context1,
+      String Email,
+      AttendanceSaveApiRequest att}) async {
     await showDialog(
       barrierDismissible: false,
       context: context1,
@@ -2398,37 +2395,33 @@ class _HomeScreenState extends BaseState<HomeScreen>
                             baseTheme,
                             () async {
                               if (EmailTO.text != "") {
-                                bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(EmailTO.text);
+                                bool emailValid = RegExp(
+                                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                    .hasMatch(EmailTO.text);
 
-                                if(emailValid==true)
-                                  {
-                                    String webreq = SiteURL +
-                                        "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
-                                        LoginUserID +
-                                        "&password=" +
-                                        Password +
-                                        "&emailaddress=" +
-                                        EmailTO.text;
+                                if (emailValid == true) {
+                                  String webreq = SiteURL +
+                                      "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
+                                      LoginUserID +
+                                      "&password=" +
+                                      Password +
+                                      "&emailaddress=" +
+                                      EmailTO.text;
 
-                                    print("webreq" + webreq);
+                                  print("webreq" + webreq);
 
-                                    _dashBoardScreenBloc
-                                        .add(PunchOutWebMethodEvent(webreq));
+                                  _dashBoardScreenBloc
+                                      .add(PunchOutWebMethodEvent(webreq));
 
-                                    //APITokenUpdateRequestEvent
+                                  //APITokenUpdateRequestEvent
 
-                                    _showMyDialog(EmailTO.text,att);
-                                  }
-                                else
-                                  {
-                                    showCommonDialogWithSingleOption(
-                                        context, "Email is not valid !",
-                                        positiveButtonTitle: "OK");
-                                  }
+                                  _showMyDialog(EmailTO.text, att);
+                                } else {
+                                  showCommonDialogWithSingleOption(
+                                      context, "Email is not valid !",
+                                      positiveButtonTitle: "OK");
+                                }
                                 // GenerateQT(context123, EmailTO.text);
-
-
-
                               } else {
                                 showCommonDialogWithSingleOption(
                                     context, "Email TO is Required !",
@@ -2466,7 +2459,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
     );
   }
 
-  Future<void> _showMyDialog(String textEmaill, AttendanceSaveApiRequest att) async {
+  Future<void> _showMyDialog(
+      String textEmaill, AttendanceSaveApiRequest att) async {
     return showDialog<int>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -2478,7 +2472,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
               children: <Widget>[
                 Visibility(
                   visible: true,
-                  child: GenerateQT(context123, textEmaill,att),
+                  child: GenerateQT(context123, textEmaill, att),
                 ),
 
                 //GetCircular123(),
@@ -2523,7 +2517,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
     });
   }
 
-  GenerateQT(BuildContext context123, String emailTOstr, AttendanceSaveApiRequest att) {
+  GenerateQT(BuildContext context123, String emailTOstr,
+      AttendanceSaveApiRequest att) {
     return Center(
       child: Container(
         child: Stack(
@@ -2623,7 +2618,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
                       this.prgresss = progress;
 
                       // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-
                     }
 
                     //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
@@ -2682,32 +2676,34 @@ class _HomeScreenState extends BaseState<HomeScreen>
   punchoutLogic() {
     if (isPunchIn == true) {
       //EmailTO.text = model.emailAddress;
-      AttendanceSaveApiRequest attendanceSaveApiRequest = AttendanceSaveApiRequest(
-          EmployeeID:
-          _offlineLoggedInData.details[0].employeeID.toString(),
-          PresenceDate: selectedDate.year.toString() +
-              "-" +
-              selectedDate.month.toString() +
-              "-" +
-              selectedDate.day.toString(),
-          TimeIn: PuchInTime.text,
-          TimeOut: selectedTime.hour.toString() +
-              ":" +
-              selectedTime.minute.toString(),
-          Latitude: Latitude,
-          LocationAddress: Address,
-          Longitude: Longitude,
-          Notes: "",
-          LoginUserID: LoginUserID,
-          CompanyId: CompanyID.toString());
+      AttendanceSaveApiRequest attendanceSaveApiRequest =
+          AttendanceSaveApiRequest(
+              EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
+              PresenceDate: selectedDate.year.toString() +
+                  "-" +
+                  selectedDate.month.toString() +
+                  "-" +
+                  selectedDate.day.toString(),
+              TimeIn: PuchInTime.text,
+              TimeOut: selectedTime.hour.toString() +
+                  ":" +
+                  selectedTime.minute.toString(),
+              Latitude: Latitude,
+              LocationAddress: Address,
+              Longitude: Longitude,
+              Notes: "",
+              LoginUserID: LoginUserID,
+              CompanyId: CompanyID.toString());
 
       _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-          "SW0T-GLA5-IND7-AS71" ||
-          _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "SI08-SB94-MY45-RY15" ||
-          _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "TEST-0000-SI0F-0208"
-          ? showcustomdialogSendEmail(context1: context,att:attendanceSaveApiRequest):Container();
+                  "SW0T-GLA5-IND7-AS71" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "SI08-SB94-MY45-RY15" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "TEST-0000-SI0F-0208"
+          ? showcustomdialogSendEmail(
+              context1: context, att: attendanceSaveApiRequest)
+          : Container();
       // _showMyDialog();
       isPunchOut == true
           ? /* showCommonDialogWithSingleOption(
@@ -2724,7 +2720,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
                       "SI08-SB94-MY45-RY15" ||
                   _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
                       "TEST-0000-SI0F-0208"
-              ? showcustomdialogSendEmail(context1: context,att:attendanceSaveApiRequest)
+              ? showcustomdialogSendEmail(
+                  context1: context, att: attendanceSaveApiRequest)
               : showCommonDialogWithSingleOption(
                   context,
                   _offlineLoggedInData.details[0].employeeName +

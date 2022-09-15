@@ -2,17 +2,11 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
-import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/final_checking/editable_list_tile.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/add_inquiry_product_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/packing_checklist/packing_asambly_crud/packing_assambly_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 
 class FinalCheckingItemScreen extends BaseStatefulWidget {
@@ -45,7 +39,6 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
   final TextEditingController edt_Application = TextEditingController();
   final TextEditingController edt_SerialNo = TextEditingController();
 
-
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
 
@@ -62,24 +55,23 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                 Expanded(child: _buildContactsListView()),
                 InkWell(
                   onTap: () async {
-
                     List<FinalCheckingItems> tempArrayList = [];
                     tempArrayList.addAll(_productList);
 
-                     await OfflineDbHelper.getInstance().deleteALLFinalCheckingItems();
+                    await OfflineDbHelper.getInstance()
+                        .deleteALLFinalCheckingItems();
                     for (int i = 0; i < tempArrayList.length; i++) {
-
-                      await OfflineDbHelper.getInstance().insertFinalCheckingItems(FinalCheckingItems(
-                        tempArrayList[i].CheckingNo,
-                        tempArrayList[i].CustomerID,
-                        tempArrayList[i].Item,
-                        tempArrayList[i].Checked,
-                        tempArrayList[i].Remarks,
-                        tempArrayList[i].SerialNo,
-                        tempArrayList[i].SRno,
-                        tempArrayList[i].LoginUserID,
-                        tempArrayList[i].CompanyId
-                      ));
+                      await OfflineDbHelper.getInstance()
+                          .insertFinalCheckingItems(FinalCheckingItems(
+                              tempArrayList[i].CheckingNo,
+                              tempArrayList[i].CustomerID,
+                              tempArrayList[i].Item,
+                              tempArrayList[i].Checked,
+                              tempArrayList[i].Remarks,
+                              tempArrayList[i].SerialNo,
+                              tempArrayList[i].SRno,
+                              tempArrayList[i].LoginUserID,
+                              tempArrayList[i].CompanyId));
                     }
 
                     Navigator.of(context).pop();
@@ -252,55 +244,50 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                 child: Container(
                     margin: EdgeInsets.all(10),
                     child: Container(
-
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Expanded(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Expanded(
+                                        flex: 1,
+                                        child: Column(
+                                          crossAxisAlignment:
                                               CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text("Item.  ",
-                                                    style: TextStyle(
-                                                        fontStyle:
-                                                        FontStyle.italic,
-                                                        color:
-                                                        Color(label_color),
-                                                        fontSize:
-                                                        _fontSize_Label,
-                                                        letterSpacing: .3)),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                CheckboxListTile(
-                                                  value: model.Checked == "0"
-                                                      ? false
-                                                      : true,
-                                                  onChanged: (value) {
-                                                    setState(
-                                                          () {
-                                                        // bool ischecked =  value;
-                                                        model.Checked =
+                                          children: <Widget>[
+                                            Text("Item.  ",
+                                                style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Color(label_color),
+                                                    fontSize: _fontSize_Label,
+                                                    letterSpacing: .3)),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            CheckboxListTile(
+                                              value: model.Checked == "0"
+                                                  ? false
+                                                  : true,
+                                              onChanged: (value) {
+                                                setState(
+                                                  () {
+                                                    // bool ischecked =  value;
+                                                    model.Checked =
                                                         value == false
                                                             ? "0"
                                                             : "1";
-                                                        //arrinquiryShareModel[index] = model;
-                                                      },
-                                                    );
+                                                    //arrinquiryShareModel[index] = model;
                                                   },
-                                                  title: Text(model.Item),
-                                                ),
-                                               /* Text(
+                                                );
+                                              },
+                                              title: Text(model.Item),
+                                            ),
+                                            /* Text(
                                                     model.Item == ""
                                                         ? "N/A"
                                                         : model.Item,
@@ -310,59 +297,57 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                                                         fontSize:
                                                         _fontSize_Title,
                                                         letterSpacing: .3)),*/
-                                              ],
-                                            )),
-                                      ]),
-
-
-
-                                  SizedBox(
-                                    height: sizeboxsize,
-                                  ),
-                                  model.SRno=="1"?Row(
+                                          ],
+                                        )),
+                                  ]),
+                              SizedBox(
+                                height: sizeboxsize,
+                              ),
+                              model.SRno == "1"
+                                  ? Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Expanded(
-                                            flex: 1,
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: <Widget>[
-                                                Text("SerialNo",
-                                                    style: TextStyle(
-                                                        fontStyle:
-                                                            FontStyle.italic,
-                                                        color:
-                                                            Color(label_color),
-                                                        fontSize:
-                                                            _fontSize_Label,
-                                                        letterSpacing: .3)),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Text(
-                                                    model.SerialNo == ""
-                                                        ? "N/A"
-                                                        : model.SerialNo,
-                                                    style: TextStyle(
-                                                        color:
-                                                            Color(title_color),
-                                                        fontSize:
-                                                            _fontSize_Title,
-                                                        letterSpacing: .3)),
-                                              ],
-                                            )),
-                                      ]):Container(),
-
-                                  SizedBox(
-                                    height: sizeboxsize,
-                                  ),
-                                ],
+                                          Expanded(
+                                              flex: 1,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  Text("SerialNo",
+                                                      style: TextStyle(
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          color: Color(
+                                                              label_color),
+                                                          fontSize:
+                                                              _fontSize_Label,
+                                                          letterSpacing: .3)),
+                                                  SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  Text(
+                                                      model.SerialNo == ""
+                                                          ? "N/A"
+                                                          : model.SerialNo,
+                                                      style: TextStyle(
+                                                          color: Color(
+                                                              title_color),
+                                                          fontSize:
+                                                              _fontSize_Title,
+                                                          letterSpacing: .3)),
+                                                ],
+                                              )),
+                                        ])
+                                  : Container(),
+                              SizedBox(
+                                height: sizeboxsize,
                               ),
-                            ),
-                          ],
-                        ))),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ))),
               ),
             ),
             ButtonBar(
@@ -370,9 +355,15 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(90, 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(24.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       // _onTapOfEditContact(index);
                       edt_Application.text = model.Item;
@@ -399,9 +390,15 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                       ],
                     ),
                   ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(90, 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(24.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       _onTapOfDeleteContact(index);
                     },
@@ -533,7 +530,6 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                     ),*/
                     Container(
                       margin: EdgeInsets.all(5),
-
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -588,76 +584,86 @@ class _FinalCheckingItemScreenState extends BaseState<FinalCheckingItemScreen>
                         ],
                       ),
                     ),
-
-                    finalCheckingItems.SRno=="1"?Container(
-                      margin: EdgeInsets.all(5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 10, right: 10),
-                            child: Text("Serial No",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: colorPrimary,
-                                    fontWeight: FontWeight
-                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Card(
-                            elevation: 5,
-                            color: colorLightGray,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Container(
-                              height: CardViewHeight,
-                              padding: EdgeInsets.only(left: 20, right: 20),
-                              width: double.maxFinite,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: TextField(
-
-                                        enabled: true,
-                                        controller: edt_SerialNo,
-                                        decoration: InputDecoration(
-                                          hintText: "Tap to enter SerialNo",
-                                          labelStyle: TextStyle(
-                                            color: Color(0xFF000000),
-                                          ),
-                                          border: InputBorder.none,
-                                        ),
-                                        style: TextStyle(
+                    finalCheckingItems.SRno == "1"
+                        ? Container(
+                            margin: EdgeInsets.all(5),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: Text("Serial No",
+                                      style: TextStyle(
                                           fontSize: 12,
-                                          color: Color(0xFF000000),
-                                        ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                                          color: colorPrimary,
+                                          fontWeight: FontWeight
+                                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
+                                      ),
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Card(
+                                  elevation: 5,
+                                  color: colorLightGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Container(
+                                    height: CardViewHeight,
+                                    padding:
+                                        EdgeInsets.only(left: 20, right: 20),
+                                    width: double.maxFinite,
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                              enabled: true,
+                                              controller: edt_SerialNo,
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    "Tap to enter SerialNo",
+                                                labelStyle: TextStyle(
+                                                  color: Color(0xFF000000),
+                                                ),
+                                                border: InputBorder.none,
+                                              ),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Color(0xFF000000),
+                                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                              ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                )
+                              ],
                             ),
                           )
-                        ],
-                      ),
-                    ):Container(),
-
-                    FlatButton(
-                      color: colorPrimary,
+                        : Container(),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(90, 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(24.0),
+                            ),
+                          ),
+                        ),
                         onPressed: () {
                           setState(() {
                             finalCheckingItems.Item = edt_Application.text;
                             finalCheckingItems.SerialNo = edt_SerialNo.text;
-
                           });
                           // _productList[index1].SerialNo = edt_Application.text;
                           Navigator.pop(context123);
                         },
-                        child: Text("Edit",style: TextStyle(color: colorWhite),))
+                        child: Text(
+                          "Edit",
+                          style: TextStyle(color: colorWhite),
+                        ))
                   ],
                 )),
           ],

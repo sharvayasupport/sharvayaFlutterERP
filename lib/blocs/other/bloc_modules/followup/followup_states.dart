@@ -117,3 +117,20 @@ class GetReportToTokenResponseState extends FollowupStates {
 
   GetReportToTokenResponseState(this.response);
 }
+
+class AccuraBathComplaintFollowupHistoryListResponseState
+    extends FollowupStates {
+  final AccuraBathComplaintFollowupHistoryListResponse
+      complaintFollowupHistoryListResponse;
+
+  AccuraBathComplaintFollowupHistoryListResponseState(
+      this.complaintFollowupHistoryListResponse);
+}
+
+class AccuraBathComplaintFollowupSaveResponseState extends FollowupStates {
+  final AccuraBathComplaintFollowupSaveResponse complaintFollowupSaveResponse;
+  final BuildContext context;
+
+  AccuraBathComplaintFollowupSaveResponseState(
+      this.context, this.complaintFollowupSaveResponse);
+}

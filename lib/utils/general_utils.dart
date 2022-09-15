@@ -62,7 +62,7 @@ Future navigateTo(BuildContext context, String routeName,
   }
 }
 
-void showSnackBar(GlobalKey<ScaffoldState> scaffoldKey, String message) {
+/*void showSnackBar(GlobalKey<ScaffoldState> scaffoldKey, String message) {
   scaffoldKey.currentState.showSnackBar(SnackBar(
     content: Text(
       message,
@@ -74,7 +74,7 @@ void showSnackBar(GlobalKey<ScaffoldState> scaffoldKey, String message) {
       textAlign: TextAlign.center,
     ),
   ));
-}
+}*/
 
 Future showCommonDialogWithTwoOptions(BuildContext context, String message,
     {String negativeButtonTitle,
@@ -396,4 +396,57 @@ Widget showCustomToast({String Title}) {
       ],
     ),
   );
+}
+
+pickMultipleImage(
+  BuildContext context, {
+  @required Function(File f) onImageSelection,
+  @required Function(List<File> f) onMultipleImageSelection,
+}) {
+  FocusScope.of(context).unfocus();
+  showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Container(
+            child: new Wrap(
+              children: <Widget>[
+                new ListTile(
+                    leading: new Icon(Icons.photo_library),
+                    title: new Text('Photo Library'),
+                    onTap: () async {
+                      Navigator.of(context).pop();
+
+                      final List<XFile> images =
+                          await ImagePicker().pickMultiImage(imageQuality: 100);
+
+                      List<File> fileList = [];
+                      for (int i = 0; i < images.length; i++) {
+                        fileList.add(File(images[i].path));
+                      }
+
+                      onMultipleImageSelection(fileList);
+                    }),
+                new ListTile(
+                  leading: new Icon(Icons.photo_camera),
+                  title: new Text('Camera'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    XFile capturedFile = await ImagePicker().pickImage(
+                        source: ImageSource.camera, imageQuality: 100);
+
+                    List<File> fileList = [];
+                    fileList.add(File(capturedFile.path));
+                    onMultipleImageSelection(fileList);
+
+                    /*  if (capturedFile != null) {
+                      onImageSelection(File(capturedFile.path));
+                    }*/
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      });
 }

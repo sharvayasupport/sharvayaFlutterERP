@@ -2,6 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/Accurabath_emp_follower_list_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_history_list_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_save_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_image_upload_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_list_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_no_to_delete_image_video_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_save_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/fetch_accurabath_complaint_image_list_request.dart';
 import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_delete_request.dart';
 import 'package:soleoserp/models/api_requests/InquiryShareModel.dart';
 import 'package:soleoserp/models/api_requests/Loan/loan_approval_save_request.dart';
@@ -181,6 +189,14 @@ import 'package:soleoserp/models/api_requests/to_do_save_sub_details_request.dar
 import 'package:soleoserp/models/api_requests/to_do_worklog_list_request.dart';
 import 'package:soleoserp/models/api_requests/todo_list_request.dart';
 import 'package:soleoserp/models/api_requests/transection_mode_list_request.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_no_to_delete_image_video_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_save_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_emp_list_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabth_complaint_upload_image_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/complaint_image_list_response.dart';
 import 'package:soleoserp/models/api_responses/AttendVisit/attend_visit_delete_response.dart';
 import 'package:soleoserp/models/api_responses/Loan/loan_approval_save_response.dart';
 import 'package:soleoserp/models/api_responses/ManageProductionResponse/Material%20Outward/material_outward_list_response.dart';
@@ -1404,6 +1420,41 @@ class Repository {
       ComplaintListResponse response = ComplaintListResponse.fromJson(json);
 
       return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintListResponse> getAccurabathComplaintList(int pageNo,
+      AccuraBathComplaintListRequest accuraBathComplaintListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_COMPLAINT_LIST_DETAILS}/$pageNo-10",
+          accuraBathComplaintListRequest
+              .toJson() /*jsontemparray: customerPaginationRequest.lstcontact*/);
+      print("ToJSONRESPONSFG : " +
+          accuraBathComplaintListRequest.toJson().toString());
+      AccuraBathComplaintListResponse response =
+          AccuraBathComplaintListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<FetchAccuraBathComplaintImageListResponse>
+      AccuraBathComplaintImage_list_details(
+          FetchAccuraBathComplaintImageListRequest
+              fetchComplaintImageListRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_IMAGE_LIST,
+          fetchComplaintImageListRequest.toJson());
+      FetchAccuraBathComplaintImageListResponse cityApiRespose =
+          FetchAccuraBathComplaintImageListResponse.fromJson(json);
+      return cityApiRespose;
     } on ErrorResponseException catch (e) {
       rethrow;
     }
@@ -3914,6 +3965,118 @@ class Repository {
     try {
       var json = await apiClient.apiwebMethodCallGet(apiWebRequest);
       return json.toString();
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintFollowupHistoryListResponse>
+      getComplaintFollowupHistoryListAPI(
+          AccuraBathComplaintFollowupHistoryListRequest
+              complaintFollowupHistoryListResponse) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_COMPLAINT_FOLLOWUP_HISTORY_LIST,
+          complaintFollowupHistoryListResponse.toJson());
+      AccuraBathComplaintFollowupHistoryListResponse response =
+          AccuraBathComplaintFollowupHistoryListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintFollowupSaveResponse> getComplaintFollowupSaveAPI(
+      int pkID,
+      AccuraBathComplaintFollowupSaveRequest
+          complaintFollowupSaveRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_COMPLAINT_SAVE_FOLLOWUP,
+          complaintFollowupSaveRequest.toJson());
+      AccuraBathComplaintFollowupSaveResponse response =
+          AccuraBathComplaintFollowupSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintEmpFollowerListResponse>
+      getComplaintEmployeeFollowerAPI(
+          AccuraBathComplaintEmpFollowerListRequest
+              complaintEmpFollowerListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_EMPLOYEE_LIST,
+          complaintEmpFollowerListRequest.toJson());
+      AccuraBathComplaintEmpFollowerListResponse response =
+          AccuraBathComplaintEmpFollowerListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintSaveResponse> getAccuraBathComplaintSave(
+      int pkID, AccuraBathComplaintSaveRequest complaintSaveRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_COMPLAINT_SAVE_DETAILS}/$pkID/Save",
+          complaintSaveRequest
+              .toJson() /*jsontemparray: customerPaginationRequest.lstcontact*/);
+      print("ToJSONRESPONSFG : " + complaintSaveRequest.toJson().toString());
+      AccuraBathComplaintSaveResponse response =
+          AccuraBathComplaintSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintNoToDeleteImageVideoResponse>
+      getComplaintNoToDeleteImageVideoAPI(
+          String complaintNo,
+          AccuraBathComplaintNoToDeleteImageVideoRequest
+              complaintNoToDeleteImageVideoRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG_VIDEO +
+              complaintNo +
+              "/DeleteImageByComplaintNo",
+          complaintNoToDeleteImageVideoRequest.toJson());
+      AccuraBathComplaintNoToDeleteImageVideoResponse response =
+          AccuraBathComplaintNoToDeleteImageVideoResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintImageUploadResponse>
+      getAccuraBathComplaintuploadImage(File imagesfiles,
+          AccuraBathComplaintUploadImageAPIRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPostMultipart(
+          ApiClient.END_ACCURABATH_POINT_COMPLAINT_UPLOAD, request.toJson(),
+          imageFilesToUpload: [imagesfiles]);
+
+      print("response - ${json}");
+
+      AccuraBathComplaintImageUploadResponse response =
+          AccuraBathComplaintImageUploadResponse.fromJson(json);
+
+      return response;
     } on ErrorResponseException catch (e) {
       rethrow;
     }

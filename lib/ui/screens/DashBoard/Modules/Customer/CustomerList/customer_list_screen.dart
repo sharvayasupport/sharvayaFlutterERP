@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
@@ -943,10 +942,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       // _onTapOfEditCustomer(model);
 
                       _CustomerBloc.add(CustomerFetchDocumentApiRequestEvent(
@@ -972,15 +969,20 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                       ],
                     ),
                   ),
+                  SizedBox(
+                    width: 10,
+                  ),
                   isDeleteVisible == true
-                      ? FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          onPressed: () {
+                      ? GestureDetector(
+                          onTap: () {
                             _onTapOfDeleteInquiry(model.customerID);
                           },
                           child: Column(
                             children: <Widget>[
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
                               Icon(
                                 Icons.delete,
                                 color: colorPrimary,
@@ -1031,7 +1033,6 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                 loginUserID: LoginUserID,
                 CustomerID: _searchDetails.value.toString())));
         //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
-
       }
     });
   }
@@ -1359,5 +1360,4 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
           details: null);
     }
   }*/
-
 }

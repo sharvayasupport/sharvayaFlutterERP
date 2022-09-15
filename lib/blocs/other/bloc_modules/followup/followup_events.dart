@@ -128,7 +128,27 @@ class FCMNotificationRequestEvent extends FollowupEvents {
   var request123;
   FCMNotificationRequestEvent(this.request123);
 }
+
 class GetReportToTokenRequestEvent extends FollowupEvents {
   final GetReportToTokenRequest request;
   GetReportToTokenRequestEvent(this.request);
+}
+
+class AccuraBathComplaintFollowupHistoryListRequestEvent
+    extends FollowupEvents {
+  final AccuraBathComplaintFollowupHistoryListRequest
+      complaintFollowupHistoryListRequest;
+
+  AccuraBathComplaintFollowupHistoryListRequestEvent(
+      this.complaintFollowupHistoryListRequest);
+}
+
+class AccuraBathComplaintFollowupSaveRequestEvent extends FollowupEvents {
+  final int pkID;
+  final BuildContext context;
+  final AccuraBathComplaintFollowupSaveRequest complaintFollowupSaveRequest;
+  final String Msg;
+
+  AccuraBathComplaintFollowupSaveRequestEvent(
+      this.pkID, this.context, this.Msg, this.complaintFollowupSaveRequest);
 }

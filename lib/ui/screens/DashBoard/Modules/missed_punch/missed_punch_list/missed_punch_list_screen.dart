@@ -1,5 +1,4 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -359,8 +358,8 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
         expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
         leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                .network(
+            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                Image.network(
               "http://demo.sharvayainfotech.in/images/profile.png",
               height: 35,
               fit: BoxFit.fill,
@@ -500,10 +499,8 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
                     ],
                   ),
                 ),*/
-                FlatButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0)),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     //  cardA.currentState?.collapse();
                     //new ExpansionTileCardState().collapse();
                     _onTaptoDelete(model.pkID);

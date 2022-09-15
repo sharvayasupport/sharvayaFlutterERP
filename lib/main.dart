@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geolocator/geolocator.dart'
     as geolocator; // or whatever name you want
 import 'package:location/location.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -15,6 +16,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/firebase_options.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/ui/res/style_resources.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/Followup_History/complaint_followup_history.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/Followup_dialog/complaint_to_followup.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_listing_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_Add_Edit/attend_visit_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_List/attend_visit_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_List/attend_visit_search_screen.dart';
@@ -205,6 +210,10 @@ Future<void> main() async {
     }
   }
   checkPermissionStatus();
+  /*runApp(DevicePreview(
+    enabled: true,
+    builder: (context) => MyApp(),
+  ));*/
   runApp(MyApp());
 }
 
@@ -678,6 +687,19 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(MaterialIndentAddEditScreen());
       case SiteSurveyAddEditScreen.routeName:
         return getMaterialPageRoute(SiteSurveyAddEditScreen());
+      case AccurabathComplaintListScreen.routeName:
+        return getMaterialPageRoute(AccurabathComplaintListScreen());
+      case AccuraBathComplaintAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            AccuraBathComplaintAddEditScreen(settings.arguments));
+
+      case AccuraBathComplaintFollowupHistoryScreen.routeName:
+        return getMaterialPageRoute(
+            AccuraBathComplaintFollowupHistoryScreen(settings.arguments));
+
+      case AccuraBathFollowUpFromComplaintAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            AccuraBathFollowUpFromComplaintAddEditScreen(settings.arguments));
 
       //
       default:
@@ -694,8 +716,18 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    /* return MaterialApp(
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: const HomePage(),
+    );*/
     return OverlaySupport(
       child: MaterialApp(
+          //useInheritedMediaQuery: true,
+          // builder: DevicePreview.appBuilder,
           onGenerateRoute: MyApp.globalGenerateRoute,
           debugShowCheckedModeBanner: false,
           supportedLocales: [
@@ -708,6 +740,9 @@ class _MyAppState extends State<MyApp> {
             GlobalMaterialLocalizations.delegate,
             // Built-in localization for text direction LTR/RTL
             GlobalWidgetsLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            MonthYearPickerLocalizations.delegate,
           ],
           // Returns a locale which will be used by the app
           localeResolutionCallback: (locale, supportedLocales) {

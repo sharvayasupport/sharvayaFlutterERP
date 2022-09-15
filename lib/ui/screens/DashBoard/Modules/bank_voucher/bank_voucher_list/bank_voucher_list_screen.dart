@@ -1,5 +1,4 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
@@ -625,10 +624,8 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfEditCustomer(model);
                     },
                     child: Column(
@@ -647,11 +644,12 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
                       ],
                     ),
                   ),
+                  SizedBox(
+                    width: 10,
+                  ),
                   isDeleteVisible == true
-                      ? FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          onPressed: () {
+                      ? GestureDetector(
+                          onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
                           },
                           child: Column(
@@ -865,5 +863,4 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
           details: null);
     }
   }*/
-
 }

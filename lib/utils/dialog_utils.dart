@@ -7,12 +7,12 @@ class DialogUtils {
 
   factory DialogUtils() => _instance;
 
-  static  showCustomDialog(BuildContext context,
+  static showCustomDialog(BuildContext context,
       {@required String title,
-        String details,
-        String okBtnText = "Ok",
-        String cancelBtnText = "Cancel",
-        @required Function okBtnFunction}) {
+      String details,
+      String okBtnText = "Ok",
+      String cancelBtnText = "Cancel",
+      @required Function okBtnFunction}) {
     showDialog(
         context: context,
         builder: (_) {
@@ -22,12 +22,12 @@ class DialogUtils {
             actions: <Widget>[
               Visibility(
                 visible: false,
-                child: FlatButton(
+                child: ElevatedButton(
                   child: Text(okBtnText),
                   onPressed: okBtnFunction,
                 ),
               ),
-              FlatButton(
+              ElevatedButton(
                   child: Text(cancelBtnText),
                   onPressed: () => Navigator.pop(context))
             ],

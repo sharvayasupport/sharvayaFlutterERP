@@ -158,6 +158,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_COMPLAINT_LIST_DETAILS = "Complaint";
   static const END_POINT_COMPLAINT_SEARCH_BY_NAME_DETAILS = "Complaint/Search";
   static const END_POINT_COMPLAINT_SEARCH_BY_ID_DETAILS = "Complaint";
+  static const END_POINT_ACCURABATH_COMPLAINT_IMAGE_LIST =
+      "Complaint/getdocumentlist";
 
   static const END_POINT_COMPLAINT_SAVE_DETAILS = "Complaint";
   static const END_POINT_ATTEND_VISIT_DETAILS = "ComplaintVisit";
@@ -288,6 +290,16 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const API_UPLOAD_CUSTOMER_DOCUMENT = 'Customer/UploadAttachments';
   static const API_FETCH_CUSTOMER_DOCUMENT = 'Customer/AttachmentsList';
   static const API_DELETE_CUSTOMER_DOCUMENT = 'Customer/';
+  static const END_POINT_COMPLAINT_FOLLOWUP_HISTORY_LIST =
+      "ComplaintFollowUp/1-100000";
+
+  static const END_POINT_COMPLAINT_SAVE_FOLLOWUP = "Complaint/0/FollowUp";
+  static const END_POINT_ACCURABATH_COMPLAINT_EMPLOYEE_LIST =
+      "Complaint/EmployeeFollowerList";
+
+  static const END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG_VIDEO =
+      "ComplaintDoc/";
+  static const END_ACCURABATH_POINT_COMPLAINT_UPLOAD = "Complaint/ImageUpload";
 
   final http.Client httpClient;
 

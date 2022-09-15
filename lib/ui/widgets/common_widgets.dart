@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -14,6 +13,7 @@ import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Background.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_listing_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_List/attend_visit_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerList/customer_list_screen.dart';
@@ -720,7 +720,35 @@ Widget getCommonButtonWithImage(
     double radius: COMMON_BUTTON_RADIUS}) {
   return Container(
     height: 50,
-    child: RaisedButton(
+    child: ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size(90, 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(COMMON_BUTTON_RADIUS),
+          ),
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Image.asset(
+              image,
+              height: 22,
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+          Text(
+            text,
+            style: baseTheme.textTheme.button.copyWith(color: textColor),
+          ),
+        ],
+      ),
+    ),
+    /* RaisedButton(
       onPressed: onPressed,
       padding: EdgeInsets.only(left: 20.0, right: 10),
       color: backGroundColor,
@@ -745,7 +773,7 @@ Widget getCommonButtonWithImage(
           ),
         ],
       ),
-    ),
+    ),*/
   );
 }
 
@@ -765,13 +793,31 @@ Widget getCommonButton(ThemeData baseTheme, Function onPressed, String text,
   return Container(
     width: width,
     height: height,
-    child: RaisedButton(
+    child: /*RaisedButton(
       onPressed: onPressed,
       color: backGroundColor,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(radius)),
           side: BorderSide(width: showOnlyBorder ? 2 : 0, color: borderColor)),
       elevation: elevation,
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: baseTheme.textTheme.button
+            .copyWith(color: textColor, fontSize: textSize),
+      ),
+    ),*/
+
+        ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        fixedSize: Size(90, 15),
+        backgroundColor: backGroundColor,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(radius)),
+            side:
+                BorderSide(width: showOnlyBorder ? 2 : 0, color: borderColor)),
+      ),
       child: Text(
         text,
         textAlign: TextAlign.center,
@@ -1197,8 +1243,14 @@ makeDashboardItem(
           navigateTo(context, BankVoucherListScreen.routeName,
               clearAllStack: true);
         } else if (title == "Complaint") {
-          navigateTo(context, ComplaintPaginationListScreen.routeName,
-              clearAllStack: true);
+          if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+              "DHSI-09RY-BATH-ACCU") {
+            navigateTo(context, AccurabathComplaintListScreen.routeName,
+                clearAllStack: true);
+          } else {
+            navigateTo(context, ComplaintPaginationListScreen.routeName,
+                clearAllStack: true);
+          }
         } else if (title == "Attend Visit") {
           if (SharedPrefHelper.instance
                   .getLoginUserData()
@@ -1216,7 +1268,6 @@ makeDashboardItem(
                 clearAllStack: true);
           }
           //
-
         } else if (title == "Employee") {
           navigateTo(context, EmployeeListScreen.routeName,
               clearAllStack: true);
@@ -2012,9 +2063,17 @@ getSupportList(List<ALL_Name_ID> Support, BuildContext context) {
               softWrap: true,
               style: new TextStyle(fontSize: 15.0, color: colorPrimary)),
           onTap: () {
-            if (Support[i].Name == "Complaint")
-              navigateTo(context, ComplaintPaginationListScreen.routeName,
-                  clearAllStack: true);
+            if (Support[i].Name == "Complaint") {
+              if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "DHSI-09RY-BATH-ACCU") {
+                navigateTo(context, AccurabathComplaintListScreen.routeName,
+                    clearAllStack: true);
+              } else {
+                navigateTo(context, ComplaintPaginationListScreen.routeName,
+                    clearAllStack: true);
+              }
+            }
+
             if (Support[i].Name == "Attend Visit")
               navigateTo(context, AttendVisitListScreen.routeName,
                   clearAllStack: true);

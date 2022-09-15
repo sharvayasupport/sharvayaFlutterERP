@@ -374,8 +374,8 @@ class _TeleCallerNewListScreenState extends BaseState<TeleCallerNewListScreen>
           //Colors.deepOrange[50],ADD8E6
           leading: CircleAvatar(
               backgroundColor: Color(0xFF504F4F),
-              child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                  .network(
+              child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                  Image.network(
                 "http://demo.sharvayainfotech.in/images/profile.png",
                 height: 35,
                 fit: BoxFit.fill,
@@ -795,10 +795,8 @@ class _TeleCallerNewListScreenState extends BaseState<TeleCallerNewListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfEditCustomer(Response.details[index]);
                     },
                     child: Column(
@@ -817,11 +815,12 @@ class _TeleCallerNewListScreenState extends BaseState<TeleCallerNewListScreen>
                       ],
                     ),
                   ),
+                  SizedBox(
+                    width: 10,
+                  ),
                   isDeleteVisible == true
-                      ? FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          onPressed: () {
+                      ? GestureDetector(
+                          onTap: () {
                             _onTapOfDeleteCustomer(
                                 Response.details[index].pkId);
                           },

@@ -1,10 +1,9 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:ntp/ntp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -478,16 +477,20 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
               Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             FloatingActionButton(
               backgroundColor: colorPrimary,
-              onPressed: () {
-                showMonthPicker(
+              onPressed: () async {
+                await showMonthYearPicker(
                   context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(DateTime.now().year - 1, 5),
+                  lastDate: DateTime(DateTime.now().year, DateTime.now().month),
+                  locale: Locale("en"),
                   //firstDate: DateTime(DateTime.now().year - 1, 5),
-                  lastDate: DateTime(
+                  /* lastDate: DateTime(
                       DateTime.now().year,
                       DateTime.now()
                           .month), //DateTime(DateTime.now().year + 1, 9),
                   initialDate: DateTime.now(),
-                  locale: Locale("en"),
+                  locale: Locale("en"),*/
                 ).then((date) {
                   if (date != null) {
                     setState(() {
@@ -792,7 +795,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
   }
 
   void showMonthYearePicker() {
-    showMonthPicker(
+    /* showMonthPicker(
       context: context,
       firstDate: DateTime(DateTime.now().year - 1, 5),
       lastDate: DateTime(DateTime.now().year + 1, 9),
@@ -804,7 +807,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
           //selectedDate = date;
         });
       }
-    });
+    });*/
   }
 
   isSameDay(DateTime day, DateTime parse) {

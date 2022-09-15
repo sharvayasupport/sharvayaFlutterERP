@@ -890,14 +890,12 @@ class _SaleBillProductListScreenState
               ),
             ),
             ButtonBar(
-                alignment: MainAxisAlignment.spaceAround,
+                alignment: MainAxisAlignment.center,
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfEditContact(index);
                     },
                     child: Column(
@@ -916,10 +914,11 @@ class _SaleBillProductListScreenState
                       ],
                     ),
                   ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
+                  SizedBox(
+                    width: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfDeleteContact(index);
                     },
                     child: Column(

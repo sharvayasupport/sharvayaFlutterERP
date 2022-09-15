@@ -1,9 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:lottie/lottie.dart';
@@ -934,10 +932,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                   buttonMinWidth: 90.0,
                   children: <Widget>[
                       model.timeIn.toString() == ""
-                          ? FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0)),
-                              onPressed: () {
+                          ?  GestureDetector(
+                        onTap: () {
                                 navigateTo(context,
                                         QuickFollowUpAddEditScreen.routeName,
                                         arguments:
@@ -972,10 +968,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                             )
                           : Container(),
                       model.timeIn.toString() != ""
-                          ? FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0)),
-                              onPressed: () {
+                          ?  GestureDetector(
+                        onTap: () {
                                 navigateTo(context,
                                         QuickFollowUpAddEditScreen.routeName,
                                         arguments:
@@ -1017,10 +1011,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                   buttonHeight: 52.0,
                   buttonMinWidth: 90.0,
                   children: <Widget>[
-                      FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                           navigateTo(
                                   context, QuickFollowUpAddEditScreen.routeName,
                                   arguments:
@@ -1186,6 +1178,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
   void _launchWhatsAppBuz(String MobileNo) async {
     await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
   }
+
   Future<void> share(String contactNo1) async {
     String msg =
         "_"; //"Thank you for contacting us! We will be in touch shortly";
@@ -1433,8 +1426,15 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                         ],
                       ),
                     ),
-                    FlatButton(
-                        color: colorPrimary,
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(90, 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(24.0),
+                            ),
+                          ),
+                        ),
                         onPressed: () {
                           setState(() {});
                           // _productList[index1].SerialNo = edt_Application.text;

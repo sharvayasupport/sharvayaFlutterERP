@@ -1,7 +1,6 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -22,7 +21,8 @@ class InquiryProductListScreen extends BaseStatefulWidget {
   final AddProductListArgument arguments;
   InquiryProductListScreen(this.arguments);
   @override
-  _InquiryProductListScreenState createState() => _InquiryProductListScreenState();
+  _InquiryProductListScreenState createState() =>
+      _InquiryProductListScreenState();
 }
 
 class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
@@ -31,14 +31,14 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
   double sizeboxsize = 12;
   double _fontSize_Label = 9;
   double _fontSize_Title = 11;
-  int label_color = 0xff4F4F4F;//0x66666666;
+  int label_color = 0xff4F4F4F; //0x66666666;
   int title_color = 0xff362d8b;
   @override
   void initState() {
     super.initState();
     screenStatusBarColor = colorWhite;
     if (widget.arguments != null) {
-      print("GetINQNOFRomList"+widget.arguments.inquiry_No);
+      print("GetINQNOFRomList" + widget.arguments.inquiry_No);
     }
     //getContacts();
     getProduct();
@@ -48,7 +48,6 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
   Widget buildBody(BuildContext context) {
     return Container(
       color: colorWhite,
-
       child: Column(
         children: [
           getCommonAppBar(context, baseTheme, "Product List", showBack: true),
@@ -80,14 +79,12 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
   }
 
   Widget _buildContactsListView() {
-    if(_productList.length !=0)
-      {
-        return ListView.builder(
+    if (_productList.length != 0) {
+      return ListView.builder(
+        itemBuilder: (context, index) {
+          return _buildInquiryListItem(index);
 
-          itemBuilder: (context, index) {
-            return _buildInquiryListItem(index);
-
-            /* return Card(
+          /* return Card(
               elevation: 5,
               margin: EdgeInsets.all(10),
               child: Container(
@@ -127,26 +124,25 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
                     ],
                   )),
             );*/
-          },
-          shrinkWrap: true,
-          itemCount: _productList.length,
-        );
-      }
-    else
-      {
-        return Container(
-            alignment: Alignment.center,
-            child:   Lottie.asset(
-                NO_DATA_ANIMATED
-              /*height: 200,
+        },
+        shrinkWrap: true,
+        itemCount: _productList.length,
+      );
+    } else {
+      return Container(
+        alignment: Alignment.center,
+        child: Lottie.asset(NO_DATA_ANIMATED
+            /*height: 200,
               width: 200*/
-            ),);
-      }
+            ),
+      );
+    }
   }
 
   Future<void> getProduct() async {
     _productList.clear();
-    _productList.addAll(await OfflineDbHelper.getInstance().getInquiryProduct());
+    _productList
+        .addAll(await OfflineDbHelper.getInstance().getInquiryProduct());
     setState(() {});
   }
 
@@ -158,23 +154,23 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
   }
 
   Future<void> _onTapOfDeleteContact(int index) async {
-    await OfflineDbHelper.getInstance().deleteInquiryProduct(_productList[index].id);
+    await OfflineDbHelper.getInstance()
+        .deleteInquiryProduct(_productList[index].id);
     setState(() {
       _productList.removeAt(index);
     });
   }
 
   Widget _buildInquiryListItem(int index) {
-    return ExpantionCustomer(context,index);
-
+    return ExpantionCustomer(context, index);
   }
+
   ExpantionCustomer(BuildContext context, int index) {
     InquiryProductModel model = _productList[index];
 
     return Container(
-
         padding: EdgeInsets.all(15),
-        child : ExpansionTileCard(
+        child: ExpansionTileCard(
           // key:Key(index.toString()),
           initialElevation: 5.0,
           elevation: 5.0,
@@ -182,16 +178,18 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
 
           shadowColor: Color(0xFF504F4F),
           baseColor: Color(0xFFFCFCFC),
-          expandedColor: Color(0xFFC1E0FA),//Colors.deepOrange[50],ADD8E6
+          expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
           leading: CircleAvatar(
-
               backgroundColor: Color(0xFF504F4F),
-              child: Image.asset(PRODUCT_ICON,height: 48,width: 48,)),//Image.network("https://cdn-icons.flaticon.com/png/512/4785/premium/4785452.png?token=exp=1639741267~hmac=4fc9726eef0cf39128308a40039ea5ca", height: 35, fit: BoxFit.fill,width: 35,)),
-          title: Text(model.ProductName,style: TextStyle(
-              color: Colors.black
-          ),),
-
-
+              child: Image.asset(
+                PRODUCT_ICON,
+                height: 48,
+                width: 48,
+              )), //Image.network("https://cdn-icons.flaticon.com/png/512/4785/premium/4785452.png?token=exp=1639741267~hmac=4fc9726eef0cf39128308a40039ea5ca", height: 35, fit: BoxFit.fill,width: 35,)),
+          title: Text(
+            model.ProductName,
+            style: TextStyle(color: Colors.black),
+          ),
 
           children: <Widget>[
             Divider(
@@ -209,44 +207,44 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
                     margin: EdgeInsets.all(20),
                     child: Container(
                         margin: EdgeInsets.only(left: 10),
-                        child:  Row(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Row(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: <Widget>[
-
                                         Expanded(
                                             flex: 1,
                                             child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Text("Quantity.  ",
                                                     style: TextStyle(
                                                         fontStyle:
-                                                        FontStyle.italic,
-                                                        color: Color(label_color),
-                                                        fontSize: _fontSize_Label,
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
                                                         letterSpacing: .3)),
                                                 SizedBox(
                                                   width: 5,
                                                 ),
                                                 Text(
-                                                    model.Quantity==
-                                                        ""
+                                                    model.Quantity == ""
                                                         ? "N/A"
-                                                        :model
-                                                        .Quantity,
+                                                        : model.Quantity,
                                                     style: TextStyle(
-                                                        color: Color(title_color),
-                                                        fontSize: _fontSize_Title,
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
                                                         letterSpacing: .3)),
                                               ],
                                             )),
@@ -256,34 +254,35 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
                                   ),
                                   Row(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Expanded(
                                             flex: 1,
                                             child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Text("UnitPrice",
                                                     style: TextStyle(
                                                         fontStyle:
-                                                        FontStyle.italic,
-                                                        color: Color(label_color),
-                                                        fontSize: _fontSize_Label,
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
                                                         letterSpacing: .3)),
                                                 SizedBox(
                                                   width: 5,
                                                 ),
                                                 Text(
-                                                    model
-                                                        .UnitPrice==
-                                                        ""
+                                                    model.UnitPrice == ""
                                                         ? "N/A"
-                                                        :model
-                                                        .UnitPrice,
+                                                        : model.UnitPrice,
                                                     style: TextStyle(
-                                                        color: Color(title_color),
-                                                        fontSize: _fontSize_Title,
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
                                                         letterSpacing: .3)),
                                               ],
                                             )),
@@ -291,37 +290,37 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
                                   SizedBox(
                                     height: sizeboxsize,
                                   ),
-
                                   Row(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: <Widget>[
                                         Expanded(
                                             flex: 1,
                                             child: Column(
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                                  CrossAxisAlignment.start,
                                               children: <Widget>[
                                                 Text("Total Amount",
                                                     style: TextStyle(
                                                         fontStyle:
-                                                        FontStyle.italic,
-                                                        color: Color(label_color),
-                                                        fontSize: _fontSize_Label,
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
                                                         letterSpacing: .3)),
                                                 SizedBox(
                                                   width: 5,
                                                 ),
                                                 Text(
-                                                    model
-                                                        .TotalAmount ==
-                                                        ""
+                                                    model.TotalAmount == ""
                                                         ? "N/A"
-                                                        :model
-                                                        .TotalAmount,
+                                                        : model.TotalAmount,
                                                     style: TextStyle(
-                                                        color: Color(title_color),
-                                                        fontSize: _fontSize_Title,
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
                                                         letterSpacing: .3)),
                                               ],
                                             ))
@@ -329,7 +328,6 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
                                   SizedBox(
                                     height: sizeboxsize,
                                   ),
-
                                   SizedBox(
                                     height: sizeboxsize,
                                   ),
@@ -341,56 +339,55 @@ class _InquiryProductListScreenState extends BaseState<InquiryProductListScreen>
               ),
             ),
             ButtonBar(
-                alignment: MainAxisAlignment.spaceAround,
+                alignment: MainAxisAlignment.center,
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
-
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfEditContact(index);
-
                     },
                     child: Column(
                       children: <Widget>[
-                        Icon(Icons.edit,color: colorPrimary,),
+                        Icon(
+                          Icons.edit,
+                          color: colorPrimary,
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
                         ),
-                        Text('Edit',style: TextStyle(color: colorPrimary),),
+                        Text(
+                          'Edit',
+                          style: TextStyle(color: colorPrimary),
+                        ),
                       ],
                     ),
                   ),
-                  FlatButton(
-
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
-
-
+                  SizedBox(
+                    width: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfDeleteContact(index);
                     },
                     child: Column(
                       children: <Widget>[
-                        Icon(Icons.delete,color: colorPrimary,),
+                        Icon(
+                          Icons.delete,
+                          color: colorPrimary,
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
                         ),
-                        Text('Delete',style: TextStyle(color: colorPrimary),),
+                        Text(
+                          'Delete',
+                          style: TextStyle(color: colorPrimary),
+                        ),
                       ],
                     ),
                   ),
-
-
-
-
                 ]),
-
           ],
         ));
-
   }
-
 }

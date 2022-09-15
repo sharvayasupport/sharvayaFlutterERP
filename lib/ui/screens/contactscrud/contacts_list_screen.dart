@@ -204,8 +204,8 @@ class _ContactsListScreenState extends BaseState<ContactsListScreen>
           expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
           leading: CircleAvatar(
               backgroundColor: Color(0xFF504F4F),
-              child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                  .network(
+              child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                  Image.network(
                 "http://demo.sharvayainfotech.in/images/profile.png",
                 height: 35,
                 fit: BoxFit.fill,
@@ -370,9 +370,15 @@ class _ContactsListScreenState extends BaseState<ContactsListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(90, 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(24.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       _onTapOfEditContact(index);
                     },
@@ -392,9 +398,15 @@ class _ContactsListScreenState extends BaseState<ContactsListScreen>
                       ],
                     ),
                   ),
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(90, 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(24.0),
+                        ),
+                      ),
+                    ),
                     onPressed: () {
                       showCommonDialogWithTwoOptions(context,
                           "Are you sure you want to Delete This Contact Details ?",

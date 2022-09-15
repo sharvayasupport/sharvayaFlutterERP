@@ -1,5 +1,4 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -689,10 +688,8 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       _onTapOfEditCustomer(model);
                     },
                     child: Column(
@@ -711,11 +708,12 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
                       ],
                     ),
                   ),
+                  SizedBox(
+                    width: 10,
+                  ),
                   isDeleteVisible == true
-                      ? FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          onPressed: () {
+                      ? GestureDetector(
+                          onTap: () {
                             showCommonDialogWithTwoOptions(context,
                                 "Are you sure you want to Delete this Attend Visit ?",
                                 negativeButtonTitle: "No",

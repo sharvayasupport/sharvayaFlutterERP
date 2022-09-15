@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1506,8 +1505,8 @@ class _SaleOrderNewAddEditScreenState
           },
           "Add Product Details",
           radius: 18,
-          backGroundColor: Color(0xfffbb034),
-          textColor: Color(0xff362d8b),
+          //backGroundColor: Color(0xfffbb034),
+          // textColor: Color(0xff362d8b),
         ));
   }
 
@@ -2099,11 +2098,18 @@ class _SaleOrderNewAddEditScreenState
                                                   MainAxisAlignment.spaceAround,
                                               buttonMinWidth: 90.0,
                                               children: <Widget>[
-                                                FlatButton(
-                                                  shape: RoundedRectangleBorder(
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    fixedSize: Size(90, 15),
+                                                    shape:
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              4.0)),
+                                                          BorderRadius.all(
+                                                        Radius.circular(24.0),
+                                                      ),
+                                                    ),
+                                                  ),
                                                   onPressed: () {
                                                     //_onTapOfEditContact(index);
                                                     _controllerAmountDialog
@@ -2154,11 +2160,18 @@ class _SaleOrderNewAddEditScreenState
                                                     ],
                                                   ),
                                                 ),
-                                                FlatButton(
-                                                  shape: RoundedRectangleBorder(
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    fixedSize: Size(90, 15),
+                                                    shape:
+                                                        RoundedRectangleBorder(
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              4.0)),
+                                                          BorderRadius.all(
+                                                        Radius.circular(24.0),
+                                                      ),
+                                                    ),
+                                                  ),
                                                   onPressed: () {
                                                     // _onTapOfDeleteContact(index);
 
@@ -2682,33 +2695,35 @@ class _SaleOrderNewAddEditScreenState
   otherCharges() {
     return Container(
         margin: EdgeInsets.only(left: 8, right: 8),
-        child: getCommonButton(baseTheme, () async {
-          await getInquiryProductDetails();
-          if (_inquiryProductList.length != 0) {
-            print("HeaderDiscll" + edt_HeaderDisc.text.toString());
-            navigateTo(context, SalesOrderOtherChargeScreen.routeName,
-                    arguments: SalesOrderOtherChargesScreenArguments(
-                        int.parse(
-                            edt_StateCode == null ? 0 : edt_StateCode.text),
-                        _editModel,
-                        edt_HeaderDisc.text))
-                .then((value) {
-              if (value == null) {
-                print("HeaderDiscount From QTOtherCharges 0.00");
-              } else {
-                print("HeaderDiscount From QTOtherCharges $value");
-                edt_HeaderDisc.text = value;
-              }
-            });
-          } else {
-            showCommonDialogWithSingleOption(context,
-                "Atleast one product is required to view other charges !",
-                positiveButtonTitle: "OK");
-          }
-        }, "Other Charges",
-            radius: 18,
-            backGroundColor: Color(0xfffbb034),
-            textColor: Color(0xff362d8b)));
+        child: getCommonButton(
+          baseTheme,
+          () async {
+            await getInquiryProductDetails();
+            if (_inquiryProductList.length != 0) {
+              print("HeaderDiscll" + edt_HeaderDisc.text.toString());
+              navigateTo(context, SalesOrderOtherChargeScreen.routeName,
+                      arguments: SalesOrderOtherChargesScreenArguments(
+                          int.parse(
+                              edt_StateCode == null ? 0 : edt_StateCode.text),
+                          _editModel,
+                          edt_HeaderDisc.text))
+                  .then((value) {
+                if (value == null) {
+                  print("HeaderDiscount From QTOtherCharges 0.00");
+                } else {
+                  print("HeaderDiscount From QTOtherCharges $value");
+                  edt_HeaderDisc.text = value;
+                }
+              });
+            } else {
+              showCommonDialogWithSingleOption(context,
+                  "Atleast one product is required to view other charges !",
+                  positiveButtonTitle: "OK");
+            }
+          },
+          "Other Charges",
+          radius: 18,
+        ));
   }
 
   save() {

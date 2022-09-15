@@ -18,20 +18,19 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/final_checking/search_fin
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class FinalCheckingListScreen extends BaseStatefulWidget {
   static const routeName = '/FinalCheckingListScreen';
   @override
-  _FinalCheckingListScreenState createState() => _FinalCheckingListScreenState();
+  _FinalCheckingListScreenState createState() =>
+      _FinalCheckingListScreenState();
 }
-class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
-    with BasicScreen,WidgetsBindingObserver {
 
+class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
+    with BasicScreen, WidgetsBindingObserver {
   FinalCheckingBloc finalCheckingBloc;
   int pageno = 0;
   int selected = 0;
@@ -42,8 +41,8 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
 
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
-  int CompanyID=0;
-  String LoginUserID="";
+  int CompanyID = 0;
+  String LoginUserID = "";
 
   @override
   void initState() {
@@ -55,61 +54,61 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
-    finalCheckingBloc..add(FinalCheckingListCallEvent(
-        1, FinalCheckingListRequest(CompanyId: CompanyID.toString(), LoginUserID: LoginUserID.toString())));
+    finalCheckingBloc
+      ..add(FinalCheckingListCallEvent(
+          1,
+          FinalCheckingListRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID.toString())));
 
-
-     _onTapOfDeleteALLItems();
-
+    _onTapOfDeleteALLItems();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) =>
-      finalCheckingBloc..add(FinalCheckingListCallEvent(pageno + 1,
-          FinalCheckingListRequest(CompanyId: CompanyID.toString(), LoginUserID: LoginUserID.toString()))),
+      create: (BuildContext context) => finalCheckingBloc
+        ..add(FinalCheckingListCallEvent(
+            pageno + 1,
+            FinalCheckingListRequest(
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID.toString()))),
       child: BlocConsumer<FinalCheckingBloc, FinalCheckingListState>(
         builder: (BuildContext context, FinalCheckingListState state) {
           if (state is FinalCheckingListCallResponseState) {
             finalcheckinglistsuccess(state);
-          }if (state is SearchFinalCheckingCallResponseState) {
+          }
+          if (state is SearchFinalCheckingCallResponseState) {
             searchsuccess(state);
           }
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is FinalCheckingListCallResponseState||
-          currentState is SearchFinalCheckingCallResponseState
-          ) {
+          if (currentState is FinalCheckingListCallResponseState ||
+              currentState is SearchFinalCheckingCallResponseState) {
             return true;
           }
           return false;
         },
         listener: (BuildContext context, FinalCheckingListState state) {
-
-          if(state is FinalCheckingDeleteResponseState)
-            {
-              _OnDeleteItemsResponse(state,context);
-            }
-
+          if (state is FinalCheckingDeleteResponseState) {
+            _OnDeleteItemsResponse(state, context);
+          }
         },
         listenWhen: (oldState, currentState) {
-          if(currentState is FinalCheckingDeleteResponseState)
-            {
-              return true;
-
-            }
+          if (currentState is FinalCheckingDeleteResponseState) {
+            return true;
+          }
           return false;
         },
-      ),);
+      ),
+    );
   }
 
   @override
   Widget buildBody(BuildContext context) {
     return WillPopScope(
-
       onWillPop: () {
         navigateTo(context, HomeScreen.routeName, clearAllStack: true);
         return new Future(() => false);
@@ -117,7 +116,7 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           gradient: LinearGradient(
-            colors: [Colors.red,Colors.purple,Colors.blue],
+            colors: [Colors.red, Colors.purple, Colors.blue],
           ),
           title: Text("Final Checking"),
           actions: <Widget>[
@@ -137,13 +136,16 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-
               Expanded(
-                child:RefreshIndicator(
-                  onRefresh: ()async{
-                    finalCheckingBloc..add(FinalCheckingListCallEvent(
-                        1, FinalCheckingListRequest(CompanyId: CompanyID.toString(), LoginUserID: LoginUserID.toString())));
-                    FD.label="Tap to Search Customer";
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    finalCheckingBloc
+                      ..add(FinalCheckingListCallEvent(
+                          1,
+                          FinalCheckingListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: LoginUserID.toString())));
+                    FD.label = "Tap to Search Customer";
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -154,38 +156,34 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                     child: Column(
                       children: [
                         _buildSearchView(),
-                        SizedBox(height: 5,),
-                        Expanded(child:_buildInquiryList()),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Expanded(child: _buildInquiryList()),
                       ],
                     ),
-
-                  ),),
+                  ),
+                ),
               ),
             ],
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: ()  async {
+          onPressed: () async {
             // Add your onPressed code here!
             baseBloc.emit(ShowProgressIndicatorState(true));
             await _onTapOfDeleteALLItems();
             baseBloc.emit(ShowProgressIndicatorState(false));
 
-
             navigateTo(context, FinalCheckingAddScreen.routeName);
-
           },
           child: const Icon(Icons.add),
           backgroundColor: colorPrimary,
         ),
-        drawer: build_Drawer(
-            context: context,
-            UserName: "",
-            RolCode: ""),
+        drawer: build_Drawer(context: context, UserName: "", RolCode: ""),
       ),
     );
   }
-
 
   void finalcheckinglistsuccess(FinalCheckingListCallResponseState state) {
     if (pageno != state.newPage || state.newPage == 1) {
@@ -198,7 +196,6 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
       }
       pageno = state.newPage;
     }
-
   }
 
   Widget _buildInquiryList() {
@@ -209,8 +206,7 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
       onNotification: (scrollInfo) {
         if (shouldPaginate(
           scrollInfo,
-        )
-        ) {
+        )) {
           _onPackingCheckListPagination();
           return true;
         } else {
@@ -219,7 +215,6 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
       },
       child: ListView.builder(
         key: Key('selected $selected'),
-
         itemBuilder: (context, index) {
           return _buildCustomerList(index);
         },
@@ -235,8 +230,11 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
   }
 
   void _onPackingCheckListPagination() {
-    finalCheckingBloc.add(FinalCheckingListCallEvent(pageno + 1,
-        FinalCheckingListRequest(CompanyId: CompanyID.toString(), LoginUserID: LoginUserID.toString())));
+    finalCheckingBloc.add(FinalCheckingListCallEvent(
+        pageno + 1,
+        FinalCheckingListRequest(
+            CompanyId: CompanyID.toString(),
+            LoginUserID: LoginUserID.toString())));
   }
 
   Widget ExpantionCustomer(BuildContext context, int index) {
@@ -255,8 +253,8 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
             //Colors.deepOrange[50],ADD8E6
             leading: CircleAvatar(
                 backgroundColor: Color(0xFF504F4F),
-                child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                    .network(
+                child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                    Image.network(
                   "http://demo.sharvayainfotech.in/images/profile.png",
                   height: 35,
                   fit: BoxFit.fill,
@@ -279,159 +277,148 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                 thickness: 1.0,
                 height: 1.0,
               ),
-
               Container(
                   margin: EdgeInsets.all(20),
-
                   child: Container(
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-
-
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                      child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Expanded(
-
-                                          child: Column(
-                                            crossAxisAlignment:
+                                      Text("Name",
+                                          style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: Color(label_color),
+                                              fontSize: _fontSize_Label,
+                                              letterSpacing: .3)),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Text(
+                                          f.customerName == ""
+                                              ? "N/A"
+                                              : f.customerName,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontSize: _fontSize_Title,
+                                              letterSpacing: .3)),
+                                    ],
+                                  )),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("Name",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  f.customerName == ""
-                                                      ? "N/A"
-                                                      :  f.customerName ,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("Checking No",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  f.checkingNo == null
-                                                      ? "N/A"
-                                                      :  f.checkingNo,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
-                                    ]),
-                                SizedBox(
-                                  height: sizeboxsize,
-                                ),
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("Checking Date",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  f.checkingDate== ""
-                                                      ? "N/A"
-                                                      :  f.checkingDate,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("PC No",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  f.pCNo == null
-                                                      ? "N/A"
-                                                      :  f.pCNo ,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
-
-                                    ]),
-                                SizedBox(
-                                  height: sizeboxsize,
-                                ),
-
-
-
-
-                              ],
+                                        children: <Widget>[
+                                          Text("Checking No",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              f.checkingNo == null
+                                                  ? "N/A"
+                                                  : f.checkingNo,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      )),
+                                ]),
+                            SizedBox(
+                              height: sizeboxsize,
                             ),
-                          ),
-                        ],
-                      ))),
-
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text("Checking Date",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              f.checkingDate == ""
+                                                  ? "N/A"
+                                                  : f.checkingDate,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      )),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text("PC No",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(f.pCNo == null ? "N/A" : f.pCNo,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      )),
+                                ]),
+                            SizedBox(
+                              height: sizeboxsize,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ))),
               ButtonBar(
                   alignment: MainAxisAlignment.center,
                   buttonHeight: 52.0,
                   buttonMinWidth: 90.0,
                   children: <Widget>[
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(90, 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(24.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () async {
-
-
                         _onTapOfEditCustomer(f);
-
                       },
                       child: Column(
                         children: <Widget>[
@@ -449,10 +436,15 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                         ],
                       ),
                     ),
-
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(90, 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(24.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () {
                         _onTapOfDeleteInquirymain(f.pkID);
                       },
@@ -463,8 +455,7 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                             color: colorPrimary,
                           ),
                           Padding(
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 2.0),
+                            padding: const EdgeInsets.symmetric(vertical: 2.0),
                           ),
                           Text(
                             'Delete',
@@ -473,8 +464,6 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                         ],
                       ),
                     )
-
-
                   ]),
             ],
           ),
@@ -485,6 +474,7 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
       ],
     );
   }
+
   Widget _buildSearchView() {
     return InkWell(
       onTap: () {
@@ -502,7 +492,7 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                     fontWeight: FontWeight
                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -511,7 +501,7 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -520,13 +510,9 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
                 children: [
                   Expanded(
                     child: Text(
-                      FD == null
-                          ? "Tap to search customer"
-                          : FD.label,
+                      FD == null ? "Tap to search customer" : FD.label,
                       style: baseTheme.textTheme.headline3.copyWith(
-                          color: FD == null
-                              ? colorGrayDark
-                              : colorBlack),
+                          color: FD == null ? colorGrayDark : colorBlack),
                     ),
                   ),
                   Icon(
@@ -541,9 +527,9 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
       ),
     );
   }
-  Future<void> _onTapOfSearchView() async {
 
-   /* Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchFinalCheckingScreen())).then((value) {
+  Future<void> _onTapOfSearchView() async {
+    /* Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchFinalCheckingScreen())).then((value) {
       if (value != null) {
         FD = value;
         print("WordOfLoan"+FD.pCNo.toString());
@@ -553,16 +539,19 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
 
       }
     });*/
-    navigateTo(context, SearchFinalCheckingScreen.routeName).then((value)  {
-
-    if (value != null) {
+    navigateTo(context, SearchFinalCheckingScreen.routeName).then((value) {
+      if (value != null) {
         FD = value;
-        print("WordOfLoan"+FD.pCNo.toString());
+        print("WordOfLoan" + FD.pCNo.toString());
 
-        finalCheckingBloc.add(SearchFinalCheckingCallEvent(SearchFinalCheckingRequest(CompanyId: CompanyID.toString(),word: FD.pCNo,LoginUserID: LoginUserID.toString(),needALL: "0")));
-    //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
-
-    }
+        finalCheckingBloc.add(SearchFinalCheckingCallEvent(
+            SearchFinalCheckingRequest(
+                CompanyId: CompanyID.toString(),
+                word: FD.pCNo,
+                LoginUserID: LoginUserID.toString(),
+                needALL: "0")));
+        //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
+      }
     });
   }
 
@@ -570,13 +559,16 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
     Response = state.response;
   }
 
-
-  void _onTapOfEditCustomer(FinalCheckingListDetails model)  {
+  void _onTapOfEditCustomer(FinalCheckingListDetails model) {
     navigateTo(context, FinalCheckingAddScreen.routeName,
-        arguments: AddUpdateFinalPackingScreenArguments(model))
+            arguments: AddUpdateFinalPackingScreenArguments(model))
         .then((value) {
-      finalCheckingBloc..add(FinalCheckingListCallEvent(
-          1, FinalCheckingListRequest(CompanyId: CompanyID.toString(), LoginUserID: LoginUserID.toString())));
+      finalCheckingBloc
+        ..add(FinalCheckingListCallEvent(
+            1,
+            FinalCheckingListRequest(
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID.toString())));
     });
   }
 
@@ -585,21 +577,21 @@ class _FinalCheckingListScreenState extends BaseState<FinalCheckingListScreen>
   }
 
   void _onTapOfDeleteInquirymain(int pkID) {
-
     showCommonDialogWithTwoOptions(
         context, "Are you sure you want to delete this Item ?",
         negativeButtonTitle: "No",
         positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
       Navigator.of(context).pop();
       //_collapse();
-       finalCheckingBloc.add(FinalCheckingDeleteCallEvent(pkID,FinalCheckingDeleteAllItemsRequest(CompanyId: CompanyID.toString())));
+      finalCheckingBloc.add(FinalCheckingDeleteCallEvent(pkID,
+          FinalCheckingDeleteAllItemsRequest(CompanyId: CompanyID.toString())));
 
       // _CustomerBloc..add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: CompanyID,loginUserID: LoginUserID,CustomerID: "",ListMode: "L")));
     });
   }
 
-  void _OnDeleteItemsResponse(FinalCheckingDeleteResponseState state, BuildContext context123) {
-
+  void _OnDeleteItemsResponse(
+      FinalCheckingDeleteResponseState state, BuildContext context123) {
     navigateTo(context123, FinalCheckingListScreen.routeName,
         clearAllStack: true);
   }

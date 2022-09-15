@@ -369,11 +369,10 @@ class _FirstScreenState extends BaseState<FirstScreen>
           SizedBox(
             height: 20,
           ),
-          _buildGoogleButtonView(),
           SizedBox(
             height: 20,
           ),
-          getCommonButton(baseTheme, () {
+          getCommonButton(baseTheme, () async {
             _onTapOfRegister();
           }, "LogOut"),
           /* Row(
@@ -427,45 +426,5 @@ class _FirstScreenState extends BaseState<FirstScreen>
     SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, false);
     navigateTo(context, SerialKeyScreen.routeName, clearAllStack: true);
     // navigateTo(context, RegisterScreen.routeName, clearAllStack: true);
-  }
-
-  Widget _buildGoogleButtonView() {
-    return Visibility(
-      visible: false,
-      child: Container(
-        width: double.maxFinite,
-        height: COMMON_BUTTON_HEIGHT,
-        // ignore: deprecated_member_use
-        child: RaisedButton(
-          onPressed: () {
-            _onTapOfSignInWithGoogle();
-          },
-          color: colorRedLight,
-          shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(COMMON_BUTTON_RADIUS)),
-          ),
-          elevation: 0.0,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                IC_GOOGLE,
-                width: 30,
-                height: 30,
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Text(
-                "Sign in with Google",
-                textAlign: TextAlign.center,
-                style: baseTheme.textTheme.button,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

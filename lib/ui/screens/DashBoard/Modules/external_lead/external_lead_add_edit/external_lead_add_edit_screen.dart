@@ -1,67 +1,37 @@
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as p;
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:full_screen_image/full_screen_image.dart';
-import 'package:intl/intl.dart';
-import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/external_lead/external_lead_bloc.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/leave_request/leave_request_bloc.dart';
-import 'package:soleoserp/models/api_requests/attendance_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/expense_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/expense_image_upload_server_request.dart';
-import 'package:soleoserp/models/api_requests/expense_save_request.dart';
-import 'package:soleoserp/models/api_requests/expense_type_request.dart';
-import 'package:soleoserp/models/api_requests/expense_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/external_lead_save_request.dart';
-import 'package:soleoserp/models/api_requests/followup_upload_image_request.dart';
-import 'package:soleoserp/models/api_requests/fetc_image_list_by_expense_pk_id_request.dart';
-import 'package:soleoserp/models/api_requests/leave_request_save_request.dart';
-import 'package:soleoserp/models/api_requests/leave_request_type_request.dart';
 import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_type_response.dart';
 import 'package:soleoserp/models/api_responses/external_lead_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/state_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
-import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/customer_add_edit.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_country_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_state_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/expense/expense_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/external_lead/external_lead_list/external_lead_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/search_inquiry_product_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-import 'package:soleoserp/ui/widgets/common_input_text_filed.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
-import 'package:soleoserp/utils/image_full_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-import 'package:uri_to_file/uri_to_file.dart';
 
 class AddUpdateExternalLeadScreenArguments {
   ExternalLeadDetails editModel;
@@ -2240,16 +2210,22 @@ class _ExternalLeadAddEditScreenState
         isViewSaveButton = false;
         isDisqualified=false;
         isInProcess=false;
+
+        print("StateCoddsdse" + " StateCode : "+ expenseDetails.stateCode.toString()+ " StateName : "+ expenseDetails.stateName.toString() +
+            " CityName : "+ expenseDetails.cityName.toString()
+            +
+            " CityCode : "+ expenseDetails.cityCode.toString());
+
         edt_QualifiedEmplyeeName.text = expenseDetails.employeeName=="--Not Available--"?"":expenseDetails.employeeName;
         edt_QualifiedEmplyeeID.text = expenseDetails.employeeID.toString();
         edt_QualifiedForProduct.text = expenseDetails.productName=="--Not Available--"?"":expenseDetails.productName;
         edt_QualifiedForProductID.text = expenseDetails.productID.toString();
-        edt_QualifiedCountry.text = "India";
-        edt_QualifiedCountryCode.text = "IND";
-        edt_QualifiedState.text = expenseDetails.stateName;
-        edt_QualifiedStateCode.text = expenseDetails.stateCode.toString();
-        edt_QualifiedCity.text = expenseDetails.cityName;
-        edt_QualifiedCityCode.text = expenseDetails.cityCode.toString();
+        edt_QualifiedCountry.text = expenseDetails.countryCode==""?"India":expenseDetails.countryName;
+        edt_QualifiedCountryCode.text = expenseDetails.countryCode==""?"IND":expenseDetails.countryCode;
+        edt_QualifiedState.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].StateName:expenseDetails.stateName;
+        edt_QualifiedStateCode.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].stateCode.toString():expenseDetails.stateCode.toString();
+        edt_QualifiedCity.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityName:expenseDetails.cityName;
+        edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
         edt_QualifiedPinCode.text = expenseDetails.pincode;
         edt_DisQualifiedName.text = "";
         edt_DisQualifiedID.text = "0";
@@ -2290,12 +2266,12 @@ class _ExternalLeadAddEditScreenState
         edt_DisQualifiedID.text = "0";
         edt_QualifiedForProduct.text = "";
         edt_QualifiedForProductID.text = "";
-        edt_QualifiedCountry.text = "";
-        edt_QualifiedCountryCode.text = "";
-        edt_QualifiedState.text = "";
-        edt_QualifiedStateCode.text = "";
-        edt_QualifiedCity.text = "";
-        edt_QualifiedCityCode.text = "";
+        edt_QualifiedCountry.text = expenseDetails.countryCode==""?"India":expenseDetails.countryName;
+        edt_QualifiedCountryCode.text = expenseDetails.countryCode==""?"IND":expenseDetails.countryCode;
+        edt_QualifiedState.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].StateName:expenseDetails.stateName;
+        edt_QualifiedStateCode.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].stateCode.toString():expenseDetails.stateCode.toString();
+        edt_QualifiedCity.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityName:expenseDetails.cityName;
+        edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
         edt_QualifiedPinCode.text ="";
       }
     if(edt_LeadStatus.text=="")
@@ -2308,12 +2284,12 @@ class _ExternalLeadAddEditScreenState
         edt_QualifiedForProductID.text = expenseDetails.productID.toString();
        /* edt_QualifiedCountry.text = expenseDetails.countryName;
         edt_QualifiedCountryCode.text = expenseDetails.countryCode;*/
-        edt_QualifiedCountry.text = "India";
-        edt_QualifiedCountryCode.text = "IND";
-        edt_QualifiedState.text = expenseDetails.stateName;
-        edt_QualifiedStateCode.text = expenseDetails.stateCode.toString();
-        edt_QualifiedCity.text = expenseDetails.cityName;
-        edt_QualifiedCityCode.text = expenseDetails.cityCode.toString();
+        edt_QualifiedCountry.text = expenseDetails.countryCode==""?"India":expenseDetails.countryName;
+        edt_QualifiedCountryCode.text = expenseDetails.countryCode==""?"IND":expenseDetails.countryCode;
+        edt_QualifiedState.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].StateName:expenseDetails.stateName;
+        edt_QualifiedStateCode.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].stateCode.toString():expenseDetails.stateCode.toString();
+        edt_QualifiedCity.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityName:expenseDetails.cityName;
+        edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
         edt_QualifiedPinCode.text = expenseDetails.pincode;
         edt_DisQualifiedName.text = expenseDetails.exLeadClosureReason;
         edt_DisQualifiedID.text = expenseDetails.exLeadClosure.toString();

@@ -9,7 +9,6 @@ import 'package:soleoserp/models/api_requests/search_packingchecklist_request.da
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/packing_checking_list.dart';
-import 'package:soleoserp/models/api_responses/search_inquiry_list_response.dart';
 import 'package:soleoserp/models/api_responses/search_packingchecklist_label_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
@@ -23,19 +22,18 @@ import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class PackingChecklistScreen extends BaseStatefulWidget {
   static const routeName = '/PackingChecklistScreen';
 
   @override
   _PackingChecklistScreenState createState() => _PackingChecklistScreenState();
 }
-class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
-    with BasicScreen,WidgetsBindingObserver {
 
+class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
+    with BasicScreen, WidgetsBindingObserver {
   PackingChecklistBloc packingChecklistBloc;
   int pageno = 0;
-  int selected= 0;
+  int selected = 0;
   PackingChecklistListResponse Response;
   SearchPackingchecklistLabelDetails PC;
   int CompanyID = 0;
@@ -56,64 +54,67 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     packingChecklistBloc = PackingChecklistBloc(baseBloc);
-    packingChecklistBloc..add(PackingChecklistListCallEvent(1,PackingChecklistListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID.toString())));
-
+    packingChecklistBloc
+      ..add(PackingChecklistListCallEvent(
+          1,
+          PackingChecklistListRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID.toString())));
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) =>
-      packingChecklistBloc..add(PackingChecklistListCallEvent(pageno+1,PackingChecklistListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID.toString()))),
+      create: (BuildContext context) => packingChecklistBloc
+        ..add(PackingChecklistListCallEvent(
+            pageno + 1,
+            PackingChecklistListRequest(
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID.toString()))),
       child: BlocConsumer<PackingChecklistBloc, PackingChecklistListState>(
         builder: (BuildContext context, PackingChecklistListState state) {
           if (state is PackingChecklistListCallResponseState) {
-
             packingchecklistsuccess(state);
-          }if (state is SearchPackingChecklistCallResponseState) {
-
+          }
+          if (state is SearchPackingChecklistCallResponseState) {
             searchpackingchecklistsuccess(state);
           }
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is PackingChecklistListCallResponseState||
-          currentState is SearchPackingChecklistCallResponseState
-          ) {
+          if (currentState is PackingChecklistListCallResponseState ||
+              currentState is SearchPackingChecklistCallResponseState) {
             return true;
           }
           return false;
         },
         listener: (BuildContext context, PackingChecklistListState state) {
-          if(state is PackingDeleteCallResponseState)
-          {
+          if (state is PackingDeleteCallResponseState) {
             _OnDeleteQuotationSucessResponse(state);
           }
-
         },
         listenWhen: (oldState, currentState) {
-
-          if(currentState is PackingDeleteCallResponseState)
-            {
-              return true;
-            }
+          if (currentState is PackingDeleteCallResponseState) {
+            return true;
+          }
           return false;
         },
-      ),    );
+      ),
+    );
   }
 
   @override
   Widget buildBody(BuildContext context) {
     return WillPopScope(
-
-    onWillPop: () {
-      navigateTo(context, HomeScreen.routeName, clearAllStack: true);
-      return new Future(() => false);
-    },
+      onWillPop: () {
+        navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+        return new Future(() => false);
+      },
       child: Scaffold(
         appBar: NewGradientAppBar(
           gradient: LinearGradient(
-            colors: [Colors.red,Colors.purple,Colors.blue],
+            colors: [Colors.red, Colors.purple, Colors.blue],
           ),
           title: Text("Packing Checklist"),
           actions: <Widget>[
@@ -124,7 +125,8 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                 ),
                 onPressed: () {
                   //_onTapOfLogOut();
-                  navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+                  navigateTo(context, HomeScreen.routeName,
+                      clearAllStack: true);
                 })
           ],
         ),
@@ -132,12 +134,18 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 5,),
+              SizedBox(
+                height: 5,
+              ),
               Expanded(
-                child:RefreshIndicator(
-                  onRefresh: ()async{
-                    packingChecklistBloc.add(PackingChecklistListCallEvent(1,PackingChecklistListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID.toString())));
-                    PC.label="Tap to Search Customer";
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    packingChecklistBloc.add(PackingChecklistListCallEvent(
+                        1,
+                        PackingChecklistListRequest(
+                            CompanyId: CompanyID.toString(),
+                            LoginUserID: LoginUserID.toString())));
+                    PC.label = "Tap to Search Customer";
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -145,15 +153,17 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                       right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                       top: 20,
                     ),
-                  child: Column(
-                    children: [
-                      _buildSearchView(),
-                      SizedBox(height: 5,),
-                      Expanded(child:_buildInquiryList()),
-                    ],
+                    child: Column(
+                      children: [
+                        _buildSearchView(),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Expanded(child: _buildInquiryList()),
+                      ],
+                    ),
                   ),
-
-                ),),
+                ),
               ),
             ],
           ),
@@ -175,6 +185,7 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
       ),
     );
   }
+
   Future<void> _onTapOfDeleteALLProduct() async {
     await OfflineDbHelper.getInstance().deleteALLPackingProductAssambly();
   }
@@ -191,17 +202,16 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
       pageno = state.newPage;
     }
   }
+
   Widget _buildInquiryList() {
     if (Response == null) {
       return Container();
-
     }
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollInfo) {
         if (shouldPaginate(
           scrollInfo,
-        )
-        ){
+        )) {
           _onPackingCheckListPagination();
           return true;
         } else {
@@ -210,7 +220,6 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
       },
       child: ListView.builder(
         key: Key('selected $selected'),
-
         itemBuilder: (context, index) {
           return _buildCustomerList(index);
         },
@@ -222,11 +231,15 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
 
   ///builds row item view of inquiry list
   Widget _buildCustomerList(int index) {
-    return ExpantionCustomer(context,index);
-
+    return ExpantionCustomer(context, index);
   }
+
   void _onPackingCheckListPagination() {
-    packingChecklistBloc.add(PackingChecklistListCallEvent(pageno + 1,PackingChecklistListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID.toString())));
+    packingChecklistBloc.add(PackingChecklistListCallEvent(
+        pageno + 1,
+        PackingChecklistListRequest(
+            CompanyId: CompanyID.toString(),
+            LoginUserID: LoginUserID.toString())));
   }
 
   Widget ExpantionCustomer(BuildContext context, int index) {
@@ -245,8 +258,8 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
             //Colors.deepOrange[50],ADD8E6
             leading: CircleAvatar(
                 backgroundColor: Color(0xFF504F4F),
-                child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                    .network(
+                child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                    Image.network(
                   "http://demo.sharvayainfotech.in/images/profile.png",
                   height: 35,
                   fit: BoxFit.fill,
@@ -269,143 +282,134 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                 thickness: 1.0,
                 height: 1.0,
               ),
-
               Container(
                   margin: EdgeInsets.all(20),
-
                   child: Container(
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-
-
-                          Expanded(
-                            flex: 1,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("S/O #  ",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  p.sOno == ""
-                                                      ? "N/A"
-                                                      :  p.sOno ,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
+                                        children: <Widget>[
+                                          Text("S/O #  ",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(p.sOno == "" ? "N/A" : p.sOno,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      )),
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("Status",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  p.status ==
-                                                      "--Not Available--"
-                                                      ? "N/A"
-                                                      : p.status,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
-                                    ]),
-                                SizedBox(
-                                  height: sizeboxsize,
-                                ),
-
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
+                                        children: <Widget>[
+                                          Text("Status",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              p.status == "--Not Available--"
+                                                  ? "N/A"
+                                                  : p.status,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      )),
+                                ]),
+                            SizedBox(
+                              height: sizeboxsize,
+                            ),
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("Customer Name",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  p.customerName == ""
-                                                      ? "N/A"
-                                                      :  p.customerName,
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          ))
-                                    ]),
-                                SizedBox(
-                                  height: sizeboxsize,
-                                ),
-
-                                Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment:
+                                        children: <Widget>[
+                                          Text("Customer Name",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              p.customerName == ""
+                                                  ? "N/A"
+                                                  : p.customerName,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      ))
+                                ]),
+                            SizedBox(
+                              height: sizeboxsize,
+                            ),
+                            Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              Text("Date",
-                                                  style: TextStyle(
-                                                      fontStyle: FontStyle.italic,
-                                                      color: Color(label_color),
-                                                      fontSize: _fontSize_Label,
-                                                      letterSpacing: .3)),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              Text(
-                                                  p.createdDate == null
-                                                      ? "N/A"
-                                                      :  p.createdDate.getFormattedDate(
-                                                      fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                        children: <Widget>[
+                                          Text("Date",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: Color(label_color),
+                                                  fontSize: _fontSize_Label,
+                                                  letterSpacing: .3)),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                              p.createdDate == null
+                                                  ? "N/A"
+                                                  : p.createdDate.getFormattedDate(
+                                                      fromFormat:
+                                                          "yyyy-MM-ddTHH:mm:ss",
                                                       toFormat: "dd-MM-yyyy"),
-                                                  style: TextStyle(
-                                                      color: Color(title_color),
-                                                      fontSize: _fontSize_Title,
-                                                      letterSpacing: .3)),
-                                            ],
-                                          )),
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontSize: _fontSize_Title,
+                                                  letterSpacing: .3)),
+                                        ],
+                                      )),
 /*
                                     Expanded(
                                         flex: 1,
@@ -439,24 +443,29 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                                           ],
                                         )),
 */
-                                    ]),
-                                SizedBox(
-                                  height: sizeboxsize,
-                                ),
-                              ],
+                                ]),
+                            SizedBox(
+                              height: sizeboxsize,
                             ),
-                          ),
-                        ],
-                      ))),
-
+                          ],
+                        ),
+                      ),
+                    ],
+                  ))),
               ButtonBar(
                   alignment: MainAxisAlignment.center,
                   buttonHeight: 52.0,
                   buttonMinWidth: 90.0,
                   children: <Widget>[
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(90, 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(24.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () {
                         _onTapOfEditCustomer(p);
                       },
@@ -476,10 +485,15 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                         ],
                       ),
                     ),
-
-                    FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0)),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: Size(90, 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(24.0),
+                          ),
+                        ),
+                      ),
                       onPressed: () {
                         _onTapOfDeleteInquiry(p.pkID);
                       },
@@ -490,8 +504,7 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                             color: colorPrimary,
                           ),
                           Padding(
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 2.0),
+                            padding: const EdgeInsets.symmetric(vertical: 2.0),
                           ),
                           Text(
                             'Delete',
@@ -500,8 +513,6 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                         ],
                       ),
                     )
-
-
                   ]),
             ],
           ),
@@ -512,7 +523,7 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
       ],
     );
   }
- /* Widget _buildSearchView() {
+  /* Widget _buildSearchView() {
     return InkWell(
       onTap: () {
         _onTapOfSearchView();
@@ -580,7 +591,7 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                     fontWeight: FontWeight
                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -589,7 +600,7 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -598,13 +609,9 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
                 children: [
                   Expanded(
                     child: Text(
-                      PC == null
-                          ? "Tap to search customer"
-                          : PC.label,
+                      PC == null ? "Tap to search customer" : PC.label,
                       style: baseTheme.textTheme.headline3.copyWith(
-                          color: PC == null
-                              ? colorGrayDark
-                              : colorBlack),
+                          color: PC == null ? colorGrayDark : colorBlack),
                     ),
                   ),
                   Icon(
@@ -621,8 +628,7 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
   }
 
   Future<void> _onTapOfSearchView() async {
-
-  /*  Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPackingChecklistScreen())).then((value) {
+    /*  Navigator.push(context, MaterialPageRoute(builder: (context)=>SearchPackingChecklistScreen())).then((value) {
       if (value != null) {
         PC = value;
         packingChecklistBloc.add(SearchPackingChecklistCallEvent(
@@ -639,14 +645,17 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
             SearchInquiryListByNumberRequest(
                 searchKey: _searchDetails.label,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString())));*/
         packingChecklistBloc.add(SearchPackingChecklistCallEvent(
-            SearchPackingChecklistRequest(CompanyId: CompanyID.toString(),word: PC.pCNo,LoginUserID: LoginUserID.toString(),needALL: "0")));
+            SearchPackingChecklistRequest(
+                CompanyId: CompanyID.toString(),
+                word: PC.pCNo,
+                LoginUserID: LoginUserID.toString(),
+                needALL: "0")));
       }
     });
   }
 
-
-
-  void searchpackingchecklistsuccess(SearchPackingChecklistCallResponseState state) {
+  void searchpackingchecklistsuccess(
+      SearchPackingChecklistCallResponseState state) {
     Response = state.response;
   }
 
@@ -657,28 +666,26 @@ class _PackingChecklistScreenState extends BaseState<PackingChecklistScreen>
         positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
       Navigator.of(context).pop();
       //_collapse();
-      packingChecklistBloc.add(PackingDeleteRequestCallEvent(context,pkID,PackingCheckListDeleteRequest(CompanyId:CompanyID.toString())));
-
+      packingChecklistBloc.add(PackingDeleteRequestCallEvent(context, pkID,
+          PackingCheckListDeleteRequest(CompanyId: CompanyID.toString())));
     });
   }
 
   void _OnDeleteQuotationSucessResponse(PackingDeleteCallResponseState state) {
-
     navigateTo(state.context, PackingChecklistScreen.routeName,
         clearAllStack: true);
   }
 
   void _onTapOfEditCustomer(model) {
-
     navigateTo(context, PackingChecklistAddScreen.routeName,
-        arguments: AddUpdatePackingScreenArguments(model))
+            arguments: AddUpdatePackingScreenArguments(model))
         .then((value) {
-      packingChecklistBloc..add(PackingChecklistListCallEvent(1,PackingChecklistListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID.toString())));
-
+      packingChecklistBloc
+        ..add(PackingChecklistListCallEvent(
+            1,
+            PackingChecklistListRequest(
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID.toString())));
     });
   }
-
-
-
 }
-

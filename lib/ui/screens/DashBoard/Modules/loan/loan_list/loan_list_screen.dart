@@ -1,5 +1,4 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
@@ -675,9 +674,15 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  /*  FlatButton(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0)),
+                  /*  ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          fixedSize: Size(90, 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(24.0),
+            ),
+          ),
+        ),
                     onPressed: () {
                       //_onTapOfEditCustomer(model);
                     },
@@ -698,10 +703,8 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                     ),
                   ),*/
                   isDeleteVisible == true
-                      ? FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0)),
-                          onPressed: () {
+                      ? GestureDetector(
+                    onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
                           },
                           child: Column(

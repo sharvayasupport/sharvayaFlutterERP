@@ -398,8 +398,8 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
               //Colors.deepOrange[50],ADD8E6
               leading: CircleAvatar(
                   backgroundColor: Color(0xFF504F4F),
-                  child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                      .network(
+                  child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                      Image.network(
                     "http://demo.sharvayainfotech.in/images/profile.png",
                     height: 35,
                     fit: BoxFit.fill,
@@ -962,10 +962,8 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                     buttonHeight: 52.0,
                     buttonMinWidth: 90.0,
                     children: <Widget>[
-                      FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        onPressed: () {
+                      GestureDetector(
+                        onTap: () {
                           _onTapOfEditCustomer(
                               _expenseListResponse.details[index]);
                         },
@@ -986,11 +984,12 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                           ],
                         ),
                       ),
+                      SizedBox(
+                        width: 10,
+                      ),
                       isDeleteVisible == true
-                          ? FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0)),
-                              onPressed: () {
+                          ? GestureDetector(
+                              onTap: () {
                                 _onTapOfDeleteCustomer(
                                     _expenseListResponse.details[index].pkId);
                               },

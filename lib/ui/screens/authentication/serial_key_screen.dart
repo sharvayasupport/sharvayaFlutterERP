@@ -2,30 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
 import 'package:soleoserp/models/api_requests/company_details_request.dart';
-import 'package:soleoserp/models/api_requests/customer_category_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/designation_list_request.dart';
-import 'package:soleoserp/models/api_requests/login_user_details_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_category_list.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/designation_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
-import 'package:soleoserp/ui/res/font_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/dialog_utils.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class SerialKeyScreen extends BaseStatefulWidget {
   static const routeName = '/SerialKeyScreen';
-
 
   _SerialKeyScreenState createState() => _SerialKeyScreenState();
 }
@@ -55,10 +46,9 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     super.initState();
     screenStatusBarColor = colorWhite;
     _firstScreenBloc = FirstScreenBloc(baseBloc);
-  /*  _firstScreenBloc
+    /*  _firstScreenBloc
       ..add(CompanyDetailsCallEvent(
           CompanyDetailsApiRequest(serialKey: "ABCD-EFGH-IJKL-MNOW")));*/
-
   }
 
   ///listener to multiple states of bloc to handles api responses
@@ -87,8 +77,6 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
       child: BlocConsumer<FirstScreenBloc, FirstScreenStates>(
         builder: (BuildContext context, FirstScreenStates state) {
           //handle states
-
-
 
           return super.build(context);
         },
@@ -134,37 +122,26 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
         ),
       ),
     );
-
   }
-
-
-
 
   _onCompanyDetailsCallSucess(CompanyDetailsResponse response) {
     // SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_LOGGED_IN_USER_DATA, true);
 
-    if(response.details.length!=0)
-      {
-        SharedPrefHelper.instance.setCompanyData(response);
-        _offlineLoggedInData = SharedPrefHelper.instance.getCompanyData();
-        SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, true);
+    if (response.details.length != 0) {
+      SharedPrefHelper.instance.setCompanyData(response);
+      _offlineLoggedInData = SharedPrefHelper.instance.getCompanyData();
+      SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, true);
 
-        navigateTo(context, FirstScreen.routeName, clearAllStack: true);
+      navigateTo(context, FirstScreen.routeName, clearAllStack: true);
 
-        print(
-            "Company Details : " + response.details[0].companyName.toString() + "");
-      }
-    else
-      {
-        showCommonDialogWithSingleOption(context, "Invalid SerialKey",
-            positiveButtonTitle: "OK");
-      }
-
-
-
+      print("Company Details : " +
+          response.details[0].companyName.toString() +
+          "");
+    } else {
+      showCommonDialogWithSingleOption(context, "Invalid SerialKey",
+          positiveButtonTitle: "OK");
+    }
   }
-
-
 
   Widget _buildTopView() {
     return Column(
@@ -175,7 +152,7 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
           width: MediaQuery.of(context).size.width / 1.8,
           fit: BoxFit.fitWidth,
         ),
-       /* Container(
+        /* Container(
           alignment: Alignment.topLeft,
          // width: MediaQuery.of(context).size.width / 1.5,
           child: Icon(Icons.vpn_key_outlined,
@@ -219,7 +196,7 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
       key: _formKey,
       child: Column(
         children: [
-        /*  getCommonTextFormField(context, baseTheme,
+          /*  getCommonTextFormField(context, baseTheme,
               title: "Serial Key",
               hint: "enter Serial Key",
               keyboardType: TextInputType.emailAddress,
@@ -237,22 +214,19 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
                 }
                 return null;
               }),*/
-           SerialKeyTextField(),
+          SerialKeyTextField(),
           SizedBox(
             height: 25,
           ),
-
           Container(
             margin: EdgeInsets.all(10),
-            child:   getCommonButton(baseTheme, () {
+            child: getCommonButton(baseTheme, () {
               _onTapOfLogin();
             }, "Register"),
           ),
-        
           SizedBox(
             height: 20,
           ),
-          _buildGoogleButtonView(),
           SizedBox(
             height: 20,
           ),
@@ -266,20 +240,18 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
   }
 
   void _onTapOfLogin() {
-    if (_userNameController.text !="") {
-     /* _firstScreenBloc.add(LoginUserDetailsCallEvent(LoginUserDetialsAPIRequest(
+    if (_userNameController.text != "") {
+      /* _firstScreenBloc.add(LoginUserDetailsCallEvent(LoginUserDetialsAPIRequest(
           userID: _userNameController.text.toString(),
           password: _passwordController.text.toString(),
           companyId: _offlineLoggedInData.details[0].pkId)));*/
       _firstScreenBloc
-        ..add(CompanyDetailsCallEvent(
-            CompanyDetailsApiRequest(serialKey: _userNameController.text.toString())));
+        ..add(CompanyDetailsCallEvent(CompanyDetailsApiRequest(
+            serialKey: _userNameController.text.toString())));
+    } else {
+      showCommonDialogWithSingleOption(context, "Serial Key field is blank !",
+          positiveButtonTitle: "OK");
     }
-    else
-      {
-        showCommonDialogWithSingleOption(context, "Serial Key field is blank !",
-            positiveButtonTitle: "OK");
-      }
     //TODO
   }
 
@@ -291,61 +263,20 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     // navigateTo(context, RegisterScreen.routeName, clearAllStack: true);
   }
 
-  Widget _buildGoogleButtonView() {
-    return Visibility(
-      visible: false,
-      child: Container(
-        width: double.maxFinite,
-        height: COMMON_BUTTON_HEIGHT,
-        // ignore: deprecated_member_use
-        child: RaisedButton(
-          onPressed: () {
-            _onTapOfSignInWithGoogle();
-          },
-          color: colorRedLight,
-          shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.all(Radius.circular(COMMON_BUTTON_RADIUS)),
-          ),
-          elevation: 0.0,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                IC_GOOGLE,
-                width: 30,
-                height: 30,
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Text(
-                "Sign in with Google",
-                textAlign: TextAlign.center,
-                style: baseTheme.textTheme.button,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget SerialKeyTextField() {
-
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.only(left: 10, right: 20),
+            child: Text("Serial Key",
+                style: TextStyle(
+                    fontSize: 15,
+                    color:
+                        colorPrimary) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            child: Text(
-
-                "Serial Key",
-                style:TextStyle(fontSize: 15,color: colorPrimary)// baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -354,7 +285,7 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
             elevation: 5,
             color: Color(0xffE0E0E0),
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -362,85 +293,54 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
               child: Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                        maxLength: 19,
-                        controller: _userNameController,
-                        cursorColor: Color(0xFFF1E6FF),
-                        decoration: InputDecoration(
-                          icon: Icon(
-                            Icons.vpn_key,
-
-
+                      child: TextFormField(
+                          maxLength: 19,
+                          controller: _userNameController,
+                          cursorColor: Color(0xFFF1E6FF),
+                          decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.vpn_key,
+                            ),
+                            hintText: "xxxx-xxxx-xxxx-xxxx",
+                            border: InputBorder.none,
+                            counterStyle: TextStyle(height: double.minPositive),
+                            counterText: "",
                           ),
-                          hintText: "xxxx-xxxx-xxxx-xxxx",
-                          border: InputBorder.none,
-                          counterStyle: TextStyle(
-                              height: double.minPositive),
-                          counterText: "",
-                        ),
-                        onChanged: (String value) async {
-                          setState(() {
-                            if (count <=
-                                _userNameController
-                                    .text.length &&
-                                (_userNameController.text.length ==
-                                    4 ||
-                                    _userNameController
-                                        .text.length ==
-                                        9 ||
-                                    _userNameController
-                                        .text.length ==
-                                        14)) {
-                              _userNameController.text =
-                                  _userNameController.text + "-";
-                              int pos = _userNameController
-                                  .text.length;
-                              _userNameController.selection =
-                                  TextSelection.fromPosition(
-                                      TextPosition(
-                                          offset: pos));
-                            } else if (count >=
-                                _userNameController
-                                    .text.length &&
-                                (_userNameController
-                                    .text.length ==
-                                    4 ||
-                                    _userNameController
-                                        .text.length ==
-                                        9 ||
-                                    _userNameController
-                                        .text.length ==
-                                        14)) {
-                              _userNameController.text =
-                                  _userNameController.text
-                                      .substring(
-                                      0,
-                                      _userNameController
-                                          .text.length -
-                                          1);
-                              int pos = _userNameController
-                                  .text.length;
-                              _userNameController.selection =
-                                  TextSelection.fromPosition(
-                                      TextPosition(
-                                          offset: pos));
-                            }
-                            count =
-                                _userNameController.text.length;
-                          });
-                        })
-                  ),
-
+                          onChanged: (String value) async {
+                            setState(() {
+                              if (count <= _userNameController.text.length &&
+                                  (_userNameController.text.length == 4 ||
+                                      _userNameController.text.length == 9 ||
+                                      _userNameController.text.length == 14)) {
+                                _userNameController.text =
+                                    _userNameController.text + "-";
+                                int pos = _userNameController.text.length;
+                                _userNameController.selection =
+                                    TextSelection.fromPosition(
+                                        TextPosition(offset: pos));
+                              } else if (count >=
+                                      _userNameController.text.length &&
+                                  (_userNameController.text.length == 4 ||
+                                      _userNameController.text.length == 9 ||
+                                      _userNameController.text.length == 14)) {
+                                _userNameController.text =
+                                    _userNameController.text.substring(
+                                        0, _userNameController.text.length - 1);
+                                int pos = _userNameController.text.length;
+                                _userNameController.selection =
+                                    TextSelection.fromPosition(
+                                        TextPosition(offset: pos));
+                              }
+                              count = _userNameController.text.length;
+                            });
+                          })),
                 ],
               ),
             ),
           )
         ],
       ),
-
     );
-
-
 
 /*
     return TextFormField(
@@ -511,10 +411,5 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
           });
         });
 */
-
   }
-
-
-
-
 }

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_history_list_request.dart';
+import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/closer_reason_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_requests/followup_delete_image_request.dart';
@@ -18,6 +20,8 @@ import 'package:soleoserp/models/api_requests/followup_upload_image_request.dart
 import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/quick_followup_list_request.dart';
 import 'package:soleoserp/models/api_requests/search_followup_by_status_request.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/closer_reason_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/followup_Image_Upload_response.dart';
@@ -118,6 +122,14 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
 
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+
+    if (event is AccuraBathComplaintFollowupHistoryListRequestEvent) {
+      yield* _mapComlaintFollowupHistoryListEventToState(event);
+    }
+
+    if (event is AccuraBathComplaintFollowupSaveRequestEvent) {
+      yield* _mapAccuraBathComlaintFollowupEventToState(event);
     }
   }
 
@@ -448,6 +460,39 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
 
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FollowupStates> _mapComlaintFollowupHistoryListEventToState(
+      AccuraBathComplaintFollowupHistoryListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      AccuraBathComplaintFollowupHistoryListResponse response =
+          await userRepository.getComplaintFollowupHistoryListAPI(
+              event.complaintFollowupHistoryListRequest);
+      yield AccuraBathComplaintFollowupHistoryListResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FollowupStates> _mapAccuraBathComlaintFollowupEventToState(
+      AccuraBathComplaintFollowupSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      AccuraBathComplaintFollowupSaveResponse response =
+          await userRepository.getComplaintFollowupSaveAPI(
+              event.pkID, event.complaintFollowupSaveRequest);
+      yield AccuraBathComplaintFollowupSaveResponseState(
+          event.context, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

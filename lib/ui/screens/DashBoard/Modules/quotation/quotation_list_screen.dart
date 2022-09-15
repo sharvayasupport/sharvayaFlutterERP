@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:io';
 
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -484,8 +483,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
         expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
         leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                .network(
+            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                Image.network(
               "http://demo.sharvayainfotech.in/images/profile.png",
               height: 35,
               fit: BoxFit.fill,
@@ -842,14 +841,12 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
             ),
           ),
           ButtonBar(
-              alignment: MainAxisAlignment.spaceAround,
+              alignment: MainAxisAlignment.center,
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
               children: <Widget>[
-                FlatButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0)),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     _onTaptoEditQuotation(model);
                   },
                   child: Column(
@@ -868,10 +865,11 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                     ],
                   ),
                 ),
-                FlatButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0)),
-                  onPressed: () {
+                SizedBox(
+                  width: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
                     //  cardA.currentState?.collapse();
                     //new ExpansionTileCardState().collapse();
 
@@ -1013,11 +1011,27 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
             ),
           ),
           actions: <Widget>[
-            FlatButton(
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(90, 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(24.0),
+                    ),
+                  ),
+                ),
                 onPressed: () => Navigator.of(context)
                     .pop(), //  We can return any object from here
                 child: Text('NO')),
-            /* prgresss!=100 ? CircularProgressIndicator() :*/ FlatButton(
+            /* prgresss!=100 ? CircularProgressIndicator() :*/ ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(90, 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(24.0),
+                    ),
+                  ),
+                ),
                 onPressed: () => {
                       Navigator.of(context).pop(),
                       _QuotationBloc.add(QuotationPDFGenerateCallEvent(
@@ -1051,7 +1065,15 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
             ),
           ),
           actions: <Widget>[
-            FlatButton(
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: Size(90, 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(24.0),
+                    ),
+                  ),
+                ),
                 onPressed: () => Navigator.of(context)
                     .pop(), //  We can return any object from here
                 child: Text('Close')),
@@ -1199,7 +1221,6 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               pullToRefreshController.endRefreshing();
               this.prgresss = progress;
               // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-
             }
 
             //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
@@ -1313,7 +1334,6 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               pullToRefreshController.endRefreshing();
               this.prgresss = progress;
               // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-
             }
 
             //  EasyLoading.showProgress(progress / 100, status: 'Loading...');

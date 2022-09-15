@@ -1,6 +1,5 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
@@ -535,8 +534,8 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
         //Colors.deepOrange[50],ADD8E6
         leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                .network(
+            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                Image.network(
               "http://demo.sharvayainfotech.in/images/profile.png",
               height: 35,
               fit: BoxFit.fill,
@@ -908,17 +907,17 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
               ),
             ),
           ),
-          ButtonBar(alignment: MainAxisAlignment.center, buttonHeight: 52.0,
+          ButtonBar(
+              alignment: MainAxisAlignment.center,
+              buttonHeight: 52.0,
               // buttonMinWidth: 90.0,
               children: <Widget>[
                 /*_inquiryBloc.add(InquiryNotoProductCallEvent(
           InquiryNoToProductListRequest(
               InquiryNo: InquiryNo, CompanyId: CompanyID.toString())));*/
 
-                FlatButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0)),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     _onTapOfEditInquiry(model);
                   },
                   child: Column(
@@ -937,11 +936,12 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                     ],
                   ),
                 ),
+                SizedBox(
+                  width: 10,
+                ),
                 isDeleteVisible == true
-                    ? FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        onPressed: () {
+                    ? GestureDetector(
+                        onTap: () {
                           //  cardA.currentState?.collapse();
                           //new ExpansionTileCardState().collapse();
                           _onTapOfDeleteInquiry(model.pkID);
@@ -1192,7 +1192,6 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
       }
 
       // navigateTo(context, FollowUpAddEditScreen.routeName,clearAllStack: true);
-
     }
   }
 
@@ -1437,7 +1436,15 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                               },
                               itemCount: values.length,
                             ),*/
-                          FlatButton(
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              fixedSize: Size(90, 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(24.0),
+                                ),
+                              ),
+                            ),
                             child: Text("Share Inquiry"),
                             onPressed: () => {generateShare(values)},
                           ),

@@ -2157,7 +2157,6 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
     } else {
       emailValid =
           false; //RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(edt_Email_Name.text);
-
     }
     await getContacts();
 
@@ -2321,7 +2320,6 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
           }
         });
         //Navigator.of(context).pop();
-
       }
     } else {
       if (MultipleVideoList.length != 0) {
@@ -2340,6 +2338,22 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                 CompanyID: CompanyID.toString(),
                 LoginUserId: LoginUserID.toString(),
                 file: MultipleVideoList[0])));
+      } else {
+        if (state.customerAddEditApiResponse.details[0].column2 ==
+                "Customer Information Added Successfully" ||
+            state.customerAddEditApiResponse.details[0].column2 ==
+                "Customer Information Updated Successfully") {
+          await showCommonDialogWithSingleOption(Globals.context,
+              state.customerAddEditApiResponse.details[0].column2,
+              positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+            navigateTo(context, CustomerListScreen.routeName,
+                clearAllStack: true);
+          });
+        } else {
+          await showCommonDialogWithSingleOption(Globals.context,
+              state.customerAddEditApiResponse.details[0].column2,
+              positiveButtonTitle: "OK");
+        }
       }
       /*  await showCommonDialogWithSingleOption(
           Globals.context, state.customerAddEditApiResponse.details[0].column2,

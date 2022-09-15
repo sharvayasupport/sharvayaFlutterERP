@@ -1,9 +1,5 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:expansion_tile_card/expansion_tile_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:lottie/lottie.dart';
@@ -716,8 +712,8 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         //Colors.deepOrange[50],ADD8E6
         leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ Image
-                .network(
+            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                Image.network(
               "http://demo.sharvayainfotech.in/images/profile.png",
               height: 35,
               fit: BoxFit.fill,
@@ -740,7 +736,9 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
           //mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Text(
-              model.inquiryStatusDesc,
+              model.inquiryStatusDesc == "--Not Available--"
+                  ? ""
+                  : model.inquiryStatusDesc,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
             ),
             model.timeIn != "" || model.timeOut != ""
@@ -1151,10 +1149,8 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
               children: <Widget>[
-                FlatButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0)),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     navigateTo(context, FollowUpAddEditScreen.routeName,
                             arguments: AddUpdateFollowupScreenArguments(model))
                         .then((value) {
@@ -1179,11 +1175,12 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                     ],
                   ),
                 ),
+                SizedBox(
+                  width: 10,
+                ),
                 isDeleteVisible == true
-                    ? FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0)),
-                        onPressed: () {
+                    ? GestureDetector(
+                        onTap: () {
                           //  cardA.currentState?.collapse();
                           //new ExpansionTileCardState().collapse();
                           _onTapOfDeleteCustomer(model.pkID);
