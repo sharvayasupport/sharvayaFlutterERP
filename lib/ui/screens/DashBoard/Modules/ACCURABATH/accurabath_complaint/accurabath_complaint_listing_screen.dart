@@ -8,7 +8,7 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_list_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/fetch_accurabath_complaint_image_list_request.dart';
-import 'package:soleoserp/models/api_requests/complaint_delete_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_delete_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/complaint_image_list_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';

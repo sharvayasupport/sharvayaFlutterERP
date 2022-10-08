@@ -5,9 +5,9 @@ import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/bank_voucher/bank_voucher_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/maintenance/maintenance_bloc.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_delete_request.dart';
-import 'package:soleoserp/models/api_requests/maintenance_list_request.dart';
-import 'package:soleoserp/models/api_requests/maintenance_search_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
+import 'package:soleoserp/models/api_requests/maintenance/maintenance_list_request.dart';
+import 'package:soleoserp/models/api_requests/maintenance/maintenance_search_request.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher_list_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
@@ -643,8 +643,8 @@ class _MaintenanceListScreenState extends BaseState<MaintenanceListScreen>
                   ),*/
 
                   isDeleteVisible == true
-                      ?  GestureDetector(
-                    onTap: () {
+                      ? GestureDetector(
+                          onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
                           },
                           child: Column(

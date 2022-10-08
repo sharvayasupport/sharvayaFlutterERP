@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/city_list_request.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/delete_all_packing_assambly_request.dart';
-import 'package:soleoserp/models/api_requests/out_word_no_list_request.dart';
-import 'package:soleoserp/models/api_requests/packing_assambly_edit_mode_request.dart';
-import 'package:soleoserp/models/api_requests/packing_check_list_delete_request.dart';
-import 'package:soleoserp/models/api_requests/packing_checklist_list.dart';
-import 'package:soleoserp/models/api_requests/packing_productassambly_list_request.dart';
-import 'package:soleoserp/models/api_requests/packing_save_request.dart';
-import 'package:soleoserp/models/api_requests/product_drop_down_request.dart';
-import 'package:soleoserp/models/api_requests/product_group_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/product_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/other/product_group_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/packing/delete_all_packing_assambly_request.dart';
+import 'package:soleoserp/models/api_requests/packing/out_word_no_list_request.dart';
+import 'package:soleoserp/models/api_requests/packing/packing_assambly_edit_mode_request.dart';
+import 'package:soleoserp/models/api_requests/packing/packing_check_list_delete_request.dart';
+import 'package:soleoserp/models/api_requests/packing/packing_checklist_list.dart';
+import 'package:soleoserp/models/api_requests/packing/packing_productassambly_list_request.dart';
+import 'package:soleoserp/models/api_requests/packing/packing_save_request.dart';
 import 'package:soleoserp/models/api_requests/search_packingchecklist_request.dart';
 import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response_for_packing_checking.dart';
 import 'package:soleoserp/models/api_responses/delete_all_packing_assambly_response.dart';
 import 'package:soleoserp/models/api_responses/out_word_no_list_response.dart';
@@ -32,9 +31,8 @@ import 'package:soleoserp/models/api_responses/state_list_response.dart';
 import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
-part 'packing_checklist_state.dart';
-
 part 'packing_checklist_event.dart';
+part 'packing_checklist_state.dart';
 
 class PackingChecklistBloc
     extends Bloc<PackingChecklistListEvent, PackingChecklistListState> {
@@ -81,36 +79,26 @@ class PackingChecklistBloc
       yield* _mapPackingProductAssamblyListCallEventToState(event);
     }
 
-    if(event is ProductGroupDropDownRequestCallEvent)
-      {
-        yield* _mapProductGroupDropDownCallEventToState(event);
-      }
-    if(event is ProductDropDownRequestCallEvent)
-    {
+    if (event is ProductGroupDropDownRequestCallEvent) {
+      yield* _mapProductGroupDropDownCallEventToState(event);
+    }
+    if (event is ProductDropDownRequestCallEvent) {
       yield* _mapProductDropDownCallEventToState(event);
     }
 
-    if(event is PackingSaveCallEvent)
-    {
+    if (event is PackingSaveCallEvent) {
       yield* _mapPackingSaveCallEventToState(event);
     }
-    if(event is PackingAssamblySaveCallEvent)
-    {
+    if (event is PackingAssamblySaveCallEvent) {
       yield* _mapPackingAssamblySaveEventToState(event);
     }
-    if(event is DeleteALLPackingAssamblyCallEvent)
-    {
+    if (event is DeleteALLPackingAssamblyCallEvent) {
       yield* _mapDeleteAllPackingAssamblyCallEventToState(event);
     }
 
-    if(event is PackingAssamblyEditModeRequestCallEvent)
-      {
-        yield* _mapPackingAssamblyEditModeCallEventToState(event);
-
-      }
-
-
-
+    if (event is PackingAssamblyEditModeRequestCallEvent) {
+      yield* _mapPackingAssamblyEditModeCallEventToState(event);
+    }
   }
 
   Stream<PackingChecklistListState> _mapPackingChecklistListEventToState(
@@ -270,15 +258,14 @@ class PackingChecklistBloc
     }
   }
 
-  Stream<PackingChecklistListState>
-  _mapProductGroupDropDownCallEventToState(
+  Stream<PackingChecklistListState> _mapProductGroupDropDownCallEventToState(
       ProductGroupDropDownRequestCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
       ProductGroupDropDownResponse respo =
-      await userRepository.ProductGroupDropDownAPi(
-          event.packingProductAssamblyListRequest);
+          await userRepository.ProductGroupDropDownAPi(
+              event.packingProductAssamblyListRequest);
       yield ProductGroupDropDownResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -288,13 +275,13 @@ class PackingChecklistBloc
     }
   }
 
-  Stream<PackingChecklistListState>
-  _mapProductDropDownCallEventToState(
+  Stream<PackingChecklistListState> _mapProductDropDownCallEventToState(
       ProductDropDownRequestCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      ProductDropDownResponse respo = await userRepository.ProductDropDownAPi(event.productDropDownRequest);
+      ProductDropDownResponse respo =
+          await userRepository.ProductDropDownAPi(event.productDropDownRequest);
       yield ProductDropDownResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -304,15 +291,13 @@ class PackingChecklistBloc
     }
   }
 
-
-
-  Stream<PackingChecklistListState>
-  _mapPackingSaveCallEventToState(
+  Stream<PackingChecklistListState> _mapPackingSaveCallEventToState(
       PackingSaveCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      PackingSaveResponse respo = await userRepository.PackingSaveAPi(event.pkID,event.packingSaveRequest);
+      PackingSaveResponse respo = await userRepository.PackingSaveAPi(
+          event.pkID, event.packingSaveRequest);
       yield PackingSaveResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -321,7 +306,6 @@ class PackingChecklistBloc
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
-
 
   Stream<PackingChecklistListState> _mapPackingAssamblySaveEventToState(
       PackingAssamblySaveCallEvent event) async* {
@@ -339,14 +323,15 @@ class PackingChecklistBloc
     }
   }
 
-
   Stream<PackingChecklistListState>
-  _mapDeleteAllPackingAssamblyCallEventToState(
-      DeleteALLPackingAssamblyCallEvent event) async* {
+      _mapDeleteAllPackingAssamblyCallEventToState(
+          DeleteALLPackingAssamblyCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      Delete_ALL_Assambly_Response respo = await userRepository.DeleteAllPackingAssamblyAPI(event.pcNo,event.deleteAllPakingAssamblyRequest);
+      Delete_ALL_Assambly_Response respo =
+          await userRepository.DeleteAllPackingAssamblyAPI(
+              event.pcNo, event.deleteAllPakingAssamblyRequest);
       yield DeleteAllPackingAssamblyResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -356,14 +341,14 @@ class PackingChecklistBloc
     }
   }
 
-
-  Stream<PackingChecklistListState>
-  _mapPackingAssamblyEditModeCallEventToState(
+  Stream<PackingChecklistListState> _mapPackingAssamblyEditModeCallEventToState(
       PackingAssamblyEditModeRequestCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      PackingAssamblyEditModeResponse respo = await userRepository.PackingAssamblyEditModeAPI(event.packingAssamblyEditModeRequest);
+      PackingAssamblyEditModeResponse respo =
+          await userRepository.PackingAssamblyEditModeAPI(
+              event.packingAssamblyEditModeRequest);
       yield PackingAssamblyEditModeResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -372,6 +357,4 @@ class PackingChecklistBloc
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
-
-
 }

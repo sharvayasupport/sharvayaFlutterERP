@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/google_map/google_map_bloc.dart';
-import 'package:soleoserp/models/api_requests/google_place_api_request.dart';
+import 'package:soleoserp/models/api_requests/maps/google_place_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/google_place_search_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';

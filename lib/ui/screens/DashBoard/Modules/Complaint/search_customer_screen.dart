@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -12,15 +11,16 @@ import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class SearchComplaintCustomerScreen extends BaseStatefulWidget {
   static const routeName = '/SearchComplaintCustomerScreen';
 
   @override
-  _SearchComplaintCustomerScreenState createState() => _SearchComplaintCustomerScreenState();
+  _SearchComplaintCustomerScreenState createState() =>
+      _SearchComplaintCustomerScreenState();
 }
 
-class _SearchComplaintCustomerScreenState extends BaseState<SearchComplaintCustomerScreen>
+class _SearchComplaintCustomerScreenState
+    extends BaseState<SearchComplaintCustomerScreen>
     with BasicScreen, WidgetsBindingObserver {
   ComplaintScreenBloc _FollowupBloc;
   CustomerLabelvalueRsponse _searchCustomerListResponse;
@@ -71,7 +71,8 @@ class _SearchComplaintCustomerScreenState extends BaseState<SearchComplaintCusto
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -108,7 +109,7 @@ class _SearchComplaintCustomerScreenState extends BaseState<SearchComplaintCusto
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -117,7 +118,7 @@ class _SearchComplaintCustomerScreenState extends BaseState<SearchComplaintCusto
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -172,7 +173,7 @@ class _SearchComplaintCustomerScreenState extends BaseState<SearchComplaintCusto
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.label +"\n"+model.ContactNo1,
+              model.label + "\n" + model.ContactNo1,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -186,7 +187,10 @@ class _SearchComplaintCustomerScreenState extends BaseState<SearchComplaintCusto
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _FollowupBloc.add(SearchFollowupCustomerListByNameCallEvent(
-          CustomerLabelValueRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID)));
+          CustomerLabelValueRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID)));
     }
   }
 

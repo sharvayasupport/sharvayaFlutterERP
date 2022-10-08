@@ -8,7 +8,7 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:ntp/ntp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attendance_employee/attendance_bloc.dart';
-import 'package:soleoserp/models/api_requests/attendance_list_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';

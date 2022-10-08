@@ -1,13 +1,12 @@
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
-import 'package:soleoserp/models/api_requests/complaint_save_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_save_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/complaint_list_response.dart';
@@ -1335,7 +1334,6 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
                   CompanyId: CompanyID.toString(),
                   LoginUserID: "admin",
                   word: _searchDetails.value.toString())));*/
-
         }
         print("CustomerInfo : " +
             edt_CustomerName.text.toString() +
@@ -1421,7 +1419,6 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
           beforZerominute123 +
           " " +
           AM_PM123; //picked_s.periodOffset.toString();
-
     } else {
       edt_FromTime.text = _editModel.timeFrom.getFormattedDate(
           fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "hh:mm a");
@@ -1476,16 +1473,35 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
   }
 
   FetchTypeDetails() {
-    arr_ALL_Name_ID_For_Type.clear();
-    for (var i = 0; i <= 1; i++) {
-      ALL_Name_ID all_name_id = ALL_Name_ID();
+    if (_offlineLoggedInData.details[0].serialKey.toUpperCase() !=
+        "SIG1-M0A9-SUR7-GI7L") {
+      arr_ALL_Name_ID_For_Type.clear();
+      for (var i = 0; i <= 3; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
 
-      if (i == 0) {
-        all_name_id.Name = "Online";
-      } else if (i == 1) {
-        all_name_id.Name = "Offline";
+        if (i == 0) {
+          all_name_id.Name = "On-Site";
+        } else if (i == 1) {
+          all_name_id.Name = "Remote";
+        } else if (i == 2) {
+          all_name_id.Name = "Telephonic";
+        } else if (i == 3) {
+          all_name_id.Name = "Add new installation";
+        }
+        arr_ALL_Name_ID_For_Type.add(all_name_id);
       }
-      arr_ALL_Name_ID_For_Type.add(all_name_id);
+    } else {
+      arr_ALL_Name_ID_For_Type.clear();
+      for (var i = 0; i <= 1; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+
+        if (i == 0) {
+          all_name_id.Name = "Online";
+        } else if (i == 1) {
+          all_name_id.Name = "Offline";
+        }
+        arr_ALL_Name_ID_For_Type.add(all_name_id);
+      }
     }
   }
 
@@ -1498,8 +1514,9 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
           : "Complaint Added Successfully";
     }
     await showCommonDialogWithSingleOption(Globals.context, Msg,
-        positiveButtonTitle: "OK");
-
-    Navigator.of(context).pop();
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      navigateTo(context, ComplaintPaginationListScreen.routeName,
+          clearAllStack: true);
+    });
   }
 }

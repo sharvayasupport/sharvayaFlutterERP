@@ -65,3 +65,10 @@ class GetReportToTokenResponseState extends ExternalLeadStates {
 
   GetReportToTokenResponseState(this.response);
 }
+
+class RegionCodeResponseState extends ExternalLeadStates {
+  final RegionCodeResponse response;
+  ExternalLeadDetails expenseDetails1;
+
+  RegionCodeResponseState(this.response, this.expenseDetails1);
+}

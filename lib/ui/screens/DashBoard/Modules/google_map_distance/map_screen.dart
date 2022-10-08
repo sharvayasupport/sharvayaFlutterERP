@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +8,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/google_map/google_map_bloc.dart';
-import 'package:soleoserp/models/api_requests/distance_matrix_api_request.dart';
-import 'package:soleoserp/models/api_requests/google_place_api_request.dart';
+import 'package:soleoserp/models/api_requests/maps/distance_matrix_api_request.dart';
+import 'package:soleoserp/models/api_requests/maps/google_place_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/google_place_search_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -654,5 +653,4 @@ class _MapScreenState extends BaseState<MapScreen>
   degreesToRadians(degrees){
     return degrees * Math.PI / 180;
   }*/
-
 }

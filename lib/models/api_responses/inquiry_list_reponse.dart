@@ -52,40 +52,40 @@ class InquiryDetails {
   String ContactNo;
   String closureReason;
   int closureReasonID;
+  String LeadDate;
 
-  InquiryDetails(
-      {this.rowNum,
-      this.pkID,
-      this.inquiryNo,
-      this.inquiryDate,
-      this.referenceName,
-      this.inquirySource,
-      this.customerID,
-      this.customerName,
-      this.emailAddress,
-      this.followupNotes,
-      this.followupDate,
-      this.meetingNotes,
-      this.inquiryStatusID,
-      this.inquiryStatus,
-      this.followupTypeID,
-      this.priority,
-      this.preferredTime,
-      this.followupType,
-      this.totalAmount,
-      this.employeeName,
-      this.designation,
-      this.createdBy,
-      this.createdDate,
-      this.InquirySourceName,
-        this.ContactNo,
-        this.closureReason,
-        this.closureReasonID,
-
-      });
+  InquiryDetails({
+    this.rowNum,
+    this.pkID,
+    this.inquiryNo,
+    this.inquiryDate,
+    this.referenceName,
+    this.inquirySource,
+    this.customerID,
+    this.customerName,
+    this.emailAddress,
+    this.followupNotes,
+    this.followupDate,
+    this.meetingNotes,
+    this.inquiryStatusID,
+    this.inquiryStatus,
+    this.followupTypeID,
+    this.priority,
+    this.preferredTime,
+    this.followupType,
+    this.totalAmount,
+    this.employeeName,
+    this.designation,
+    this.createdBy,
+    this.createdDate,
+    this.InquirySourceName,
+    this.ContactNo,
+    this.closureReason,
+    this.closureReasonID,
+    this.LeadDate,
+  });
 
   InquiryDetails.fromJson(Map<String, dynamic> json) {
-
     rowNum = json['rowNum'] == null ? 0 : json['rowNum'];
     pkID = json['pkID'] == null ? 0 : json['pkID'];
     inquiryNo = json['InquiryNo'] == null ? "" : json['InquiryNo'];
@@ -96,11 +96,13 @@ class InquiryDetails {
     customerName = json['CustomerName'] == null ? "" : json['CustomerName'];
     emailAddress = json['EmailAddress'] == null ? "" : json['EmailAddress'];
     followupNotes = json['FollowupNotes'] == null ? "" : json['FollowupNotes'];
-    followupDate = json['FollowupDate'] == null ? "": json['FollowupDate'];
+    followupDate = json['FollowupDate'] == null ? "" : json['FollowupDate'];
     meetingNotes = json['MeetingNotes'] == null ? "" : json['MeetingNotes'];
-    inquiryStatusID = json['InquiryStatusID'] == null ? 0 : json['InquiryStatusID'];
+    inquiryStatusID =
+        json['InquiryStatusID'] == null ? 0 : json['InquiryStatusID'];
     inquiryStatus = json['InquiryStatus'] == null ? "" : json['InquiryStatus'];
-    followupTypeID = json['FollowupTypeID'] == null ? 0 : json['FollowupTypeID'];
+    followupTypeID =
+        json['FollowupTypeID'] == null ? 0 : json['FollowupTypeID'];
     priority = json['Priority'] == null ? "" : json['Priority'];
     preferredTime = json['PreferredTime'] == null ? "" : json['PreferredTime'];
     followupType = json['FollowupType'] == null ? "" : json['FollowupType'];
@@ -109,19 +111,21 @@ class InquiryDetails {
     designation = json['Designation'] == null ? "" : json['Designation'];
     createdBy = json['CreatedBy'] == null ? "" : json['CreatedBy'];
     createdDate = json['CreatedDate'] == null ? "" : json['CreatedDate'];
-    InquirySourceName = json['InquirySourceName'] == null ? "" : json['InquirySourceName'];
+    InquirySourceName =
+        json['InquirySourceName'] == null ? "" : json['InquirySourceName'];
     ContactNo = json['ContactNo'] == null ? "" : json['ContactNo'];
     closureReason = json['ClosureReason'] == null ? "" : json['ClosureReason'];
-    closureReasonID = json['ClosureReasonID'] == null ? 0 : json['ClosureReasonID'];
-
+    closureReasonID =
+        json['ClosureReasonID'] == null ? 0 : json['ClosureReasonID'];
+    LeadDate = json['LeadDate'] == null ? "" : json['LeadDate'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['RowNum']          = this.rowNum;
-    data['pkID']            = this.pkID;
-    data['InquiryNo']       = this.inquiryNo;
-    data['InquiryDate']       = this.inquiryDate;
+    data['RowNum'] = this.rowNum;
+    data['pkID'] = this.pkID;
+    data['InquiryNo'] = this.inquiryNo;
+    data['InquiryDate'] = this.inquiryDate;
     data['ReferenceName'] = this.referenceName;
     data['InquirySource'] = this.inquirySource;
     data['CustomerID'] = this.customerID;
@@ -141,10 +145,11 @@ class InquiryDetails {
     data['Designation'] = this.designation;
     data['CreatedBy'] = this.createdBy;
     data['CreatedDate'] = this.createdDate;
-    data['InquirySourceName']= this.InquirySourceName;
-    data['ContactNo'] =this.ContactNo;
-    data['ClosureReason'] =this.closureReason;
-    data['ClosureReasonID'] =this.closureReasonID;
+    data['InquirySourceName'] = this.InquirySourceName;
+    data['ContactNo'] = this.ContactNo;
+    data['ClosureReason'] = this.closureReason;
+    data['ClosureReasonID'] = this.closureReasonID;
+    data['LeadDate'] = this.LeadDate;
 
     return data;
   }

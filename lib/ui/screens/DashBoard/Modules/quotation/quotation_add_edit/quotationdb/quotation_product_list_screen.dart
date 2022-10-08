@@ -181,9 +181,10 @@ class _QuotationProductListScreenState
     _productList
         .addAll(await OfflineDbHelper.getInstance().getQuotationProduct());
     await UpdateAfterHeaderDiscountToDB();
+    /* await UpdateAfterHeaderDiscountToDB();
     _productList.clear();
     _productList
-        .addAll(await OfflineDbHelper.getInstance().getQuotationProduct());
+        .addAll(await OfflineDbHelper.getInstance().getQuotationProduct());*/
     setState(() {});
   }
 
@@ -195,7 +196,11 @@ class _QuotationProductListScreenState
     _TempinquiryProductList.clear();
     _TempinquiryProductList.addAll(_productList);
 
-    await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
+    _productList.clear();
+
+    QuotationTable tempQuotationTable;
+
+    //await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
 
     for (int i = 0; i < _TempinquiryProductList.length; i++) {
       print("_inquiryProductList[i].NetAmount234" +
@@ -272,7 +277,36 @@ class _QuotationProductListScreenState
           SGSTAmount = 0.00;
         }
 
-        await OfflineDbHelper.getInstance().insertQuotationProduct(
+        tempQuotationTable = QuotationTable(
+            _TempinquiryProductList[i].QuotationNo,
+            _TempinquiryProductList[i].ProductSpecification,
+            _TempinquiryProductList[i].ProductID,
+            _TempinquiryProductList[i].ProductName,
+            _TempinquiryProductList[i].Unit,
+            _TempinquiryProductList[i].Quantity,
+            _TempinquiryProductList[i].UnitRate,
+            _TempinquiryProductList[i].DiscountPercent,
+            _TempinquiryProductList[i].DiscountAmt,
+            _TempinquiryProductList[i].NetRate,
+            ExclusiveFinalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxRate,
+            ExclusiveItemWiseTaxAmnt,
+            ExclusiveTotalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxType,
+            CGSTPer,
+            SGSTPer,
+            IGSTPer,
+            CGSTAmount,
+            SGSTAmount,
+            IGSTAmount,
+            _TempinquiryProductList[i].StateCode,
+            _TempinquiryProductList[i].pkID,
+            LoginUserID,
+            CompanyID.toString(),
+            0,
+            ExclusiveItemWiseHeaderDisAmnt);
+        _productList.add(tempQuotationTable);
+        /* await OfflineDbHelper.getInstance().insertQuotationProduct(
             QuotationTable(
                 _TempinquiryProductList[i].QuotationNo,
                 _TempinquiryProductList[i].ProductSpecification,
@@ -300,7 +334,7 @@ class _QuotationProductListScreenState
                 LoginUserID,
                 CompanyID.toString(),
                 0,
-                ExclusiveItemWiseHeaderDisAmnt));
+                ExclusiveItemWiseHeaderDisAmnt));*/
       } else {
         InclusiveItemWiseHeaderDisAmnt =
             (_TempinquiryProductList[i].NetAmount * HeaderDisAmnt) /
@@ -316,7 +350,7 @@ class _QuotationProductListScreenState
         InclusiveFinalNetAmntAfterHeaderDisAmnt =
             InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
         InclusiveTotalNetAmntAfterHeaderDisAmnt =
-            InclusiveNetAmntAfterHeaderDisAmnt + InclusiveItemWiseTaxAmnt;
+            InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
 
         var CGSTPer = 0.00;
         var CGSTAmount = 0.00;
@@ -340,8 +374,36 @@ class _QuotationProductListScreenState
           CGSTAmount = 0.00;
           SGSTAmount = 0.00;
         }
-
-        await OfflineDbHelper.getInstance().insertQuotationProduct(
+        tempQuotationTable = QuotationTable(
+            _TempinquiryProductList[i].QuotationNo,
+            _TempinquiryProductList[i].ProductSpecification,
+            _TempinquiryProductList[i].ProductID,
+            _TempinquiryProductList[i].ProductName,
+            _TempinquiryProductList[i].Unit,
+            _TempinquiryProductList[i].Quantity,
+            _TempinquiryProductList[i].UnitRate,
+            _TempinquiryProductList[i].DiscountPercent,
+            _TempinquiryProductList[i].DiscountAmt,
+            _TempinquiryProductList[i].NetRate,
+            InclusiveFinalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxRate,
+            InclusiveItemWiseTaxAmnt,
+            InclusiveTotalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxType,
+            CGSTPer,
+            SGSTPer,
+            IGSTPer,
+            CGSTAmount,
+            SGSTAmount,
+            IGSTAmount,
+            _TempinquiryProductList[i].StateCode,
+            _TempinquiryProductList[i].pkID,
+            LoginUserID,
+            CompanyID.toString(),
+            0,
+            InclusiveItemWiseHeaderDisAmnt);
+        _productList.add(tempQuotationTable);
+        /*await OfflineDbHelper.getInstance().insertQuotationProduct(
             QuotationTable(
                 _TempinquiryProductList[i].QuotationNo,
                 _TempinquiryProductList[i].ProductSpecification,
@@ -369,7 +431,7 @@ class _QuotationProductListScreenState
                 LoginUserID,
                 CompanyID.toString(),
                 0,
-                InclusiveItemWiseHeaderDisAmnt));
+                InclusiveItemWiseHeaderDisAmnt));*/
       }
     }
   }
@@ -932,7 +994,7 @@ class _QuotationProductListScreenState
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  ElevatedButton(
+                  /* ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       fixedSize: Size(90, 15),
                       shape: RoundedRectangleBorder(
@@ -940,8 +1002,9 @@ class _QuotationProductListScreenState
                           Radius.circular(24.0),
                         ),
                       ),
-                    ),
-                    onPressed: () {
+                    ),*/
+                  InkWell(
+                    onTap: () {
                       _onTapOfEditContact(index);
                     },
                     child: Column(
@@ -960,16 +1023,8 @@ class _QuotationProductListScreenState
                       ],
                     ),
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: Size(90, 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(24.0),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
+                  InkWell(
+                    onTap: () {
                       _onTapOfDeleteContact(index);
                     },
                     child: Column(

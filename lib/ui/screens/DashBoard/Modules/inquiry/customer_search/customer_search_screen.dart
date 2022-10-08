@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -13,15 +11,16 @@ import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class SearchInquiryCustomerScreen extends BaseStatefulWidget {
   static const routeName = '/SearchInquiryCustomerScreen';
 
   @override
-  _SearchInquiryCustomerScreenState createState() => _SearchInquiryCustomerScreenState();
+  _SearchInquiryCustomerScreenState createState() =>
+      _SearchInquiryCustomerScreenState();
 }
 
-class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerScreen>
+class _SearchInquiryCustomerScreenState
+    extends BaseState<SearchInquiryCustomerScreen>
     with BasicScreen, WidgetsBindingObserver {
   InquiryBloc _inquiryBloc;
   CustomerLabelvalueRsponse _searchCustomerListResponse;
@@ -29,7 +28,6 @@ class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerS
   LoginUserDetialsResponse _offlineLoggedInData;
   int CompanyID = 0;
   String LoginUserID = "";
-
 
   @override
   void initState() {
@@ -74,7 +72,8 @@ class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerS
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -111,7 +110,7 @@ class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerS
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -120,7 +119,7 @@ class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerS
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -175,7 +174,7 @@ class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerS
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.label+"\n"+ model.ContactNo1,
+              model.label + "\n" + model.ContactNo1,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -189,7 +188,10 @@ class _SearchInquiryCustomerScreenState extends BaseState<SearchInquiryCustomerS
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _inquiryBloc.add(SearchInquiryCustomerListByNameCallEvent(
-          CustomerLabelValueRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID)));
+          CustomerLabelValueRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID)));
     }
   }
 

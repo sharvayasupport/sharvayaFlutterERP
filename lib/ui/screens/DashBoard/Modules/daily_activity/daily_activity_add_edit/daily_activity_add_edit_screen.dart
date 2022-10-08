@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:full_screen_image/full_screen_image.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dailyactivity/dailyactivity_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
-import 'package:soleoserp/models/api_requests/daily_activity_save_request.dart';
+import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_save_request.dart';
 import 'package:soleoserp/models/api_requests/task_category_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/daily_activity_list_response.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_requests/quotation_other_charge_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/sales_bill_list_response.dart';
@@ -48,7 +48,6 @@ class SaleOrderOtherChargesScreenArguments {
     String ChargeBeforGST4;
     String ChargeBeforGST5;
   */
-
 }
 
 class SaleBillOtherChargeScreen extends BaseStatefulWidget {
@@ -1564,7 +1563,6 @@ class _SaleBillOtherChargeScreenState
       }
 
 */
-
     }
   }
 
@@ -2214,7 +2212,6 @@ class _SaleBillOtherChargeScreenState
       }
 
       // Tot_GSTAmt =  ((ChargeAmt1 * taxRate1)/100) + ((ChargeAmt2 * taxRate2)/100) + ((ChargeAmt3 * taxRate3)/100) + ((ChargeAmt4 * taxRate4)/100) + ((ChargeAmt5 * taxRate5)/100);
-
     } else {
       ExclusiveBeforeGStAmnt1 = 0.00;
       ExclusiveBeforeGStAmnt_Minus1 = 0.00;
@@ -2377,7 +2374,6 @@ class _SaleBillOtherChargeScreenState
       }
 
       //Tot_GSTAmt =  ((ChargeAmt1 * taxRate1)/100) + ((ChargeAmt2 * taxRate2)/100) + ((ChargeAmt3 * taxRate3)/100) + ((ChargeAmt4 * taxRate4)/100) + ((ChargeAmt5 * taxRate5)/100);
-
     } else {
       ExclusiveBeforeGStAmnt2 = 0.00;
       ExclusiveBeforeGStAmnt_Minus2 = 0.00;
@@ -2480,7 +2476,6 @@ class _SaleBillOtherChargeScreenState
         Tot_otherChargeExcludeTax = 0.00;
         Tot_NetAmt = 0.00;
 */
-
       } else {
         //Tot_otherChargeExcludeTax = ChargeAmt1+ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
         InclusiveBeforeGstAmnt2 = 0.00;
@@ -3274,7 +3269,6 @@ class _SaleBillOtherChargeScreenState
       print("TotNet3455gg"+" Total : "+TotNet.toStringAsFixed(2) + " TotExclNetAmnt : " + ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
           " TotIncNetAmnt : " + InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2)
       );*/
-
     }
     print("testExclusive" +
         " Total ExcBasic : " +

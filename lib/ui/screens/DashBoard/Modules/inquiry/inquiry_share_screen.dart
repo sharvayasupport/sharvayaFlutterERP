@@ -215,18 +215,13 @@ class _SearchInquiryProductScreenState extends BaseState<SearchInquiryProductScr
 }*/
 
 import 'package:checkbox_grouped/checkbox_grouped.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/InquiryShareModel.dart';
-import 'package:soleoserp/models/api_requests/follower_employee_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_product_search_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/InquiryShareModel.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_share_emp_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/globals.dart';
@@ -234,7 +229,6 @@ import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
@@ -266,16 +260,15 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
   String LoginUserID = "";
 
   String _InQNo;
-  List<InquirySharedEmpDetails> _arr_inquiry_share_emp_list=[];
+  List<InquirySharedEmpDetails> _arr_inquiry_share_emp_list = [];
 
   List<bool> _isChecked;
   bool isselected = false;
   GroupController controller = GroupController();
 
-  List<String> OnlyEMPLIST=[];
-  List<int> OnlyEMPLISTINT=[];
+  List<String> OnlyEMPLIST = [];
+  List<int> OnlyEMPLISTINT = [];
   ALL_EmployeeList_Response _offlineALLEmployeeListData;
-
 
   @override
   void initState() {
@@ -286,17 +279,17 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
     }
     screenStatusBarColor = colorPrimaryLight;
     // _offlineCustomerSource= SharedPrefHelper.instance.getCustomerSourceData();
-    _offlineALLEmployeeListData = SharedPrefHelper.instance.getALLEmployeeList();
+    _offlineALLEmployeeListData =
+        SharedPrefHelper.instance.getALLEmployeeList();
 
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     _inquiryBloc = InquiryBloc(baseBloc);
-   /* _inquiryBloc.add(FollowerEmployeeListCallEvent(FollowerEmployeeListRequest(
+    /* _inquiryBloc.add(FollowerEmployeeListCallEvent(FollowerEmployeeListRequest(
         CompanyId: CompanyID.toString(), LoginUserID: "admin")));*/
-    _onFollowerEmployeeListByStatusCallSuccess(
-        _offlineALLEmployeeListData);
+    _onFollowerEmployeeListByStatusCallSuccess(_offlineALLEmployeeListData);
   }
 
   @override
@@ -305,28 +298,24 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
       create: (BuildContext context) => _inquiryBloc,
       child: BlocConsumer<InquiryBloc, InquiryStates>(
         builder: (BuildContext context, InquiryStates state) {
-         /* if (state is FollowerEmployeeListByStatusCallResponseState) {
+          /* if (state is FollowerEmployeeListByStatusCallResponseState) {
             _OnEmployeeFolllowerListSucessResponse(state);
           }*/
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-
           return false;
         },
         listener: (BuildContext context, InquiryStates state) {
-
-           if (state is InquiryShareResponseState) {
+          if (state is InquiryShareResponseState) {
             _OnInquiryShareSucessResponse(state);
           }
         },
         listenWhen: (oldState, currentState) {
-          if(currentState is InquiryShareResponseState)
-            {
-              return true;
-
-            }
+          if (currentState is InquiryShareResponseState) {
+            return true;
+          }
           return false;
         },
       ),
@@ -340,22 +329,17 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
         getCommonAppBar(context, baseTheme, "Inquiry Share"),
         Expanded(
             child: Container(
-          padding: EdgeInsets.only(
-            left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-            right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-            top: 25,
-          ),
-          child:Column(
-            
-    children: [
-      Expanded(child: _buildProductList()),
-      _buildSearchView(),
-
-    ],
-    )
-
-
-        )),
+                padding: EdgeInsets.only(
+                  left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
+                  right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
+                  top: 25,
+                ),
+                child: Column(
+                  children: [
+                    Expanded(child: _buildProductList()),
+                    _buildSearchView(),
+                  ],
+                ))),
       ],
     );
   }
@@ -410,32 +394,28 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
         )
       ],
     );*/
-    return getCommonButton(baseTheme,(){
+    return getCommonButton(baseTheme, () {
+      var value =
+          arrinquiryShareModel.where((item) => item.ISCHECKED == false).length;
 
-
-      var value = arrinquiryShareModel.where((item) => item.ISCHECKED == false).length;
-
-      if(value==arrinquiryShareModel.length)
-        {
-          showCommonDialogWithSingleOption(
-              context, "Select Any One Employee to Share Inquiry!",
-              positiveButtonTitle: "OK");
-        }
-      else{
-
+      if (value == arrinquiryShareModel.length) {
+        showCommonDialogWithSingleOption(
+            context, "Select Any One Employee to Share Inquiry!",
+            positiveButtonTitle: "OK");
+      } else {
         arrinquiryShareModel.removeWhere((item) => item.ISCHECKED == false);
 
-        for(var i=0;i<arrinquiryShareModel.length;i++)
-        {
-          print("DDFDr"+ arrinquiryShareModel[i].EmployeeName + "Checked" + arrinquiryShareModel[i].ISCHECKED.toString());
+        for (var i = 0; i < arrinquiryShareModel.length; i++) {
+          print("DDFDr" +
+              arrinquiryShareModel[i].EmployeeName +
+              "Checked" +
+              arrinquiryShareModel[i].ISCHECKED.toString());
         }
         _inquiryBloc.add(InquiryShareModelCallEvent(arrinquiryShareModel));
       }
 
-     //
-
-    },"Share Inquiry");
-
+      //
+    }, "Share Inquiry");
   }
 
   ///builds product list
@@ -510,7 +490,9 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
     }
   }
 
-  void _OnEmployeeFolllowerListSucessResponse(///API Response
+  void _OnEmployeeFolllowerListSucessResponse(
+
+      ///API Response
       FollowerEmployeeListByStatusCallResponseState state) {
     arrinquiryShareModel.clear();
     OnlyEMPLIST.clear();
@@ -532,54 +514,49 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
     _isChecked = List<bool>.filled(arrinquiryShareModel.length, false);
   }
 
-
-  void _onFollowerEmployeeListByStatusCallSuccess(ALL_EmployeeList_Response offlineFollowerEmployeeListData) {
+  void _onFollowerEmployeeListByStatusCallSuccess(
+      ALL_EmployeeList_Response offlineFollowerEmployeeListData) {
     arrinquiryShareModel.clear();
 
     String INQFFTNO = "";
 
-    for(var i=0;i<_arr_inquiry_share_emp_list.length;i++)
-      {
-        INQFFTNO = _arr_inquiry_share_emp_list[i].inquiryNo;
-      }
+    for (var i = 0; i < _arr_inquiry_share_emp_list.length; i++) {
+      INQFFTNO = _arr_inquiry_share_emp_list[i].inquiryNo;
+    }
 
-    for(var i=0;i<offlineFollowerEmployeeListData.details.length;i++)
-      {
+    for (var i = 0; i < offlineFollowerEmployeeListData.details.length; i++) {
+      int empID = offlineFollowerEmployeeListData.details[i].pkID;
 
-        int empID = offlineFollowerEmployeeListData.details[i].pkID;
+      inquiryShareModel = InquiryShareModel(
+          LoginUserID,
+          empID.toString(),
+          CompanyID.toString(),
+          INQFFTNO,
+          false,
+          offlineFollowerEmployeeListData.details[i].employeeName);
+      arrinquiryShareModel.add(inquiryShareModel);
 
-        inquiryShareModel = InquiryShareModel(
-            LoginUserID,
-            empID.toString(),
-            CompanyID.toString(),
-            INQFFTNO,
-            false,
-            offlineFollowerEmployeeListData.details[i].employeeName);
-        arrinquiryShareModel.add(inquiryShareModel);
-
-
-        for(var i1=0;i1<_arr_inquiry_share_emp_list.length;i1++)
-        {
-
-          if(_arr_inquiry_share_emp_list[i1].employeeID == empID)
-          {
-            print("EMPIDDDD"+ " EmpListEMPID : " + "offlineFollowerEmployeeListData.details[i].pkID.toString()" + " InquiryShareEMPID : " + _arr_inquiry_share_emp_list[i1].employeeID.toString() );
-            InquiryShareModel inquiryShareModel123 = InquiryShareModel(
-                LoginUserID,
-                empID.toString(),
-                CompanyID.toString(),
-                INQFFTNO,
-                true,
-                offlineFollowerEmployeeListData.details[i].employeeName);
-            //arrinquiryShareModel.contains(inquiryShareModel.)
-            arrinquiryShareModel.removeAt(i);
-            arrinquiryShareModel.add(inquiryShareModel123);
-
+      for (var i1 = 0; i1 < _arr_inquiry_share_emp_list.length; i1++) {
+        if (_arr_inquiry_share_emp_list[i1].employeeID == empID) {
+          print("EMPIDDDD" +
+              " EmpListEMPID : " +
+              "offlineFollowerEmployeeListData.details[i].pkID.toString()" +
+              " InquiryShareEMPID : " +
+              _arr_inquiry_share_emp_list[i1].employeeID.toString());
+          InquiryShareModel inquiryShareModel123 = InquiryShareModel(
+              LoginUserID,
+              empID.toString(),
+              CompanyID.toString(),
+              INQFFTNO,
+              true,
+              offlineFollowerEmployeeListData.details[i].employeeName);
+          //arrinquiryShareModel.contains(inquiryShareModel.)
+          arrinquiryShareModel.removeAt(i);
+          arrinquiryShareModel.add(inquiryShareModel123);
 
           //  arrinquiryShareModel.contains(inquiryShareModel.ISCHECKED) ? arrinquiryShareModel[arrinquiryShareModel.indexWhere((v) => v.ISCHECKED == inquiryShareModel.ISCHECKED)] = inquiryShareModel123 : arrinquiryShareModel;
-
-          }
-         /* else {
+        }
+        /* else {
             inquiryShareModel = InquiryShareModel(
                 LoginUserID,
                 empID.toString(),
@@ -590,44 +567,30 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
             break;
           }*/
 
-          print("EMPIDDDD"+ " EmpListEMPID : " + "offlineFollowerEmployeeListData.details[i].pkID.toString()" + " InquiryShareEMPID : " + _arr_inquiry_share_emp_list[i1].employeeID.toString() );
-
-
-        }
-
-
-
-
-
-
-        //arrinquiryShareModel.add(inquiryShareModel);
-
+        print("EMPIDDDD" +
+            " EmpListEMPID : " +
+            "offlineFollowerEmployeeListData.details[i].pkID.toString()" +
+            " InquiryShareEMPID : " +
+            _arr_inquiry_share_emp_list[i1].employeeID.toString());
       }
 
-
-
-
+      //arrinquiryShareModel.add(inquiryShareModel);
+    }
   }
 
-  void _OnInquiryShareSucessResponse(InquiryShareResponseState state)  async {
-
+  void _OnInquiryShareSucessResponse(InquiryShareResponseState state) async {
     String msg = "";
-    for(var i=0;i<state.inquiryShareResponse.details.length;i++)
-      {
-        msg = state.inquiryShareResponse.details[i].column2;
-        print("ResultofAPIwww"+state.inquiryShareResponse.details[i].column2);
+    for (var i = 0; i < state.inquiryShareResponse.details.length; i++) {
+      msg = state.inquiryShareResponse.details[i].column2;
+      print("ResultofAPIwww" + state.inquiryShareResponse.details[i].column2);
 
-        if(msg=="")
-          {
-            msg = "Inquiry Shared SucessFully !";
-          }
-        await showCommonDialogWithSingleOption(Globals.context,msg,
-            positiveButtonTitle: "OK");
-        Navigator.of(context).pop();
-        //Navigator.pop(context);
+      if (msg == "") {
+        msg = "Inquiry Shared SucessFully !";
       }
-
-
-
+      await showCommonDialogWithSingleOption(Globals.context, msg,
+          positiveButtonTitle: "OK");
+      Navigator.of(context).pop();
+      //Navigator.pop(context);
+    }
   }
 }

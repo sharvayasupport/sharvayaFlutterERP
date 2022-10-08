@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attend_visit/attend_visit_bloc.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
 import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_delete_request.dart';
-import 'package:soleoserp/models/api_requests/attend_visit_list_request.dart';
-import 'package:soleoserp/models/api_requests/complaint_search_by_Id_request.dart';
+import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_list_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
 import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_Add_Edit/attend_visit_add_edit_screen.dart';
@@ -50,19 +51,35 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
   int title_color = 0xff362d8b;
   bool expanded = true;
   bool isDeleteVisible = true;
+  final TextEditingController edt_FollowupEmployeeList =
+      TextEditingController();
+  final TextEditingController edt_FollowupEmployeeUserID =
+      TextEditingController();
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Folowup_EmplyeeList = [];
+  FollowerEmployeeListResponse _offlineFollowerEmployeeListData;
 
   @override
   void initState() {
     super.initState();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _offlineFollowerEmployeeListData =
+        SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+    _onFollowerEmployeeListByStatusCallSuccess(
+        _offlineFollowerEmployeeListData);
+
+    edt_FollowupEmployeeList.text =
+        _offlineLoggedInData.details[0].employeeName;
+    edt_FollowupEmployeeUserID.text = _offlineLoggedInData.details[0].userID;
+
     _complaintScreenBloc = AttendVisitBloc(baseBloc);
     _complaintScreenBloc.add(AttendVisitListCallEvent(
         1,
         AttendVisitListRequest(
-            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+            CompanyId: CompanyID.toString(),
+            LoginUserID: edt_FollowupEmployeeUserID.text)));
   }
 
   ///listener to multiple states of bloc to handles api responses
@@ -158,21 +175,36 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
+                    _searchDetails = null;
+
                     _complaintScreenBloc.add(AttendVisitListCallEvent(
                         1,
                         AttendVisitListRequest(
                             CompanyId: CompanyID.toString(),
-                            LoginUserID: LoginUserID)));
+                            LoginUserID: edt_FollowupEmployeeUserID.text)));
                   },
                   child: Container(
                     padding: EdgeInsets.only(
                       left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                       right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      top: 25,
+                      top: 10,
                     ),
                     child: Column(
                       children: [
-                        _buildSearchView(),
+                        Column(children: [
+                          _buildEmplyeeListView(),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          _buildSearchView(),
+                        ]),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Divider(
+                          thickness: 2,
+                        ),
+                        // _buildSearchView(),
                         Expanded(child: _buildInquiryList())
                       ],
                     ),
@@ -192,6 +224,85 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
         ),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
+      ),
+    );
+  }
+
+  Widget _buildEmplyeeListView() {
+    return InkWell(
+      onTap: () {
+        // _onTapOfSearchView(context);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.only(left: 10, right: 20),
+            child: Text("Select Employee",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: colorPrimary,
+                    fontWeight: FontWeight
+                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                ),
+          ),
+          SizedBox(
+            height: 1,
+          ),
+          InkWell(
+            onTap: () {
+              showcustomdialogofEmployeeDropDown(
+                  values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
+                  context1: context,
+                  controller: edt_FollowupEmployeeList,
+                  controller2: edt_FollowupEmployeeUserID,
+                  lable: "Select Employee");
+            },
+            child: Card(
+              elevation: 5,
+              color: colorLightGray,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: Container(
+                //padding: EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                width: double.maxFinite,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: /* Text(
+                          SelectedStatus =="" ?
+                          "Tap to select Status" : SelectedStatus.Name,
+                          style:TextStyle(fontSize: 12,color: Color(0xFF000000),fontWeight: FontWeight.bold)// baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                      ),*/
+
+                          TextField(
+                        controller: edt_FollowupEmployeeList,
+                        enabled: false,
+                        /*  onChanged: (value) => {
+                      print("StatusValue " + value.toString() )
+                  },*/
+                        style: TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.bold),
+                        decoration: new InputDecoration(
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.only(
+                                left: 15, bottom: 11, top: 11, right: 15),
+                            hintText: "Select"),
+                      ),
+                      // dropdown()
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -237,7 +348,7 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
                 ),
           ),
           SizedBox(
-            height: 5,
+            height: 1,
           ),
           Card(
             elevation: 5,
@@ -245,7 +356,7 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: Container(
-              height: 60,
+              height: 50,
               padding: EdgeInsets.only(left: 20, right: 20),
               width: double.maxFinite,
               child: Row(
@@ -274,6 +385,137 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
     );
   }
 
+  showcustomdialogofEmployeeDropDown(
+      {List<ALL_Name_ID> values,
+      BuildContext context1,
+      TextEditingController controller,
+      TextEditingController controllerID,
+      TextEditingController controller2,
+      String lable}) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    lable,
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    SingleChildScrollView(
+                        physics: ScrollPhysics(),
+                        child: Column(children: <Widget>[
+                          ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (ctx, index) {
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context1).pop();
+                                  controller.text = values[index].Name;
+                                  controller2.text = values[index].Name1 == null
+                                      ? ""
+                                      : values[index].Name1;
+
+                                  _complaintScreenBloc.add(
+                                      AttendVisitListCallEvent(
+                                          1,
+                                          AttendVisitListRequest(
+                                              CompanyId: CompanyID.toString(),
+                                              LoginUserID: controller2.text)));
+                                  /* if(controller2!=null)
+                                  {
+                                    controller2.text = values[index].Name1==null?"":values[index].Name1;
+
+                                  }*/
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                      left: 25, top: 10, bottom: 10, right: 10),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: colorPrimary), //Change color
+                                        width: 10.0,
+                                        height: 10.0,
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 1.5),
+                                      ),
+                                      SizedBox(
+                                        width: 15,
+                                      ),
+                                      Text(
+                                        values[index].Name,
+                                        style: TextStyle(color: colorPrimary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+
+                              /* return SimpleDialogOption(
+                              onPressed: () => {
+                                controller.text = values[index].Name,
+                                controller2.text = values[index].Name1,
+                              Navigator.of(context1).pop(),
+
+
+                            },
+                              child: Text(values[index].Name),
+                            );*/
+                            },
+                            itemCount: values.length,
+                          ),
+                        ])),
+                  ],
+                )),
+            /*Center(
+            child: Container(
+              padding: EdgeInsets.all(3.0),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF27442),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                      5.0) //                 <--- border radius here
+                  ),
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Color(0xFFF27442))),
+              //color: Color(0xFFF27442),
+              child: GestureDetector(
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Color(0xFFFFFFFF)),
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+          ),*/
+          ],
+        );
+      },
+    );
+  }
+
   ///navigates to search list screen
   Future<void> _onTapOfSearchView() async {
     navigateTo(context, SearchAttendVisitScreen.routeName).then((value) {
@@ -282,7 +524,8 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
         _complaintScreenBloc.add(AttendVisitSearchByIDCallEvent(
             _searchDetails.pkID,
             ComplaintSearchByIDRequest(
-                CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+                CompanyId: CompanyID.toString(),
+                LoginUserID: edt_FollowupEmployeeUserID.text)));
       }
     });
   }
@@ -324,7 +567,8 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
     _complaintScreenBloc.add(AttendVisitListCallEvent(
         _pageNo + 1,
         AttendVisitListRequest(
-            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+            CompanyId: CompanyID.toString(),
+            LoginUserID: edt_FollowupEmployeeUserID.text)));
   }
 
   ExpantionCustomer(BuildContext context, int index) {
@@ -764,10 +1008,6 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
     // _complaintScreenBloc.add(ComplaintDeleteCallEvent(pkID, ComplaintDeleteRequest(CompanyId: CompanyID.toString())));
   }
 
-  void _onSearchByIDCallSuccess(ComplaintSearchByIDResponseState state) {
-    // _inquiryListResponse = state.complaintSearchByIDResponse;
-  }
-
   void _onTapOfEditCustomer(AttendVisitDetails detail) {
     navigateTo(context, AttendVisitAddEditScreen.routeName,
             arguments: AddUpdateVisitScreenArguments(detail))
@@ -782,5 +1022,21 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
 
   void _onSearchbyIDResponse(AttendVisitSearchByIDResponseState state) {
     _inquiryListResponse = state.complaintSearchByIDResponse;
+  }
+
+  void _onFollowerEmployeeListByStatusCallSuccess(
+      FollowerEmployeeListResponse state) {
+    arr_ALL_Name_ID_For_Folowup_EmplyeeList.clear();
+
+    if (state.details != null) {
+      for (var i = 0; i < state.details.length; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.details[i].employeeName;
+        all_name_id.Name1 = state.details[i].userID;
+        arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
+      }
+    }
+
+    setState(() {});
   }
 }

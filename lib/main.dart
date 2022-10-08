@@ -16,6 +16,22 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/firebase_options.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/ui/res/style_resources.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/bank_voucher/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/bank_voucher/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/cash_voucher/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/cash_voucher/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/customer/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/customer/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/purchase_bill/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/purchase_bill/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/purchase_bill/other_charges/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/purchase_bill/product_details/purchase_details_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/purchase_bill/product_details/purchase_details_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/sales_bill/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/sales_bill/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/sales_bill/other_charges/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/sales_bill/product_details/add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/sales_bill/product_details/list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/Followup_History/complaint_followup_history.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/Followup_dialog/complaint_to_followup.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_add_edit_screen.dart';
@@ -96,6 +112,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/search_followup_
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/map_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/search_destination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/search_source_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/hema_auto_attend_visit/hema_attend_visit_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/hema_auto_attend_visit/hema_attend_visit_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/Followup_dialog/followup_inquiry_detail_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/add_inquiry_product_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/customer_search/customer_search_screen.dart';
@@ -701,7 +719,56 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(
             AccuraBathFollowUpFromComplaintAddEditScreen(settings.arguments));
 
-      //
+      case HemaAttendVisitListScreen.routeName:
+        return getMaterialPageRoute(HemaAttendVisitListScreen());
+
+      case HemaAttendVisitAddEditScreen.routeName:
+        return getMaterialPageRoute(HemaAttendVisitAddEditScreen());
+
+      case DBankVoucherListScreen.routeName:
+        return getMaterialPageRoute(DBankVoucherListScreen());
+      case DBankVoucherAddEditScreen.routeName:
+        return getMaterialPageRoute(DBankVoucherAddEditScreen());
+
+      case DCashVoucherListScreen.routeName:
+        return getMaterialPageRoute(DCashVoucherListScreen());
+      case DCashVoucherAddEditScreen.routeName:
+        return getMaterialPageRoute(DCashVoucherAddEditScreen());
+
+      case DCustomerListScreen.routeName:
+        return getMaterialPageRoute(DCustomerListScreen());
+      case DCustomerAdd_Edit_Screen.routeName:
+        return getMaterialPageRoute(DCustomerAdd_Edit_Screen());
+
+      case DPurchaseListScreen.routeName:
+        return getMaterialPageRoute(DPurchaseListScreen());
+      case DPurchaseAddEditScreen.routeName:
+        return getMaterialPageRoute(DPurchaseAddEditScreen());
+      case DPurchaseProductListScreen.routeName:
+        return getMaterialPageRoute(
+            DPurchaseProductListScreen(settings.arguments));
+      case DPurchaseProductAddEdit_screen.routeName:
+        return getMaterialPageRoute(
+            DPurchaseProductAddEdit_screen(settings.arguments));
+      case DPurchaseOtherCharge_screen.routeName:
+        return getMaterialPageRoute(
+            DPurchaseOtherCharge_screen(settings.arguments));
+
+      case DSaleBillListScreen.routeName:
+        return getMaterialPageRoute(DSaleBillListScreen());
+      case DSaleBillAddEditScreen.routeName:
+        return getMaterialPageRoute(DSaleBillAddEditScreen(settings.arguments));
+      case DSaleBillProductListScreen.routeName:
+        return getMaterialPageRoute(
+            DSaleBillProductListScreen(settings.arguments));
+      case DSaleBillProductAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            DSaleBillProductAddEditScreen(settings.arguments));
+      case DSaleBillOtherChargeScreen.routeName:
+        return getMaterialPageRoute(
+            DSaleBillOtherChargeScreen(settings.arguments));
+
+      //DSaleBillOtherChargeScreen
       default:
         return null;
     }

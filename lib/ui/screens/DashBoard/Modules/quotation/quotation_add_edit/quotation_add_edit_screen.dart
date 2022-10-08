@@ -1,17 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_requests/bank_drop_down_request.dart';
-import 'package:soleoserp/models/api_requests/cust_id_inq_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_to_product_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_kind_att_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_no_to_product_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_product_delete_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_project_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_kind_att_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_product_delete_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -679,7 +678,6 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
             });
           }
           //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
-
         }
       });
     }

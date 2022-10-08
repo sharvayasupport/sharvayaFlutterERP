@@ -21,12 +21,12 @@ import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/Dashboard/dashboard_user_rights_screen_bloc.dart';
 import 'package:soleoserp/firebase_options.dart';
-import 'package:soleoserp/models/api_requests/all_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
-import 'package:soleoserp/models/api_requests/attendance_list_request.dart';
-import 'package:soleoserp/models/api_requests/attendance_save_request.dart';
-import 'package:soleoserp/models/api_requests/follower_employee_list_request.dart';
-import 'package:soleoserp/models/api_requests/menu_rights_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
+import 'package:soleoserp/models/api_requests/other/all_employee_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/follower_employee_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/menu_rights_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
@@ -95,6 +95,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Production = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Account = [];
+
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Dealer = [];
 
   String ABC = "HArshit";
   List<String> SplitSTr = [];
@@ -283,11 +285,15 @@ class _HomeScreenState extends BaseState<HomeScreen>
   final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
   String Address;
-
+  String ISDelaer = "";
   @override
   void initState() {
     super.initState();
     imageCache.clear();
+
+    ISDelaer = SharedPrefHelper.instance.prefs.getString("Is_Dealer");
+
+    print("dfdfdleif" + ISDelaer);
     SystemChannels.textInput.invokeMethod('TextInput.hide');
     getcurrentTimeInfoFromMaindfd();
     screenStatusBarColor = colorWhite;
@@ -442,6 +448,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
     getPurchaseListFromDashBoard(arr_ALL_Name_ID_For_Purchase);
 
     getProductionListFromDashBoard(arr_ALL_Name_ID_For_Production);
+
+    getDealerListFromDashBoard(arr_ALL_Name_ID_For_Dealer);
+
     _dashBoardScreenBloc.add(AttendanceCallEvent(AttendanceApiRequest(
         pkID: "",
         EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
@@ -643,6 +652,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
               actions: <Widget>[
                 GestureDetector(
                   onTap: () {
+                    SharedPrefHelper.instance.prefs.setString("Is_Dealer", "");
                     _onTapOfLogOut();
                   },
                   child: Container(
@@ -683,101 +693,135 @@ class _HomeScreenState extends BaseState<HomeScreen>
                   left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                   right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                 ),
-                child: Column(
+                child: /*ISDelaer == "Dealer"
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                              margin: EdgeInsets.only(
+                                  top: 5.0, left: 10, right: 10, bottom: 5),
+                              child: GridView.builder(
+                                physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 5.0,
+                                  mainAxisSpacing: 5.0,
+                                  childAspectRatio: (200 / 200),
+
+                                  ///200,300
+                                ),
+                                itemCount: 2,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    child: makeDashboardItem(
+                                        arr_ALL_Name_ID_For_Lead[index].Name,
+                                        Icons.person,
+                                        context123,
+                                        arr_ALL_Name_ID_For_Lead[index].Name1),
+                                  );
+                                },
+                              ))
+                        ],
+                      )
+                    :*/
+                    Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _offlineLoggedInData.details[0].serialKey.toLowerCase() !=
                             "dol2-6uh7-ph03-in5h"
-                        ? Container(
-                            margin:
-                                EdgeInsets.only(left: 15, right: 15, top: 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: InkWell(
-                                    onTap: () => isCurrentTime == true
-                                        ? isPunchIn == true
-                                            ? showCommonDialogWithSingleOption(
-                                                context, _offlineLoggedInData.details[0].employeeName + " \n Punch In : " + PuchInTime.text,
-                                                positiveButtonTitle: "OK")
-                                            : _dashBoardScreenBloc.add(AttendanceSaveCallEvent(AttendanceSaveApiRequest(
-                                                EmployeeID: _offlineLoggedInData
-                                                    .details[0].employeeID
-                                                    .toString(),
-                                                PresenceDate: selectedDate.year
-                                                        .toString() +
-                                                    "-" +
-                                                    selectedDate.month
-                                                        .toString() +
-                                                    "-" +
-                                                    selectedDate.day.toString(),
-                                                TimeIn: selectedTime.hour.toString() +
-                                                    ":" +
-                                                    selectedTime.minute
+                        ? ISDelaer != "Dealer"
+                            ? Container(
+                                margin: EdgeInsets.only(
+                                    left: 15, right: 15, top: 10),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: InkWell(
+                                        onTap: () => isCurrentTime == true
+                                            ? isPunchIn == true
+                                                ? showCommonDialogWithSingleOption(
+                                                    context, _offlineLoggedInData.details[0].employeeName + " \n Punch In : " + PuchInTime.text,
+                                                    positiveButtonTitle: "OK")
+                                                : _dashBoardScreenBloc.add(AttendanceSaveCallEvent(AttendanceSaveApiRequest(
+                                                    EmployeeID: _offlineLoggedInData
+                                                        .details[0].employeeID
                                                         .toString(),
-                                                TimeOut: "",
-                                                Latitude: Latitude,
-                                                LocationAddress: Address,
-                                                Longitude: Longitude,
-                                                Notes: "",
-                                                LoginUserID: LoginUserID,
-                                                CompanyId:
-                                                    CompanyID.toString())))
-                                        : showCommonDialogWithSingleOption(
-                                            context, "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
-                                            positiveButtonTitle: "OK",
-                                            onTapOfPositiveButton: () {
-                                            navigateTo(
-                                                context, HomeScreen.routeName,
-                                                clearAllStack: true);
-                                          }),
-                                    child: Card(
-                                      elevation: 5,
-                                      color: PuchInTime.text == ""
-                                          ? colorAbsentfDay
-                                          : colorPresentDay,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(15)),
-                                      child: Container(
-                                        height: 35,
-                                        width: 100,
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Align(
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  "Punch In",
-                                                  style: TextStyle(
-                                                      color: colorWhite,
+                                                    PresenceDate: selectedDate.year.toString() +
+                                                        "-" +
+                                                        selectedDate.month
+                                                            .toString() +
+                                                        "-" +
+                                                        selectedDate.day
+                                                            .toString(),
+                                                    TimeIn: selectedTime.hour.toString() +
+                                                        ":" +
+                                                        selectedTime.minute
+                                                            .toString(),
+                                                    TimeOut: "",
+                                                    Latitude: Latitude,
+                                                    LocationAddress: Address,
+                                                    Longitude: Longitude,
+                                                    Notes: "",
+                                                    LoginUserID: LoginUserID,
+                                                    CompanyId:
+                                                        CompanyID.toString())))
+                                            : showCommonDialogWithSingleOption(
+                                                context, "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
+                                                positiveButtonTitle: "OK",
+                                                onTapOfPositiveButton: () {
+                                                navigateTo(context,
+                                                    HomeScreen.routeName,
+                                                    clearAllStack: true);
+                                              }),
+                                        child: Card(
+                                          elevation: 5,
+                                          color: PuchInTime.text == ""
+                                              ? colorAbsentfDay
+                                              : colorPresentDay,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Container(
+                                            height: 35,
+                                            width: 100,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      "Punch In",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
 
-                                                      // <-- Change this
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                                          // <-- Change this
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Container(
-                                    child: Column(
-                                      children: [
-                                        /* CachedNetworkImage(
+                                    Expanded(
+                                      flex: 2,
+                                      child: Container(
+                                        child: Column(
+                                          children: [
+                                            /* CachedNetworkImage(
                                     imageUrl: EmployeeImage,
                                     placeholder: (context, url) => new CircularProgressIndicator(),
                                     errorWidget: (context, url, error) => new Icon(Icons.error),
                                     height: 48, width: 48,
                                   ),*/
-                                        /* Image.network(
+                                            /* Image.network(
                                     ImgFromTextFiled.text,
                                     fit: BoxFit.fill,
                                     loadingBuilder: (BuildContext context, Widget child,
@@ -795,92 +839,94 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                     height: 48, width: 48,
                                   ),*/
 
-                                        Image.network(
-                                          ImgFromTextFiled.text,
-                                          key: ValueKey(
-                                              new Random().nextInt(100)),
-                                          height: 48,
-                                          width: 48,
-                                          errorBuilder: (BuildContext context,
-                                              Object exception,
-                                              StackTrace stackTrace) {
-                                            return Image.network(
-                                                "https://img.icons8.com/color/2x/no-image.png",
-                                                height: 48,
-                                                width: 48);
-                                          },
-                                        ),
-                                        // Image.network(ImgFromTextFiled.text,height: 48, width: 48, ),
-                                        Text(
-                                          _offlineLoggedInData
-                                              .details[0].employeeName,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: colorDarkBlue),
-                                        ),
-                                        Text(
-                                          _offlineLoggedInData
-                                              .details[0].roleName,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: colorDarkBlue),
-                                        )
-                                      ],
-                                    ),
-                                    width: double.infinity,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: InkWell(
-                                    onTap: () => isCurrentTime == true
-                                        ? punchoutLogic()
-                                        : showCommonDialogWithSingleOption(
-                                            context,
-                                            "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
-                                            positiveButtonTitle: "OK",
-                                            onTapOfPositiveButton: () {
-                                            navigateTo(
-                                                context, HomeScreen.routeName,
-                                                clearAllStack: true);
-                                          }),
-                                    child: Card(
-                                      elevation: 5,
-                                      color: PuchOutTime.text == ""
-                                          ? colorAbsentfDay
-                                          : colorPresentDay,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(15)),
-                                      child: Container(
-                                        height: 35,
-                                        width: 100,
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Align(
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  "Punch Out",
-                                                  style: TextStyle(
-                                                      color: colorWhite,
-
-                                                      // <-- Change this
-                                                      fontSize: 10,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                              ),
+                                            Image.network(
+                                              ImgFromTextFiled.text,
+                                              key: ValueKey(
+                                                  new Random().nextInt(100)),
+                                              height: 48,
+                                              width: 48,
+                                              errorBuilder:
+                                                  (BuildContext context,
+                                                      Object exception,
+                                                      StackTrace stackTrace) {
+                                                return Image.network(
+                                                    "https://img.icons8.com/color/2x/no-image.png",
+                                                    height: 48,
+                                                    width: 48);
+                                              },
                                             ),
+                                            // Image.network(ImgFromTextFiled.text,height: 48, width: 48, ),
+                                            Text(
+                                              _offlineLoggedInData
+                                                  .details[0].employeeName,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: colorDarkBlue),
+                                            ),
+                                            Text(
+                                              _offlineLoggedInData
+                                                  .details[0].roleName,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: colorDarkBlue),
+                                            )
                                           ],
+                                        ),
+                                        width: double.infinity,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: InkWell(
+                                        onTap: () => isCurrentTime == true
+                                            ? punchoutLogic()
+                                            : showCommonDialogWithSingleOption(
+                                                context,
+                                                "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
+                                                positiveButtonTitle: "OK",
+                                                onTapOfPositiveButton: () {
+                                                navigateTo(context,
+                                                    HomeScreen.routeName,
+                                                    clearAllStack: true);
+                                              }),
+                                        child: Card(
+                                          elevation: 5,
+                                          color: PuchOutTime.text == ""
+                                              ? colorAbsentfDay
+                                              : colorPresentDay,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15)),
+                                          child: Container(
+                                            height: 35,
+                                            width: 100,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      "Punch Out",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+
+                                                          // <-- Change this
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          )
+                              )
+                            : Container()
                         : Container(),
                     Expanded(
                       child: ListView(
@@ -1546,6 +1592,44 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                     },
                                   ))
                               : Container(),
+
+                          //  arr_ALL_Name_ID_For_Dealer
+                          ///___________________Dealer___________________________
+
+                          arr_ALL_Name_ID_For_Dealer.length != 0
+                              ? SizedBox(
+                                  height: 20,
+                                )
+                              : Container(),
+                          arr_ALL_Name_ID_For_Dealer.length != 0
+                              ? Container(
+                                  margin: EdgeInsets.only(
+                                      top: 5.0, left: 10, right: 10, bottom: 5),
+                                  child: GridView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 20.0,
+                                      mainAxisSpacing: 20.0,
+                                      childAspectRatio: (100 / 100),
+                                    ),
+                                    itemCount:
+                                        arr_ALL_Name_ID_For_Dealer.length,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        child: makeDashboardItem(
+                                            arr_ALL_Name_ID_For_Dealer[index]
+                                                .Name,
+                                            Icons.person,
+                                            context123,
+                                            arr_ALL_Name_ID_For_Dealer[index]
+                                                .Name1),
+                                      );
+                                    },
+                                  ))
+                              : Container(),
                         ],
                       ),
                     ),
@@ -1633,6 +1717,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
   void _onDashBoardCallSuccess(
       MenuRightsEventResponseState response, BuildContext context123) {
     // array_MenuRightsList.clear();
+    EmailTO.text = "";
     arr_ALL_Name_ID_For_HR.clear();
     arr_ALL_Name_ID_For_Lead.clear();
     arr_ALL_Name_ID_For_Office.clear();
@@ -1641,6 +1726,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
     arr_ALL_Name_ID_For_Production.clear();
     arr_ALL_Name_ID_For_Sales.clear();
     arr_ALL_Name_ID_For_Account.clear();
+    arr_ALL_Name_ID_For_Dealer.clear();
     /*response.menuRightsResponse.details
         .sort((a, b) => a.toString().compareTo(b.toString()));*/
     for (var i = 0; i < response.menuRightsResponse.details.length; i++) {
@@ -1668,9 +1754,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
         arr_ALL_Name_ID_For_Lead.add(all_name_id);*/
 
         if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SW0T-GLA5-IND7-AS71" /*||
+                "SW0T-GLA5-IND7-AS71" ||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "TEST-0000-SI0F-0208"*/) {
+                "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id1 = ALL_Name_ID();
           all_name_id1.Name = "Quick Follow-up";
           all_name_id1.Name1 =
@@ -1735,7 +1821,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
       }
 
       ///_________________________________Sales____________________________________________________
-      else if (response.menuRightsResponse.details[i].menuName ==
+      /*else if (response.menuRightsResponse.details[i].menuName ==
           "pgSalesOrder") {
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
             "dol2-6uh7-ph03-in5h") {
@@ -1754,7 +1840,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
           all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/sale.png";
           arr_ALL_Name_ID_For_Sales.add(all_name_id);
         }
-      }
+      }*/
 
       ///__________________________________Production____________________________________________________
       /*else if (response.menuRightsResponse.details[i].menuName ==
@@ -2057,11 +2143,53 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/amc.png";
         arr_ALL_Name_ID_For_Support.add(all_name_id);
       }
+
+      if (ISDelaer == "Dealer") {
+        arr_ALL_Name_ID_For_HR.clear();
+        arr_ALL_Name_ID_For_Lead.clear();
+        arr_ALL_Name_ID_For_Office.clear();
+        arr_ALL_Name_ID_For_Support.clear();
+        arr_ALL_Name_ID_For_Purchase.clear();
+        arr_ALL_Name_ID_For_Production.clear();
+        arr_ALL_Name_ID_For_Sales.clear();
+        arr_ALL_Name_ID_For_Account.clear();
+
+        if (i == 0) {
+          ALL_Name_ID all_name_id0 = ALL_Name_ID();
+          all_name_id0.Name = "Customer";
+          all_name_id0.Name1 =
+              "http://demo.sharvayainfotech.in/images/profile.png";
+          arr_ALL_Name_ID_For_Dealer.add(all_name_id0);
+
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "SalesBill";
+          all_name_id.Name1 = "http://122.169.111.101:308/images/sale.png";
+          arr_ALL_Name_ID_For_Dealer.add(all_name_id);
+
+          ALL_Name_ID all_name_id1 = ALL_Name_ID();
+          all_name_id1.Name = "Purchase Bill";
+          all_name_id1.Name1 = "http://122.169.111.101:308/images/buy.png";
+          arr_ALL_Name_ID_For_Dealer.add(all_name_id1);
+
+          ALL_Name_ID all_name_id3 = ALL_Name_ID();
+          all_name_id3.Name = "BankVoucher";
+          all_name_id3.Name1 = "http://122.169.111.101:308/images/bank.png";
+          arr_ALL_Name_ID_For_Dealer.add(all_name_id3);
+
+          ALL_Name_ID all_name_id4 = ALL_Name_ID();
+          all_name_id4.Name = "CashVoucher";
+          all_name_id4.Name1 = "http://122.169.111.101:308/images/money.png";
+          arr_ALL_Name_ID_For_Dealer.add(all_name_id4);
+        }
+      }
     }
-    ALL_Name_ID all_name_id = ALL_Name_ID();
-    all_name_id.Name = "Customer";
-    all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/profile.png";
-    arr_ALL_Name_ID_For_Lead.add(all_name_id);
+
+    if (ISDelaer != "Dealer") {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name = "Customer";
+      all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/profile.png";
+      arr_ALL_Name_ID_For_Lead.add(all_name_id);
+    }
 
     if (_offlineLoggedInData.details[0].serialKey.toLowerCase() ==
         "aasi-67ro-h01i-zh6u") {
@@ -2599,14 +2727,39 @@ class _HomeScreenState extends BaseState<HomeScreen>
                       this.url = url.toString();
                       urlController.text = this.url;
                     });
-                    Navigator.pop(context123);
-                    showCommonDialogWithSingleOption(
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        if (pageTitle == "E-Office-Desk") {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Email Sent Successfully ",
+                              onTapOfPositiveButton: () {
+                            //Navigator.pop(context);
+
+                            navigateTo(context, HomeScreen.routeName,
+                                clearAllStack: true);
+                          });
+                        } else {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Please Try Again !");
+                        }
+                      });
+                    });
+
+                    /*showCommonDialogWithSingleOption(
                         context, "Email Sent Successfully ",
                         onTapOfPositiveButton: () {
                       //Navigator.pop(context);
                       navigateTo(context, HomeScreen.routeName,
                           clearAllStack: true);
-                    });
+                    });*/
                   },
                   onLoadError: (controller, url, code, message) {
                     pullToRefreshController.endRefreshing();

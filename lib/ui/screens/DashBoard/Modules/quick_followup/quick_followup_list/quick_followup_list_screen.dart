@@ -8,9 +8,9 @@ import 'package:lottie/lottie.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_request.dart';
-import 'package:soleoserp/models/api_requests/followup_filter_list_request.dart';
-import 'package:soleoserp/models/api_requests/quick_followup_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/quick_followup_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -932,8 +932,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                   buttonMinWidth: 90.0,
                   children: <Widget>[
                       model.timeIn.toString() == ""
-                          ?  GestureDetector(
-                        onTap: () {
+                          ? GestureDetector(
+                              onTap: () {
                                 navigateTo(context,
                                         QuickFollowUpAddEditScreen.routeName,
                                         arguments:
@@ -968,8 +968,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                             )
                           : Container(),
                       model.timeIn.toString() != ""
-                          ?  GestureDetector(
-                        onTap: () {
+                          ? GestureDetector(
+                              onTap: () {
                                 navigateTo(context,
                                         QuickFollowUpAddEditScreen.routeName,
                                         arguments:
@@ -1011,8 +1011,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                   buttonHeight: 52.0,
                   buttonMinWidth: 90.0,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
+                      GestureDetector(
+                        onTap: () {
                           navigateTo(
                                   context, QuickFollowUpAddEditScreen.routeName,
                                   arguments:

@@ -5,13 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/InquiryShareModel.dart';
-import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_followup_details_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_search_by_pk_id_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_share_emp_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/InquiryShareModel.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_followup_details_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_search_by_pk_id_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_share_emp_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
@@ -228,12 +228,6 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                     ),
                     child: Column(
                       children: [
-                        /* _offlineLoggedInData.details[0].serialKey
-                                    .toString()
-                                    .toLowerCase() ==
-                                "dol2-6uh7-ph03-in5h"
-                            ? Container()
-                            :*/
                         _buildSearchView(),
                         Expanded(child: _buildInquiryList())
                       ],
@@ -244,34 +238,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             ],
           ),
         ),
-        floatingActionButton: /*_offlineLoggedInData.details[0].serialKey
-                    .toString()
-                    .toLowerCase() ==
-                "dol2-6uh7-ph03-in5h"
-            ? Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                FloatingActionButton(
-                  onPressed: () => {
-                    _onTapOfSearchView(),
-                  },
-                  child: Icon(Icons.filter_alt_sharp),
-                  heroTag: "fab1",
-                  backgroundColor: colorPrimary,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                FloatingActionButton(
-                  onPressed: () async {
-                    await _onTapOfDeleteALLProduct();
-
-                    navigateTo(context, InquiryAddEditScreen.routeName);
-                  },
-                  child: Icon(Icons.add),
-                  heroTag: "fab2",
-                  backgroundColor: colorPrimary,
-                ),
-              ]) : */
-            FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
           onPressed: () async {
             await _onTapOfDeleteALLProduct();
 
@@ -281,17 +248,6 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
           heroTag: "fab2",
           backgroundColor: colorPrimary,
         ),
-
-        /*FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            await _onTapOfDeleteALLProduct();
-
-            navigateTo(context, InquiryAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),*/
         drawer: build_Drawer(
             context: context,
             UserName: "KISHAN",
@@ -524,10 +480,10 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
         elevation: 5.0,
         elevationCurve: Curves.easeInOut,
         shadowColor: Color(0xFF504F4F),
-        baseColor: model.InquirySourceName == "India Mart"
+        baseColor: model.InquirySourceName.trim().toString() == "IndiaMart"
             ? Color(0xFFFAF6C3)
             : Color(0xFFFCFCFC),
-        expandedColor: model.InquirySourceName == "India Mart"
+        expandedColor: model.InquirySourceName.trim().toString() == "IndiaMart"
             ? Color(0xFFFAF6C3)
             : Color(0xFFC1E0FA),
 
@@ -827,11 +783,21 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                           Expanded(
                             child: _buildTitleWithValueView(
                                 "Lead Date",
+                                model.LeadDate.getFormattedDate(
+                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                        toFormat: "dd-MM-yyyy") ??
+                                    "-",
+                                model.LeadDate,
+                                model),
+                          ),
+                          Expanded(
+                            child: _buildTitleWithValueView(
+                                "Inquiry Date",
                                 model.inquiryDate.getFormattedDate(
                                         fromFormat: "yyyy-MM-ddTHH:mm:ss",
                                         toFormat: "dd-MM-yyyy") ??
                                     "-",
-                                model.inquiryStatus,
+                                model.inquiryDate,
                                 model),
                           ),
                         ]),

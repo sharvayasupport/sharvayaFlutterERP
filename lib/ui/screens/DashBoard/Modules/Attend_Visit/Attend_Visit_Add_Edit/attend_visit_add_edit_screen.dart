@@ -1,11 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attend_visit/attend_visit_bloc.dart';
-import 'package:soleoserp/models/api_requests/attend_visit_save_request.dart';
-import 'package:soleoserp/models/api_requests/complaint_no_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_save_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_no_list_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
 import 'package:soleoserp/models/api_requests/transection_mode_list_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
@@ -258,13 +258,20 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
           if (state is AttendVisitSaveResponseState) {
             _OnComplaintSaveResponseSucess(state);
           }
+
+          if (state is ComplaintSearchByIDResponseState) {
+            // _onSearchByIDCallSuccess(state);
+
+            _onreadcomplaintStatusSucess(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
           if (currentState is CustomerSourceCallEventResponseState ||
               currentState is TransectionModeResponseState ||
               currentState is ComplaintNoListCallResponseState ||
-              currentState is AttendVisitSaveResponseState) {
+              currentState is AttendVisitSaveResponseState ||
+              currentState is ComplaintSearchByIDResponseState) {
             return true;
           }
           return false;
@@ -970,7 +977,7 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
         children: [
           InkWell(
             onTap: () => arr_ALL_Name_ID_For_ComplaintNoList.length != 0
-                ? showcustomdialogWithID(
+                ? showcustomdialogWithComplaintID(
                     values: arr_ALL_Name_ID_For_ComplaintNoList,
                     context1: context,
                     controller: edt_Complaint_No,
@@ -1036,6 +1043,139 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
           ),
         ],
       ),
+    );
+  }
+
+  showcustomdialogWithComplaintID(
+      {List<ALL_Name_ID> values,
+      BuildContext context1,
+      TextEditingController controller,
+      TextEditingController controllerID,
+      String lable}) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    lable,
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    SingleChildScrollView(
+                        physics: ScrollPhysics(),
+                        child: Column(children: <Widget>[
+                          ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (ctx, index) {
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context1).pop();
+                                  controller.text = values[index].Name;
+                                  controllerID.text =
+                                      values[index].pkID.toString();
+
+                                  _complaintScreenBloc.add(
+                                      ComplaintSearchByIDCallEvent(
+                                          values[index].pkID,
+                                          ComplaintSearchByIDRequest(
+                                              CompanyId: CompanyID.toString(),
+                                              LoginUserID: LoginUserID)));
+
+                                  print("IDSS : " +
+                                      values[index].pkID.toString());
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                      left: 25, top: 10, bottom: 10, right: 10),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: colorPrimary), //Change color
+                                        width: 10.0,
+                                        height: 10.0,
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 1.5),
+                                      ),
+                                      SizedBox(
+                                        width: 15,
+                                      ),
+                                      SizedBox(
+                                        width: 150,
+                                        child: Text(
+                                          values[index].Name,
+                                          style: TextStyle(
+                                              color: colorPrimary,
+                                              fontSize: 12),
+                                          softWrap: true,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+
+                              /* return SimpleDialogOption(
+                              onPressed: () => {
+                                controller.text = values[index].Name,
+                                controller2.text = values[index].Name1,
+                              Navigator.of(context1).pop(),
+
+
+                            },
+                              child: Text(values[index].Name),
+                            );*/
+                            },
+                            itemCount: values.length,
+                          ),
+                        ])),
+                  ],
+                )),
+            /*Center(
+            child: Container(
+              padding: EdgeInsets.all(3.0),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF27442),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                      5.0) //                 <--- border radius here
+                  ),
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Color(0xFFF27442))),
+              //color: Color(0xFFF27442),
+              child: GestureDetector(
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Color(0xFFFFFFFF)),
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+          ),*/
+          ],
+        );
+      },
     );
   }
 
@@ -1442,7 +1582,6 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
                   CompanyId: CompanyID.toString(),
                   LoginUserID: "admin",
                   word: _searchDetails.value.toString())));*/
-
         }
         print("CustomerInfo : " +
             edt_CustomerName.text.toString() +
@@ -1522,7 +1661,6 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
           beforZerominute123 +
           " " +
           AM_PM123; //picked_s.periodOffset.toString();
-
     } else {
       edt_FromTime.text = _editModel.timeFrom.getFormattedDate(
           fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "hh:mm a");
@@ -1661,6 +1799,13 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
       navigateTo(context, AttendVisitListScreen.routeName, clearAllStack: true);
     });
+  }
+
+  void _onreadcomplaintStatusSucess(ComplaintSearchByIDResponseState state) {
+    for (int i = 0; i < state.complaintSearchByIDResponse.details.length; i++) {
+      edt_satus.text =
+          state.complaintSearchByIDResponse.details[i].complaintStatus;
+    }
   }
 
 /*  void _OnComplaintSaveResponseSucess(ComplaintSaveResponseState state) async {

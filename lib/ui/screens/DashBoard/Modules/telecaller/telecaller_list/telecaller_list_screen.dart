@@ -7,7 +7,7 @@ import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/telecaller/telecaller_bloc.dart';
-import 'package:soleoserp/models/api_requests/customer_delete_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/tele_caller_search_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';

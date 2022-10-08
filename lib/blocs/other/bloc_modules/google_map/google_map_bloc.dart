@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/distance_matrix_api_request.dart';
-import 'package:soleoserp/models/api_requests/google_place_api_request.dart';
+import 'package:soleoserp/models/api_requests/maps/distance_matrix_api_request.dart';
+import 'package:soleoserp/models/api_requests/maps/google_place_api_request.dart';
 import 'package:soleoserp/models/api_responses/distance_matrix_api_response.dart';
 import 'package:soleoserp/models/api_responses/google_place_search_response.dart';
 import 'package:soleoserp/repositories/repository.dart';

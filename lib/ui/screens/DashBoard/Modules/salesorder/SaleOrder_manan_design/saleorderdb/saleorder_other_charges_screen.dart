@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_requests/quotation_other_charge_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
 import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
@@ -1538,7 +1537,6 @@ class _SalesOrderOtherChargeScreenState
       }
 
 */
-
     }
   }
 
@@ -2190,7 +2188,6 @@ class _SalesOrderOtherChargeScreenState
       }
 
       // Tot_GSTAmt =  ((ChargeAmt1 * taxRate1)/100) + ((ChargeAmt2 * taxRate2)/100) + ((ChargeAmt3 * taxRate3)/100) + ((ChargeAmt4 * taxRate4)/100) + ((ChargeAmt5 * taxRate5)/100);
-
     } else {
       ExclusiveBeforeGStAmnt1 = 0.00;
       ExclusiveBeforeGStAmnt_Minus1 = 0.00;
@@ -2353,7 +2350,6 @@ class _SalesOrderOtherChargeScreenState
       }
 
       //Tot_GSTAmt =  ((ChargeAmt1 * taxRate1)/100) + ((ChargeAmt2 * taxRate2)/100) + ((ChargeAmt3 * taxRate3)/100) + ((ChargeAmt4 * taxRate4)/100) + ((ChargeAmt5 * taxRate5)/100);
-
     } else {
       ExclusiveBeforeGStAmnt2 = 0.00;
       ExclusiveBeforeGStAmnt_Minus2 = 0.00;
@@ -2456,7 +2452,6 @@ class _SalesOrderOtherChargeScreenState
         Tot_otherChargeExcludeTax = 0.00;
         Tot_NetAmt = 0.00;
 */
-
       } else {
         //Tot_otherChargeExcludeTax = ChargeAmt1+ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
         InclusiveBeforeGstAmnt2 = 0.00;
@@ -3245,7 +3240,6 @@ class _SalesOrderOtherChargeScreenState
       print("TotNet3455gg"+" Total : "+TotNet.toStringAsFixed(2) + " TotExclNetAmnt : " + ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
           " TotIncNetAmnt : " + InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2)
       );*/
-
     }
     print("testExclusive" +
         " Total ExcBasic : " +
@@ -3376,38 +3370,37 @@ class _SalesOrderOtherChargeScreenState
           SGSTAmount = 0.00;
         }
 
-        await OfflineDbHelper.getInstance().insertSalesOrderProduct(
-            SalesOrderTable(
-                _TempinquiryProductList[i].SalesOrderNo,
-                _TempinquiryProductList[i].ProductSpecification,
-                _TempinquiryProductList[i].ProductID,
-                _TempinquiryProductList[i].ProductName,
-                _TempinquiryProductList[i].Unit,
-                _TempinquiryProductList[i].Quantity,
-                _TempinquiryProductList[i].UnitRate,
-                _TempinquiryProductList[i].DiscountPercent,
-                _TempinquiryProductList[i].DiscountAmt,
-                _TempinquiryProductList[i].NetRate,
-                ExclusiveFinalNetAmntAfterHeaderDisAmnt,
-                _TempinquiryProductList[i].TaxRate,
-                ExclusiveItemWiseTaxAmnt,
-                ExclusiveTotalNetAmntAfterHeaderDisAmnt,
-                _TempinquiryProductList[i].TaxType,
-                CGSTPer,
-                SGSTPer,
-                IGSTPer,
-                CGSTAmount,
-                SGSTAmount,
-                IGSTAmount,
-                _TempinquiryProductList[i].StateCode,
-                _TempinquiryProductList[i].pkID,
-                LoginUserID,
-                CompanyID.toString(),
-                0,
-                ExclusiveItemWiseHeaderDisAmnt,
-              _TempinquiryProductList[i].DeliveryDate,
-
-            ));
+        await OfflineDbHelper.getInstance()
+            .insertSalesOrderProduct(SalesOrderTable(
+          _TempinquiryProductList[i].SalesOrderNo,
+          _TempinquiryProductList[i].ProductSpecification,
+          _TempinquiryProductList[i].ProductID,
+          _TempinquiryProductList[i].ProductName,
+          _TempinquiryProductList[i].Unit,
+          _TempinquiryProductList[i].Quantity,
+          _TempinquiryProductList[i].UnitRate,
+          _TempinquiryProductList[i].DiscountPercent,
+          _TempinquiryProductList[i].DiscountAmt,
+          _TempinquiryProductList[i].NetRate,
+          ExclusiveFinalNetAmntAfterHeaderDisAmnt,
+          _TempinquiryProductList[i].TaxRate,
+          ExclusiveItemWiseTaxAmnt,
+          ExclusiveTotalNetAmntAfterHeaderDisAmnt,
+          _TempinquiryProductList[i].TaxType,
+          CGSTPer,
+          SGSTPer,
+          IGSTPer,
+          CGSTAmount,
+          SGSTAmount,
+          IGSTAmount,
+          _TempinquiryProductList[i].StateCode,
+          _TempinquiryProductList[i].pkID,
+          LoginUserID,
+          CompanyID.toString(),
+          0,
+          ExclusiveItemWiseHeaderDisAmnt,
+          _TempinquiryProductList[i].DeliveryDate,
+        ));
       } else {
         InclusiveItemWiseHeaderDisAmnt =
             (_TempinquiryProductList[i].NetAmount * HeaderDisAmnt) /
@@ -3448,38 +3441,37 @@ class _SalesOrderOtherChargeScreenState
           SGSTAmount = 0.00;
         }
 
-        await OfflineDbHelper.getInstance().insertSalesOrderProduct(
-            SalesOrderTable(
-                _TempinquiryProductList[i].SalesOrderNo,
-                _TempinquiryProductList[i].ProductSpecification,
-                _TempinquiryProductList[i].ProductID,
-                _TempinquiryProductList[i].ProductName,
-                _TempinquiryProductList[i].Unit,
-                _TempinquiryProductList[i].Quantity,
-                _TempinquiryProductList[i].UnitRate,
-                _TempinquiryProductList[i].DiscountPercent,
-                _TempinquiryProductList[i].DiscountAmt,
-                _TempinquiryProductList[i].NetRate,
-                InclusiveFinalNetAmntAfterHeaderDisAmnt,
-                _TempinquiryProductList[i].TaxRate,
-                InclusiveItemWiseTaxAmnt,
-                InclusiveTotalNetAmntAfterHeaderDisAmnt,
-                _TempinquiryProductList[i].TaxType,
-                CGSTPer,
-                SGSTPer,
-                IGSTPer,
-                CGSTAmount,
-                SGSTAmount,
-                IGSTAmount,
-                _TempinquiryProductList[i].StateCode,
-                _TempinquiryProductList[i].pkID,
-                LoginUserID,
-                CompanyID.toString(),
-                0,
-                InclusiveItemWiseHeaderDisAmnt,
-              _TempinquiryProductList[i].DeliveryDate,
-
-            ));
+        await OfflineDbHelper.getInstance()
+            .insertSalesOrderProduct(SalesOrderTable(
+          _TempinquiryProductList[i].SalesOrderNo,
+          _TempinquiryProductList[i].ProductSpecification,
+          _TempinquiryProductList[i].ProductID,
+          _TempinquiryProductList[i].ProductName,
+          _TempinquiryProductList[i].Unit,
+          _TempinquiryProductList[i].Quantity,
+          _TempinquiryProductList[i].UnitRate,
+          _TempinquiryProductList[i].DiscountPercent,
+          _TempinquiryProductList[i].DiscountAmt,
+          _TempinquiryProductList[i].NetRate,
+          InclusiveFinalNetAmntAfterHeaderDisAmnt,
+          _TempinquiryProductList[i].TaxRate,
+          InclusiveItemWiseTaxAmnt,
+          InclusiveTotalNetAmntAfterHeaderDisAmnt,
+          _TempinquiryProductList[i].TaxType,
+          CGSTPer,
+          SGSTPer,
+          IGSTPer,
+          CGSTAmount,
+          SGSTAmount,
+          IGSTAmount,
+          _TempinquiryProductList[i].StateCode,
+          _TempinquiryProductList[i].pkID,
+          LoginUserID,
+          CompanyID.toString(),
+          0,
+          InclusiveItemWiseHeaderDisAmnt,
+          _TempinquiryProductList[i].DeliveryDate,
+        ));
       }
     }
   }

@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
@@ -12,15 +11,16 @@ import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class SearchDailyActivityScreen extends BaseStatefulWidget {
   static const routeName = '/SearchCustomerScreen';
 
   @override
-  _SearchDailyActivityScreenState createState() => _SearchDailyActivityScreenState();
+  _SearchDailyActivityScreenState createState() =>
+      _SearchDailyActivityScreenState();
 }
 
-class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScreen>
+class _SearchDailyActivityScreenState
+    extends BaseState<SearchDailyActivityScreen>
     with BasicScreen, WidgetsBindingObserver {
   CustomerBloc _CustomerBloc;
   CustomerLabelvalueRsponse _searchCustomerListResponse;
@@ -28,7 +28,6 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
   LoginUserDetialsResponse _offlineLoggedInData;
   int CompanyID = 0;
   String LoginUserID = "";
-
 
   @override
   void initState() {
@@ -73,7 +72,8 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -101,9 +101,11 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
       children: [
         Container(
           padding: EdgeInsets.only(left: 10, right: 20),
-          child: Text(
-              "Min. 3 chars to search Customer",
-              style:TextStyle(fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)     ),
+          child: Text("Min. 3 chars to search Customer",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
@@ -112,7 +114,7 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -121,7 +123,7 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -176,7 +178,7 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.label+"\n"+ model.ContactNo1,
+              model.label + "\n" + model.ContactNo1,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -190,7 +192,10 @@ class _SearchDailyActivityScreenState extends BaseState<SearchDailyActivityScree
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _CustomerBloc.add(SearchCustomerListByNameCallEvent(
-          CustomerLabelValueRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID)));
+          CustomerLabelValueRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID)));
     }
   }
 

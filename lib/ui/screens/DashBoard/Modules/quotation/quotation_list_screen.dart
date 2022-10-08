@@ -11,10 +11,10 @@ import 'package:http/http.dart' as http;
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_delete_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_pdf_generate_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_pdf_generate_request.dart';
 import 'package:soleoserp/models/api_requests/search_quotation_list_by_number_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
@@ -1371,7 +1371,9 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     print("DFDFDF" + "sdfsdssdsffs");
   }
 
-  void _onTaptoEditQuotation(QuotationDetails model) {
+  void _onTaptoEditQuotation(QuotationDetails model) async {
+    await _onTapOfDeleteALLProduct();
+
     navigateTo(context, QuotationAddEditScreen.routeName,
             arguments: AddUpdateQuotationScreenArguments(model))
         .then((value) {
@@ -1386,6 +1388,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
 
   Future<void> _onTapOfDeleteALLProduct() async {
     await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
+    await OfflineDbHelper.getInstance().deleteALLQuotationOtherCharge();
   }
 
   void _OnDeleteQuotationRequest(QuotationDetails model) {

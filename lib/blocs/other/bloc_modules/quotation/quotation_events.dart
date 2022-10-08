@@ -149,8 +149,18 @@ class FCMNotificationRequestEvent extends QuotationEvents {
   var request123;
   FCMNotificationRequestEvent(this.request123);
 }
+
 class GetReportToTokenRequestEvent extends QuotationEvents {
   final GetReportToTokenRequest request;
 
   GetReportToTokenRequestEvent(this.request);
+}
+
+class QT_OtherChargeDeleteRequestEvent extends QuotationEvents {
+  QT_OtherChargeDeleteRequestEvent();
+}
+
+class QT_OtherChargeInsertRequestEvent extends QuotationEvents {
+  final QT_OtherChargeTable qt_otherChargeTable;
+  QT_OtherChargeInsertRequestEvent(this.qt_otherChargeTable);
 }

@@ -53,3 +53,9 @@ class AttendVisitDeleteResponseState extends AttendVisitStates {
 
   AttendVisitDeleteResponseState(this.attendVisitDeleteResponse);
 }
+
+class ComplaintSearchByIDResponseState extends AttendVisitStates {
+  final ComplaintListResponse complaintSearchByIDResponse;
+
+  ComplaintSearchByIDResponseState(this.complaintSearchByIDResponse);
+}

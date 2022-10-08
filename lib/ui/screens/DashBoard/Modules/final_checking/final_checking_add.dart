@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/final_checking/final_checking_bloc.dart';
-import 'package:soleoserp/models/api_requests/checking_no_to_checking_items_request.dart';
-import 'package:soleoserp/models/api_requests/final_checking_delete_all_items_request.dart';
-import 'package:soleoserp/models/api_requests/final_checking_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/final_checking_items_request.dart';
-import 'package:soleoserp/models/api_requests/out_word_no_list_request.dart';
+import 'package:soleoserp/models/api_requests/checking/checking_no_to_checking_items_request.dart';
+import 'package:soleoserp/models/api_requests/checking/final_checking_delete_all_items_request.dart';
+import 'package:soleoserp/models/api_requests/checking/final_checking_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/checking/final_checking_items_request.dart';
+import 'package:soleoserp/models/api_requests/packing/out_word_no_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/final_checking_list_response.dart';
@@ -25,7 +24,6 @@ import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-
 
 class AddUpdateFinalPackingScreenArguments {
   FinalCheckingListDetails editModel;
@@ -54,18 +52,17 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
 
   TextEditingController pcakingno = TextEditingController();
 
- TextEditingController edt_CustomerName  = TextEditingController();
- TextEditingController edt_CustomerpkID  = TextEditingController();
-   TextEditingController edt_FinishProductID = TextEditingController();
+  TextEditingController edt_CustomerName = TextEditingController();
+  TextEditingController edt_CustomerpkID = TextEditingController();
+  TextEditingController edt_FinishProductID = TextEditingController();
 
-   TextEditingController edt_FinishProductName = TextEditingController();
+  TextEditingController edt_FinishProductName = TextEditingController();
   bool ischecked;
-
 
   bool _isForUpdate = false;
   SearchDetails _searchInquiryListResponse;
   List<ALL_Name_ID> arr_ALL_Name_ID_For_OutWordList = [];
-  int SavedPKID=0;
+  int SavedPKID = 0;
   int CompanyID = 0;
   String LoginUserID = "";
   double CardViewHeight = 45.00;
@@ -74,7 +71,6 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
   LoginUserDetialsResponse _offlineLoggedInData;
 
   List<FinalCheckingItems> arr_ALL_Name_ID_For_CheckingItems = [];
-
 
   @override
   void initState() {
@@ -104,33 +100,32 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
           selectdate.month.toString() +
           "-" +
           selectdate.day.toString();
-      finalCheckingBloc.add(FinalCheckingItemsRequestCallEvent(FinalCheckingItemsRequest(CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString())));
-
+      finalCheckingBloc.add(FinalCheckingItemsRequestCallEvent(
+          FinalCheckingItemsRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID.toString())));
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => finalCheckingBloc,
       child: BlocConsumer<FinalCheckingBloc, FinalCheckingListState>(
         builder: (BuildContext context, FinalCheckingListState state) {
-          if(state is FinalCheckingItemsResponseState)
-            {
-              _onfinalCheckingItemsResponse(state);
-            }
+          if (state is FinalCheckingItemsResponseState) {
+            _onfinalCheckingItemsResponse(state);
+          }
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if(currentState is FinalCheckingItemsResponseState)
-            {
-              return true;
-
-            }
+          if (currentState is FinalCheckingItemsResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, FinalCheckingListState state) {
-
           if (state is PackingNoListResponseState) {
             _onOutWordResponse(state);
           }
@@ -146,41 +141,34 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
             _onSubDetailsSaveResponse(state);
           }
 
-          if(state is CheckingNoToCheckingItemsResponseState)
-          {
+          if (state is CheckingNoToCheckingItemsResponseState) {
             _onCheckingNoToCheckingItemsResponse(state);
           }
 
           return super.build(context);
-
         },
         listenWhen: (oldState, currentState) {
           if (currentState is PackingNoListResponseState ||
               currentState is FinalCheckingDeleteAllItemResponseState ||
-          currentState is FinalCheckingHeaderSaveResponseState ||
-          currentState is FinalCheckingSubDetailsSaveResponseState ||
-          currentState is CheckingNoToCheckingItemsResponseState
-
-          )
-            {
-              return true;
-
-            }
+              currentState is FinalCheckingHeaderSaveResponseState ||
+              currentState is FinalCheckingSubDetailsSaveResponseState ||
+              currentState is CheckingNoToCheckingItemsResponseState) {
+            return true;
+          }
           return false;
-
         },
       ),
     );
-    }
+  }
 
   Widget buildBody(BuildContext context1) {
     return Scaffold(
-    appBar: NewGradientAppBar(
-      title: Text("Final Checking"),
-      gradient: LinearGradient(
-        colors: [Colors.red, Colors.purple, Colors.blue],
+      appBar: NewGradientAppBar(
+        title: Text("Final Checking"),
+        gradient: LinearGradient(
+          colors: [Colors.red, Colors.purple, Colors.blue],
+        ),
       ),
-    ),
       body: Container(
         child: ListView(
           children: [
@@ -202,7 +190,7 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
             Container(
               height: height,
               margin: EdgeInsets.only(left: 10, right: 10),
-              child:Card(
+              child: Card(
                 elevation: 5,
                 color: colorLightGray,
                 shape: RoundedRectangleBorder(
@@ -233,9 +221,8 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
                               color: Color(0xFF000000),
                             ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                        ),
+                            ),
                       ),
-
                     ],
                   ),
                 ),
@@ -297,7 +284,7 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
                                     color: Color(0xFF000000),
                                   ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                              ),
+                                  ),
                             ),
                             Icon(
                               Icons.calendar_today,
@@ -325,9 +312,8 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
               height: 2,
             ),
             InkWell(
-              onTap: (){
+              onTap: () {
                 _onTapOfSearchView();
-
               },
               child: Container(
                 margin: EdgeInsets.only(left: 10, right: 10),
@@ -362,7 +348,7 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.person,
@@ -393,17 +379,15 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
               margin: EdgeInsets.only(left: 10, right: 10),
               child: InkWell(
                 onTap: () {
-                 /* showcustomdialogWithOnlyName(
+                  /* showcustomdialogWithOnlyName(
                       values: Outwardnolist,
                       context1: context,
                       controller: outwardno,
                       lable: "Select OutwardNo");
 */
 
-                  if(edt_CustomerName.text!="")
-                  {
-                    if(arr_ALL_Name_ID_For_OutWordList.length!=0)
-                    {
+                  if (edt_CustomerName.text != "") {
+                    if (arr_ALL_Name_ID_For_OutWordList.length != 0) {
                       showcustomdialogWithOnlyName(
                           values: arr_ALL_Name_ID_For_OutWordList,
                           context1: context,
@@ -413,30 +397,22 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
                       setState(() {
                         edt_FinishProductName.text;
                       });
+                    } else {
+                      showCommonDialogWithSingleOption(context,
+                          " Enter Valid Customer Name Which have Created Packing !",
+                          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                        Navigator.pop(context);
+                      });
                     }
-                    else
-                    {
-                      showCommonDialogWithSingleOption(context, " Enter Valid Customer Name Which have Created Packing !",
-                          positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                            Navigator.pop(context);
-                          });
-                    }
-
+                  } else {
+                    showCommonDialogWithSingleOption(
+                        context, "CustomerName Is Required !",
+                        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                      Navigator.pop(context);
+                    });
                   }
-                  else
-                  {
-                    showCommonDialogWithSingleOption(context, "CustomerName Is Required !",
-                        positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                          Navigator.pop(context);
-
-                        });
-                  }
-
-
                 },
-
-
-                child:Card(
+                child: Card(
                   elevation: 5,
                   color: colorLightGray,
                   shape: RoundedRectangleBorder(
@@ -467,7 +443,7 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -479,38 +455,33 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
                 ),
               ),
             ),
-            SizedBox(height: 25,),
+            SizedBox(
+              height: 25,
+            ),
             Container(
               margin: EdgeInsets.all(10),
               alignment: Alignment.bottomCenter,
               child: getCommonButton(baseTheme, () {
                 //  _onTapOfDeleteALLContact();
                 //  navigateTo(context, InquiryProductListScreen.routeName);
-                print("ProductNamen" + "Product Name : "+  edt_FinishProductName.text);
+                print("ProductNamen" +
+                    "Product Name : " +
+                    edt_FinishProductName.text);
 
-                if(pcakingno.text!="")
-                {
-
+                if (pcakingno.text != "") {
                   //packingChecklistBloc.add(PackingProductAssamblyListRequestCallEvent(PackingProductAssamblyListRequest(ProductID:edt_FinishProductID.text,CompanyId: CompanyID.toString())));
 
                   navigateTo(context, FinalCheckingItemScreen.routeName);
-
+                } else {
+                  showCommonDialogWithSingleOption(context,
+                      "Packing No Is Required To Add Product Assembly!",
+                      positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                    Navigator.pop(context);
+                  });
                 }
-                else
-                {
-                  showCommonDialogWithSingleOption(context, "Packing No Is Required To Add Product Assembly!",
-                      positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                        Navigator.pop(context);
-
-                      });
-                }
-
-
-
 
                 //_onTaptoSaveQuotationHeader(context);
-              }, "Add Item ",
-                  width: 600, backGroundColor: colorPrimary),
+              }, "Add Item ", width: 600, backGroundColor: colorPrimary),
             ),
             Container(
               margin: EdgeInsets.all(10),
@@ -521,11 +492,12 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
 
                 _onTaptoSaveHeader(context);
 
-               // _onTaptoSavePackingCheckingHeader(context);
-              }, "Save  ",
-                  width: 600, backGroundColor: colorPrimary),
+                // _onTaptoSavePackingCheckingHeader(context);
+              }, "Save  ", width: 600, backGroundColor: colorPrimary),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             /*CheckboxListTile(
                 value: ischecked,
 
@@ -561,203 +533,205 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
       });
   }
 
-
   Future<void> _onTapOfSearchView() async {
-    if(_isForUpdate==false ){
+    if (_isForUpdate == false) {
       navigateTo(context, SearchInquiryCustomerScreen.routeName).then((value) {
         if (value != null) {
           _searchInquiryListResponse = value;
           edt_CustomerName.text = _searchInquiryListResponse.label;
           edt_CustomerpkID.text = _searchInquiryListResponse.value.toString();
-          pcakingno.text="";
+          pcakingno.text = "";
           arr_ALL_Name_ID_For_OutWordList.clear();
-          finalCheckingBloc.add(OutWordCallEvent(OutWordNoListRequest(CustomerID: _searchInquiryListResponse.value.toString(),CompanyId: CompanyID.toString())));
+          finalCheckingBloc.add(OutWordCallEvent(OutWordNoListRequest(
+              CustomerID: _searchInquiryListResponse.value.toString(),
+              CompanyId: CompanyID.toString())));
 
           /* _inquiryBloc.add(SearchInquiryListByNameCallEvent(
               SearchInquiryListByNameRequest(word:  edt_CustomerName.text,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID,needALL: "1")));
 */
           //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
-         // packingChecklistBloc.add(OutWordCallEvent(OutWordNoListRequest(CustomerID: _searchInquiryListResponse.value.toString(),CompanyId: CompanyID.toString())));
+          // packingChecklistBloc.add(OutWordCallEvent(OutWordNoListRequest(CustomerID: _searchInquiryListResponse.value.toString(),CompanyId: CompanyID.toString())));
         }
       });
     }
-
   }
 
-
   void _onOutWordResponse(PackingNoListResponseState state1) {
-
-    if(state1.packingNoListResponse.details.length!=0)
-    {
+    if (state1.packingNoListResponse.details.length != 0) {
       arr_ALL_Name_ID_For_OutWordList.clear();
 
-      for(int i=0;i<state1.packingNoListResponse.details.length;i++)
-      {
+      for (int i = 0; i < state1.packingNoListResponse.details.length; i++) {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = state1.packingNoListResponse.details[i].pCNo;
 
         arr_ALL_Name_ID_For_OutWordList.add(all_name_id);
       }
+    } else {
+      showCommonDialogWithSingleOption(
+          context, " Enter Valid Customer Name Which have Created Packing !",
+          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+        Navigator.pop(context);
+      });
     }
-    else
-    {
-      showCommonDialogWithSingleOption(context, " Enter Valid Customer Name Which have Created Packing !",
-          positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-            Navigator.pop(context);
-          });
-
-    }
-    print("ResponseOf OutWord" + " Details : " + state1.packingNoListResponse.details[0].pCNo);
+    print("ResponseOf OutWord" +
+        " Details : " +
+        state1.packingNoListResponse.details[0].pCNo);
   }
 
   void fillData() async {
-
     SavedPKID = _editModel.pkID;
     checkingno.text = _editModel.checkingNo;
     checkingdate.text = _editModel.checkingDate.getFormattedDate(
-        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-        toFormat: "dd-MM-yyyy");
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "dd-MM-yyyy");
     Reversecheckingdate.text = _editModel.checkingDate.getFormattedDate(
-        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-        toFormat: "yyyy-MM-dd");
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
     edt_CustomerName.text = _editModel.customerName.toString();
     edt_CustomerpkID.text = _editModel.customerID.toString();
-    pcakingno.text =_editModel.pCNo;
+    pcakingno.text = _editModel.pCNo;
 
-    finalCheckingBloc.add(OutWordCallEvent(OutWordNoListRequest(CustomerID: edt_CustomerpkID.text,CompanyId: CompanyID.toString())));
-    finalCheckingBloc.add(CheckingNoToCheckingItemsRequestCallEvent(CheckingNoToCheckingItemsRequest(CheckingNo:_editModel.checkingNo,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString())));
-
+    finalCheckingBloc.add(OutWordCallEvent(OutWordNoListRequest(
+        CustomerID: edt_CustomerpkID.text, CompanyId: CompanyID.toString())));
+    finalCheckingBloc.add(CheckingNoToCheckingItemsRequestCallEvent(
+        CheckingNoToCheckingItemsRequest(
+            CheckingNo: _editModel.checkingNo,
+            CompanyId: CompanyID.toString(),
+            LoginUserID: LoginUserID.toString())));
   }
 
-  void _onfinalCheckingItemsResponse(FinalCheckingItemsResponseState state) async {
+  void _onfinalCheckingItemsResponse(
+      FinalCheckingItemsResponseState state) async {
     _onTapOfDeleteALLItems();
 
     // arr_ALL_Name_ID_For_CheckingItems.clear();
-    for(int i=0;i<state.finalCheckingItemsResponse.details.length;i++)
-      {
+    for (int i = 0; i < state.finalCheckingItemsResponse.details.length; i++) {
+      String CheckingNo = "";
+      String CustomerID = edt_CustomerpkID.text;
+      String Item = state.finalCheckingItemsResponse.details[i].description;
+      String Checked = "0";
+      String Remarks = "";
+      String SerialNo = "";
+      String SRno =
+          state.finalCheckingItemsResponse.details[i].sRNo == false ? "0" : "1";
+      String LoginUserID123 = LoginUserID.toString();
+      String CompanyId = CompanyID.toString();
 
-        String CheckingNo = "";
-        String CustomerID = edt_CustomerpkID.text;
-        String Item = state.finalCheckingItemsResponse.details[i].description;
-        String Checked = "0";
-        String Remarks = "";
-        String SerialNo = "";
-        String SRno = state.finalCheckingItemsResponse.details[i].sRNo==false?"0":"1";
-        String LoginUserID123 = LoginUserID.toString();
-        String CompanyId = CompanyID.toString();
-
-        await OfflineDbHelper.getInstance().insertFinalCheckingItems(FinalCheckingItems(CheckingNo,CustomerID,Item,Checked,Remarks,SerialNo,SRno,LoginUserID123,CompanyId));
-
-      }
-
+      await OfflineDbHelper.getInstance().insertFinalCheckingItems(
+          FinalCheckingItems(CheckingNo, CustomerID, Item, Checked, Remarks,
+              SerialNo, SRno, LoginUserID123, CompanyId));
+    }
   }
 
-  void _onCheckingNoToCheckingItemsResponse(CheckingNoToCheckingItemsResponseState state) async {
+  void _onCheckingNoToCheckingItemsResponse(
+      CheckingNoToCheckingItemsResponseState state) async {
     _onTapOfDeleteALLItems();
 
-    for(int i=0;i<state.checkingNoToCheckingItemsResponse.details.length;i++)
-    {
-      String CheckingNo = state.checkingNoToCheckingItemsResponse.details[i].checkingNo;
+    for (int i = 0;
+        i < state.checkingNoToCheckingItemsResponse.details.length;
+        i++) {
+      String CheckingNo =
+          state.checkingNoToCheckingItemsResponse.details[i].checkingNo;
       String CustomerID = edt_CustomerpkID.text;
       String Item = state.checkingNoToCheckingItemsResponse.details[i].item;
-      String Checked = state.checkingNoToCheckingItemsResponse.details[i].checked==false?"0":"1";
+      String Checked =
+          state.checkingNoToCheckingItemsResponse.details[i].checked == false
+              ? "0"
+              : "1";
       String Remarks = "";
-      String SerialNo = state.checkingNoToCheckingItemsResponse.details[i].serialNo;
-      String SRno = state.checkingNoToCheckingItemsResponse.details[i].sRno==false?"0":"1";
+      String SerialNo =
+          state.checkingNoToCheckingItemsResponse.details[i].serialNo;
+      String SRno =
+          state.checkingNoToCheckingItemsResponse.details[i].sRno == false
+              ? "0"
+              : "1";
       String LoginUserID123 = LoginUserID;
       String CompanyId = CompanyID.toString();
 
-      await OfflineDbHelper.getInstance().insertFinalCheckingItems(FinalCheckingItems(CheckingNo,CustomerID,Item,Checked,Remarks,SerialNo,SRno,LoginUserID123,CompanyId));
-
+      await OfflineDbHelper.getInstance().insertFinalCheckingItems(
+          FinalCheckingItems(CheckingNo, CustomerID, Item, Checked, Remarks,
+              SerialNo, SRno, LoginUserID123, CompanyId));
     }
-
   }
 
   void _onTaptoSaveHeader(BuildContext context) async {
     await getInquiryProductDetails();
 
-    if(Reversecheckingdate.text!="")
-      {
-        if(edt_CustomerName.text!="")
-          {
+    if (Reversecheckingdate.text != "") {
+      if (edt_CustomerName.text != "") {
+        if (pcakingno.text != "") {
+          showCommonDialogWithTwoOptions(
+              context, "Are you sure you want to Save this Packing CheckList ?",
+              negativeButtonTitle: "No",
+              positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
+            if (checkingno.text != "") {
+              finalCheckingBloc.add(FinalCheckingDeleteAllItemRequestCallEvent(
+                  checkingno.text,
+                  FinalCheckingDeleteAllItemsRequest(
+                      CompanyId: CompanyID.toString())));
+            }
 
-            if(pcakingno.text!="")
-            {
-
-              showCommonDialogWithTwoOptions(
-                  context, "Are you sure you want to Save this Packing CheckList ?",
-                  negativeButtonTitle: "No",
-                  positiveButtonTitle: "Yes", onTapOfPositiveButton: ()
-              {
-
-                if(checkingno.text!="")
-                  {
-                    finalCheckingBloc.add(FinalCheckingDeleteAllItemRequestCallEvent(checkingno.text,FinalCheckingDeleteAllItemsRequest(CompanyId: CompanyID.toString())));
-
-                  }
-
-
-                finalCheckingBloc.add(FinalCheckingHeaderSaveRequestCallEvent(SavedPKID,FinalCheckingHeaderSaveRequest(
-                  CheckingNo:checkingno.text==null?"":checkingno.text,
-                  CustomerID:edt_CustomerpkID.text==null?"":edt_CustomerpkID.text,
-                  ProductID:"",
-                  CheckingDate:Reversecheckingdate.text==null?"":Reversecheckingdate.text,
-                  PCNo:pcakingno.text==null?"":pcakingno.text,
-                  LoginUserID:LoginUserID.toString(), 
-                  CompanyId:CompanyID.toString(),
+            finalCheckingBloc.add(FinalCheckingHeaderSaveRequestCallEvent(
+                SavedPKID,
+                FinalCheckingHeaderSaveRequest(
+                  CheckingNo: checkingno.text == null ? "" : checkingno.text,
+                  CustomerID: edt_CustomerpkID.text == null
+                      ? ""
+                      : edt_CustomerpkID.text,
+                  ProductID: "",
+                  CheckingDate: Reversecheckingdate.text == null
+                      ? ""
+                      : Reversecheckingdate.text,
+                  PCNo: pcakingno.text == null ? "" : pcakingno.text,
+                  LoginUserID: LoginUserID.toString(),
+                  CompanyId: CompanyID.toString(),
                 )));
-
-              });
-
-            }
-            else{
-              showCommonDialogWithSingleOption(context, "PackingNo is required !",
-                  positiveButtonTitle: "OK");
-            }
-          }
-        else
-          {
-            showCommonDialogWithSingleOption(context, "CustomerName is required !",
-                positiveButtonTitle: "OK");
-          }
+          });
+        } else {
+          showCommonDialogWithSingleOption(context, "PackingNo is required !",
+              positiveButtonTitle: "OK");
+        }
+      } else {
+        showCommonDialogWithSingleOption(context, "CustomerName is required !",
+            positiveButtonTitle: "OK");
       }
-    else{
+    } else {
       showCommonDialogWithSingleOption(context, "Checking Date is required !",
           positiveButtonTitle: "OK");
     }
   }
 
-  void _onDeleteAllCheckingItems(FinalCheckingDeleteAllItemResponseState state) {
-
-    print("DeleteALLChekingItems" + state.finalCheckingDeleteAllItemResponse.details[0].column1);
-
+  void _onDeleteAllCheckingItems(
+      FinalCheckingDeleteAllItemResponseState state) {
+    print("DeleteALLChekingItems" +
+        state.finalCheckingDeleteAllItemResponse.details[0].column1);
   }
 
   void _onHeaderSaveResponse(FinalCheckingHeaderSaveResponseState state) {
-   /* print("InquiryHeaderResponse" +
+    /* print("InquiryHeaderResponse" +
         state.finalCheckingHeaderSaveResponse.details[0].column2 +
         "\n" +
         state.finalCheckingHeaderSaveResponse.details[0].column3);*/
-    updateRetrunInquiryNoToDB(state.finalCheckingHeaderSaveResponse.details[0].column3);
+    updateRetrunInquiryNoToDB(
+        state.finalCheckingHeaderSaveResponse.details[0].column3);
     print("listSize" + arr_ALL_Name_ID_For_CheckingItems.length.toString());
-    finalCheckingBloc.add(FinalCheckingSubDetailsSaveCallEvent(arr_ALL_Name_ID_For_CheckingItems));
-
+    finalCheckingBloc.add(FinalCheckingSubDetailsSaveCallEvent(
+        arr_ALL_Name_ID_For_CheckingItems));
   }
 
-  void _onSubDetailsSaveResponse(FinalCheckingSubDetailsSaveResponseState state) async {
-    String Msg = _isForUpdate == true ? "Updated Successfully" : "Added Successfully";
-    await showCommonDialogWithSingleOption(Globals.context,Msg,
-        positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-          navigateTo(context, FinalCheckingListScreen.routeName,clearAllStack: true);
-        });
-
-
+  void _onSubDetailsSaveResponse(
+      FinalCheckingSubDetailsSaveResponseState state) async {
+    String Msg =
+        _isForUpdate == true ? "Updated Successfully" : "Added Successfully";
+    await showCommonDialogWithSingleOption(Globals.context, Msg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      navigateTo(context, FinalCheckingListScreen.routeName,
+          clearAllStack: true);
+    });
   }
 
   void updateRetrunInquiryNoToDB(String ReturnInquiryNo) {
     arr_ALL_Name_ID_For_CheckingItems.forEach((element) {
       element.CheckingNo = ReturnInquiryNo;
-      element.CustomerID = edt_CustomerpkID.text==null?"":"";
+      element.CustomerID = edt_CustomerpkID.text == null ? "" : "";
       element.LoginUserID = LoginUserID;
       element.CompanyId = CompanyID.toString();
     });
@@ -766,7 +740,7 @@ class _FinalCheckingAddScreenState extends BaseState<FinalCheckingAddScreen>
   Future<void> getInquiryProductDetails() async {
     arr_ALL_Name_ID_For_CheckingItems.clear();
     List<FinalCheckingItems> temp =
-    await OfflineDbHelper.getInstance().getFinalCheckingItems();
+        await OfflineDbHelper.getInstance().getFinalCheckingItems();
     arr_ALL_Name_ID_For_CheckingItems.addAll(temp);
     setState(() {});
   }

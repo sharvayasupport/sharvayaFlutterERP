@@ -18,7 +18,8 @@ import 'error_response_exception.dart';
 class ApiClient {
   ///set apis' base url here
 
-  static const BASE_URL = 'http://122.169.111.101:108/';
+  static const BASE_URL = 'http://208.109.14.134:83/';
+  //  "http://122.169.111.101:108/"; //
 
   /// General Flutter Test SerialKey = TEST-0000-SI0F-0208 / ID : admin / Pwd : Sharvaya / SiteURL : 122.169.11.101:3346
 
@@ -300,7 +301,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG_VIDEO =
       "ComplaintDoc/";
   static const END_ACCURABATH_POINT_COMPLAINT_UPLOAD = "Complaint/ImageUpload";
-
+  static const END_GET_REGION_CODE = "Customer/Codes";
   final http.Client httpClient;
 
   ApiClient({this.httpClient});

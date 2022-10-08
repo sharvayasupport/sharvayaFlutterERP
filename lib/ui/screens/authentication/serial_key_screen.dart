@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
-import 'package:soleoserp/models/api_requests/company_details_request.dart';
+import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/designation_list_response.dart';

@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_delete_request.dart';
-import 'package:soleoserp/models/api_requests/attend_visit_list_request.dart';
-import 'package:soleoserp/models/api_requests/attend_visit_save_request.dart';
-import 'package:soleoserp/models/api_requests/complaint_no_list_request.dart';
-import 'package:soleoserp/models/api_requests/complaint_search_by_Id_request.dart';
-import 'package:soleoserp/models/api_requests/complaint_search_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_list_request.dart';
+import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_save_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_no_list_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
+import 'package:soleoserp/models/api_requests/complaint/complaint_search_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
 import 'package:soleoserp/models/api_requests/transection_mode_list_request.dart';
 import 'package:soleoserp/models/api_responses/AttendVisit/attend_visit_delete_response.dart';
 import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
 import 'package:soleoserp/models/api_responses/attend_visit_save_response.dart';
+import 'package:soleoserp/models/api_responses/complaint_list_response.dart';
 import 'package:soleoserp/models/api_responses/complaint_no_list_response.dart';
 import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
@@ -56,6 +57,9 @@ class AttendVisitBloc extends Bloc<AttendVisitEvents, AttendVisitStates> {
 
     if (event is AttendVisitDeleteEvent) {
       yield* _mapAttendVisitEventToState(event);
+    }
+    if (event is ComplaintSearchByIDCallEvent) {
+      yield* _mapSearchByComplaintIDCallEventToState(event);
     }
   }
 
@@ -188,6 +192,23 @@ class AttendVisitBloc extends Bloc<AttendVisitEvents, AttendVisitStates> {
       AttendVisitDeleteResponse response = await userRepository
           .getAttendVisitDeleteAPI(event.attendVisitDeleteRequest);
       yield AttendVisitDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<AttendVisitStates> _mapSearchByComplaintIDCallEventToState(
+      ComplaintSearchByIDCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      ComplaintListResponse response = await userRepository
+          .getComplaintSearchByID(event.pkID, event.complaintSearchByIDRequest);
+      yield ComplaintSearchByIDResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

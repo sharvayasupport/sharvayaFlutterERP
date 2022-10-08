@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -12,14 +11,14 @@ import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
-import 'package:soleoserp/models/api_requests/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/followup_inquiry_by_customer_id_request.dart';
-import 'package:soleoserp/models/api_requests/followup_save_request.dart';
-import 'package:soleoserp/models/api_requests/followup_type_list_request.dart';
-import 'package:soleoserp/models/api_requests/followup_upload_image_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_save_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
@@ -136,7 +135,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   bool is_LocationService_Permission;
   bool SaveSucess;
   bool is_Storage_Service_Permission;
-  String ReportToToken="";
+  String ReportToToken = "";
   @override
   void initState() {
     super.initState();
@@ -217,7 +216,6 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
       setState(() {});
     }
-
 
     _isSwitched = false;
     _isInqury_details_Exist = false;
@@ -318,9 +316,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           if (currentState is FollowupCustomerListByNameCallResponseState ||
               currentState is FollowupInquiryStatusListCallResponseState ||
               currentState is FollowupInquiryNoListCallResponseState ||
-              currentState is GetReportToTokenResponseState
-
-          ) {
+              currentState is GetReportToTokenResponseState) {
             return true;
           }
           return false;
@@ -363,9 +359,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
               currentState is FollowupTypeListCallResponseState ||
               currentState is InquiryLeadStatusListCallResponseState ||
               currentState is CloserReasonListCallResponseState ||
-              currentState is FCMNotificationResponseState
-
-          ) {
+              currentState is FCMNotificationResponseState) {
             return true;
           }
           return false;
@@ -1206,7 +1200,6 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   void _onInquiryListByNumberCallSuccess(
       FollowupCustomerListByNameCallResponseState state) {}
 
-
   void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
     ReportToToken = state.response.details[0].reportPersonTokenNo;
   }
@@ -1222,7 +1215,6 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
     ///state.inquiryHeaderSaveResponse.details[0].column3;
     String notibody = "FollowUp " +
-
         updatemsg +
         " For " +
         edt_CustomerName.text +
@@ -1272,11 +1264,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
         navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
       });
       //Navigator.of(context).pop();
-
     }
-
-
-
   }
 
   void _onFollowupListTypeCallSuccess(FollowupTypeListCallResponseState state) {
@@ -1706,8 +1694,9 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     edt_FollowupTypepkID.text = _editModel.inquiryStatusID.toString();
     print("RARINGG" + "Rate : " + _editModel.rating.toDouble().toString());
 
-    _rating = _editModel.rating == null || _editModel.rating == 0 ? 0.00 : _editModel.rating.toDouble();
-
+    _rating = _editModel.rating == null || _editModel.rating == 0
+        ? 0.00
+        : _editModel.rating.toDouble();
 
     if (_editModel.noFollowup == 0) {
       _isSwitched = false;

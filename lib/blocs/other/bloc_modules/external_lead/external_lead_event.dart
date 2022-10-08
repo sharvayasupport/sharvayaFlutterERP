@@ -76,8 +76,16 @@ class FCMNotificationRequestEvent extends ExternalLeadEvents {
   var request123;
   FCMNotificationRequestEvent(this.request123);
 }
+
 class GetReportToTokenRequestEvent extends ExternalLeadEvents {
   final GetReportToTokenRequest request;
 
   GetReportToTokenRequestEvent(this.request);
+}
+
+class RegionCodeRequestEvent extends ExternalLeadEvents {
+  ExternalLeadDetails expenseDetails;
+  final RegionCodeRequest request;
+
+  RegionCodeRequestEvent(this.expenseDetails, this.request);
 }

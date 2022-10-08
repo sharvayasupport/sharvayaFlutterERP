@@ -13,6 +13,10 @@ import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Background.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/cash_voucher/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/customer/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/purchase_bill/list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Dealer/sales_bill/list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_listing_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_List/attend_visit_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
@@ -45,6 +49,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/external_lead/external_le
 import 'package:soleoserp/ui/screens/DashBoard/Modules/final_checking/final_checking_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/map_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/hema_auto_attend_visit/hema_attend_visit_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request_approval/leave_approval_list_screen.dart';
@@ -68,6 +73,8 @@ import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
+import '../screens/DashBoard/Dealer/bank_voucher/list_screen.dart';
+
 double sizeboxsize = 20;
 double _fontSize_Label = 10;
 double _fontSize_Title = 15;
@@ -83,6 +90,7 @@ List<ALL_Name_ID> Purchase;
 List<ALL_Name_ID> Office;
 List<ALL_Name_ID> Support;
 List<ALL_Name_ID> Production;
+List<ALL_Name_ID> Dealer;
 
 final primary = Colors.indigo;
 final secondary = Colors.black;
@@ -93,27 +101,30 @@ LoginUserDetialsResponse _offlineLoggedInData =
 CompanyDetailsResponse _offlineCompanyData =
     SharedPrefHelper.instance.getCompanyData();
 
-Widget getCommonTextFormField(BuildContext context, ThemeData baseTheme,
-    {String title: "",
-    String hint: "",
-    TextInputAction textInputAction: TextInputAction.next,
-    bool obscureText: false,
-    EdgeInsetsGeometry contentPadding:
-        const EdgeInsets.only(top: 0, bottom: 10),
-    int maxLength: 1000,
-    TextAlign textAlign: TextAlign.left,
-    TextEditingController controller,
-    TextInputType keyboardType,
-    FormFieldValidator<String> validator,
-    int maxLines: 1,
-    Function(String) onSubmitted,
-    Function(String) onTextChanged,
-    TextStyle titleTextStyle,
-    TextCapitalization textCapitalization = TextCapitalization.none,
-    TextStyle inputTextStyle,
-    List<TextInputFormatter> inputFormatter,
-    bool readOnly: false,
-    Widget suffixIcon}) {
+Widget getCommonTextFormField(
+  BuildContext context,
+  ThemeData baseTheme, {
+  String title: "",
+  String hint: "",
+  TextInputAction textInputAction: TextInputAction.next,
+  bool obscureText: false,
+  EdgeInsetsGeometry contentPadding: const EdgeInsets.only(top: 0, bottom: 10),
+  int maxLength: 1000,
+  TextAlign textAlign: TextAlign.left,
+  TextEditingController controller,
+  TextInputType keyboardType,
+  FormFieldValidator<String> validator,
+  int maxLines: 1,
+  Function(String) onSubmitted,
+  Function(String) onTextChanged,
+  TextStyle titleTextStyle,
+  TextCapitalization textCapitalization = TextCapitalization.none,
+  TextStyle inputTextStyle,
+  List<TextInputFormatter> inputFormatter,
+  bool readOnly: false,
+  Widget suffixIcon,
+  Color labelColor: colorPrimary,
+}) {
   if (titleTextStyle == null) {
     titleTextStyle = baseTheme.textTheme.subtitle1;
   }
@@ -133,7 +144,7 @@ Widget getCommonTextFormField(BuildContext context, ThemeData baseTheme,
                   Text(
               title,
               style: TextStyle(
-                color: Color(0xff3a3285),
+                color: labelColor,
                 fontSize: 18,
               ),
             ))
@@ -1189,7 +1200,9 @@ makeDashboardItem(
         if (title == "Customer") {
           //Navigator.pushReplacementNamed(context, "/Customer");
           //Get.to(Customer());
-          navigateTo(context, CustomerListScreen.routeName);
+          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+              ? navigateTo(context, DCustomerListScreen.routeName)
+              : navigateTo(context, CustomerListScreen.routeName);
         } else if (title == "Inquiry") {
           // navigateTo(context, CustomerPaginationListScreen .routeName);
           navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
@@ -1237,14 +1250,22 @@ makeDashboardItem(
           navigateTo(context, SalesOrderListScreen.routeName,
               clearAllStack: true);
         } else if (title == "SalesBill") {
-          navigateTo(context, SalesBillListScreen.routeName,
-              clearAllStack: true);
+          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+              ? navigateTo(context, DSaleBillListScreen.routeName,
+                  clearAllStack: true)
+              : navigateTo(context, SalesBillListScreen.routeName,
+                  clearAllStack: true);
         } else if (title == "BankVoucher") {
-          navigateTo(context, BankVoucherListScreen.routeName,
-              clearAllStack: true);
+          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+              ? navigateTo(context, DBankVoucherListScreen.routeName,
+                  clearAllStack: true)
+              : navigateTo(context, BankVoucherListScreen.routeName,
+                  clearAllStack: true);
         } else if (title == "Complaint") {
           if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "DHSI-09RY-BATH-ACCU") {
+                  "DHSI-09RY-BATH-ACCU" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "TEST-0000-SI0F-0208") {
             navigateTo(context, AccurabathComplaintListScreen.routeName,
                 clearAllStack: true);
           } else {
@@ -1262,6 +1283,20 @@ makeDashboardItem(
                       clearAllStack: true);*/
 
             navigateTo(context, AttendVisitListScreen.routeName,
+                clearAllStack: true);
+          } else if (SharedPrefHelper.instance
+                      .getLoginUserData()
+                      .details[0]
+                      .serialKey
+                      .toUpperCase() ==
+                  "HEMA-AUTO-SI08-NVRL" ||
+              SharedPrefHelper.instance
+                      .getLoginUserData()
+                      .details[0]
+                      .serialKey
+                      .toUpperCase() ==
+                  "TEST-0000-SI0F-0208") {
+            navigateTo(context, HemaAttendVisitListScreen.routeName,
                 clearAllStack: true);
           } else {
             navigateTo(context, AttendVisitListScreen.routeName,
@@ -1316,11 +1351,17 @@ makeDashboardItem(
           showCommonDialogWithSingleOption(context, "Coming Soon !",
               positiveButtonTitle: "OK");
         } else if (title == "Purchase Bill") {
-          showCommonDialogWithSingleOption(context, "Coming Soon !",
-              positiveButtonTitle: "OK");
+          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+              ? navigateTo(context, DPurchaseListScreen.routeName,
+                  clearAllStack: true)
+              : showCommonDialogWithSingleOption(context, "Coming Soon !",
+                  positiveButtonTitle: "OK");
         } else if (title == "CashVoucher") {
-          navigateTo(context, CashVoucherAddEditScreen.routeName,
-              clearAllStack: true);
+          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+              ? navigateTo(context, DCashVoucherListScreen.routeName,
+                  clearAllStack: true)
+              : navigateTo(context, CashVoucherAddEditScreen.routeName,
+                  clearAllStack: true);
         } else if (title == "Credit Note") {
           navigateTo(context, CreditNoteAddEditScreen.routeName,
               clearAllStack: true);
@@ -1512,6 +1553,11 @@ getProductionListFromDashBoard(List<ALL_Name_ID> Production1) {
   return Production;
 }
 
+getDealerListFromDashBoard(List<ALL_Name_ID> Dealer1) {
+  Dealer = Dealer1;
+  return Dealer;
+}
+
 Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
   return Drawer(
     child: Background(
@@ -1588,6 +1634,27 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                       children: <Widget>[
                         Leads.length != 0
                             ? getLeadList(Leads, context)
+                            : Container(),
+                      ],
+                      trailing: Icon(
+                        Icons.account_tree,
+                        color: colorPrimary,
+                      ))
+                  : Container(),
+              Dealer.length != 0
+                  ? ExpansionTile(
+                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                      expandedAlignment: Alignment.center,
+                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      title: Text("Dealer",
+                          softWrap: true,
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: colorPrimary,
+                              fontWeight: FontWeight.bold)),
+                      children: <Widget>[
+                        Dealer.length != 0
+                            ? getDealerList(Dealer, context)
                             : Container(),
                       ],
                       trailing: Icon(
@@ -1858,6 +1925,44 @@ getLeadList(List<ALL_Name_ID> sale, BuildContext context) {
   );
 }
 
+getDealerList(List<ALL_Name_ID> sale, BuildContext context) {
+  return ListView.builder(
+    physics: NeverScrollableScrollPhysics(),
+    shrinkWrap: true,
+    itemCount: sale.length,
+    itemBuilder: (context, i) {
+      return ListTile(
+          leading: Image.network(sale[i].Name1, height: 32, fit: BoxFit.fill),
+          title: Text(sale[i].Name,
+              softWrap: true,
+              style: new TextStyle(fontSize: 15.0, color: colorPrimary)),
+          onTap: () {
+            if (sale[i].Name == "Customer") {
+              navigateTo(context, DCustomerListScreen.routeName,
+                  clearAllStack: true);
+            }
+
+            if (sale[i].Name == "SalesBill") {
+              navigateTo(context, DSaleBillListScreen.routeName,
+                  clearAllStack: true);
+            }
+            if (sale[i].Name == "BankVoucher") {
+              navigateTo(context, DBankVoucherListScreen.routeName,
+                  clearAllStack: true);
+            }
+            if (sale[i].Name == "CashVoucher") {
+              navigateTo(context, DCashVoucherListScreen.routeName,
+                  clearAllStack: true);
+            }
+            if (sale[i].Name == "Purchase Bill") {
+              navigateTo(context, DPurchaseListScreen.routeName,
+                  clearAllStack: true);
+            }
+          });
+    },
+  );
+}
+
 getSalesList(List<ALL_Name_ID> leads, BuildContext context) {
   return ListView.builder(
     physics: NeverScrollableScrollPhysics(),
@@ -2073,10 +2178,20 @@ getSupportList(List<ALL_Name_ID> Support, BuildContext context) {
                     clearAllStack: true);
               }
             }
-
-            if (Support[i].Name == "Attend Visit")
-              navigateTo(context, AttendVisitListScreen.routeName,
-                  clearAllStack: true);
+            if (Support[i].Name == "Attend Visit") {
+              if (SharedPrefHelper.instance
+                      .getLoginUserData()
+                      .details[0]
+                      .serialKey
+                      .toUpperCase() ==
+                  "HEMA-AUTO-SI08-NVRL") {
+                navigateTo(context, HemaAttendVisitListScreen.routeName,
+                    clearAllStack: true);
+              } else {
+                navigateTo(context, AttendVisitListScreen.routeName,
+                    clearAllStack: true);
+              }
+            }
             if (Support[i].Name == "Maintenance Contract")
               navigateTo(context, MaintenanceListScreen.routeName,
                   clearAllStack: true);

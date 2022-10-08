@@ -1,13 +1,13 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/bank_drop_down_request.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_delete_request.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_list_request.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_save_request.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_search_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_list_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_save_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_search_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_requests/transection_mode_list_request.dart';
 import 'package:soleoserp/models/api_responses/bank_drop_down_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher_delete_response.dart';
@@ -17,60 +17,49 @@ import 'package:soleoserp/models/api_responses/bank_voucher_search_by_name_respo
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/transection_mode_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
-import 'package:soleoserp/blocs/base/base_bloc.dart';
 
 part 'banck_voucher_events.dart';
 part 'bank_voucher_states.dart';
 
-class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScreenStates> {
+class BankVoucherScreenBloc
+    extends Bloc<BankVoucherScreenEvents, BankVoucherScreenStates> {
   Repository userRepository = Repository.getInstance();
   BaseBloc baseBloc;
 
   BankVoucherScreenBloc(this.baseBloc) : super(BankVoucherScreenInitialState());
 
   @override
-  Stream<BankVoucherScreenStates> mapEventToState(BankVoucherScreenEvents event) async* {
-
+  Stream<BankVoucherScreenStates> mapEventToState(
+      BankVoucherScreenEvents event) async* {
     if (event is BankVoucherListCallEvent) {
       yield* _mapBankVoucherListCallEventToState(event);
     }
 
-    if(event is BankVoucherSearchByNameCallEvent)
-      {
-        yield* _mapBAnkVoucherSearchByNameCallEventToState(event);
-      }
-    if(event is BankVoucherSearchByIDCallEvent)
-    {
+    if (event is BankVoucherSearchByNameCallEvent) {
+      yield* _mapBAnkVoucherSearchByNameCallEventToState(event);
+    }
+    if (event is BankVoucherSearchByIDCallEvent) {
       yield* _mapBAnkVoucherSearchByIDCallEventToState(event);
     }
 
-    if(event is BankVoucherDeleteCallEvent)
-    {
+    if (event is BankVoucherDeleteCallEvent) {
       yield* _mapDeletedBankVoucherCallEventToState(event);
-
     }
 
-
-    if(event is TransectionModeCallEvent){
+    if (event is TransectionModeCallEvent) {
       yield* _mapTransectionModeCallEventToState(event);
     }
 
-    if(event is SearchBankVoucherCustomerListByNameCallEvent)
-    {
+    if (event is SearchBankVoucherCustomerListByNameCallEvent) {
       yield* _mapFollowupCustomerListByNameCallEventToState(event);
-
     }
 
-    if(event is BankDropDownCallEvent)
-      {
-        yield* _mapBankDropDownEventToState(event);
-
-      }
-    if(event is BankVoucherSaveCallEvent)
-      {
-        yield* _mapSavedBankVoucherCallEventToState(event);
-
-      }
+    if (event is BankDropDownCallEvent) {
+      yield* _mapBankDropDownEventToState(event);
+    }
+    if (event is BankVoucherSaveCallEvent) {
+      yield* _mapSavedBankVoucherCallEventToState(event);
+    }
     /* if (event is DailyActivityListCallEvent) {
       yield* _mapDailyActivityListCallEventToState(event);
     }
@@ -94,21 +83,19 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     }*/
   }
 
-
   Stream<BankVoucherScreenStates> _mapBankVoucherListCallEventToState(
       BankVoucherListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      BankVoucherListResponse response =
-      await userRepository.getBankVoucherList(event.pageNo,event.bankVoucherListRequest);
-      yield BankvoucherListResponseState(event.pageNo,response);
-
+      BankVoucherListResponse response = await userRepository
+          .getBankVoucherList(event.pageNo, event.bankVoucherListRequest);
+      yield BankvoucherListResponseState(event.pageNo, response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
@@ -118,13 +105,13 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       BankVoucherSearchByNameResponse response =
-      await userRepository.getBankVoucherSearchByName(event.request);
+          await userRepository.getBankVoucherSearchByName(event.request);
       yield BankVoucherSearchByNameCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
@@ -135,15 +122,14 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      BankVoucherListResponse response =
-      await userRepository.getBankVoucherSearchByIDResponse(event.id,event.request);
+      BankVoucherListResponse response = await userRepository
+          .getBankVoucherSearchByIDResponse(event.id, event.request);
       yield BankVoucherSearchByIDCallResponseState(response);
-
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
@@ -152,7 +138,8 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
       BankVoucherDeleteCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      BankVoucherDeleteResponse bankVoucherDeleteResponse = await userRepository.getbankvoucherDelete(event.pkID,event.bankVoucherDeleteRequest);
+      BankVoucherDeleteResponse bankVoucherDeleteResponse = await userRepository
+          .getbankvoucherDelete(event.pkID, event.bankVoucherDeleteRequest);
       yield BankVoucherDeleteResponseState(bankVoucherDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -166,7 +153,8 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
       TransectionModeCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      TransectionModeListResponse bankVoucherDeleteResponse = await userRepository.getTransectionModeList(event.request);
+      TransectionModeListResponse bankVoucherDeleteResponse =
+          await userRepository.getTransectionModeList(event.request);
       yield TransectionModeResponseState(bankVoucherDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -176,19 +164,19 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     }
   }
 
-
-  Stream<BankVoucherScreenStates> _mapFollowupCustomerListByNameCallEventToState(
-      SearchBankVoucherCustomerListByNameCallEvent event) async* {
+  Stream<BankVoucherScreenStates>
+      _mapFollowupCustomerListByNameCallEventToState(
+          SearchBankVoucherCustomerListByNameCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       CustomerLabelvalueRsponse response =
-      await userRepository.getCustomerListSearchByName(event.request);
+          await userRepository.getCustomerListSearchByName(event.request);
       yield BankVoucherCustomerListByNameCallResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
@@ -199,25 +187,26 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       BankDorpDownResponse response =
-      await userRepository.getBankDropDown(event.request);
+          await userRepository.getBankDropDown(event.request);
       yield BankDropDownResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500), (){});
+      await Future.delayed(const Duration(milliseconds: 500), () {});
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
 
-
   Stream<BankVoucherScreenStates> _mapSavedBankVoucherCallEventToState(
       BankVoucherSaveCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      BankVoucherSaveResponse bankVoucherDeleteResponse = await userRepository.getbankvoucherSave(event.pkID,event.bankVoucherSaveRequest);
-      yield BankVoucherSaveResponseState(event.context,bankVoucherDeleteResponse);
+      BankVoucherSaveResponse bankVoucherDeleteResponse = await userRepository
+          .getbankvoucherSave(event.pkID, event.bankVoucherSaveRequest);
+      yield BankVoucherSaveResponseState(
+          event.context, bankVoucherDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -226,7 +215,7 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     }
   }
 
- /* Stream<DailyActivityScreenStates> _mapDailyActivityListCallEventToState(
+  /* Stream<DailyActivityScreenStates> _mapDailyActivityListCallEventToState(
       DailyActivityListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
@@ -286,5 +275,4 @@ class BankVoucherScreenBloc extends Bloc<BankVoucherScreenEvents, BankVoucherScr
     }
   }
 */
-
 }

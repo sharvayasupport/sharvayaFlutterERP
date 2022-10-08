@@ -4,9 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
-import 'package:soleoserp/models/api_requests/expense_list_request.dart';
-import 'package:soleoserp/models/api_requests/expense_type_request.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_request.dart';
+import 'package:soleoserp/models/api_requests/expense/expense_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/expense_list_response.dart';
 import 'package:soleoserp/models/api_responses/expense_type_response.dart';
@@ -23,6 +22,7 @@ import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
+import '../../../../../models/api_requests/expense/expense_type_request.dart';
 import 'expense_add_edit_screen.dart';
 
 class ExpenseListScreen extends BaseStatefulWidget {

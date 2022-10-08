@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -13,14 +12,14 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
-import 'package:soleoserp/models/api_requests/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/followup_inquiry_by_customer_id_request.dart';
-import 'package:soleoserp/models/api_requests/followup_save_request.dart';
-import 'package:soleoserp/models/api_requests/followup_type_list_request.dart';
-import 'package:soleoserp/models/api_requests/followup_upload_image_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_save_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
@@ -1223,7 +1222,6 @@ class _FollowUpInquiryAddEditScreenState
         navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
       });
       //Navigator.of(context).pop();
-
     }
   }
 

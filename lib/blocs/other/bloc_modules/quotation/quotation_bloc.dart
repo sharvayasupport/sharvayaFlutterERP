@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/bank_drop_down_request.dart';
-import 'package:soleoserp/models/api_requests/cust_id_inq_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_to_product_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_product_search_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_delete_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_kind_att_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_no_to_product_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_other_charge_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_pdf_generate_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_product_delete_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_project_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_kind_att_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_pdf_generate_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_product_delete_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_requests/search_quotation_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/search_quotation_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/specification_list_request.dart';
@@ -39,11 +39,13 @@ import 'package:soleoserp/models/api_responses/quotation_project_list_response.d
 import 'package:soleoserp/models/api_responses/quotation_terms_condition_response.dart';
 import 'package:soleoserp/models/api_responses/search_quotation_list_response.dart';
 import 'package:soleoserp/models/api_responses/specification_list_response.dart';
+import 'package:soleoserp/models/common/other_charge_table.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
+import 'package:soleoserp/utils/offline_db_helper.dart';
 
 part 'quotation_events.dart';
 part 'quotation_states.dart';
@@ -138,6 +140,13 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
 
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+
+    if (event is QT_OtherChargeDeleteRequestEvent) {
+      yield* _map_QTOtherChargeDeleteEventState(event);
+    }
+    if (event is QT_OtherChargeInsertRequestEvent) {
+      yield* _map_QTOtherChargeInsertEventState(event);
     }
   }
 
@@ -476,7 +485,7 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
       GetReportToTokenResponse response =
-      await userRepository.getreporttoTokenAPI(event.request);
+          await userRepository.getreporttoTokenAPI(event.request);
       yield GetReportToTokenResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -488,4 +497,69 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     }
   }
 
+  Stream<QuotationStates> _map_QTOtherChargeDeleteEventState(
+      QT_OtherChargeDeleteRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().deleteALLQuotationOtherCharge();
+
+      yield QT_OtherChargeDeleteResponseState("deleted SucessFully");
+      //yield QT_OtherChargeDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _map_QTOtherChargeInsertEventState(
+      QT_OtherChargeInsertRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance()
+          .insertQuotationOtherCharge(QT_OtherChargeTable(
+        event.qt_otherChargeTable.Headerdiscount,
+        event.qt_otherChargeTable.Tot_BasicAmt,
+        event.qt_otherChargeTable.OtherChargeWithTaxamt,
+        event.qt_otherChargeTable.Tot_GstAmt,
+        event.qt_otherChargeTable.OtherChargeExcludeTaxamt,
+        event.qt_otherChargeTable.Tot_NetAmount,
+        event.qt_otherChargeTable.ChargeID1,
+        event.qt_otherChargeTable.ChargeAmt1,
+        event.qt_otherChargeTable.ChargeBasicAmt1,
+        event.qt_otherChargeTable.ChargeGSTAmt1,
+        event.qt_otherChargeTable.ChargeID2,
+        event.qt_otherChargeTable.ChargeAmt2,
+        event.qt_otherChargeTable.ChargeBasicAmt2,
+        event.qt_otherChargeTable.ChargeGSTAmt2,
+        event.qt_otherChargeTable.ChargeID3,
+        event.qt_otherChargeTable.ChargeAmt3,
+        event.qt_otherChargeTable.ChargeBasicAmt3,
+        event.qt_otherChargeTable.ChargeGSTAmt3,
+        event.qt_otherChargeTable.ChargeID4,
+        event.qt_otherChargeTable.ChargeAmt4,
+        event.qt_otherChargeTable.ChargeBasicAmt4,
+        event.qt_otherChargeTable.ChargeGSTAmt4,
+        event.qt_otherChargeTable.ChargeID5,
+        event.qt_otherChargeTable.ChargeAmt5,
+        event.qt_otherChargeTable.ChargeBasicAmt5,
+        event.qt_otherChargeTable.ChargeGSTAmt5,
+      ));
+
+      yield QT_OtherChargeInsertResponseState("Inserted Successfully");
+      //yield QT_OtherChargeDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
 }

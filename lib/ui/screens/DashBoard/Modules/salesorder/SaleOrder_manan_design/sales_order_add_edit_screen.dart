@@ -9,8 +9,8 @@ import 'package:soleoserp/models/api_requests/SalesBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_list_Request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_project_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';

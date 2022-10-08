@@ -1,21 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/district_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/district_api_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/taluka_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
@@ -25,6 +17,7 @@ class TalukaArguments {
 
   TalukaArguments(this.districtCode);
 }
+
 class SearchTalukaScreen extends BaseStatefulWidget {
   static const routeName = '/SearchTalukaScreen';
   final TalukaArguments arguments;
@@ -60,13 +53,14 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
 
     if (widget.arguments != null) {
       //for update
-      print("objectOfTaluka" + widget.arguments.districtCode );
+      print("objectOfTaluka" + widget.arguments.districtCode);
       _CustomerBloc
-        ..add(TalukaCallEvent(
-            TalukaApiRequest(TalukaName: "", CompanyId: CompanyID.toString(),DistrictCode: widget.arguments.districtCode)));
+        ..add(TalukaCallEvent(TalukaApiRequest(
+            TalukaName: "",
+            CompanyId: CompanyID.toString(),
+            DistrictCode: widget.arguments.districtCode)));
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +93,11 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Taluka'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
-            child:/* Container(
+            child: /* Container(
             padding: EdgeInsets.only(
               left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
               right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
@@ -115,43 +110,35 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
               ],
             ),
           ),*/
-            Container(
-              margin: EdgeInsets.all(10),
-
-              child: Column(
+                Container(
+          margin: EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+                child: getCommonTextFormField(context, baseTheme,
+                    title: "Search",
+                    controller: _searchController, onTextChanged: (value) {
+                  filterList(_searchController.text.toString().trim());
+                }),
+              ),
+              Expanded(
+                  child: Stack(
                 children: [
                   Container(
-                    margin: const EdgeInsets.fromLTRB(20, 50, 20, 0),
-                    child: getCommonTextFormField(context, baseTheme,
-                        title: "Search",
-                        controller: _searchController, onTextChanged: (value) {
-                          filterList(_searchController.text.toString().trim());
-                        }),
-                  ),
-
-                  Expanded(
-                      child: Stack(
-                        children: [
-                          Container(
-                            /*   width: MediaQuery.of(context).size.width,
+                      /*   width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,*/
-                              child: _buildListView())
-                        ],
-                      )
-                  ),
-
-
+                      child: _buildListView())
                 ],
-              ),
-            )
-        ),
+              )),
+            ],
+          ),
+        )),
       ],
     );
   }
 
-
   Widget _buildListView() {
-
     return StatefulBuilder(
       builder: (BuildContext context, void Function(void Function()) myState) {
         refreshList = myState;
@@ -164,14 +151,17 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 20),
               padding: EdgeInsets.symmetric(vertical: 5),
-              child:
-              getCommonButton(baseTheme, () {
+              child: getCommonButton(baseTheme, () {
                 /* // filterList(_searchController.text.toString().trim());
                 // _onTapOfEditContact(index);
                 edt_Country.text = _model.Name;
                 CallStateListAPI(_model.Name1);*/
                 Navigator.of(context).pop(_model);
-              }, _model.talukaName, width: 130,textSize: 15,backGroundColor: Colors.white,textColor: Colors.black),
+              }, _model.talukaName,
+                  width: 130,
+                  textSize: 15,
+                  backGroundColor: Colors.white,
+                  textColor: Colors.black),
             );
           },
           shrinkWrap: true,
@@ -180,7 +170,6 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
       },
     );
   }
-
 
   ///builds header and title view
   Widget _buildSearchView() {
@@ -198,7 +187,7 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -232,19 +221,14 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
     );
   }
 
-
-
-
   ///calls search list api
-  void _onSearchChanged(String value) {
+  void _onSearchChanged(String value) {}
 
-  }
-
-  void _onSearchInquiryListCallSuccess(
-      TalukaListEventResponseState state) {
+  void _onSearchInquiryListCallSuccess(TalukaListEventResponseState state) {
     arr_ALL_Name_ID_For_Country.clear();
     for (var i = 0; i < state.talukaApiRespose.details.length; i++) {
-      print("CustomerCategoryResponse2 : " + state.talukaApiRespose.details[i].talukaName);
+      print("CustomerCategoryResponse2 : " +
+          state.talukaApiRespose.details[i].talukaName);
       ALL_Name_ID categoryResponse123 = ALL_Name_ID();
       categoryResponse123.Name = state.talukaApiRespose.details[i].talukaName;
       categoryResponse123.pkID = state.talukaApiRespose.details[i].talukaCode;
@@ -259,7 +243,7 @@ class _SearchTalukaScreen extends BaseState<SearchTalukaScreen>
       _listFilteredCountry.clear();
       _listFilteredCountry.addAll(arr_ALL_Name_ID_For_Country
           .where((element) =>
-          element.Name.toLowerCase().contains(query.toLowerCase()))
+              element.Name.toLowerCase().contains(query.toLowerCase()))
           .toList());
       print("_listFiltered.data.length - ${_listFilteredCountry.length}");
       print(

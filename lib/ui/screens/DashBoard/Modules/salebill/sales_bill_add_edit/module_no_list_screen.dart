@@ -1,8 +1,7 @@
 import 'package:checkbox_grouped/checkbox_grouped.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/InquiryShareModel.dart';
+import 'package:soleoserp/models/api_requests/inquiry/InquiryShareModel.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';

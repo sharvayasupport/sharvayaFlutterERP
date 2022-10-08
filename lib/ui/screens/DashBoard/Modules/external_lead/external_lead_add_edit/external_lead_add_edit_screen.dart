@@ -5,10 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/external_lead/external_lead_bloc.dart';
-import 'package:soleoserp/models/api_requests/city_list_request.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/external_lead_save_request.dart';
+import 'package:soleoserp/models/api_requests/External_leads/region_code_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/external_lead_save_request.dart';
+import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
@@ -272,11 +273,19 @@ class _ExternalLeadAddEditScreenState
           {
             _onFollowerEmployeeListByStatusCallSuccess(state);
           }*/
-
+          if(state is RegionCodeResponseState)
+          {
+            _ongetRegionCodeSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
 
+          if(currentState is RegionCodeResponseState)
+            {
+              return true;
+
+            }
           return false;
         },
         listener: (BuildContext context, ExternalLeadStates state) {
@@ -2191,7 +2200,7 @@ class _ExternalLeadAddEditScreenState
     edt_Email.text = expenseDetails.senderMail;
     edt_Address.text = expenseDetails.address;
 
-    edt_CountryHeader.text = expenseDetails.countryName==""?"India":"";
+    edt_CountryHeader.text = expenseDetails.countryName==""?"India":expenseDetails.countryName;
     edt_StateHeader.text = expenseDetails.state;
     edt_CityHeader.text = expenseDetails.city;
     edt_PinHeader.text = expenseDetails.pincode;
@@ -2294,6 +2303,15 @@ class _ExternalLeadAddEditScreenState
         edt_DisQualifiedName.text = expenseDetails.exLeadClosureReason;
         edt_DisQualifiedID.text = expenseDetails.exLeadClosure.toString();
       }
+
+
+    _expenseBloc.add(RegionCodeRequestEvent(expenseDetails,RegionCodeRequest(
+        CountryName: expenseDetails.countryName==""?"India":expenseDetails.countryName,
+        StateName: expenseDetails.state,
+        CityName: expenseDetails.city,
+      CompanyId: CompanyID.toString()
+    )));
+
 
 
 
@@ -3228,5 +3246,22 @@ class _ExternalLeadAddEditScreenState
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
           navigateTo(context, ExternalLeadListScreen.routeName, clearAllStack: true);
         });
+  }
+
+  void _ongetRegionCodeSucess(RegionCodeResponseState state) {
+    if(state.response.details.length!=0)
+      {
+        for(int i = 0 ; i <state.response.details.length;i++)
+          {
+
+            edt_QualifiedCountry.text = state.expenseDetails1.countryName==""?"India":state.expenseDetails1.countryName;
+            edt_QualifiedCountryCode.text =state.response.details[i].country==""?"IND":state.response.details[i].country;
+            edt_QualifiedState.text = state.response.details[i].state==""?"":state.expenseDetails1.state;
+            edt_QualifiedStateCode.text = state.response.details[i].state.toString();
+            edt_QualifiedCity.text = state.response.details[i].city==""?"":state.expenseDetails1.city;
+            edt_QualifiedCityCode.text = state.response.details[i].city;
+          }
+      }
+
   }
 }

@@ -5,9 +5,9 @@ import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/bank_voucher/bank_voucher_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/loan/loan_bloc.dart';
-import 'package:soleoserp/models/api_requests/bank_voucher_delete_request.dart';
-import 'package:soleoserp/models/api_requests/loan_list_request.dart';
-import 'package:soleoserp/models/api_requests/loan_search_request.dart';
+import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
+import 'package:soleoserp/models/api_requests/loan/loan_list_request.dart';
+import 'package:soleoserp/models/api_requests/loan/loan_search_request.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher_list_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
@@ -704,7 +704,7 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                   ),*/
                   isDeleteVisible == true
                       ? GestureDetector(
-                    onTap: () {
+                          onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
                           },
                           child: Column(

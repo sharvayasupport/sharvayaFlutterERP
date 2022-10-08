@@ -1,25 +1,24 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator/geolocator.dart'
-as geolocator; // or whatever name you want
+    as geolocator; // or whatever name you want
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
-import 'package:soleoserp/models/api_requests/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/followup_inquiry_by_customer_id_request.dart';
-import 'package:soleoserp/models/api_requests/followup_save_request.dart';
-import 'package:soleoserp/models/api_requests/followup_type_list_request.dart';
-import 'package:soleoserp/models/api_requests/followup_upload_image_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_save_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
@@ -55,7 +54,8 @@ class FollowUpFromInquiryAddEditScreen extends BaseStatefulWidget {
       _FollowUpFromInquiryAddEditScreenState();
 }
 
-class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInquiryAddEditScreen>
+class _FollowUpFromInquiryAddEditScreenState
+    extends BaseState<FollowUpFromInquiryAddEditScreen>
     with BasicScreen, WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
 
@@ -71,21 +71,21 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
   final TextEditingController edt_CustomerName = TextEditingController();
   final TextEditingController edt_CustomerpkID = TextEditingController();
   final TextEditingController edt_FollowupInquiryStatusType =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController edt_FollowupInquiryStatusTypepkID =
-  TextEditingController();
+      TextEditingController();
 
   final TextEditingController edt_CloserReasonStatusType =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController edt_CloserReasonStatusTypepkID =
-  TextEditingController();
+      TextEditingController();
 
   final TextEditingController edt_Priority = TextEditingController();
   final TextEditingController edt_InqNo = TextEditingController();
   final TextEditingController edt_FollowupNotes = TextEditingController();
   final TextEditingController edt_NextFollowupDate = TextEditingController();
   final TextEditingController edt_ReverseNextFollowupDate =
-  TextEditingController();
+      TextEditingController();
 
   final TextEditingController edt_PreferedTime = TextEditingController();
 
@@ -129,8 +129,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
   bool _serviceEnabled;
   Position _currentPosition;
-  final Geolocator geolocator123 = Geolocator()
-    ..forceAndroidLocationManager;
+  final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
 
   bool is_LocationService_Permission;
   bool SaveSucess;
@@ -365,7 +364,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
         appBar: NewGradientAppBar(
           title: Text('Followup List'),
           gradient:
-          LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -404,7 +403,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                               controller1: edt_FollowupInquiryStatusType,
                               controllerpkID: edt_FollowupInquiryStatusTypepkID,
                               Custom_values1:
-                              arr_ALL_Name_ID_For_FolowupInquiryByCustomerID),
+                                  arr_ALL_Name_ID_For_FolowupInquiryByCustomerID),
                         ),
                         showcustomdialogWithID1("Followup Type",
                             enable1: false,
@@ -421,7 +420,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                             icon: Icon(Icons.arrow_drop_down),
                             controllerForLeft: edt_Priority,
                             Custom_values1:
-                            arr_ALL_Name_ID_For_Folowup_Priority),
+                                arr_ALL_Name_ID_For_Folowup_Priority),
 
                         /* CustomDropDown1("Followup Status",
                               enable1: false,
@@ -441,7 +440,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                   fontWeight: FontWeight
                                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 7, right: 7, top: 10),
@@ -457,7 +456,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                 hintStyle: TextStyle(color: Colors.grey),
                                 border: OutlineInputBorder(
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                                      BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
                         ),
@@ -481,21 +480,21 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                               controllerForLeft: edt_FollowupInquiryStatusType,
                               controllerpkID: edt_FollowupInquiryStatusTypepkID,
                               Custom_values1:
-                              arr_ALL_Name_ID_For_FolowupInquiryStatusType),
+                                  arr_ALL_Name_ID_For_FolowupInquiryStatusType),
                         ),
                         Visibility(
                           visible: _isInqury_details_Exist,
                           child: is_closer_reasonVisible == true
                               ? showcustomdialogWithID1("Closer Reason",
-                              enable1: false,
-                              title: "Closer Reason",
-                              hintTextvalue: "Tap to Select Closer Reason",
-                              icon: Icon(Icons.arrow_drop_down),
-                              controllerForLeft: edt_CloserReasonStatusType,
-                              controllerpkID:
-                              edt_CloserReasonStatusTypepkID,
-                              Custom_values1:
-                              arr_ALL_Name_ID_For_CloserReasonStatusType)
+                                  enable1: false,
+                                  title: "Closer Reason",
+                                  hintTextvalue: "Tap to Select Closer Reason",
+                                  icon: Icon(Icons.arrow_drop_down),
+                                  controllerForLeft: edt_CloserReasonStatusType,
+                                  controllerpkID:
+                                      edt_CloserReasonStatusTypepkID,
+                                  Custom_values1:
+                                      arr_ALL_Name_ID_For_CloserReasonStatusType)
                               : Container(),
                         ),
                         SizedBox(
@@ -518,7 +517,6 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                           height: 30,
                         ),
                         getCommonButton(baseTheme, () async {
-
                           print("RatingValue " +
                               "Rate : " +
                               _rating.toInt().toString());
@@ -558,8 +556,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                     String FollowupPriorityDetails = "";
 
                                     if (_offlineLoggedInData
-                                        .details[0].serialKey
-                                        .toLowerCase() ==
+                                            .details[0].serialKey
+                                            .toLowerCase() ==
                                         "dol2-6uh7-ph03-in5h") {
                                       if (edt_Priority.text == "Hot") {
                                         FollowupPriorityDetails = "1";
@@ -592,86 +590,70 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                       // baseBloc.emit(ShowProgressIndicatorState(false));
 
                                       DateTime FbrazilianDate =
-                                      new DateFormat("dd-MM-yyyy")
-                                          .parse(edt_FollowUpDate.text);
+                                          new DateFormat("dd-MM-yyyy")
+                                              .parse(edt_FollowUpDate.text);
                                       DateTime NbrazilianDate =
-                                      new DateFormat("dd-MM-yyyy").parse(
-                                          edt_NextFollowupDate.text);
+                                          new DateFormat("dd-MM-yyyy")
+                                              .parse(edt_NextFollowupDate.text);
 
                                       if (FbrazilianDate.isBefore(
                                           NbrazilianDate)) {
-                                        showCommonDialogWithTwoOptions(
-                                            context,
+                                        showCommonDialogWithTwoOptions(context,
                                             "Are you sure you want to Save this Follow-Up?",
                                             negativeButtonTitle: "No",
                                             positiveButtonTitle: "Yes",
                                             onTapOfPositiveButton: () {
-                                              Navigator.of(context).pop();
-                                              String Msg = _isForUpdate ==
-                                                  true
-                                                  ? "Followup Information. Updated Successfully"
-                                                  : "Followup Information. Added Successfully";
-                                              _FollowupBloc.add(
-                                                  FollowupSaveByNameCallEvent(
-                                                      Msg,
-                                                      context,
-                                                      savepkID,
-                                                      FollowupSaveApiRequest(
-                                                          pkID: savepkID
-                                                              .toString(),
-                                                          FollowupDate:
-                                                          edt_ReverseFollowUpDate
+                                          Navigator.of(context).pop();
+                                          String Msg = _isForUpdate == true
+                                              ? "Followup Information. Updated Successfully"
+                                              : "Followup Information. Added Successfully";
+                                          _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                              Msg,
+                                              context,
+                                              savepkID,
+                                              FollowupSaveApiRequest(
+                                                  pkID: savepkID.toString(),
+                                                  FollowupDate: edt_ReverseFollowUpDate
+                                                      .text,
+                                                  CustomerID:
+                                                      edt_CustomerpkID.text,
+                                                  InquiryNo:
+                                                      edt_InqNo.text == "null"
+                                                          ? ""
+                                                          : edt_InqNo.text,
+                                                  MeetingNotes:
+                                                      edt_FollowupNotes.text,
+                                                  NextFollowupDate:
+                                                      edt_ReverseNextFollowupDate
+                                                          .text,
+                                                  Rating: _rating
+                                                      .toInt()
+                                                      .toString(),
+                                                  FollowupTypeId:
+                                                      edt_FollowupTypepkID.text == "null"
+                                                          ? ""
+                                                          : edt_FollowupTypepkID
                                                               .text,
-                                                          CustomerID:
-                                                          edt_CustomerpkID
-                                                              .text,
-                                                          InquiryNo:
-                                                          edt_InqNo.text ==
-                                                              "null"
-                                                              ? ""
-                                                              : edt_InqNo
-                                                              .text,
-                                                          MeetingNotes:
-                                                          edt_FollowupNotes
-                                                              .text,
-                                                          NextFollowupDate:
-                                                          edt_ReverseNextFollowupDate
-                                                              .text,
-                                                          Rating: _rating
-                                                              .toInt()
-                                                              .toString(),
-                                                          FollowupTypeId:
-                                                          edt_FollowupTypepkID
-                                                              .text == "null"
-                                                              ? ""
-                                                              : edt_FollowupTypepkID
-                                                              .text,
-                                                          LoginUserID: LoginUserID,
-                                                          Address: "",
-                                                          NoFollowup: nofollowupvalue
-                                                              .toString(),
-                                                          InquiryStatusId:
-                                                          edt_FollowupInquiryStatusTypepkID
-                                                              .text == "null"
-                                                              ? ""
-                                                              : edt_FollowupInquiryStatusTypepkID
-                                                              .text,
-                                                          Latitude: Latitude,
-                                                          Longitude: Longitude,
-                                                          PreferredTime:
-                                                          edt_PreferedTime
-                                                              .text,
-                                                          ClosureReasonId:
-                                                          edt_CloserReasonStatusTypepkID
-                                                              .text == "null"
-                                                              ? ""
-                                                              : edt_CloserReasonStatusTypepkID
-                                                              .text,
-                                                          CompanyId: CompanyID
-                                                              .toString(),
-                                                          FollowupPriority: FollowupPriorityDetails,
-                                                          FollowUpImage: fileName)));
-                                            });
+                                                  LoginUserID: LoginUserID,
+                                                  Address: "",
+                                                  NoFollowup: nofollowupvalue
+                                                      .toString(),
+                                                  InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                      ? ""
+                                                      : edt_FollowupInquiryStatusTypepkID
+                                                          .text,
+                                                  Latitude: Latitude,
+                                                  Longitude: Longitude,
+                                                  PreferredTime:
+                                                      edt_PreferedTime.text,
+                                                  ClosureReasonId:
+                                                      edt_CloserReasonStatusTypepkID.text == "null"
+                                                          ? ""
+                                                          : edt_CloserReasonStatusTypepkID.text,
+                                                  CompanyId: CompanyID.toString(),
+                                                  FollowupPriority: FollowupPriorityDetails,
+                                                  FollowUpImage: fileName)));
+                                        });
                                       } else {
                                         if (FbrazilianDate.isAtSameMomentAs(
                                             NbrazilianDate)) {
@@ -681,72 +663,59 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                               negativeButtonTitle: "No",
                                               positiveButtonTitle: "Yes",
                                               onTapOfPositiveButton: () {
-                                                Navigator.of(context).pop();
-                                                String Msg = _isForUpdate ==
-                                                    true
-                                                    ? "Followup Information. Updated Successfully"
-                                                    : "Followup Information. Added Successfully";
-                                                _FollowupBloc.add(
-                                                    FollowupSaveByNameCallEvent(
-                                                        Msg,
-                                                        context,
-                                                        savepkID,
-                                                        FollowupSaveApiRequest(
-                                                            pkID: savepkID
-                                                                .toString(),
-                                                            FollowupDate:
-                                                            edt_ReverseFollowUpDate
+                                            Navigator.of(context).pop();
+                                            String Msg = _isForUpdate == true
+                                                ? "Followup Information. Updated Successfully"
+                                                : "Followup Information. Added Successfully";
+                                            _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                Msg,
+                                                context,
+                                                savepkID,
+                                                FollowupSaveApiRequest(
+                                                    pkID: savepkID.toString(),
+                                                    FollowupDate:
+                                                        edt_ReverseFollowUpDate
+                                                            .text,
+                                                    CustomerID:
+                                                        edt_CustomerpkID.text,
+                                                    InquiryNo:
+                                                        edt_InqNo.text == "null"
+                                                            ? ""
+                                                            : edt_InqNo.text,
+                                                    MeetingNotes:
+                                                        edt_FollowupNotes.text,
+                                                    NextFollowupDate:
+                                                        edt_ReverseNextFollowupDate
+                                                            .text,
+                                                    Rating: _rating
+                                                        .toInt()
+                                                        .toString(),
+                                                    FollowupTypeId:
+                                                        edt_FollowupTypepkID.text == "null"
+                                                            ? ""
+                                                            : edt_FollowupTypepkID
                                                                 .text,
-                                                            CustomerID:
-                                                            edt_CustomerpkID
+                                                    LoginUserID: LoginUserID,
+                                                    Address: "",
+                                                    NoFollowup: nofollowupvalue
+                                                        .toString(),
+                                                    InquiryStatusId:
+                                                        edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                            ? ""
+                                                            : edt_FollowupInquiryStatusTypepkID
                                                                 .text,
-                                                            InquiryNo:
-                                                            edt_InqNo.text ==
-                                                                "null"
-                                                                ? ""
-                                                                : edt_InqNo
-                                                                .text,
-                                                            MeetingNotes: edt_FollowupNotes
-                                                                .text,
-                                                            NextFollowupDate:
-                                                            edt_ReverseNextFollowupDate
-                                                                .text,
-                                                            Rating: _rating
-                                                                .toInt()
-                                                                .toString(),
-                                                            FollowupTypeId:
-                                                            edt_FollowupTypepkID
-                                                                .text ==
-                                                                "null"
-                                                                ? ""
-                                                                : edt_FollowupTypepkID
-                                                                .text,
-                                                            LoginUserID: LoginUserID,
-                                                            Address: "",
-                                                            NoFollowup: nofollowupvalue
-                                                                .toString(),
-                                                            InquiryStatusId:
-                                                            edt_FollowupInquiryStatusTypepkID
-                                                                .text ==
-                                                                "null"
-                                                                ? ""
-                                                                : edt_FollowupInquiryStatusTypepkID
-                                                                .text,
-                                                            Latitude: Latitude,
-                                                            Longitude: Longitude,
-                                                            PreferredTime: edt_PreferedTime
-                                                                .text,
-                                                            ClosureReasonId: edt_CloserReasonStatusTypepkID
-                                                                .text ==
-                                                                "null"
-                                                                ? ""
-                                                                : edt_CloserReasonStatusTypepkID
-                                                                .text,
-                                                            CompanyId: CompanyID
-                                                                .toString(),
-                                                            FollowupPriority: FollowupPriorityDetails,
-                                                            FollowUpImage: fileName)));
-                                              });
+                                                    Latitude: Latitude,
+                                                    Longitude: Longitude,
+                                                    PreferredTime:
+                                                        edt_PreferedTime.text,
+                                                    ClosureReasonId:
+                                                        edt_CloserReasonStatusTypepkID.text == "null"
+                                                            ? ""
+                                                            : edt_CloserReasonStatusTypepkID.text,
+                                                    CompanyId: CompanyID.toString(),
+                                                    FollowupPriority: FollowupPriorityDetails,
+                                                    FollowUpImage: fileName)));
+                                          });
                                         } else {
                                           showCommonDialogWithSingleOption(
                                               context,
@@ -808,8 +777,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
     Navigator.of(context).pop();
   }
 
-  Future<void> _selectDate(BuildContext context,
-      TextEditingController F_datecontroller) async {
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController F_datecontroller) async {
     DateTime selectedDate = DateTime.now();
 
     final DateTime picked = await showDatePicker(
@@ -833,8 +802,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
       });
   }
 
-  Future<void> _selectNextFollowupDate(BuildContext context,
-      TextEditingController F_datecontroller) async {
+  Future<void> _selectNextFollowupDate(
+      BuildContext context, TextEditingController F_datecontroller) async {
     DateTime selectedDate = DateTime.now();
 
     final DateTime picked = await showDatePicker(
@@ -858,8 +827,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
       });
   }
 
-  Future<void> _selectTime(BuildContext context,
-      TextEditingController F_datecontroller) async {
+  Future<void> _selectTime(
+      BuildContext context, TextEditingController F_datecontroller) async {
     final TimeOfDay picked_s = await showTimePicker(
         context: context,
         initialTime: selectedTime,
@@ -875,7 +844,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
         selectedTime = picked_s;
 
         String AM_PM =
-        selectedTime.periodOffset.toString() == "12" ? "PM" : "AM";
+            selectedTime.periodOffset.toString() == "12" ? "PM" : "AM";
         String beforZeroHour = selectedTime.hourOfPeriod <= 9
             ? "0" + selectedTime.hourOfPeriod.toString()
             : selectedTime.hourOfPeriod.toString();
@@ -957,7 +926,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                     fontWeight: FontWeight
                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -966,7 +935,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -989,7 +958,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                           color: Color(0xFF000000),
                         ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                    ),
+                        ),
                   ),
                   Icon(
                     Icons.search,
@@ -1021,7 +990,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                     fontWeight: FontWeight
                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -1030,7 +999,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -1040,12 +1009,12 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                   Expanded(
                     child: Text(
                       edt_FollowUpDate.text == null ||
-                          edt_FollowUpDate.text == ""
+                              edt_FollowUpDate.text == ""
                           ? "DD-MM-YYYY"
                           : edt_FollowUpDate.text,
                       style: baseTheme.textTheme.headline3.copyWith(
                           color: edt_FollowUpDate.text == null ||
-                              edt_FollowUpDate.text == ""
+                                  edt_FollowUpDate.text == ""
                               ? colorGrayDark
                               : colorBlack),
                     ),
@@ -1080,7 +1049,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                     fontWeight: FontWeight
                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -1089,7 +1058,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -1099,12 +1068,12 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                   Expanded(
                     child: Text(
                       edt_NextFollowupDate.text == null ||
-                          edt_NextFollowupDate.text == ""
+                              edt_NextFollowupDate.text == ""
                           ? "DD-MM-YYYY"
                           : edt_NextFollowupDate.text,
                       style: baseTheme.textTheme.headline3.copyWith(
                           color: edt_NextFollowupDate.text == null ||
-                              edt_NextFollowupDate.text == ""
+                                  edt_NextFollowupDate.text == ""
                               ? colorGrayDark
                               : colorBlack),
                     ),
@@ -1139,7 +1108,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                     fontWeight: FontWeight
                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-            ),
+                ),
           ),
           SizedBox(
             height: 5,
@@ -1148,7 +1117,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 60,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -1158,12 +1127,12 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                   Expanded(
                     child: Text(
                       edt_PreferedTime.text == null ||
-                          edt_PreferedTime.text == ""
+                              edt_PreferedTime.text == ""
                           ? "HH:MM:SS"
                           : edt_PreferedTime.text,
                       style: baseTheme.textTheme.headline3.copyWith(
                           color: edt_PreferedTime.text == null ||
-                              edt_PreferedTime.text == ""
+                                  edt_PreferedTime.text == ""
                               ? colorGrayDark
                               : colorBlack),
                     ),
@@ -1204,9 +1173,9 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                 PageSize: "")));*/
           _FollowupBloc.add(FollowupInquiryByCustomerIDCallEvent(
               FollowerInquiryByCustomerIDRequest(
-                CompanyId: CompanyID.toString(),
-                CustomerID: edt_CustomerpkID.text,
-              )));
+            CompanyId: CompanyID.toString(),
+            CustomerID: edt_CustomerpkID.text,
+          )));
         }
         print("CustomerInfo : " +
             edt_CustomerName.text.toString() +
@@ -1231,11 +1200,9 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
               CompanyId: CompanyID.toString(),
               LoginUserId: LoginUserID,
               pkID: "0",
-              fileName: _selectedImageFile.path
-                  .split('/')
-                  .last,
+              fileName: _selectedImageFile.path.split('/').last,
               FollowupID:
-              state.followupSaveResponse.details[0].column3.toString(),
+                  state.followupSaveResponse.details[0].column3.toString(),
               InquiryNo: edt_InqNo.text.toString() != ""
                   ? edt_InqNo.text.toString()
                   : "",
@@ -1253,11 +1220,9 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
       await showCommonDialogWithSingleOption(Globals.context, Msg,
           positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-            navigateTo(
-                context, InquiryListScreen.routeName, clearAllStack: true);
-          });
+        navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+      });
       //Navigator.of(context).pop();
-
     }
   }
 
@@ -1322,8 +1287,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
     if (state.followupInquiryNoListResponse.details != null) {
       arr_ALL_Name_ID_For_InquiryNoListType.clear();
       for (var i = 0;
-      i < state.followupInquiryNoListResponse.details.length;
-      i++) {
+          i < state.followupInquiryNoListResponse.details.length;
+          i++) {
         print("InquiryNoStatus : " +
             state.followupInquiryNoListResponse.details[i].inquiryStatus);
         ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -1341,22 +1306,21 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
   Widget CustomDropDown1(String Category,
       {bool enable1,
-        Icon icon,
-        String title,
-        String hintTextvalue,
-        TextEditingController controllerForLeft,
-        List<ALL_Name_ID> Custom_values1}) {
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      List<ALL_Name_ID> Custom_values1}) {
     return Container(
       margin: EdgeInsets.only(top: 15, bottom: 15),
       child: Column(
         children: [
           InkWell(
-            onTap: () =>
-                showcustomdialogWithOnlyName(
-                    values: Custom_values1,
-                    context1: context,
-                    controller: controllerForLeft,
-                    lable: "Select $Category"),
+            onTap: () => showcustomdialogWithOnlyName(
+                values: Custom_values1,
+                context1: context,
+                controller: controllerForLeft,
+                lable: "Select $Category"),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1369,7 +1333,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                           fontWeight: FontWeight
                               .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
                 SizedBox(
                   height: 5,
@@ -1401,7 +1365,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -1421,13 +1385,13 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
   Widget showcustomdialogWithID1(String Category,
       {bool enable1,
-        Icon icon,
-        String title,
-        String hintTextvalue,
-        TextEditingController controllerForLeft,
-        TextEditingController controller1,
-        TextEditingController controllerpkID,
-        List<ALL_Name_ID> Custom_values1}) {
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      TextEditingController controller1,
+      TextEditingController controllerpkID,
+      List<ALL_Name_ID> Custom_values1}) {
     return Container(
       margin: EdgeInsets.only(top: 15, bottom: 15),
       child: Column(
@@ -1440,7 +1404,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                 controller: controllerForLeft,
                 controllerID: controllerpkID,
                 lable: "Select $Category")*/
-            CreateDialogDropdown(Category),
+                    CreateDialogDropdown(Category),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1453,7 +1417,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                           fontWeight: FontWeight
                               .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
                 SizedBox(
                   height: 5,
@@ -1485,7 +1449,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -1505,26 +1469,25 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
   Widget showcustomdialogWithMultiID1(String Category,
       {bool enable1,
-        Icon icon,
-        String title,
-        String hintTextvalue,
-        TextEditingController controllerForLeft,
-        TextEditingController controller1,
-        TextEditingController controllerpkID,
-        List<ALL_Name_ID> Custom_values1}) {
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      TextEditingController controller1,
+      TextEditingController controllerpkID,
+      List<ALL_Name_ID> Custom_values1}) {
     return Container(
       margin: EdgeInsets.only(top: 15, bottom: 15),
       child: Column(
         children: [
           InkWell(
-            onTap: () =>
-                showcustomdialogWithMultipleID(
-                    values: Custom_values1,
-                    context1: context,
-                    controller: controllerForLeft,
-                    controller2: controller1,
-                    controllerID: controllerpkID,
-                    lable: "Select $Category"),
+            onTap: () => showcustomdialogWithMultipleID(
+                values: Custom_values1,
+                context1: context,
+                controller: controllerForLeft,
+                controller2: controller1,
+                controllerID: controllerpkID,
+                lable: "Select $Category"),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1537,7 +1500,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                           fontWeight: FontWeight
                               .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
                 SizedBox(
                   height: 5,
@@ -1569,7 +1532,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -1624,7 +1587,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
           fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "dd-MM-yyyy");
       edt_ReverseNextFollowupDate.text = _editModel.nextFollowupDate
           .getFormattedDate(
-          fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
+              fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
     }
 
     if (_editModel.preferredTime == "") {
@@ -1701,9 +1664,9 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
     _FollowupBloc.add(
         FollowupInquiryByCustomerIDCallEvent(FollowerInquiryByCustomerIDRequest(
-          CompanyId: CompanyID.toString(),
-          CustomerID: edt_CustomerpkID.text,
-        )));
+      CompanyId: CompanyID.toString(),
+      CustomerID: edt_CustomerpkID.text,
+    )));
 
     /*
     CompanyId: CompanyID.toString(),LoginUserID: "admin",pkID: savepkID.toString(),FollowupDate: edt_ReverseFollowUpDate.text ,
@@ -1718,66 +1681,66 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
   Widget RatingStar() {
     return Container(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: Text("Rating",
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: colorPrimary,
-                      fontWeight: FontWeight.bold)),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Container(
-              child: RatingBar.builder(
-                initialRating: 3,
-                itemCount: 5,
-                itemSize: 40,
-                itemPadding: EdgeInsets.only(left: 15, right: 15),
-                itemBuilder: (context, index) {
-                  switch (index) {
-                    case 0:
-                      return Icon(
-                        Icons.sentiment_very_dissatisfied,
-                        color: Colors.red,
-                      );
-                    case 1:
-                      return Icon(
-                        Icons.sentiment_dissatisfied,
-                        color: Colors.redAccent,
-                      );
-                    case 2:
-                      return Icon(
-                        Icons.sentiment_neutral,
-                        color: Colors.amber,
-                      );
-                    case 3:
-                      return Icon(
-                        Icons.sentiment_satisfied,
-                        color: Colors.lightGreen,
-                      );
-                    case 4:
-                      return Icon(
-                        Icons.sentiment_very_satisfied,
-                        color: Colors.green,
-                      );
-                    default:
-                      return Container();
-                  }
-                },
-                onRatingUpdate: (rating) {
-                  setState(() {
-                    _rating = rating;
-                  });
-                  print("DefaultRating" + "Default : " + rating.toString());
-                },
-              ),
-            ),
-          ],
-        ));
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(left: 10, right: 10),
+          child: Text("Rating",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          child: RatingBar.builder(
+            initialRating: 3,
+            itemCount: 5,
+            itemSize: 40,
+            itemPadding: EdgeInsets.only(left: 15, right: 15),
+            itemBuilder: (context, index) {
+              switch (index) {
+                case 0:
+                  return Icon(
+                    Icons.sentiment_very_dissatisfied,
+                    color: Colors.red,
+                  );
+                case 1:
+                  return Icon(
+                    Icons.sentiment_dissatisfied,
+                    color: Colors.redAccent,
+                  );
+                case 2:
+                  return Icon(
+                    Icons.sentiment_neutral,
+                    color: Colors.amber,
+                  );
+                case 3:
+                  return Icon(
+                    Icons.sentiment_satisfied,
+                    color: Colors.lightGreen,
+                  );
+                case 4:
+                  return Icon(
+                    Icons.sentiment_very_satisfied,
+                    color: Colors.green,
+                  );
+                default:
+                  return Container();
+              }
+            },
+            onRatingUpdate: (rating) {
+              setState(() {
+                _rating = rating;
+              });
+              print("DefaultRating" + "Default : " + rating.toString());
+            },
+          ),
+        ),
+      ],
+    ));
   }
 
   Widget SwitchNoFollowup() {
@@ -1845,103 +1808,99 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
       children: [
         _selectedImageFile == null
             ? _isForUpdate //edit mode or not
-            ? Container(
-            margin: EdgeInsets.only(bottom: 20),
-            child: ImageURLFromListing.isNotEmpty
-                ? Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(
-                      left: 5, right: 5, top: 5, bottom: 5),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: colorGray,
-                    borderRadius:
-                    BorderRadius.all(Radius.circular(10)),
-                  ),
+                ? Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    child: ImageURLFromListing.isNotEmpty
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.only(
+                                    left: 5, right: 5, top: 5, bottom: 5),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  color: colorGray,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                ),
+                                child: ImageFullScreenWrapperWidget(
+                                  child: Image.network(
+                                    ImageURLFromListing,
+                                    height: 125,
+                                    width: 125,
+                                  ),
+                                  dark: true,
+                                ),
+                              ),
+                              Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Container(
+                                    // padding: const EdgeInsets.only(left: 30,right: 30,top: 10,bottom: 10),
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      color: colorGray,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),
+/*
+                                    margin: EdgeInsets.only(left: 180),
+*/
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        showCommonDialogWithTwoOptions(context,
+                                            "Are you sure you want to delete this Image ?",
+                                            negativeButtonTitle: "No",
+                                            positiveButtonTitle: "Yes",
+                                            onTapOfPositiveButton: () {
+                                          Navigator.of(context).pop();
+                                          _FollowupBloc.add(
+                                              FollowupImageDeleteCallEvent(
+                                                  savepkID,
+                                                  FollowupImageDeleteRequest(
+                                                      CompanyId:
+                                                          CompanyID.toString(),
+                                                      LoginUserID:
+                                                          LoginUserID)));
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.delete_forever,
+                                        size: 32,
+                                        color: colorPrimary,
+                                      ),
+                                    ),
+                                  )),
+                            ],
+                          )
+                        : Container())
+                : Container()
+            : Container(
+                margin: EdgeInsets.only(bottom: 20),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: ImageFullScreenWrapperWidget(
-                    child: Image.network(
-                      ImageURLFromListing,
+                    child: Image.file(
+                      _selectedImageFile,
                       height: 125,
                       width: 125,
                     ),
                     dark: true,
                   ),
                 ),
-                Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      // padding: const EdgeInsets.only(left: 30,right: 30,top: 10,bottom: 10),
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        color: colorGray,
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(10)),
-                      ),
-/*
-                                    margin: EdgeInsets.only(left: 180),
-*/
-                      child: GestureDetector(
-                        onTap: () {
-                          showCommonDialogWithTwoOptions(context,
-                              "Are you sure you want to delete this Image ?",
-                              negativeButtonTitle: "No",
-                              positiveButtonTitle: "Yes",
-                              onTapOfPositiveButton: () {
-                                Navigator.of(context).pop();
-                                _FollowupBloc.add(
-                                    FollowupImageDeleteCallEvent(
-                                        savepkID,
-                                        FollowupImageDeleteRequest(
-                                            CompanyId:
-                                            CompanyID.toString(),
-                                            LoginUserID:
-                                            LoginUserID)));
-                              });
-                        },
-                        child: Icon(
-                          Icons.delete_forever,
-                          size: 32,
-                          color: colorPrimary,
-                        ),
-                      ),
-                    )),
-              ],
-            )
-                : Container())
-            : Container()
-            : Container(
-          margin: EdgeInsets.only(bottom: 20),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ImageFullScreenWrapperWidget(
-              child: Image.file(
-                _selectedImageFile,
-                height: 125,
-                width: 125,
               ),
-              dark: true,
-            ),
-          ),
-        ),
-        getCommonButton(baseTheme, () async  {
-
+        getCommonButton(baseTheme, () async {
           if (await Permission.storage.isDenied) {
             //await Permission.storage.request();
 
             checkPhotoPermissionStatus();
-          }
-          else
-          {
+          } else {
             pickImage(context, onImageSelection: (file) {
               _selectedImageFile = file;
               baseBloc.refreshScreen();
             });
           }
-
         }, "Upload Image", backGroundColor: Colors.indigoAccent)
       ],
     );
@@ -1949,7 +1908,7 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
   void _onFollowupInquiryByCustomerIDCallSuccess(
       FollowupInquiryByCustomerIdCallResponseState state) {
-   // edt_InqNo.text = "";
+    // edt_InqNo.text = "";
     _isForUpdate == true
         ? edt_FollowupInquiryStatusTypepkID.text
         : edt_FollowupInquiryStatusTypepkID.text = "";
@@ -1962,8 +1921,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
     if (state.followupInquiryByCustomerIDResponse.details != null) {
       arr_ALL_Name_ID_For_FolowupInquiryByCustomerID.clear();
       for (var i = 0;
-      i < state.followupInquiryByCustomerIDResponse.details.length;
-      i++) {
+          i < state.followupInquiryByCustomerIDResponse.details.length;
+          i++) {
         print("InquiryStatus : " +
             state.followupInquiryByCustomerIDResponse.details[i].inquiryStatus);
         ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -2016,9 +1975,8 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
         : "Followup Information. Added Successfully";
     await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-          navigateTo(
-              context, InquiryListScreen.routeName, clearAllStack: true);
-        });
+      navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+    });
     // Navigator.of(context).pop();
   }
 
@@ -2090,7 +2048,6 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
       await Permission.location.request();
 
-
       // await Permission.location.request();
       // We didn't ask for permission yet or the permission has been denied before but not permanently.
     }
@@ -2111,7 +2068,6 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
     if (granted == true) {
       // The OS restricts access, for example because of parental controls.
       is_LocationService_Permission = true;
-
     }
   }
 
@@ -2190,6 +2146,5 @@ class _FollowUpFromInquiryAddEditScreenState extends BaseState<FollowUpFromInqui
 
       checkPhotoPermissionStatus();
     }
-
   }
 }

@@ -5,11 +5,11 @@ import 'package:soleoserp/models/api_requests/SalesBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_list_Request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
-import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_project_list_request.dart';
-import 'package:soleoserp/models/api_requests/quotation_terms_condition_request.dart';
-import 'package:soleoserp/models/api_requests/sales_order_generate_pdf_request.dart';
-import 'package:soleoserp/models/api_requests/salesorder_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';

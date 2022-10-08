@@ -1,30 +1,22 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/SalesOrder/salesorder_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/missed_punch/missed_punch_bloc.dart';
-import 'package:soleoserp/models/api_requests/missed_punch_search_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_search_by_name_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/missed_punch_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/search_salesorder_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/date_time_extensions.dart';
-import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class SearchMissedPunchScreen extends BaseStatefulWidget {
   static const routeName = '/SearchMissedPunchScreen';
 
   @override
-  _SearchMissedPunchScreenState createState() => _SearchMissedPunchScreenState();
+  _SearchMissedPunchScreenState createState() =>
+      _SearchMissedPunchScreenState();
 }
 
 class _SearchMissedPunchScreenState extends BaseState<SearchMissedPunchScreen>
@@ -80,8 +72,7 @@ class _SearchMissedPunchScreenState extends BaseState<SearchMissedPunchScreen>
         NewGradientAppBar(
           title: Text('Search Employee'),
           gradient:
-          LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
-
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -118,7 +109,7 @@ class _SearchMissedPunchScreenState extends BaseState<SearchMissedPunchScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -168,7 +159,8 @@ class _SearchMissedPunchScreenState extends BaseState<SearchMissedPunchScreen>
 
   ///builds row item view of inquiry list
   Widget _buildSearchInquiryListItem(int index) {
-    MissedPunchSearchDetails model = _searchSalesOrderListResponse.details[index];
+    MissedPunchSearchDetails model =
+        _searchSalesOrderListResponse.details[index];
 
     return Container(
       margin: EdgeInsets.all(5),
@@ -195,7 +187,11 @@ class _SearchMissedPunchScreenState extends BaseState<SearchMissedPunchScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _SalesOrderBloc.add(MissedPunchSearchByNameCallEvent(
-          MissedPunchSearchByNameRequest(CompanyID:CompanyID.toString(),LoginUserID: LoginUserID,word: value,needALL: "1")));
+          MissedPunchSearchByNameRequest(
+              CompanyID: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              word: value,
+              needALL: "1")));
     }
   }
 

@@ -1,8 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:full_screen_image/full_screen_image.dart';
 import 'package:http/http.dart' as http;
@@ -11,10 +9,10 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
-import 'package:soleoserp/models/api_requests/expense_save_request.dart';
-import 'package:soleoserp/models/api_requests/expense_type_request.dart';
-import 'package:soleoserp/models/api_requests/expense_upload_image_request.dart';
-import 'package:soleoserp/models/api_requests/fetc_image_list_by_expense_pk_id_request.dart';
+import 'package:soleoserp/models/api_requests/expense/expense_save_request.dart';
+import 'package:soleoserp/models/api_requests/expense/expense_type_request.dart';
+import 'package:soleoserp/models/api_requests/expense/expense_upload_image_request.dart';
+import 'package:soleoserp/models/api_requests/expense/fetc_image_list_by_expense_pk_id_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/expense_list_response.dart';
 import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';

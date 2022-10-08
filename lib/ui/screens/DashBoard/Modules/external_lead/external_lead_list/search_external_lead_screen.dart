@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/external_lead/external_lead_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/external_lead_search_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/external_lead_search_request.dart';
 import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/external_leadsearch_response_by_name.dart';

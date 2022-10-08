@@ -139,8 +139,21 @@ class FCMNotificationResponseState extends QuotationStates {
 
   FCMNotificationResponseState(this.response);
 }
+
 class GetReportToTokenResponseState extends QuotationStates {
   final GetReportToTokenResponse response;
 
   GetReportToTokenResponseState(this.response);
+}
+
+class QT_OtherChargeDeleteResponseState extends QuotationStates {
+  final String response;
+
+  QT_OtherChargeDeleteResponseState(this.response);
+}
+
+class QT_OtherChargeInsertResponseState extends QuotationStates {
+  final String response;
+
+  QT_OtherChargeInsertResponseState(this.response);
 }

@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/leave_request/leave_request_bloc.dart';
-import 'package:soleoserp/models/api_requests/leave_request_save_request.dart';
-import 'package:soleoserp/models/api_requests/leave_request_type_request.dart';
+import 'package:soleoserp/models/api_requests/leave_request/leave_request_save_request.dart';
+import 'package:soleoserp/models/api_requests/leave_request/leave_request_type_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';
@@ -529,7 +528,6 @@ class _LeaveRequestAddEditScreenState
                                         "FromTime should be less than ToTime ",
                                         positiveButtonTitle: "OK");
                                     /* }*/
-
                                   }
                                 } else {
                                   showCommonDialogWithSingleOption(

@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/loan/loan_bloc.dart';
 import 'package:soleoserp/models/api_requests/Loan/loan_approval_save_request.dart';
-import 'package:soleoserp/models/api_requests/loan_approval_list_request.dart';
+import 'package:soleoserp/models/api_requests/loan/loan_approval_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';

@@ -53,3 +53,11 @@ class AttendVisitDeleteEvent extends AttendVisitEvents {
 
   AttendVisitDeleteEvent(this.attendVisitDeleteRequest);
 }
+
+class ComplaintSearchByIDCallEvent extends AttendVisitEvents {
+  final int pkID;
+
+  final ComplaintSearchByIDRequest complaintSearchByIDRequest;
+
+  ComplaintSearchByIDCallEvent(this.pkID, this.complaintSearchByIDRequest);
+}

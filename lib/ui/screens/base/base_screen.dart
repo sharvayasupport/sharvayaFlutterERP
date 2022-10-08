@@ -8,6 +8,7 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/repositories/custom_exception.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
+import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 
@@ -150,7 +151,7 @@ mixin BasicScreen<Screen extends BaseStatefulWidget> on BaseState<Screen> {
             ),
           ),
           backgroundColor: Colors.white,
-          bottomNavigationBar: buildBottomNavigationBar(context),
+          //bottomNavigationBar: buildBottomNavigationBar(context),
           body: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onVerticalDragDown: isBottomSheet()
@@ -267,8 +268,46 @@ mixin BasicScreen<Screen extends BaseStatefulWidget> on BaseState<Screen> {
   Widget buildBody(BuildContext context);
 
   ///can be override following method in any screen to provide bottom navigation bar
-  Widget buildBottomNavigationBar(BuildContext context) {
-    return null;
+  Widget buildBottomNavigationBar(BuildContext context,
+      {int indexCount = 0, Function ontaptoCount}) {
+    return Container(
+        // margin: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(30), topLeft: Radius.circular(30)),
+          boxShadow: [
+            BoxShadow(color: Colors.black38, spreadRadius: 0, blurRadius: 10),
+          ],
+        ),
+        child: ClipRRect(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+            child: new BottomNavigationBar(
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                      icon: Icon(
+                        Icons.home,
+                        color: colorPrimary,
+                      ),
+                      label: 'Company',
+                      backgroundColor: colorPrimary),
+                  BottomNavigationBarItem(
+                      icon: ImageIcon(
+                        AssetImage(DEALER_LOGO),
+                        color: colorPrimary,
+                      ),
+                      label: 'Dealer',
+                      backgroundColor: colorPrimary),
+                ],
+                showUnselectedLabels: true,
+                type: BottomNavigationBarType.fixed,
+                currentIndex: indexCount,
+                selectedItemColor: colorPrimary,
+                iconSize: 42,
+                onTap: ontaptoCount,
+                elevation: 5)));
   }
 
   ///can be override following method in any screen if want to perform anything on pop

@@ -1,14 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/inqiory_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_to_delete_product.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_to_product_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inqiory_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_delete_product.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry_list_reponse.dart';
@@ -605,7 +604,6 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
               SearchInquiryListByNameRequest(word:  edt_CustomerName.text,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID,needALL: "1")));
 */
           //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
-
         }
       });
     }

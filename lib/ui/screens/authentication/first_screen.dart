@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
-import 'package:soleoserp/models/api_requests/login_user_details_api_request.dart';
+import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/designation_list_response.dart';
@@ -44,11 +44,21 @@ class _FirstScreenState extends BaseState<FirstScreen>
   bool _isObscure = true;
   String SiteUrl = "";
 
+  bool is_dealer = false;
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     screenStatusBarColor = colorWhite;
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _selectedIndex = 0;
     SiteUrl = _offlineCompanyData.details[0].siteURL;
 
     _firstScreenBloc = FirstScreenBloc(baseBloc);
@@ -114,47 +124,55 @@ class _FirstScreenState extends BaseState<FirstScreen>
     /*edt_User_Name.text = "admin";
     edt_User_Password.text = "admin!@#";*/
 
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.only(
-            left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
-            right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
-            top: 50,
-            bottom: 50),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildTopView(), SizedBox(height: 50), _buildLoginForm()],
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(
+              left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+              right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+              top: 50,
+              bottom: 50),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDealerTopView(),
+              SizedBox(height: 20),
+              _buildDelaerLoginForm(),
+            ],
+          ),
         ),
       ),
+
+      /*     buildBottomNavigationBar(context, indexCount: _selectedIndex,
+                ontaptoCount: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        })*/
     );
-
-    /*return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: _minValue * 8,
+    /*Scaffold(
+            body: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.only(
+                    left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+                    right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+                    top: 50,
+                    bottom: 50),
+                child: Column(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTopView(),
+                        SizedBox(height: 50),
+                        _buildLoginForm()
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-            buildLogoImage(context),
-            SizedBox(
-              height: _minValue * 2,
-            ),
-            buildLoginTitle(),
-            buildLoginSubTitle(),
-            buildUserNameTextFiled(userName_Controller : edt_User_Name,labelName: "User Id",icon: Icon(Icons.person),maxline: 1,baseTheme:baseTheme),
-            buildPasswordTextFiled(user_password_Controller : edt_User_Password),
-            buildForgotTitle(),
-            buildLoginButton(context,(){
-              _onTapOfLogin();
-
-            }),
-            buildRegisterbTitle(context),
-    ],
-
-        )
-    );*/
+          );*/
   }
 
   ///navigates to homescreen
@@ -290,6 +308,226 @@ class _FirstScreenState extends BaseState<FirstScreen>
     );
   }
 
+  Widget _buildDealerTopView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /* Image.asset(
+          IMG_HEADER_LOGO,
+          width: MediaQuery.of(context).size.width / 1.5,
+          fit: BoxFit.fitWidth,
+        ),*/
+
+        Container(
+          width: 200.0,
+          height: 100.0,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: Container(
+                child: Center(
+              child: Image.network(
+                  SiteUrl + "/images/companylogo/CompanyLogo.png"),
+            )),
+          ),
+        ),
+
+        /* FittedBox(
+            child: Image.network(
+                SiteUrl + "/images/companylogo/CompanyLogo.png",
+                width: 100,
+                height: 150,
+                fit: BoxFit.) //values(BoxFit.fitHeight,BoxFit.fitWidth)),
+            ),*/
+        SizedBox(
+          height: 20,
+        ),
+        /* Text(
+          "Login",
+          style: baseTheme.textTheme.headline1,
+        ),*/
+
+        Container(
+            // margin: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(30), topLeft: Radius.circular(30)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black38, spreadRadius: 0, blurRadius: 10),
+              ],
+            ),
+            child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                child: new BottomNavigationBar(
+                    items: const <BottomNavigationBarItem>[
+                      BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.home,
+                            color: Color(0xff958dd5),
+                            size: 35,
+                          ),
+                          activeIcon: Icon(
+                            Icons.home,
+                            color: colorPrimary,
+                            size: 35,
+                          ),
+                          label: 'Company',
+                          backgroundColor: colorPrimary),
+                      BottomNavigationBarItem(
+                          icon: ImageIcon(
+                            AssetImage(DEALER_LOGO),
+                            color: Color(0xff958dd5),
+                            size: 42,
+                          ),
+                          activeIcon: ImageIcon(
+                            AssetImage(DEALER_LOGO),
+                            color: colorPrimary,
+                            size: 42,
+                          ),
+                          label: 'Dealer',
+                          backgroundColor: colorBlack),
+                    ],
+                    selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+                    showUnselectedLabels: true,
+                    type: BottomNavigationBarType.fixed,
+                    currentIndex: _selectedIndex,
+                    selectedItemColor: colorPrimary,
+                    iconSize: 32,
+                    onTap: _onItemTapped,
+                    elevation: 5))),
+        SizedBox(
+          height: 30,
+        ),
+        Text(
+          _selectedIndex == 0 ? "Company " : "Dealer ",
+          style: TextStyle(
+            color: Color(0xff3a3285),
+            //color: _selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown,
+            fontSize: 40,
+            fontFamily: "Poppins",
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          "Log in to your existant account",
+          style: TextStyle(
+            color: Color(
+                0xff019ee9), //_selectedIndex == 0 ? Color(0xff019ee9) : Colors.brown[300],
+            fontSize: 18,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDelaerLoginForm() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          getCommonTextFormField(context, baseTheme,
+              title: "Username",
+              hint: "enter username",
+              //labelColor: _selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown,
+              keyboardType: TextInputType.emailAddress,
+              // titleTextStyle: TextStyle(color: Colors.brown),
+              suffixIcon: ImageIcon(
+                Image.asset(
+                  IC_USERNAME,
+                  color: colorPrimary,
+                  width: 10,
+                  height: 10,
+                ).image,
+              ),
+              controller: _userNameController, validator: (value) {
+            if (value.toString().trim().isEmpty) {
+              return "Please enter this field";
+            }
+            return null;
+          }),
+          SizedBox(
+            height: 25,
+          ),
+          getCommonTextFormField(context, baseTheme,
+              title: "Password",
+              hint: "enter password",
+              obscureText: _isObscure,
+              // labelColor: _selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown,
+              textInputAction: TextInputAction.done,
+              suffixIcon: /*ImageIcon(
+                Image.asset(
+                  IC_PASSWORD,
+                  color: colorPrimary,
+                  width: 10,
+                  height: 10,
+                ).image,
+              ),*/
+                  IconButton(
+                icon: Icon(
+                  _isObscure ? Icons.visibility : Icons.visibility_off,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isObscure = !_isObscure;
+                  });
+                },
+              ),
+              controller: _passwordController, validator: (value) {
+            if (value.toString().trim().isEmpty) {
+              return "Please enter this field";
+            }
+            return null;
+          }),
+          SizedBox(
+            height: 52,
+          ),
+          /*Align(
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () {
+                _onTapOfForgetPassword();
+              },
+              child: Text(
+                "Forget Password?",
+                style: baseTheme.textTheme.headline2,
+              ),
+            ),
+          ),*/
+          SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: getCommonButton(baseTheme, () {
+                  _onTapOfLogin();
+                }, "Login",
+                    radius: 15,
+                    backGroundColor: Color(
+                        0xff3a3285) /*_selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown*/),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Expanded(
+                child: getCommonButton(baseTheme, () async {
+                  _onTapOfRegister();
+                }, "LogOut",
+                    radius: 15,
+                    backGroundColor: Color(
+                        0xff3a3285) /*_selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown*/),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buildLoginForm() {
     return Form(
       key: _formKey,
@@ -410,6 +648,9 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
   void _onTapOfLogin() {
     if (_formKey.currentState.validate()) {
+      SharedPrefHelper.instance.prefs
+          .setString("Is_Dealer", _selectedIndex == 0 ? "Company" : "Dealer");
+
       _firstScreenBloc.add(LoginUserDetailsCallEvent(LoginUserDetialsAPIRequest(
           userID: _userNameController.text.toString(),
           password: _passwordController.text.toString(),

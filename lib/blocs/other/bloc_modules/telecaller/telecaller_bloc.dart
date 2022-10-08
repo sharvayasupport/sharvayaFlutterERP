@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/city_list_request.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_delete_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/district_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
 import 'package:soleoserp/models/api_requests/general_telecaller_img_upload_request/telecaller_upload_img_request.dart';
+import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
 import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
 import 'package:soleoserp/models/api_requests/tele_caller_delete_image/telecaller_delete_image_request.dart';
@@ -319,5 +319,4 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
     }
   }
 // Ab pata chal raha he me kar lunga agar kuch dikkat aati toh bolunga thik he
-
 }

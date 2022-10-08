@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/InquiryShareModel.dart';
-import 'package:soleoserp/models/api_requests/city_list_request.dart';
-import 'package:soleoserp/models/api_requests/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_label_value_request.dart';
-import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/follower_employee_list_request.dart';
-import 'package:soleoserp/models/api_requests/followup_delete_request.dart';
-import 'package:soleoserp/models/api_requests/inqiory_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_followup_details_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_to_delete_product.dart';
-import 'package:soleoserp/models/api_requests/inquiry_no_to_product_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_product_search_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_search_by_pk_id_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_share_emp_list_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/InquiryShareModel.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inqiory_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_followup_details_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_delete_product.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_search_by_pk_id_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_share_emp_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/follower_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/search_inquiry_fillter_request.dart';
 import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/search_inquiry_list_by_number_request.dart';
@@ -569,5 +569,4 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
   //SearchInquiryListFillterByNameRequestEvent
-
 }

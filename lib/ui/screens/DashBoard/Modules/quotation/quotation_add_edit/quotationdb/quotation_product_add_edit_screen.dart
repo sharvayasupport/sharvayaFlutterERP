@@ -1368,7 +1368,8 @@ class _AddQuotationProductScreenState
           Inclusivetot_tax_amt =
               ((temp[i].Quantity * temp[i].NetRate) * temp[i].TaxRate) /
                   (100 + temp[i].TaxRate);
-          Inclusivetot_amnt_net = Inclusivetot_amount + Inclusivetot_tax_amt;
+          Inclusivetot_amnt_net =
+              Inclusivetot_amount; // + Inclusivetot_tax_amt;
           InTotalNetAmnt += Inclusivetot_amnt_net;
           print("TotInclusive" +
               "InclusiveNaetAmnt : " +
@@ -1504,10 +1505,11 @@ class _AddQuotationProductScreenState
             Amount1 = (Quantity * NetRate1) - TaxAmount1;
             _amountController.text = Amount1.toStringAsFixed(
                 2); //getNumber(Amount1,precision: 2).toString();
-            TotalAmount = (Quantity * NetRate1) +
-                TaxAmount1; //getNumber(TaxAmount1,precision: 2);
+            TotalAmount = (Quantity *
+                NetRate1); //+ TaxAmount1; //getNumber(TaxAmount1,precision: 2);
             _totalAmountController.text = TotalAmount.toStringAsFixed(
                 2); //getNumber(TotalAmount,precision: 2).toString();
+            print("dsljf333" + TotalAmount.toStringAsFixed(2));
           } else {
             TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
 
@@ -1528,7 +1530,12 @@ class _AddQuotationProductScreenState
             InclusiveFinalNetAmntAfterHeaderDisAmnt =
                 InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
             InclusiveTotalNetAmntAfterHeaderDisAmnt =
-                InclusiveNetAmntAfterHeaderDisAmnt + InclusiveItemWiseTaxAmnt;
+                InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
+
+            print("dsljf333" +
+                InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsExponential(
+                    2));
+
             _amountController.text =
                 InclusiveFinalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2);
             _taxAmountController.text =

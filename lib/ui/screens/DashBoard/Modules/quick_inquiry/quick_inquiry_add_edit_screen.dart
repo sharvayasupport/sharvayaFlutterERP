@@ -7,14 +7,14 @@ import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quick_inquiry/quick_inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/city_list_request.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_add_edit_api_request.dart';
-import 'package:soleoserp/models/api_requests/customer_category_request.dart';
-import 'package:soleoserp/models/api_requests/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/inqiory_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_add_edit_api_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_category_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inqiory_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/company_details_response.dart';
@@ -2520,7 +2520,6 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
           Globals.context, state.customerAddEditApiResponse.details[0].column2,
           positiveButtonTitle: "OK");
       // Navigator.of(context).pop();
-
     }
   }
 

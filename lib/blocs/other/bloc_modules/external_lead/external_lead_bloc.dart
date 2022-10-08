@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_requests/city_list_request.dart';
-import 'package:soleoserp/models/api_requests/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/customer_delete_request.dart';
-import 'package:soleoserp/models/api_requests/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/district_list_request.dart';
-import 'package:soleoserp/models/api_requests/external_lead_list_request.dart';
-import 'package:soleoserp/models/api_requests/external_lead_save_request.dart';
-import 'package:soleoserp/models/api_requests/external_lead_search_request.dart';
+import 'package:soleoserp/models/api_requests/External_leads/region_code_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/external_lead_list_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/external_lead_save_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/external_lead_search_request.dart';
+import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
 import 'package:soleoserp/models/api_requests/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
+import 'package:soleoserp/models/api_responses/External_leads/region_response.dart';
 import 'package:soleoserp/models/api_responses/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer_delete_response.dart';
@@ -70,6 +72,10 @@ class ExternalLeadBloc extends Bloc<ExternalLeadEvents, ExternalLeadStates> {
     }
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+
+    if (event is RegionCodeRequestEvent) {
+      yield* _map_RegionCodeRequestEventState(event);
     }
   }
 
@@ -241,6 +247,23 @@ class ExternalLeadBloc extends Bloc<ExternalLeadEvents, ExternalLeadStates> {
       GetReportToTokenResponse response =
           await userRepository.getreporttoTokenAPI(event.request);
       yield GetReportToTokenResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ExternalLeadStates> _map_RegionCodeRequestEventState(
+      RegionCodeRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      RegionCodeResponse response =
+          await userRepository.getregionCodeAPI(event.request);
+      yield RegionCodeResponseState(response, event.expenseDetails);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
