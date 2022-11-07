@@ -102,3 +102,22 @@ class GetReportToTokenRequestEvent extends TeleCallerEvents {
 
   GetReportToTokenRequestEvent(this.request);
 }
+
+class TeleCallerFollowupSaveRequestEvent extends TeleCallerEvents {
+  final TeleCallerFollowupSaveRequest request;
+
+  TeleCallerFollowupSaveRequestEvent(this.request);
+}
+
+//TeleCallerSaveRequest
+class FollowupTypeListByNameCallEvent extends TeleCallerEvents {
+  final FollowupTypeListRequest followupTypeListRequest;
+
+  FollowupTypeListByNameCallEvent(this.followupTypeListRequest);
+}
+
+class CloserReasonTypeListByNameCallEvent extends TeleCallerEvents {
+  final CloserReasonTypeListRequest closerReasonTypeListRequest;
+
+  CloserReasonTypeListByNameCallEvent(this.closerReasonTypeListRequest);
+}

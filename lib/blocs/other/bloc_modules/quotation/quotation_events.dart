@@ -127,9 +127,11 @@ class QuotationDeleteRequestCallEvent extends QuotationEvents {
 
 class QuotationOtherChargeCallEvent extends QuotationEvents {
   String CompanyID;
+  String headerDiscountController;
   final QuotationOtherChargesListRequest request;
 
-  QuotationOtherChargeCallEvent(this.CompanyID, this.request);
+  QuotationOtherChargeCallEvent(
+      this.headerDiscountController, this.CompanyID, this.request);
 }
 
 class QuotationBankDropDownCallEvent extends QuotationEvents {
@@ -163,4 +165,54 @@ class QT_OtherChargeDeleteRequestEvent extends QuotationEvents {
 class QT_OtherChargeInsertRequestEvent extends QuotationEvents {
   final QT_OtherChargeTable qt_otherChargeTable;
   QT_OtherChargeInsertRequestEvent(this.qt_otherChargeTable);
+}
+
+class QuotationEmailContentRequestEvent extends QuotationEvents {
+  final QuotationEmailContentRequest request;
+  QuotationEmailContentRequestEvent(this.request);
+}
+
+class SaveEmailContentRequestEvent extends QuotationEvents {
+  final SaveEmailContentRequest request;
+  SaveEmailContentRequestEvent(this.request);
+}
+
+class QuotationOtherCharge1CallEvent extends QuotationEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherCharge1CallEvent(this.CompanyID, this.request);
+}
+
+class QuotationOtherCharge2CallEvent extends QuotationEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherCharge2CallEvent(this.CompanyID, this.request);
+}
+
+class QuotationOtherCharge3CallEvent extends QuotationEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherCharge3CallEvent(this.CompanyID, this.request);
+}
+
+class QuotationOtherCharge4CallEvent extends QuotationEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherCharge4CallEvent(this.CompanyID, this.request);
+}
+
+class QuotationOtherCharge5CallEvent extends QuotationEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherCharge5CallEvent(this.CompanyID, this.request);
 }

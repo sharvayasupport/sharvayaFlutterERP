@@ -32,13 +32,13 @@ class InqNoDetails {
 
   InqNoDetails.fromJson(Map<String, dynamic> json) {
     customerID = json['CustomerID'];
-    inquiryNo = json['InquiryNo'];
+    inquiryNo = json['ModuleNo'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['CustomerID'] = this.customerID;
-    data['InquiryNo'] = this.inquiryNo;
+    data['ModuleNo'] = this.inquiryNo;
     return data;
   }
 }

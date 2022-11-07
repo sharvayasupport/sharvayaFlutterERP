@@ -31,17 +31,22 @@ class AttendanceList {
   String presenceDate;
   String timeIn;
   String timeOut;
+  String LunchIn;
+  String LunchOut;
   String notes;
   int workingHrs;
 
   AttendanceList(
       {this.pkID,
-        this.employeeID,
-        this.employeeName,
-        this.presenceDate,
-        this.timeIn,
-        this.timeOut,
-        this.workingHrs,this.notes});
+      this.employeeID,
+      this.employeeName,
+      this.presenceDate,
+      this.timeIn,
+      this.timeOut,
+      this.LunchIn,
+      this.LunchOut,
+      this.workingHrs,
+      this.notes});
 
   AttendanceList.fromJson(Map<String, dynamic> json) {
     pkID = json['pkID'];
@@ -52,6 +57,8 @@ class AttendanceList {
     timeOut = json['TimeOut'];
     workingHrs = json['WorkingHrs'];
     notes = json['Notes'] == null ? "" : json['Notes'];
+    LunchIn = json['LunchIn'];
+    LunchOut = json['LunchOut'];
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +71,9 @@ class AttendanceList {
     data['TimeOut'] = this.timeOut;
     data['WorkingHrs'] = this.workingHrs;
     data['Notes'] = this.notes;
+    data['LunchIn'] = this.LunchIn;
+    data['LunchOut'] = this.LunchOut;
+
     return data;
   }
 }

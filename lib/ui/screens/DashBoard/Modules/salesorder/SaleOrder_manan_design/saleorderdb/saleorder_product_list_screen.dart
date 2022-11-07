@@ -1,8 +1,8 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -64,7 +64,9 @@ class _SalesOrderProductListScreenState
     if (widget.arguments != null) {
       print("GetINQNOFRomList" + widget.arguments.quotation_No);
       QuotationNo = widget.arguments.quotation_No;
-      _StateCode = int.parse(widget.arguments.stateCode);
+      _StateCode = widget.arguments.stateCode != ""
+          ? int.parse(widget.arguments.stateCode)
+          : 0;
       _HeaderDiscAmnt = widget.arguments.HeaderDiscAmnt;
     }
     //getContacts();
@@ -324,7 +326,7 @@ class _SalesOrderProductListScreenState
         InclusiveFinalNetAmntAfterHeaderDisAmnt =
             InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
         InclusiveTotalNetAmntAfterHeaderDisAmnt =
-            InclusiveNetAmntAfterHeaderDisAmnt + InclusiveItemWiseTaxAmnt;
+            InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
 
         var CGSTPer = 0.00;
         var CGSTAmount = 0.00;

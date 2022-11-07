@@ -6,10 +6,10 @@ import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart
 import 'package:soleoserp/models/api_requests/complaint/complaint_delete_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_list_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_list_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_list_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_add_edit_screen.dart';

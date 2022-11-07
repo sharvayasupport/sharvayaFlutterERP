@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
+import 'package:soleoserp/models/common/othercharges/other_charges.dart';
 import 'package:soleoserp/models/common/qt_other_charge_temp.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -19,9 +20,10 @@ class QuotationOtherChargesScreenArguments {
   int StateCode;
   String HeaderDiscFromAddEditScreen;
   QuotationDetails editModel;
+  AllOtherCharges allOtherCharges;
 
-  QuotationOtherChargesScreenArguments(
-      this.StateCode, this.editModel, this.HeaderDiscFromAddEditScreen);
+  QuotationOtherChargesScreenArguments(this.StateCode, this.editModel,
+      this.HeaderDiscFromAddEditScreen, this.allOtherCharges);
 /* String ChargName1;
   String ChargName2;
   String ChargName3;
@@ -79,6 +81,7 @@ class _QuotationOtherChargeScreenState
   TextEditingController _otherChargeExcludeTaxController =
       TextEditingController();
   TextEditingController _netAmountController = TextEditingController();
+  TextEditingController _roundOFController = TextEditingController();
 
   TextEditingController _otherChargeNameController1 = TextEditingController();
   TextEditingController _otherChargeIDController1 = TextEditingController();
@@ -138,8 +141,13 @@ class _QuotationOtherChargeScreenState
   List<QuotationTable> _inquiryProductList = [];
   List<QuotationTable> _TempinquiryProductList = [];
 
+  List<QT_OtherChargeTable> _QT_OtherChargseList = [];
+
   QuotationDetails _editModel;
+  AllOtherCharges _allOtherCharges;
+
   bool _isForUpdate;
+  bool _isForUpdateOtherCharges;
 
   String _HeaderDiscFromAddEditScreen = "";
 
@@ -213,15 +221,23 @@ class _QuotationOtherChargeScreenState
     CompanyID = _offlineCompanyData.details[0].pkId;
     QuantityFocusNode = FocusNode();
     _inquiryBloc = QuotationBloc(baseBloc);
-    _inquiryBloc.add(QuotationOtherChargeCallEvent(
-        CompanyID.toString(), QuotationOtherChargesListRequest(pkID: "")));
+    //  _headerDiscountController.text = "0.00";
 
-    _headerDiscountController.text = "0.00";
+    _headerDiscountController.text =
+        widget.arguments.HeaderDiscFromAddEditScreen == null
+            ? ""
+            : widget.arguments.HeaderDiscFromAddEditScreen;
+    _inquiryBloc.add(QuotationOtherChargeCallEvent(
+        _headerDiscountController.text,
+        CompanyID.toString(),
+        QuotationOtherChargesListRequest(pkID: "")));
+
     _basicAmountController.text = "0.00";
     _otherChargeWithTaxController.text = "0.00";
     _totalGstController.text = "0.00";
     _otherChargeExcludeTaxController.text = "0.00";
     _netAmountController.text = "0.00";
+    _roundOFController.text = "0.00";
 
     _otherAmount1.text = "0.00";
     _otherAmount2.text = "0.00";
@@ -255,19 +271,15 @@ class _QuotationOtherChargeScreenState
     _otherChargeBeForeGSTController5.text = "0.00";
 
     _isForUpdate = widget.arguments.editModel != null;
-    _HeaderDiscFromAddEditScreen =
-        widget.arguments.HeaderDiscFromAddEditScreen == null
-            ? ""
-            : widget.arguments.HeaderDiscFromAddEditScreen;
-    _headerDiscountController.text = _HeaderDiscFromAddEditScreen;
+
+    _isForUpdateOtherCharges = widget.arguments.allOtherCharges != null;
+
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
 
       _basicAmountController.text = _editModel.basicAmt.toStringAsFixed(2);
-      _headerDiscountController.text =
-          _editModel.discountAmt.toStringAsFixed(2);
 
-      _otherAmount1.text = _editModel.chargeAmt1.toStringAsFixed(2);
+      /*_otherAmount1.text = _editModel.chargeAmt1.toStringAsFixed(2);
       _otherAmount2.text = _editModel.chargeAmt2.toStringAsFixed(2);
       _otherAmount3.text = _editModel.chargeAmt3.toStringAsFixed(2);
       _otherAmount4.text = _editModel.chargeAmt4.toStringAsFixed(2);
@@ -283,11 +295,77 @@ class _QuotationOtherChargeScreenState
       _otherChargeNameController2.text = _editModel.chargeName2.toString();
       _otherChargeNameController3.text = _editModel.chargeName3.toString();
       _otherChargeNameController4.text = _editModel.chargeName4.toString();
-      _otherChargeNameController5.text = _editModel.chargeName5.toString();
+      _otherChargeNameController5.text = _editModel.chargeName5.toString();*/
 
       getProductFromDB();
     } else {
       getProductFromDB();
+    }
+
+    if (_isForUpdateOtherCharges) {
+      _allOtherCharges = widget.arguments.allOtherCharges;
+
+      //   _otherChargeNameController1.text = _allOtherCharges.OtherChargName1.toString();
+
+      print("sdlfjdj" + _allOtherCharges.OtherChargeAmount1.toString());
+
+      _otherAmount1.text = _allOtherCharges.OtherChargeAmount1;
+      _otherAmount2.text = _allOtherCharges.OtherChargeAmount2;
+      _otherAmount3.text = _allOtherCharges.OtherChargeAmount3;
+      _otherAmount4.text = _allOtherCharges.OtherChargeAmount4;
+      _otherAmount5.text = _allOtherCharges.OtherChargeAmount5;
+
+      _otherChargeIDController1.text =
+          _allOtherCharges.OtherChargeID1.toString();
+      _otherChargeIDController2.text =
+          _allOtherCharges.OtherChargeID2.toString();
+      _otherChargeIDController3.text =
+          _allOtherCharges.OtherChargeID3.toString();
+      _otherChargeIDController4.text =
+          _allOtherCharges.OtherChargeID4.toString();
+      _otherChargeIDController5.text =
+          _allOtherCharges.OtherChargeID5.toString();
+
+      _otherChargeNameController1.text =
+          _allOtherCharges.OtherChargName1.toString();
+      _otherChargeNameController2.text =
+          _allOtherCharges.OtherChargName2.toString();
+      _otherChargeNameController3.text =
+          _allOtherCharges.OtherChargName3.toString();
+      _otherChargeNameController4.text =
+          _allOtherCharges.OtherChargName4.toString();
+      _otherChargeNameController5.text =
+          _allOtherCharges.OtherChargName5.toString();
+
+      _otherChargeTaxTypeController1.text =
+          _allOtherCharges.OtherChargeTaxType1;
+      _otherChargeTaxTypeController2.text =
+          _allOtherCharges.OtherChargeTaxType2;
+      _otherChargeTaxTypeController3.text =
+          _allOtherCharges.OtherChargeTaxType3;
+      _otherChargeTaxTypeController4.text =
+          _allOtherCharges.OtherChargeTaxType4;
+      _otherChargeTaxTypeController5.text =
+          _allOtherCharges.OtherChargeTaxType5;
+
+      _otherChargeGSTPerController1.text = _allOtherCharges.OtherChargeGstPer1;
+      _otherChargeGSTPerController2.text = _allOtherCharges.OtherChargeGstPer2;
+      _otherChargeGSTPerController3.text = _allOtherCharges.OtherChargeGstPer3;
+      _otherChargeGSTPerController4.text = _allOtherCharges.OtherChargeGstPer4;
+      _otherChargeGSTPerController5.text = _allOtherCharges.OtherChargeGstPer5;
+
+      _otherChargeBeForeGSTController1.text =
+          _allOtherCharges.OtherChargeBeforGst1;
+      _otherChargeBeForeGSTController2.text =
+          _allOtherCharges.OtherChargeBeforGst2;
+      _otherChargeBeForeGSTController3.text =
+          _allOtherCharges.OtherChargeBeforGst3;
+      _otherChargeBeForeGSTController4.text =
+          _allOtherCharges.OtherChargeBeforGst4;
+      _otherChargeBeForeGSTController5.text =
+          _allOtherCharges.OtherChargeBeforGst5;
+
+      // _OnTaptoSave();
     }
     // getProductFromDB();
 
@@ -415,9 +493,67 @@ class _QuotationOtherChargeScreenState
           getCommonAppBar(context, baseTheme, "Quotation Charges",
               showBack: true, showHome: false, onTapOfBack: () {
             // _inquiryBloc.add(QT_OtherChargeDeleteRequestEvent());
+
+            UpdateAfterHeaderDiscountToDB();
             PushAllOtherChargesToDb();
-            //UpdateAfterHeaderDiscountToDB();
-            Navigator.of(context).pop(_headerDiscountController.text);
+
+            AllOtherCharges allOtherCharges = AllOtherCharges();
+
+            print("CHRGEID" +
+                _otherChargeIDController1.text +
+                _otherAmount1.text);
+            allOtherCharges.HeaderDiscount = _headerDiscountController.text;
+
+            allOtherCharges.OtherChargName1 = _otherChargeNameController1.text;
+            allOtherCharges.OtherChargeAmount1 = _otherAmount1.text;
+            allOtherCharges.OtherChargeID1 = _otherChargeIDController1.text;
+            allOtherCharges.OtherChargeTaxType1 =
+                _otherChargeTaxTypeController1.text;
+            allOtherCharges.OtherChargeGstPer1 =
+                _otherChargeGSTPerController1.text;
+            allOtherCharges.OtherChargeBeforGst1 =
+                _otherChargeBeForeGSTController1.text;
+
+            allOtherCharges.OtherChargName2 = _otherChargeNameController2.text;
+            allOtherCharges.OtherChargeAmount2 = _otherAmount2.text;
+            allOtherCharges.OtherChargeID2 = _otherChargeIDController2.text;
+            allOtherCharges.OtherChargeTaxType2 =
+                _otherChargeTaxTypeController2.text;
+            allOtherCharges.OtherChargeGstPer2 =
+                _otherChargeGSTPerController2.text;
+            allOtherCharges.OtherChargeBeforGst2 =
+                _otherChargeBeForeGSTController2.text;
+
+            allOtherCharges.OtherChargName3 = _otherChargeNameController3.text;
+            allOtherCharges.OtherChargeAmount3 = _otherAmount3.text;
+            allOtherCharges.OtherChargeID3 = _otherChargeIDController3.text;
+            allOtherCharges.OtherChargeTaxType3 =
+                _otherChargeTaxTypeController3.text;
+            allOtherCharges.OtherChargeGstPer3 =
+                _otherChargeGSTPerController3.text;
+            allOtherCharges.OtherChargeBeforGst3 =
+                _otherChargeBeForeGSTController3.text;
+
+            allOtherCharges.OtherChargName4 = _otherChargeNameController4.text;
+            allOtherCharges.OtherChargeAmount4 = _otherAmount4.text;
+            allOtherCharges.OtherChargeID4 = _otherChargeIDController4.text;
+            allOtherCharges.OtherChargeTaxType4 =
+                _otherChargeTaxTypeController4.text;
+            allOtherCharges.OtherChargeGstPer4 =
+                _otherChargeGSTPerController4.text;
+            allOtherCharges.OtherChargeBeforGst4 =
+                _otherChargeBeForeGSTController4.text;
+
+            allOtherCharges.OtherChargName5 = _otherChargeNameController5.text;
+            allOtherCharges.OtherChargeAmount5 = _otherAmount5.text;
+            allOtherCharges.OtherChargeID5 = _otherChargeIDController5.text;
+            allOtherCharges.OtherChargeTaxType5 =
+                _otherChargeTaxTypeController5.text;
+            allOtherCharges.OtherChargeGstPer5 =
+                _otherChargeGSTPerController5.text;
+            allOtherCharges.OtherChargeBeforGst5 =
+                _otherChargeBeForeGSTController5.text;
+            Navigator.of(context).pop(allOtherCharges);
             print("Tap To BackEvent");
           }),
           Expanded(
@@ -445,8 +581,12 @@ class _QuotationOtherChargeScreenState
                   ),
                   Row(children: [
                     Expanded(flex: 1, child: OtherChargeExcludingTax()),
-                    Expanded(flex: 1, child: NetAmount())
+                    Expanded(flex: 1, child: RoundOff())
                   ]),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  NetAmount(),
                   SizedBox(
                     height: 20,
                   ),
@@ -594,8 +734,53 @@ class _QuotationOtherChargeScreenState
     PushAllOtherChargesToDb();
     /* _inquiryBloc.add(QT_OtherChargeDeleteRequestEvent());
 
-    UpdateAfterHeaderDiscountToDB();*/
-    Navigator.of(context).pop(_headerDiscountController.text);
+    */
+    UpdateAfterHeaderDiscountToDB();
+    AllOtherCharges allOtherCharges = AllOtherCharges();
+
+    allOtherCharges.HeaderDiscount = _headerDiscountController.text;
+
+    allOtherCharges.OtherChargName1 = _otherChargeNameController1.text;
+    allOtherCharges.OtherChargeAmount1 = _otherAmount1.text;
+    allOtherCharges.OtherChargeID1 = _otherChargeIDController1.text;
+    allOtherCharges.OtherChargeTaxType1 = _otherChargeTaxTypeController1.text;
+    allOtherCharges.OtherChargeGstPer1 = _otherChargeGSTPerController1.text;
+    allOtherCharges.OtherChargeBeforGst1 =
+        _otherChargeBeForeGSTController1.text;
+
+    allOtherCharges.OtherChargName2 = _otherChargeNameController2.text;
+    allOtherCharges.OtherChargeAmount2 = _otherAmount2.text;
+    allOtherCharges.OtherChargeID2 = _otherChargeIDController2.text;
+    allOtherCharges.OtherChargeTaxType2 = _otherChargeTaxTypeController2.text;
+    allOtherCharges.OtherChargeGstPer2 = _otherChargeGSTPerController2.text;
+    allOtherCharges.OtherChargeBeforGst2 =
+        _otherChargeBeForeGSTController2.text;
+
+    allOtherCharges.OtherChargName3 = _otherChargeNameController3.text;
+    allOtherCharges.OtherChargeAmount3 = _otherAmount3.text;
+    allOtherCharges.OtherChargeID3 = _otherChargeIDController3.text;
+    allOtherCharges.OtherChargeTaxType3 = _otherChargeTaxTypeController3.text;
+    allOtherCharges.OtherChargeGstPer3 = _otherChargeGSTPerController3.text;
+    allOtherCharges.OtherChargeBeforGst3 =
+        _otherChargeBeForeGSTController3.text;
+
+    allOtherCharges.OtherChargName4 = _otherChargeNameController4.text;
+    allOtherCharges.OtherChargeAmount4 = _otherAmount4.text;
+    allOtherCharges.OtherChargeID4 = _otherChargeIDController4.text;
+    allOtherCharges.OtherChargeTaxType4 = _otherChargeTaxTypeController4.text;
+    allOtherCharges.OtherChargeGstPer4 = _otherChargeGSTPerController4.text;
+    allOtherCharges.OtherChargeBeforGst4 =
+        _otherChargeBeForeGSTController4.text;
+
+    allOtherCharges.OtherChargName5 = _otherChargeNameController5.text;
+    allOtherCharges.OtherChargeAmount5 = _otherAmount5.text;
+    allOtherCharges.OtherChargeID5 = _otherChargeIDController5.text;
+    allOtherCharges.OtherChargeTaxType5 = _otherChargeTaxTypeController5.text;
+    allOtherCharges.OtherChargeGstPer5 = _otherChargeGSTPerController5.text;
+    allOtherCharges.OtherChargeBeforGst5 =
+        _otherChargeBeForeGSTController5.text;
+
+    Navigator.of(context).pop(allOtherCharges);
     print("Tap To BackEvent");
   }
 
@@ -964,6 +1149,72 @@ class _QuotationOtherChargeScreenState
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
                       controller: _netAmountController,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.only(bottom: 10),
+                        hintText: "0.00",
+                        labelStyle: TextStyle(
+                          color: Color(0xFF000000),
+                        ),
+                        border: InputBorder.none,
+                      ),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF000000),
+                      ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                      ),
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget RoundOff() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(left: 10, right: 10),
+          child: Text("Round Off",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight
+                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+              ),
+        ),
+        SizedBox(
+          height: 3,
+        ),
+        Card(
+          elevation: 5,
+          color: colorLightGray,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: Container(
+            height: CardViewHeight,
+            padding: EdgeInsets.only(left: 20, right: 20),
+            width: double.maxFinite,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                      // key: Key(totalCalculated()),
+
+                      validator: (value) {
+                        if (value.toString().trim().isEmpty) {
+                          return "Please enter this field";
+                        }
+                        return null;
+                      },
+                      enabled: false,
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
+                      controller: _roundOFController,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.only(bottom: 10),
                         hintText: "0.00",
@@ -1875,355 +2126,15 @@ class _QuotationOtherChargeScreenState
     );
   }
 
-  void _onTapOfAdd() async {
-    TotalCalculation();
-    TotalCalculation2();
-    TotalCalculation3();
-    TotalCalculation4();
-    TotalCalculation5();
-
-    double ChargeAmt1 =
-        double.parse(_otherAmount1.text == null ? 0.00 : _otherAmount1.text);
-    double ChargeAmt2 =
-        double.parse(_otherAmount2.text == null ? 0.00 : _otherAmount2.text);
-    double ChargeAmt3 =
-        double.parse(_otherAmount3.text == null ? 0.00 : _otherAmount3.text);
-    double ChargeAmt4 =
-        double.parse(_otherAmount4.text == null ? 0.00 : _otherAmount4.text);
-    double ChargeAmt5 =
-        double.parse(_otherAmount5.text == null ? 0.00 : _otherAmount5.text);
-
-    double TotalOtherAmnt =
-        ChargeAmt1 + ChargeAmt2 + ChargeAmt3 + ChargeAmt4 + ChargeAmt5;
-
-    print("BeforGSTAmnt" +
-        "ChargeAmnt1 : " +
-        _otherAmount1.text.toString() +
-        "ChargeAmnt2 : " +
-        _otherAmount2.text.toString() +
-        " ChargeBasicAmnt1 : " +
-        InclusiveBeforeGstAmnt1.toStringAsFixed(2) +
-        " ChargeBasicAmnt2 : " +
-        InclusiveBeforeGstAmnt2.toStringAsFixed(2) +
-        " ChargeGstAmnt1 : " +
-        InclusiveBeforeGstAmnt_Minus1.toStringAsFixed(2) +
-        " ChargeGstAmnt2 : " +
-        InclusiveBeforeGstAmnt_Minus2.toStringAsFixed(2));
-    //  print("AfterGSTAmnt" + " AfterGSTAmnt1 : " + AfterInclusiveBeforeGstAmnt1.toStringAsFixed(2) + " AfterGSTAmnt2 : " + AfterInclusiveBeforeGstAmnt2.toStringAsFixed(2)  );
-    print("AfterGSTAmnt" +
-        "ChargeAmnt1 : " +
-        _otherAmount1.text.toString() +
-        "ChargeAmnt2 : " +
-        _otherAmount2.text.toString() +
-        " ChargeBasicAmnt1 : " +
-        AfterInclusiveBeforeGstAmnt1.toStringAsFixed(2) +
-        " ChargeBasicAmnt2 : " +
-        AfterInclusiveBeforeGstAmnt2.toStringAsFixed(2) +
-        " ChargeGstAmnt1 : " +
-        "0.00" +
-        " ChargeGstAmnt2 : " +
-        "0.00");
-    print("ExclusiveBeforeGst" +
-        " BeforeGST_AMNT1 : " +
-        ExclusiveBeforeGStAmnt1.toStringAsFixed(2) +
-        " GSTMinus1 : " +
-        ExclusiveBeforeGStAmnt_Minus1.toStringAsFixed(2) +
-        " BeforeGST_AMNT2 : " +
-        ExclusiveBeforeGStAmnt2.toStringAsFixed(2) +
-        " GSTMinus2 : " +
-        ExclusiveBeforeGStAmnt_Minus2.toStringAsFixed(2));
-
-    print("ExclusiveAfterGst" +
-        " AfterGST_AMNT1 : " +
-        ExclusiveAfterGstAmnt1.toStringAsFixed(2) +
-        " AfterGST_AMNT2 : " +
-        ExclusiveAfterGstAmnt2.toStringAsFixed(2));
-
-    Tot_BasicAmount = 0.00;
-    Tot_otherChargeWithTax = 0.00;
-    Tot_GSTAmt = 0.00;
-    Tot_otherChargeExcludeTax = 0.00;
-    Tot_NetAmt = 0.00;
-
-    await getInquiryProductDetails();
-
-    for (int i = 0; i < _inquiryProductList.length; i++) {
-      Tot_BasicAmount = Tot_BasicAmount + _inquiryProductList[i].Amount;
-
-      print(" GetBasicAmount " +
-          " BasicTotal : " +
-          _inquiryProductList[i].Amount.toStringAsFixed(2));
-      Tot_otherChargeWithTax = 0.00;
-      Tot_GSTAmt = Tot_GSTAmt + _inquiryProductList[i].TaxAmount;
-      Tot_otherChargeExcludeTax = 0.00;
-      Tot_NetAmt = Tot_NetAmt + _inquiryProductList[i].NetAmount;
-    }
-    UpdateAfterHeaderDiscount();
-
-    print(" GetBasicAmount " +
-        " BasicTotal : " +
-        Tot_BasicAmount.toStringAsFixed(2));
-    print(
-        " GetNetAmount " + " NetAmntTotal : " + Tot_NetAmt.toStringAsFixed(2));
-
-    Tot_otherChargeWithTax = (InclusiveBeforeGstAmnt1) +
-        (ExclusiveBeforeGStAmnt1) +
-        (InclusiveBeforeGstAmnt2) +
-        (ExclusiveBeforeGStAmnt2) +
-        (InclusiveBeforeGstAmnt3) +
-        (ExclusiveBeforeGStAmnt3) +
-        (InclusiveBeforeGstAmnt4) +
-        (ExclusiveBeforeGStAmnt4) +
-        (InclusiveBeforeGstAmnt5) +
-        (ExclusiveBeforeGStAmnt5); //+ (ChargeAmt3 - devide3) + (ChargeAmt4 - devide4) + (ChargeAmt5 - devide5);
-    Tot_GSTAmt = Tot_GSTAmt +
-        InclusiveBeforeGstAmnt_Minus1 +
-        ExclusiveBeforeGStAmnt_Minus1 +
-        InclusiveBeforeGstAmnt_Minus2 +
-        ExclusiveBeforeGStAmnt_Minus2 +
-        InclusiveBeforeGstAmnt_Minus3 +
-        ExclusiveBeforeGStAmnt_Minus3 +
-        InclusiveBeforeGstAmnt_Minus4 +
-        ExclusiveBeforeGStAmnt_Minus4 +
-        InclusiveBeforeGstAmnt_Minus5 +
-        ExclusiveBeforeGStAmnt_Minus5;
-    Tot_otherChargeExcludeTax = AfterInclusiveBeforeGstAmnt1 +
-        ExclusiveAfterGstAmnt1 +
-        AfterInclusiveBeforeGstAmnt2 +
-        ExclusiveAfterGstAmnt2 +
-        AfterInclusiveBeforeGstAmnt3 +
-        ExclusiveAfterGstAmnt3 +
-        AfterInclusiveBeforeGstAmnt4 +
-        ExclusiveAfterGstAmnt4 +
-        AfterInclusiveBeforeGstAmnt5 +
-        ExclusiveAfterGstAmnt5;
-
-    _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
-    _otherChargeWithTaxController.text =
-        Tot_otherChargeWithTax.toStringAsFixed(2);
-
-    ///Final Setup Befor GST
-    _totalGstController.text = Tot_GSTAmt.toStringAsFixed(2);
-    _otherChargeExcludeTaxController.text =
-        Tot_otherChargeExcludeTax.toStringAsFixed(2);
-
-    ///Final Setup After GST
-    //double Tot_NetAmnt = Tot_NetAmt + Tot_otherChargeWithTax + Tot_otherChargeExcludeTax;
-
-    double Tot_NetAmnt = Tot_NetAmt +
-        TotalOtherAmnt +
-        ExclusiveBeforeGStAmnt_Minus1 +
-        ExclusiveBeforeGStAmnt_Minus2 +
-        ExclusiveBeforeGStAmnt_Minus3 +
-        ExclusiveBeforeGStAmnt_Minus4 +
-        ExclusiveBeforeGStAmnt_Minus5;
-
-    double MinusHeaderDiscamnt = Tot_NetAmnt - HeaderDisAmnt;
-
-    _netAmountController.text = /*nt.toStringAsFixed(
-        2);*/
-        MinusHeaderDiscamnt.toStringAsFixed(
-            2); //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
-
-    print("OTherChrsgg" +
-        " Tot_NetAmt : " +
-        Tot_NetAmt.toStringAsFixed(2) +
-        " TotalOtherAmnt : " +
-        TotalOtherAmnt.toStringAsFixed(2) +
-        " Tot_NetAmntasd : " +
-        Tot_NetAmnt.toStringAsFixed(2) +
-        " HeaderDisAmnt : " +
-        HeaderDisAmnt.toStringAsFixed(2) +
-        " MinusHeaderDiscamnt : " +
-        MinusHeaderDiscamnt.toStringAsFixed(2));
-
-    setState(() {});
-
-    String ChargeName1 = _otherChargeNameController1.text == null
-        ? ""
-        : _otherChargeNameController1.text;
-    String ChargeID1 = _otherChargeIDController1.text == null
-        ? ""
-        : _otherChargeIDController1.text;
-    String TaxtType1 = _otherChargeTaxTypeController1.text == null
-        ? ""
-        : _otherChargeTaxTypeController1.text;
-    String TaxRate1 = _otherChargeGSTPerController1.text == null
-        ? ""
-        : _otherChargeGSTPerController1.text;
-    String BeforGST1 = _otherChargeBeForeGSTController1.text == null
-        ? ""
-        : _otherChargeBeForeGSTController1.text;
-
-    String ChargeName2 = _otherChargeNameController2.text == null
-        ? ""
-        : _otherChargeNameController2.text;
-    String ChargeID2 = _otherChargeIDController2.text == null
-        ? ""
-        : _otherChargeIDController2.text;
-    String TaxtType2 = _otherChargeTaxTypeController2.text == null
-        ? ""
-        : _otherChargeTaxTypeController2.text;
-    String TaxRate2 = _otherChargeGSTPerController2.text == null
-        ? ""
-        : _otherChargeGSTPerController2.text;
-    String BeforGST2 = _otherChargeBeForeGSTController2.text == null
-        ? ""
-        : _otherChargeBeForeGSTController2.text;
-
-    String ChargeName3 = _otherChargeNameController3.text == null
-        ? ""
-        : _otherChargeNameController3.text;
-    String ChargeID3 = _otherChargeIDController3.text == null
-        ? ""
-        : _otherChargeIDController3.text;
-    String TaxtType3 = _otherChargeTaxTypeController3.text == null
-        ? ""
-        : _otherChargeTaxTypeController3.text;
-    String TaxRate3 = _otherChargeGSTPerController3.text == null
-        ? ""
-        : _otherChargeGSTPerController3.text;
-    String BeforGST3 = _otherChargeBeForeGSTController3.text == null
-        ? ""
-        : _otherChargeBeForeGSTController3.text;
-
-    String ChargeName4 = _otherChargeNameController4.text == null
-        ? ""
-        : _otherChargeNameController4.text;
-    String ChargeID4 = _otherChargeIDController4.text == null
-        ? ""
-        : _otherChargeIDController4.text;
-    String TaxtType4 = _otherChargeTaxTypeController4.text == null
-        ? ""
-        : _otherChargeTaxTypeController4.text;
-    String TaxRate4 = _otherChargeGSTPerController4.text == null
-        ? ""
-        : _otherChargeGSTPerController4.text;
-    String BeforGST4 = _otherChargeBeForeGSTController4.text == null
-        ? ""
-        : _otherChargeBeForeGSTController4.text;
-
-    String ChargeName5 = _otherChargeNameController5.text == null
-        ? ""
-        : _otherChargeNameController5.text;
-    String ChargeID5 = _otherChargeIDController5.text == null
-        ? ""
-        : _otherChargeIDController5.text;
-    String TaxtType5 = _otherChargeTaxTypeController5.text == null
-        ? ""
-        : _otherChargeTaxTypeController5.text;
-    String TaxRate5 = _otherChargeGSTPerController5.text == null
-        ? ""
-        : _otherChargeGSTPerController5.text;
-    String BeforGST5 = _otherChargeBeForeGSTController5.text == null
-        ? ""
-        : _otherChargeBeForeGSTController5.text;
-
-    String ChargeAmount1 = _otherAmount1.text == null ? "" : _otherAmount1.text;
-    String ChargeAmount2 = _otherAmount2.text == null ? "" : _otherAmount2.text;
-    String ChargeAmount3 = _otherAmount3.text == null ? "" : _otherAmount3.text;
-    String ChargeAmount4 = _otherAmount4.text == null ? "" : _otherAmount4.text;
-    String ChargeAmount5 = _otherAmount5.text == null ? "" : _otherAmount5.text;
-
-    print("GetFields" +
-        " Charge1 : " +
-        ChargeName1 +
-        " ID1 : " +
-        ChargeID1 +
-        " TaxType1 : " +
-        TaxtType1 +
-        " TaxRate1 : " +
-        TaxRate1 +
-        "BeforGST1" +
-        BeforGST1 +
-        " OtherAmount :" +
-        ChargeAmount1 +
-        " Charge2 : " +
-        ChargeName2 +
-        " ID2 : " +
-        ChargeID2 +
-        " TaxType2 : " +
-        TaxtType2 +
-        " TaxRate2 : " +
-        TaxRate2 +
-        "BeforGST2" +
-        BeforGST2 +
-        " OtherAmount :" +
-        ChargeAmount2 +
-        " Charge3 : " +
-        ChargeName3 +
-        " ID3 : " +
-        ChargeID3 +
-        " TaxType3 : " +
-        TaxtType3 +
-        " TaxRate3 : " +
-        TaxRate3 +
-        "BeforGST3" +
-        BeforGST3 +
-        " OtherAmount :" +
-        ChargeAmount3 +
-        " Charge4 : " +
-        ChargeName4 +
-        " ID4 : " +
-        ChargeID4 +
-        " TaxType4 : " +
-        TaxtType4 +
-        " TaxRate4 : " +
-        TaxRate4 +
-        "BeforGST4" +
-        BeforGST4 +
-        " OtherAmount :" +
-        ChargeAmount4 +
-        " Charge5 : " +
-        ChargeName5 +
-        " ID5 : " +
-        ChargeID5 +
-        " TaxType5 : " +
-        TaxtType5 +
-        " TaxRate5 : " +
-        TaxRate5 +
-        "BeforGST5" +
-        BeforGST5 +
-        " OtherAmount :" +
-        ChargeAmount5);
-
-    await _onTapOfDeleteALLQuotationCharges();
-    // PushAllOtherChargesToDb();
-
-    UpdateAfterHeaderDiscountToDB();
-
-    // FetchDetailsOfOtherCharges();
-  }
-
 //Other Charge (With Tax)
 
   void TotalCalculation() async {
     double ChargeAmt1 =
         double.parse(_otherAmount1.text == null ? 0.00 : _otherAmount1.text);
-    double ChargeAmt2 =
-        double.parse(_otherAmount2.text == null ? 0.00 : _otherAmount2.text);
-    double ChargeAmt3 =
-        double.parse(_otherAmount3.text == null ? 0.00 : _otherAmount3.text);
-    double ChargeAmt4 =
-        double.parse(_otherAmount4.text == null ? 0.00 : _otherAmount4.text);
-    double ChargeAmt5 =
-        double.parse(_otherAmount5.text == null ? 0.00 : _otherAmount5.text);
 
     double taxRate1 = double.parse(_otherChargeGSTPerController1.text == null
         ? 0.00
         : _otherChargeGSTPerController1.text);
-    double taxRate2 = double.parse(_otherChargeGSTPerController2.text == null
-        ? 0.00
-        : _otherChargeGSTPerController2.text);
-    double taxRate3 = double.parse(_otherChargeGSTPerController3.text == null
-        ? 0.00
-        : _otherChargeGSTPerController3.text);
-    double taxRate4 = double.parse(_otherChargeGSTPerController4.text == null
-        ? 0.00
-        : _otherChargeGSTPerController4.text);
-    double taxRate5 = double.parse(_otherChargeGSTPerController5.text == null
-        ? 0.00
-        : _otherChargeGSTPerController5.text);
 
     ///_otherChargeTaxTypeController1.text = 1 (Exclusive) -- _otherChargeTaxTypeController1.text = 0 (Inclusive)
 
@@ -2270,99 +2181,18 @@ class _QuotationOtherChargeScreenState
       ExclusiveAfterGstAmnt1 = 0.00;
 
       if (_otherChargeBeForeGSTController1.text == "true") {
-        /*  _basicAmountController.text="0.00";
-        _otherChargeWithTaxController.text="0.00";
-       // _otherChargeExcludeTaxController.text="0.00";
-        _totalGstController.text ="0.00";
-        _netAmountController.text="0.00";*/
-
-        /* Tot_BasicAmount = 0.00;
-        Tot_otherChargeWithTax = 0.00;
-        Tot_GSTAmt = 0.00;
-        Tot_otherChargeExcludeTax = 0.00;
-        Tot_NetAmt = 0.00;*/
-
-        /* await getInquiryProductDetails();
-
-        for(int i=0;i<_inquiryProductList.length;i++)
-        {
-          Tot_BasicAmount =Tot_BasicAmount + _inquiryProductList[i].Amount;
-          Tot_otherChargeWithTax = 0.00;
-          Tot_GSTAmt = Tot_GSTAmt + _inquiryProductList[i].TaxAmount;
-          Tot_otherChargeExcludeTax = 0.00;
-          Tot_NetAmt = Tot_NetAmt +  _inquiryProductList[i].NetAmount;
-        }
-*/
         double multi1 = 0.00;
         double addtaxt1 = 0.00;
         double devide1 = 0.00;
         double to_InclusiveBeforeGstAmnt1 = 0.00;
 
-        /* double multi2 = 0.00;
-        double addtaxt2 =0.00;
-        double devide2 = 0.00;
-        double to_InclusiveBeforeGstAmnt2 = 0.00;
-
-
-        double multi3 = 0.00;
-        double addtaxt3 =0.00;
-        double devide3= 0.00;
-        double to_InclusiveBeforeGstAmnt3 = 0.00;
-
-        double multi4 = 0.00;
-        double addtaxt4 =0.00;
-        double devide4= 0.00;
-        double to_InclusiveBeforeGstAmnt4 = 0.00;
-
-        double multi5 = 0.00;
-        double addtaxt5 =0.00;
-        double devide5= 0.00;
-        double to_InclusiveBeforeGstAmnt5 = 0.00;
-*/
-
         multi1 = ChargeAmt1 * taxRate1;
         addtaxt1 = 100 + taxRate1;
         devide1 = multi1 / addtaxt1;
 
-        /* multi2=ChargeAmt2 * taxRate2;
-        addtaxt2 = 100+taxRate2;
-        devide2 = multi2 / addtaxt2;
-
-        multi3=ChargeAmt3 * taxRate3;
-        addtaxt3 = 100+taxRate3;
-        devide3 = multi3 / addtaxt3;
-
-        multi4=ChargeAmt4 * taxRate4;
-        addtaxt4 = 100+taxRate4;
-        devide4 = multi4 / addtaxt4;
-
-        multi5=ChargeAmt5 * taxRate5;
-        addtaxt5 = 100+taxRate5;
-        devide5 = multi5 / addtaxt5;*/
-
         InclusiveBeforeGstAmnt1 = ChargeAmt1 - devide1;
         InclusiveBeforeGstAmnt_Minus1 = devide1;
         AfterInclusiveBeforeGstAmnt1 = 0.00;
-        // Tot_otherChargeWithTax = (ChargeAmt1 - devide1) + (ChargeAmt2 - devide2) + (ChargeAmt3 - devide3) + (ChargeAmt4 - devide4) + (ChargeAmt5 - devide5);
-        //Tot_GSTAmt = Tot_GSTAmt + devide1+devide2+devide3+devide4+devide5;
-
-        /* _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
-        _otherChargeWithTaxController.text =Tot_otherChargeWithTax.toStringAsFixed(2);///Final Setup Befor GST
-        _totalGstController.text = Tot_GSTAmt.toStringAsFixed(2);
-        //_otherChargeExcludeTaxController.text = Tot_otherChargeExcludeTax.toStringAsFixed(2);///Final Setup After GST
-        double Tot_NetAmnt = Tot_BasicAmount + Tot_otherChargeWithTax + Tot_GSTAmt + Tot_otherChargeExcludeTax;
-        _netAmountController.text = Tot_NetAmnt.toStringAsFixed(2); //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
-
-        Tot_NetAmnt = 0.00;
-
-
-
-
-        Tot_BasicAmount = 0.00;
-        Tot_otherChargeWithTax = 0.00;
-        Tot_GSTAmt = 0.00;
-        Tot_otherChargeExcludeTax = 0.00;
-        Tot_NetAmt = 0.00;*/
       } else {
         // Tot_otherChargeExcludeTax = ChargeAmt1+  ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
         InclusiveBeforeGstAmnt1 = 0.00;
@@ -2405,8 +2235,6 @@ class _QuotationOtherChargeScreenState
       InclusiveBeforeGstAmnt_Minus2 = 0.00;
       AfterInclusiveBeforeGstAmnt2 = 0.00;
       if (_otherChargeBeForeGSTController2.text == "true") {
-        //Tot_otherChargeWithTax= ChargeAmt1+ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
-
         double multi2 = 0.00;
         double addtaxt2 = 0.00;
         double devide2 = 0.00;
@@ -2432,111 +2260,24 @@ class _QuotationOtherChargeScreenState
       ExclusiveAfterGstAmnt2 = 0.00;
 
       if (_otherChargeBeForeGSTController2.text == "true") {
-        /* _basicAmountController.text="0.00";
-        _otherChargeWithTaxController.text="0.00";
-        //_otherChargeExcludeTaxController.text="0.00";
-        _totalGstController.text ="0.00";
-        _netAmountController.text="0.00";*/
-
-        /* Tot_BasicAmount = 0.00;
-        Tot_otherChargeWithTax = 0.00;
-        Tot_GSTAmt = 0.00;
-        Tot_otherChargeExcludeTax = 0.00;
-        Tot_NetAmt = 0.00;
-
-        await getInquiryProductDetails();
-
-        for(int i=0;i<_inquiryProductList.length;i++)
-        {
-          Tot_BasicAmount =Tot_BasicAmount + _inquiryProductList[i].Amount;
-          Tot_otherChargeWithTax = 0.00;
-          Tot_GSTAmt = Tot_GSTAmt + _inquiryProductList[i].TaxAmount;
-          Tot_otherChargeExcludeTax = 0.00;
-          Tot_NetAmt = Tot_NetAmt +  _inquiryProductList[i].NetAmount;
-        }
-*/
-        // _totalGstController.clear();
-
-        /*  double multi1 = 0.00;
-        double addtaxt1 =0.00;
-        double devide1 = 0.00;
-        double to_InclusiveBeforeGstAmnt1 = 0.00;*/
-
         double multi2 = 0.00;
         double addtaxt2 = 0.00;
         double devide2 = 0.00;
         double to_InclusiveBeforeGstAmnt2 = 0.00;
 
-        /* double multi3 = 0.00;
-        double addtaxt3 =0.00;
-        double devide3= 0.00;
-        double to_InclusiveBeforeGstAmnt3 = 0.00;
-
-        double multi4 = 0.00;
-        double addtaxt4 =0.00;
-        double devide4= 0.00;
-        double to_InclusiveBeforeGstAmnt4 = 0.00;
-
-        double multi5 = 0.00;
-        double addtaxt5 =0.00;
-        double devide5= 0.00;
-        double to_InclusiveBeforeGstAmnt5 = 0.00;*/
-
-        /* multi1=ChargeAmt1 * taxRate1;
-        addtaxt1 = 100+taxRate1;
-        devide1 = multi1 / addtaxt1;
-*/
         multi2 = ChargeAmt2 * taxRate2;
         addtaxt2 = 100 + taxRate2;
         devide2 = multi2 / addtaxt2;
 
-        /*  multi3=ChargeAmt3 * taxRate3;
-        addtaxt3 = 100+taxRate3;
-        devide3 = multi3 / addtaxt3;
-
-        multi4=ChargeAmt4 * taxRate4;
-        addtaxt4 = 100+taxRate4;
-        devide4 = multi4 / addtaxt4;
-
-        multi5=ChargeAmt5 * taxRate5;
-        addtaxt5 = 100+taxRate5;
-        devide5 = multi5 / addtaxt5;*/
-
         InclusiveBeforeGstAmnt2 = ChargeAmt2 - devide2;
         InclusiveBeforeGstAmnt_Minus2 = devide2;
         AfterInclusiveBeforeGstAmnt2 = 0.00;
-        /* Tot_otherChargeWithTax = (ChargeAmt1 - devide1) + (ChargeAmt2 - devide2) + (ChargeAmt3 - devide3) + (ChargeAmt4 - devide4) + (ChargeAmt5 - devide5);
-
-        Tot_GSTAmt = Tot_GSTAmt + devide1+devide2+devide3+devide4+devide5;
-
-
-        _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
-        _otherChargeWithTaxController.text =Tot_otherChargeWithTax.toStringAsFixed(2);
-
-        _totalGstController.text = Tot_GSTAmt.toStringAsFixed(2);
-
-       // _otherChargeExcludeTaxController.text = Tot_otherChargeExcludeTax.toStringAsFixed(2);
-
-        double Tot_NetAmnt = Tot_BasicAmount + Tot_otherChargeWithTax + Tot_GSTAmt + Tot_otherChargeExcludeTax;
-        _netAmountController.text = Tot_NetAmnt.toStringAsFixed(2); //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
-        Tot_NetAmnt=0.00;
-*/
-
-        /*Tot_BasicAmount = 0.00;
-        Tot_otherChargeWithTax = 0.00;
-        Tot_GSTAmt = 0.00;
-        Tot_otherChargeExcludeTax = 0.00;
-        Tot_NetAmt = 0.00;
-*/
       } else {
-        //Tot_otherChargeExcludeTax = ChargeAmt1+ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
         InclusiveBeforeGstAmnt2 = 0.00;
         InclusiveBeforeGstAmnt_Minus2 = 0.00;
         AfterInclusiveBeforeGstAmnt2 = ChargeAmt2;
       }
     }
-
-    //  TotalCalculation3();
   }
 
   void TotalCalculation3() async {
@@ -2730,8 +2471,11 @@ class _QuotationOtherChargeScreenState
     List<QuotationTable> temp =
         await OfflineDbHelper.getInstance().getQuotationProduct();
     _inquiryProductList.addAll(temp);
+
     setState(() {});
   }
+
+  //
 
   void getProductFromDB() async {
     await getInquiryProductDetails();
@@ -2823,6 +2567,8 @@ class _QuotationOtherChargeScreenState
         _netAmountController.text = Tot_NetAmt.toStringAsFixed(2);
       });
     }
+
+    _OnTaptoSave();
   }
 
   void PushAllOtherChargesToDb() {
@@ -2877,17 +2623,31 @@ class _QuotationOtherChargeScreenState
         ExclusiveAfterGstAmnt2.toStringAsFixed(2));
 
     QT_OtherChargeTemp qt_otherChargeTable = QT_OtherChargeTemp();
-    print("ChargeID" + _otherChargeIDController1.text);
-    qt_otherChargeTable.ChargeID1 = int.parse(_otherChargeIDController1.text
-        .toString()); //==null?0:_otherChargeIDController1.text.toString());
-    qt_otherChargeTable.ChargeID2 = int.parse(_otherChargeIDController2.text
-        .toString()); //==null?0:_otherChargeIDController2.text.toString());
-    qt_otherChargeTable.ChargeID3 = int.parse(_otherChargeIDController3.text
-        .toString()); //==null?0:_otherChargeIDController3.text.toString());
-    qt_otherChargeTable.ChargeID4 = int.parse(_otherChargeIDController4.text
-        .toString()); //==null?0:_otherChargeIDController4.text.toString());
-    qt_otherChargeTable.ChargeID5 = int.parse(_otherChargeIDController5.text
-        .toString()); //==null?0:_otherChargeIDController5.text.toString());
+    print("ChargeID" + _otherChargeIDController2.text.toString());
+    qt_otherChargeTable.ChargeID1 =
+        _otherChargeIDController1.text.toString() != "" ||
+                _otherChargeIDController1.text.toString() != null
+            ? int.parse(_otherChargeIDController1.text.toString())
+            : 0; //==null?0:_otherChargeIDController1.text.toString());
+    qt_otherChargeTable.ChargeID2 = _otherChargeIDController2.text != "" ||
+            _otherChargeIDController2.text != null
+        ? int.parse(_otherChargeIDController2.text.toString())
+        : 0; //==null?0:_otherChargeIDController2.text.toString());
+    qt_otherChargeTable.ChargeID3 =
+        _otherChargeIDController3.text.toString() != "" ||
+                _otherChargeIDController3.text.toString() != null
+            ? int.parse(_otherChargeIDController3.text.toString())
+            : 0; //==null?0:_otherChargeIDController3.text.toString());
+    qt_otherChargeTable.ChargeID4 =
+        _otherChargeIDController4.text.toString() != "" ||
+                _otherChargeIDController4.text.toString() != null
+            ? int.parse(_otherChargeIDController4.text.toString())
+            : 0; //==null?0:_otherChargeIDController4.text.toString());
+    qt_otherChargeTable.ChargeID5 =
+        _otherChargeIDController5.text.toString() != "" ||
+                _otherChargeIDController5.text.toString() != null
+            ? int.parse(_otherChargeIDController5.text.toString())
+            : 0; //==null?0:_otherChargeIDController5.text.toString());
     qt_otherChargeTable.Headerdiscount = 0.00;
     qt_otherChargeTable.Tot_BasicAmt = double.parse(
         _basicAmountController.text == null
@@ -3470,6 +3230,10 @@ class _QuotationOtherChargeScreenState
   }
 
   void _OnTaptoSave() async {
+    if (_headerDiscountController.text == "") {
+      _headerDiscountController.text = "0.00";
+    }
+
     TotalCalculation();
     TotalCalculation2();
     TotalCalculation3();
@@ -3565,10 +3329,13 @@ class _QuotationOtherChargeScreenState
 
     double MinusHeaderDiscamnt = Tot_NetAmnt - HeaderDisAmnt;
 
-    _netAmountController.text = /*nt.toStringAsFixed(
-        2);*/
-        MinusHeaderDiscamnt.toStringAsFixed(
-            2); //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
+    _netAmountController.text = MinusHeaderDiscamnt.roundToDouble()
+        .toStringAsFixed(2); //MinusHeaderDiscamnt.toStringAsFixed(2);
+
+    double value = MinusHeaderDiscamnt;
+    double decimalValue = value - value.toInt();
+
+    _roundOFController.text = decimalValue.toStringAsFixed(2);
   }
 
   void _ondeleteAllQT_OtherTable(QT_OtherChargeDeleteResponseState state) {

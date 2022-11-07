@@ -152,3 +152,9 @@ class AccuraBathComplaintFollowupSaveRequestEvent extends FollowupEvents {
   AccuraBathComplaintFollowupSaveRequestEvent(
       this.pkID, this.context, this.Msg, this.complaintFollowupSaveRequest);
 }
+
+class TeleCallerFollowupHistoryRequestEvent extends FollowupEvents {
+  final TeleCallerFollowupHistoryRequest request;
+  TeleCallerFollowupHistoryRequestEvent(this.request);
+}
+//

@@ -7,23 +7,23 @@ import 'package:soleoserp/models/api_requests/customer/customer_source_list_requ
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/new_telecaller_save_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/telecaller_new_pagination_request.dart';
-import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_search_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_delete_response.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/external_lead_save_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_delete_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/external_lead_save_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/swastik_telecaller_response/telecaller_new_pagination_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/telecaller_list_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
-import '../../../../models/api_responses/telecaller_company_search_response.dart';
+import '../../../../models/api_responses/telecaller/telecaller_company_search_response.dart';
 
 part 'telecaller_new_event.dart';
 part 'telecaller_new_state.dart';

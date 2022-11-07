@@ -4,8 +4,8 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
 import 'package:soleoserp/models/api_requests/employee/employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/employee/employee_search_request.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_delete_response.dart';
-import 'package:soleoserp/models/api_responses/employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
+import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'employee_event.dart';

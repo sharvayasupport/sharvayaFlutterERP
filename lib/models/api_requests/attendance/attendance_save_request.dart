@@ -9,7 +9,8 @@ class AttendanceSaveApiRequest {
   String Latitude;
   String Longitude;
   String LocationAddress;
-
+  String LunchIn;
+  String LunchOut;
 
   /*
 
@@ -26,7 +27,19 @@ CompanyId:8033
 
   */
 
-  AttendanceSaveApiRequest({this.EmployeeID,this.PresenceDate,this.TimeIn,this.TimeOut,this.LoginUserID,this.CompanyId,this.Latitude,this.Longitude,this.Notes,this.LocationAddress});
+  AttendanceSaveApiRequest(
+      {this.EmployeeID,
+      this.PresenceDate,
+      this.TimeIn,
+      this.TimeOut,
+      this.LoginUserID,
+      this.CompanyId,
+      this.Latitude,
+      this.Longitude,
+      this.Notes,
+      this.LocationAddress,
+      this.LunchIn,
+      this.LunchOut});
 
   AttendanceSaveApiRequest.fromJson(Map<String, dynamic> json) {
     EmployeeID = json['EmployeeID'];
@@ -39,7 +52,8 @@ CompanyId:8033
     Latitude = json['Latitude'];
     Longitude = json['Longitude'];
     LocationAddress = json['LocationAddress'];
-
+    LunchIn = json['LunchIn'];
+    LunchOut = json['LunchOut'];
   }
 
   Map<String, dynamic> toJson() {
@@ -54,6 +68,9 @@ CompanyId:8033
     data['Latitude'] = this.Latitude;
     data['Longitude'] = this.Longitude;
     data['LocationAddress'] = this.LocationAddress;
+    data['LunchIn'] = this.LunchIn;
+    data['LunchOut'] = this.LunchOut;
+
     return data;
   }
 }

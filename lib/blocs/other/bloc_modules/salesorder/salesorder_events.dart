@@ -92,6 +92,7 @@ class PaymentScheduleDeleteEvent extends SalesOrderEvents {
   int id;
   PaymentScheduleDeleteEvent(this.id);
 }
+
 class PaymentScheduleEditEvent extends SalesOrderEvents {
   //final FCMNotificationRequest request;
   SoPaymentScheduleTable soPaymentScheduleTable;
@@ -101,4 +102,29 @@ class PaymentScheduleEditEvent extends SalesOrderEvents {
 class PaymentScheduleDeleteAllItemEvent extends SalesOrderEvents {
   //final FCMNotificationRequest request;
   PaymentScheduleDeleteAllItemEvent();
+}
+
+class SaleOrderHeaderSaveRequestEvent extends SalesOrderEvents {
+  int pkID;
+  SaleOrderHeaderSaveRequest saleOrderHeaderSaveRequest;
+
+  BuildContext context;
+  SaleOrderHeaderSaveRequestEvent(
+      this.context, this.pkID, this.saleOrderHeaderSaveRequest);
+}
+
+class SaleOrderProductSaveCallEvent extends SalesOrderEvents {
+  String SO_NO;
+  BuildContext context;
+  final List<SalesOrderProductRequest> arrSalesOrderProductList;
+  SaleOrderProductSaveCallEvent(
+      this.context, this.SO_NO, this.arrSalesOrderProductList);
+}
+
+class SalesOrderProductDeleteRequestEvent extends SalesOrderEvents {
+  int pkID;
+  final SalesOrderAllProductDeleteRequest SalesOrderProductDeleteRequest;
+
+  SalesOrderProductDeleteRequestEvent(
+      this.pkID, this.SalesOrderProductDeleteRequest);
 }

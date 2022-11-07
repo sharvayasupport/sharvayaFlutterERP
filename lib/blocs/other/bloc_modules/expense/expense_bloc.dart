@@ -12,15 +12,15 @@ import 'package:soleoserp/models/api_requests/expense/expense_type_request.dart'
 import 'package:soleoserp/models/api_requests/expense/expense_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/expense/fetc_image_list_by_expense_pk_id_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
-import 'package:soleoserp/models/api_responses/attendance_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_delete_image_response.dart';
-import 'package:soleoserp/models/api_responses/expense_delete_response.dart';
-import 'package:soleoserp/models/api_responses/expense_image_upload_server_response.dart';
-import 'package:soleoserp/models/api_responses/expense_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_save_response.dart';
-import 'package:soleoserp/models/api_responses/expense_type_response.dart';
-import 'package:soleoserp/models/api_responses/expense_upload_image_response.dart';
-import 'package:soleoserp/models/api_responses/fetch_image_by_expense_pk_id_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_delete_image_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_delete_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_image_upload_server_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_list_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_save_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_upload_image_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/fetch_image_by_expense_pk_id_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'expense_events.dart';

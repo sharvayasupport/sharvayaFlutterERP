@@ -15,17 +15,17 @@ import 'package:soleoserp/models/api_requests/inquiry/inqiory_header_save_reques
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_category_list.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/district_api_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
-import 'package:soleoserp/models/api_responses/taluka_api_response.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/district_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/taluka_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/globals.dart';
@@ -2738,6 +2738,12 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
   }
 
   void checkPermissionStatus() async {
+    if (!await location.serviceEnabled()) {
+      // location.requestService();
+
+      showCommonDialogWithSingleOption(context, "Please Turn On GPS !",
+          positiveButtonTitle: "OK");
+    }
     bool granted = await Permission.location.isGranted;
     bool Denied = await Permission.location.isDenied;
     bool PermanentlyDenied = await Permission.location.isPermanentlyDenied;

@@ -77,8 +77,28 @@ class FCMNotificationResponseState extends TeleCallerStates {
 
   FCMNotificationResponseState(this.response);
 }
+
 class GetReportToTokenResponseState extends TeleCallerStates {
   final GetReportToTokenResponse response;
 
   GetReportToTokenResponseState(this.response);
+}
+
+class TeleCallerFollowupSaveResponseState extends TeleCallerStates {
+  final TeleCallerFollowupSaveResponse response;
+
+  TeleCallerFollowupSaveResponseState(this.response);
+}
+
+//TeleCallerFollowupSaveResponse
+class FollowupTypeListCallResponseState extends TeleCallerStates {
+  final FollowupTypeListResponse followupTypeListResponse;
+
+  FollowupTypeListCallResponseState(this.followupTypeListResponse);
+}
+
+class CloserReasonListCallResponseState extends TeleCallerStates {
+  final CloserReasonListResponse closerReasonListResponse;
+
+  CloserReasonListCallResponseState(this.closerReasonListResponse);
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/designation_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/sales_bill_table.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';

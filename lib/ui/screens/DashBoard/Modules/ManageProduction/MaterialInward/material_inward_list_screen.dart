@@ -5,7 +5,7 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/manage_production/production_bloc.dart';
 import 'package:soleoserp/models/api_requests/ManageProductionRequest/MaterialInwardRequest/material_inward_list_request.dart';
 import 'package:soleoserp/models/api_responses/ManageProductionResponse/MaterialInward/material_inward_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ManageProduction/MaterialInward/material_inward_add_edit.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';

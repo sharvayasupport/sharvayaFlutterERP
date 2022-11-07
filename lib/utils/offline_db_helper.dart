@@ -25,6 +25,8 @@ class OfflineDbHelper {
   static const TABLE_CONTACTS = "contacts";
   static const TABLE_INQUIRY_PRODUCT = "inquiry_product";
   static const TABLE_QUOTATION_PRODUCT = "quotation_product";
+  static const TABLE_QUOTATION_OLD_PRODUCT = "quotation_old_product";
+
   static const TABLE_SALES_ORDER_PRODUCT = "sales_order_product";
   static const TABLE_SALES_BILL_PRODUCT = "sales_bill_product";
 
@@ -68,7 +70,7 @@ class OfflineDbHelper {
     database = await openDatabase(
         join(await getDatabasesPath(), 'soleoserp_database.db'),
         onCreate: (db, version) => _createDb(db),
-        version: 7);
+        version: 8);
   }
 
   static void _createDb(Database db) {
@@ -81,6 +83,10 @@ class OfflineDbHelper {
     db.execute(
       'CREATE TABLE $TABLE_QUOTATION_PRODUCT(id INTEGER PRIMARY KEY AUTOINCREMENT, QuotationNo TEXT, ProductSpecification TEXT , ProductID INTEGER, ProductName TEXT, Unit TEXT, Quantity DOUBLE, UnitRate DOUBLE, DiscountPercent DOUBLE, DiscountAmt DOUBLE ,NetRate DOUBLE, Amount DOUBLE, TaxRate DOUBLE, TaxAmount DOUBLE, NetAmount DOUBLE, TaxType INTEGER, CGSTPer DOUBLE, SGSTPer DOUBLE, IGSTPer DOUBLE, CGSTAmt DOUBLE, SGSTAmt DOUBLE, IGSTAmt DOUBLE, StateCode INTEGER, pkID INTEGER, LoginUserID TEXT, CompanyId TEXT , BundleId INTEGER ,HeaderDiscAmt DOUBLE)',
     );
+    db.execute(
+      'CREATE TABLE $TABLE_QUOTATION_OLD_PRODUCT(id INTEGER PRIMARY KEY AUTOINCREMENT, QuotationNo TEXT, ProductSpecification TEXT , ProductID INTEGER, ProductName TEXT, Unit TEXT, Quantity DOUBLE, UnitRate DOUBLE, DiscountPercent DOUBLE, DiscountAmt DOUBLE ,NetRate DOUBLE, Amount DOUBLE, TaxRate DOUBLE, TaxAmount DOUBLE, NetAmount DOUBLE, TaxType INTEGER, CGSTPer DOUBLE, SGSTPer DOUBLE, IGSTPer DOUBLE, CGSTAmt DOUBLE, SGSTAmt DOUBLE, IGSTAmt DOUBLE, StateCode INTEGER, pkID INTEGER, LoginUserID TEXT, CompanyId TEXT , BundleId INTEGER ,HeaderDiscAmt DOUBLE)',
+    );
+    //
 
     db.execute(
       'CREATE TABLE $TABLE_QUOTATION_OTHERCHARGE_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,Headerdiscount DOUBLE,Tot_BasicAmt DOUBLE,OtherChargeWithTaxamt DOUBLE,Tot_GstAmt DOUBLE,OtherChargeExcludeTaxamt DOUBLE,Tot_NetAmount DOUBLE,ChargeID1 INTEGER,ChargeAmt1 DOUBLE,ChargeBasicAmt1 DOUBLE,ChargeGSTAmt1 DOUBLE,ChargeID2 INTEGER,ChargeAmt2 DOUBLE,ChargeBasicAmt2 DOUBLE,ChargeGSTAmt2 DOUBLE,ChargeID3 INTEGER,ChargeAmt3 DOUBLE,ChargeBasicAmt3 DOUBLE,ChargeGSTAmt3 DOUBLE,ChargeID4 INTEGER,ChargeAmt4 DOUBLE,ChargeBasicAmt4 DOUBLE,ChargeGSTAmt4 DOUBLE,ChargeID5 INTEGER,ChargeAmt5 DOUBLE,ChargeBasicAmt5 DOUBLE,ChargeGSTAmt5 DOUBLE)',
@@ -340,6 +346,98 @@ class OfflineDbHelper {
     final db = await database;
 
     await db.delete(TABLE_QUOTATION_PRODUCT);
+  }
+
+  ///OLD_ProductCRUD
+
+  Future<int> insertOldQuotationProduct(QuotationTable model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_QUOTATION_OLD_PRODUCT,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<QuotationTable>> getOldQuotationProduct() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps =
+        await db.query(TABLE_QUOTATION_OLD_PRODUCT);
+
+    return List.generate(maps.length, (i) {
+/*  int ProductID;
+  String ProductName;
+  String Unit;
+  double Quantity;
+  double UnitRate;
+  double Disc;
+  double NetRate;
+  double Amount;
+  double TaxPer;
+  double TaxAmount;
+  double NetAmount;
+  bool IsTaxType;
+*/
+      return QuotationTable(
+        maps[i]['QuotationNo'],
+        maps[i]['ProductSpecification'],
+        maps[i]['ProductID'],
+        maps[i]['ProductName'],
+        maps[i]['Unit'],
+        maps[i]['Quantity'],
+        maps[i]['UnitRate'],
+        maps[i]['DiscountPercent'],
+        maps[i]['DiscountAmt'],
+        maps[i]['NetRate'],
+        maps[i]['Amount'],
+        maps[i]['TaxRate'],
+        maps[i]['TaxAmount'],
+        maps[i]['NetAmount'],
+        maps[i]['TaxType'],
+        maps[i]['CGSTPer'],
+        maps[i]['SGSTPer'],
+        maps[i]['IGSTPer'],
+        maps[i]['CGSTAmt'],
+        maps[i]['SGSTAmt'],
+        maps[i]['IGSTAmt'],
+        maps[i]['StateCode'],
+        maps[i]['pkID'],
+        maps[i]['LoginUserID'],
+        maps[i]['CompanyId'],
+        maps[i]['BundleId'],
+        maps[i]['HeaderDiscAmt'],
+        id: maps[i]['id'],
+      );
+    });
+  }
+
+  Future<void> updateOldQuotationProduct(QuotationTable model) async {
+    final db = await database;
+
+    await db.update(
+      TABLE_QUOTATION_OLD_PRODUCT,
+      model.toJson(),
+      where: 'id = ?',
+      whereArgs: [model.id],
+    );
+  }
+
+  Future<void> deleteOldQuotationProduct(int id) async {
+    final db = await database;
+
+    await db.delete(
+      TABLE_QUOTATION_OLD_PRODUCT,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteALLOldQuotationProduct() async {
+    final db = await database;
+
+    await db.delete(TABLE_QUOTATION_OLD_PRODUCT);
   }
 
   ///Here Quotation OtherCharge Table Implimentation

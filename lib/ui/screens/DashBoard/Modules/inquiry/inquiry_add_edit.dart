@@ -8,10 +8,10 @@ import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_delete_produ
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_list_reponse.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_list_reponse.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';

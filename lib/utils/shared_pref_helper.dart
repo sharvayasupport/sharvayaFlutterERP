@@ -1,18 +1,18 @@
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/closer_reason_list_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_category_list.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/designation_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_type_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_type_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_type_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_request_type_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
+import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 
 class SharedPrefHelper {
   final SharedPreferences prefs;
@@ -245,5 +245,4 @@ class SharedPrefHelper {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     return myPrefs.getStringList(key);
   }*/
-
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/telecaller/telecaller_bloc.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_search_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_search_by_name_response.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -35,7 +35,7 @@ class _SearchTeleCallerScreenState extends BaseState<SearchTeleCallerScreen>
   int CompanyID = 0;
   String LoginUserID = "";
 
-  String _LeadStatus="";
+  String _LeadStatus = "";
 
   @override
   void initState() {
@@ -80,7 +80,8 @@ class _SearchTeleCallerScreenState extends BaseState<SearchTeleCallerScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -108,9 +109,11 @@ class _SearchTeleCallerScreenState extends BaseState<SearchTeleCallerScreen>
       children: [
         Container(
           padding: EdgeInsets.only(left: 10, right: 20),
-          child: Text(
-              "Min. 3 chars to search Inquiry",
-              style:TextStyle(fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)        ),
+          child: Text("Min. 3 chars to search Inquiry",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
@@ -119,7 +122,7 @@ class _SearchTeleCallerScreenState extends BaseState<SearchTeleCallerScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -128,7 +131,7 @@ class _SearchTeleCallerScreenState extends BaseState<SearchTeleCallerScreen>
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -196,8 +199,12 @@ class _SearchTeleCallerScreenState extends BaseState<SearchTeleCallerScreen>
   ///calls search list api
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
-      _inquiryBloc.add(TeleCallerSearchByNameCallEvent(
-          TeleCallerSearchRequest(CompanyId: CompanyID.toString(),word: value.toString(),needALL: "1",LoginUserID: LoginUserID,LeadStatus: _LeadStatus)));
+      _inquiryBloc.add(TeleCallerSearchByNameCallEvent(TeleCallerSearchRequest(
+          CompanyId: CompanyID.toString(),
+          word: value.toString(),
+          needALL: "1",
+          LoginUserID: LoginUserID,
+          LeadStatus: _LeadStatus)));
     }
   }
 

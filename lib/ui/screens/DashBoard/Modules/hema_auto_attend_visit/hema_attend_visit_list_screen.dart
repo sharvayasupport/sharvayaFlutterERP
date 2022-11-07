@@ -1,12 +1,17 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_share_me/flutter_share_me.dart';
+import 'package:lottie/lottie.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attend_visit/attend_visit_bloc.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_list_request.dart';
+import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -14,8 +19,10 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/hema_auto_attend_visit/he
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HemaAttendVisitListScreen extends BaseStatefulWidget {
   static const routeName = '/HemaAttendVisitListScreen';
@@ -25,10 +32,28 @@ class HemaAttendVisitListScreen extends BaseStatefulWidget {
       _HemaAttendVisitListScreenState();
 }
 
+enum Share {
+  facebook,
+  twitter,
+  whatsapp,
+  whatsapp_personal,
+  whatsapp_business,
+  share_system,
+  share_instagram,
+  share_telegram
+}
+
 class _HemaAttendVisitListScreenState
     extends BaseState<HemaAttendVisitListScreen>
     with BasicScreen, WidgetsBindingObserver {
+  double sizeboxsize = 12;
+  double _fontSize_Label = 9;
+  double _fontSize_Title = 11;
+  int label_color = 0xFF504F4F; //0x66666666;
+  int title_color = 0xFF000000;
+
   AttendVisitBloc _complaintScreenBloc;
+  QucikComplaintListResponse _qucikComplaintListResponse;
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
   int CompanyID = 0;
@@ -52,6 +77,7 @@ class _HemaAttendVisitListScreenState
 
   bool isListExist = false;
   int selected = 0; //attention
+  int TotalCount = 0;
 
   @override
   void initState() {
@@ -84,24 +110,35 @@ class _HemaAttendVisitListScreenState
         "-" +
         selectedDate.day.toString();
 
-    /* edt_Status.addListener(() {
-
-    });*/
+    edt_Status.addListener(() {
+      _complaintScreenBloc.add(QuickComplaintListRequestCallEvent(
+          QuickComplaintListRequest(
+              Status: edt_Status.text, CompanyId: CompanyID.toString())));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => _complaintScreenBloc,
+      create: (BuildContext context) => _complaintScreenBloc
+        ..add(QuickComplaintListRequestCallEvent(QuickComplaintListRequest(
+            Status: edt_Status.text, CompanyId: CompanyID.toString()))),
       child: BlocConsumer<AttendVisitBloc, AttendVisitStates>(
         builder: (BuildContext context, AttendVisitStates state) {
           //handle states
+
+          if (state is QuickComplaintListResponseState) {
+            _onComplaintListCallSuccess(state);
+          }
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           //return true for state for which builder method should be called
 
+          if (currentState is QuickComplaintListResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, AttendVisitStates state) {
@@ -145,7 +182,12 @@ class _HemaAttendVisitListScreenState
             children: [
               Expanded(
                 child: RefreshIndicator(
-                  onRefresh: () async {},
+                  onRefresh: () async {
+                    _complaintScreenBloc.add(QuickComplaintListRequestCallEvent(
+                        QuickComplaintListRequest(
+                            Status: edt_Status.text,
+                            CompanyId: CompanyID.toString())));
+                  },
                   child: Container(
                     padding: EdgeInsets.only(
                       left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
@@ -197,21 +239,21 @@ class _HemaAttendVisitListScreenState
   }
 
   Widget _buildFollowupList() {
-    /*if (isListExist) {*/
-    return ListView.builder(
-      key: Key('selected $selected'),
-      itemBuilder: (context, index) {
-        return _buildFollowupListItem(index); //_buildFollowupListItem(index);
-      },
-      shrinkWrap: true,
-      itemCount: 2,
-    );
-    /*} else {
+    if (isListExist) {
+      return ListView.builder(
+        key: Key('selected $selected'),
+        itemBuilder: (context, index) {
+          return _buildFollowupListItem(index); //_buildFollowupListItem(index);
+        },
+        shrinkWrap: true,
+        itemCount: _qucikComplaintListResponse.details.length,
+      );
+    } else {
       return Container(
         alignment: Alignment.center,
         child: Lottie.asset(NO_SEARCH_RESULT_FOUND, height: 200, width: 200),
       );
-    }*/
+    }
   }
 
   Widget _buildFollowupListItem(int index) {
@@ -221,6 +263,9 @@ class _HemaAttendVisitListScreenState
   }
 
   ExpantionCustomer(BuildContext context, int index) {
+    QucikComplaintListResponseDetails model =
+        _qucikComplaintListResponse.details[index];
+
     //Totcount= _FollowupListResponse.totalCount;
     //  if(_FollowupListResponse.details[index].employeeName == edt_FollowupEmployeeList.text) {
     return Container(
@@ -253,48 +298,55 @@ class _HemaAttendVisitListScreenState
           //mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Text(
-              "model.inquiryStatus",
+              model.complaintStatus,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
             ),
-            Divider(
-              thickness: 1,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Text("In-Time : ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 10)),
-                    Text(
-                      "02:57 AM",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          color: colorPrimary),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text("Out-Time : ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 10)),
-                    Text(
-                      "03:57 AM",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
-                          color: colorPrimary),
-                    ),
-                  ],
-                )
-              ],
-            ),
+            model.timeIn != "" || model.timeOut != ""
+                ? Divider(
+                    thickness: 1,
+                  )
+                : Container(),
+            model.timeIn != "" || model.timeOut != ""
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Row(
+                        children: [
+                          Text("In-Time : ",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 10)),
+                          Text(
+                            getTime(model.timeIn),
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                color: colorPrimary),
+                          ),
+                        ],
+                      ),
+                      model.timeOut != ""
+                          ? Row(
+                              children: [
+                                Text("Out-Time : ",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10)),
+                                Text(
+                                  getTime(model.timeOut),
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                      color: colorPrimary),
+                                ),
+                              ],
+                            )
+                          : Container()
+                    ],
+                  )
+                : Container(),
             SizedBox(
               height: 10,
             )
@@ -327,7 +379,7 @@ class _HemaAttendVisitListScreenState
                               children: <Widget>[
                                 GestureDetector(
                                   onTap: () async {
-                                    //await _makePhoneCall(model.contactNo1);
+                                    await _makePhoneCall("7802933894");
                                   },
                                   child: Container(
                                       child: Column(
@@ -365,14 +417,14 @@ class _HemaAttendVisitListScreenState
                                         positiveButtonTitle: "WhatsApp",
                                         onTapOfPositiveButton: () {
                                           Navigator.pop(context);
-                                          /*onButtonTap(
-                                              Share.whatsapp_personal, model);*/
+                                          onButtonTap(
+                                              Share.whatsapp_personal, model);
                                         },
                                         negativeButtonTitle: "Business",
                                         onTapOfNegativeButton: () {
                                           Navigator.pop(context);
 
-                                          // _launchWhatsAppBuz(model.contactNo1);
+                                          _launchWhatsAppBuz("7802933894");
                                         });
                                   },
                                   child: Container(
@@ -405,6 +457,109 @@ class _HemaAttendVisitListScreenState
                                 SizedBox(
                                   width: 20,
                                 ),
+                                model.latitudeIN != "" ||
+                                        model.longitudeIN != ""
+                                    ? GestureDetector(
+                                        onTap: () async {
+                                          if (model.latitudeIN != "" ||
+                                              model.longitudeIN != "") {
+                                            print("jdjfds45" +
+                                                double.parse(model.latitudeIN)
+                                                    .toString() +
+                                                " Longitude : " +
+                                                double.parse(model.longitudeIN)
+                                                    .toString());
+                                            MapsLauncher.launchCoordinates(
+                                                double.parse(model.latitudeIN),
+                                                double.parse(model.longitudeIN),
+                                                'Location In');
+                                          } else {
+                                            showCommonDialogWithSingleOption(
+                                                context,
+                                                "Location In Not Valid !",
+                                                positiveButtonTitle: "OK",
+                                                onTapOfPositiveButton: () {
+                                              Navigator.of(context).pop();
+                                            });
+                                          }
+                                        },
+                                        child: Container(
+                                            child: Column(
+                                          children: [
+                                            Text(
+                                              "In",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.deepOrange,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Image.asset(
+                                              LOCATION_ICON,
+                                              width: 30,
+                                              height: 30,
+                                            ),
+                                          ],
+                                        )),
+                                      )
+                                    : Container(),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                model.latitudeOUT != "" ||
+                                        model.longitudeOUT != ""
+                                    ? GestureDetector(
+                                        onTap: () async {
+                                          if (model.timeOut != "" &&
+                                              model.timeOut != "00:00:00") {
+                                            if (model.latitudeOUT != "" ||
+                                                model.longitudeOUT != "") {
+                                              MapsLauncher.launchCoordinates(
+                                                  double.parse(
+                                                      model.latitudeOUT),
+                                                  double.parse(
+                                                      model.longitudeOUT),
+                                                  'Location Out');
+                                            } else {
+                                              showCommonDialogWithSingleOption(
+                                                  context,
+                                                  "Location Out Not Valid !",
+                                                  positiveButtonTitle: "OK",
+                                                  onTapOfPositiveButton: () {
+                                                Navigator.of(context).pop();
+                                              });
+                                            }
+                                          }
+                                        },
+                                        child: model.timeOut != "" &&
+                                                model.timeOut != "00:00:00"
+                                            ? Container(
+                                                child: Column(
+                                                children: [
+                                                  Text(
+                                                    "Out",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            Colors.deepOrange,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Image.asset(
+                                                    LOCATION_ICON,
+                                                    width: 30,
+                                                    height: 30,
+                                                  ),
+                                                ],
+                                              ))
+                                            : Container(),
+                                      )
+                                    : Container(),
                               ]),
                         ),
                         SizedBox(
@@ -415,11 +570,203 @@ class _HemaAttendVisitListScreenState
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text("Contact No1.",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Color(label_color),
+                                      fontSize: _fontSize_Label,
+                                      letterSpacing: .3)),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text("7802933894" == "" ? "N/A" : "7802933894",
+                                  style: TextStyle(
+                                      color: Color(title_color),
+                                      fontSize: _fontSize_Title,
+                                      letterSpacing: .3))
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                    ),
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _buildTitleWithValueView(
+                                "Visit Date",
+                                model.visitDate.getFormattedDate(
+                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                        toFormat: "dd-MM-yyyy") ??
+                                    "-"),
+                          ),
+                          Expanded(
+                            child: _buildTitleWithValueView(
+                                "Visit Type", model.complaintStatus ?? "-"),
+                          ),
+                        ]),
+                    SizedBox(
+                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                    ),
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _buildTitleWithValueView(
+                                "Next Visit Date",
+                                model.nextVisitDate.getFormattedDate(
+                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                        toFormat: "dd-MM-yyyy") ??
+                                    "-"),
+                          ),
+                          Expanded(
+                            child: _buildTitleWithValueView(
+                              "CreatedBy : ",
+                              model.createdBy,
+                            ),
+                          )
+                        ]),
                   ],
                 ),
               ),
             ),
           ),
+          edt_Status.text == "completestatus" || edt_Status.text == "future"
+              ? Container()
+              : ButtonBar(
+                  alignment: MainAxisAlignment.center,
+                  buttonHeight: 52.0,
+                  buttonMinWidth: 90.0,
+                  children: <Widget>[
+                      model.timeIn.toString() == ""
+                          ? GestureDetector(
+                              onTap: () {
+                                navigateTo(context,
+                                        HemaAttendVisitAddEditScreen.routeName,
+                                        arguments:
+                                            QuickAddUpdateComplaintScreenArguments(
+                                                _qucikComplaintListResponse
+                                                    .details[index],
+                                                false,
+                                                "PunchIn"))
+                                    .then((value) {
+                                  _complaintScreenBloc.add(
+                                      QuickComplaintListRequestCallEvent(
+                                          QuickComplaintListRequest(
+                                              Status: edt_Status.text,
+                                              CompanyId:
+                                                  CompanyID.toString())));
+                                });
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.login,
+                                    color: Colors.black,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 2.0),
+                                  ),
+                                  Text(
+                                    'PunchIn',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(),
+                      model.timeIn.toString() != ""
+                          ? GestureDetector(
+                              onTap: () {
+                                navigateTo(context,
+                                        HemaAttendVisitAddEditScreen.routeName,
+                                        arguments:
+                                            QuickAddUpdateComplaintScreenArguments(
+                                                _qucikComplaintListResponse
+                                                    .details[index],
+                                                false,
+                                                "PunchOut"))
+                                    .then((value) {
+                                  _complaintScreenBloc.add(
+                                      QuickComplaintListRequestCallEvent(
+                                          QuickComplaintListRequest(
+                                              Status: edt_Status.text,
+                                              CompanyId:
+                                                  CompanyID.toString())));
+                                });
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.logout,
+                                    color: Colors.black,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 2.0),
+                                  ),
+                                  Text(
+                                    'PunchOut',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(),
+                    ]),
+          edt_Status.text == "future"
+              ? ButtonBar(
+                  alignment: MainAxisAlignment.center,
+                  buttonHeight: 52.0,
+                  buttonMinWidth: 90.0,
+                  children: <Widget>[
+                      GestureDetector(
+                        onTap: () {
+                          navigateTo(context,
+                                  HemaAttendVisitAddEditScreen.routeName,
+                                  arguments:
+                                      QuickAddUpdateComplaintScreenArguments(
+                                          _qucikComplaintListResponse
+                                              .details[index],
+                                          true,
+                                          "PunchIn"))
+                              .then((value) {
+                            _complaintScreenBloc.add(
+                                QuickComplaintListRequestCallEvent(
+                                    QuickComplaintListRequest(
+                                        Status: edt_Status.text,
+                                        CompanyId: CompanyID.toString())));
+                          });
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.login,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'PunchIn',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    ])
+              : Container(),
         ],
       ),
     );
@@ -540,5 +887,130 @@ class _HemaAttendVisitListScreenState
         arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
       }
     }
+  }
+
+  void _onComplaintListCallSuccess(QuickComplaintListResponseState state) {
+    if (state.response.details.length != 0) {
+      //_FollowupListResponse = state.quickFollowupListResponse;
+
+      for (int i = 0; i < state.response.details.length; i++) {
+        /* QuickFollowupListResponseDetails quickFollowupListResponseDetails = QuickFollowupListResponseDetails();
+            quickFollowupListResponseDetails.customerName*/
+
+        _qucikComplaintListResponse = state.response;
+      }
+
+      if (_qucikComplaintListResponse != null) {
+        isListExist = true;
+        TotalCount = state.response.totalCount;
+      } else {
+        isListExist = false;
+        TotalCount = 0;
+      }
+    } else {
+      isListExist = false;
+    }
+  }
+
+  getTime(String time) {
+    TimeOfDay _startTime = TimeOfDay(
+        hour: int.parse(time.split(":")[0]),
+        minute: int.parse(time.split(":")[1]));
+
+    String beforZeroHour = _startTime.hourOfPeriod <= 9
+        ? "0" + _startTime.hourOfPeriod.toString()
+        : _startTime.hourOfPeriod.toString();
+    String beforZerominute = _startTime.minute <= 9
+        ? "0" + _startTime.minute.toString()
+        : _startTime.minute.toString();
+    /*selectedTime.hourOfPeriod <= 9
+        ? "0" + selectedTime.hourOfPeriod*/
+    return "${beforZeroHour}:${beforZerominute} ${_startTime.period == DayPeriod.pm ? "PM" : "AM"}";
+  }
+
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
+    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
+    // such as spaces in the input, which would cause `launch` to fail on some
+    // platforms.
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launch(launchUri.toString());
+  }
+
+  Future<void> onButtonTap(
+      Share share, QucikComplaintListResponseDetails customerDetails) async {
+    String msg =
+        "_"; //"Thank you for contacting us! We will be in touch shortly";
+    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
+    String url = 'https://pub.dev/packages/flutter_share_me';
+
+    String response;
+    final FlutterShareMe flutterShareMe = FlutterShareMe();
+    switch (share) {
+      case Share.facebook:
+        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
+        break;
+      case Share.twitter:
+        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
+        break;
+
+      case Share.whatsapp_business:
+        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
+        break;
+      case Share.share_system:
+        response = await flutterShareMe.shareToSystem(msg: msg);
+        break;
+      case Share.whatsapp_personal:
+        response = await flutterShareMe.shareWhatsAppPersonalMessage(
+            message: msg, phoneNumber: '+91' + "7802933894");
+        break;
+      case Share.share_telegram:
+        response = await flutterShareMe.shareToTelegram(msg: msg);
+        break;
+    }
+    debugPrint(response);
+  }
+
+  void _launchWhatsAppBuz(String MobileNo) async {
+    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
+  }
+
+  Future<void> share(String contactNo1) async {
+    String msg =
+        "_"; //"Thank you for contacting us! We will be in touch shortly";
+
+    /*await WhatsappShare.share(
+        text: msg,
+        //linkUrl: 'https://flutter.dev/',
+        phone: "91" + contactNo1,
+        package: Package.businessWhatsapp);*/
+  }
+
+  Widget _buildTitleWithValueView(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: TextStyle(
+                fontSize: _fontSize_Label,
+                color: Color(0xFF504F4F),
+                /*fontWeight: FontWeight.bold,*/
+                fontStyle: FontStyle
+                    .italic) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+            ),
+        SizedBox(
+          height: 3,
+        ),
+        Text(value,
+            style: TextStyle(
+                fontSize: _fontSize_Title,
+                color:
+                    colorPrimary) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+            )
+      ],
+    );
   }
 }

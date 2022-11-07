@@ -13,11 +13,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attendance_employee/attendance_bloc.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
+import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
@@ -195,11 +196,14 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
       Longitude = position.longitude.toString();
       Latitude = position.latitude.toString();
 
-      Address = await getAddressFromLatLng(
-          Latitude, Longitude, "AIzaSyCVs8h5lia6ktiHnj2yzLYJOGtn0CQG48k");
+      Address = await getAddressFromLatLngMapMyIndia(
+          Latitude, Longitude, MAPMYINDIAKEY);
+
     }).catchError((e) {
       print(e);
     });
+
+
 
     location.onLocationChanged.listen((LocationData currentLocation) async {
       // Use current location
@@ -213,8 +217,8 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
       //  print("${first.featureName} : ${first.addressLine}");
       Latitude = currentLocation.latitude.toString();
       Longitude = currentLocation.longitude.toString();
-      Address = await getAddressFromLatLng(
-          Latitude, Longitude, "AIzaSyCVs8h5lia6ktiHnj2yzLYJOGtn0CQG48k");
+      Address = await getAddressFromLatLngMapMyIndia(
+          Latitude, Longitude, MAPMYINDIAKEY);
 
       //  Address = "${first.featureName} : ${first.addressLine}";
     });
@@ -222,10 +226,30 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
     // _FollowupBloc.add(LocationAddressCallEvent(LocationAddressRequest(key:"AIzaSyCVs8h5lia6ktiHnj2yzLYJOGtn0CQG48k",latlng:Latitude+","+Longitude)));
   }
 
-  Future<String> getAddressFromLatLng(
+ /* Future<String> getAddressFromLatLng(
       String lat, String lng, String skey) async {
     String _host = 'https://maps.google.com/maps/api/geocode/json';
     final url = '$_host?key=$skey&latlng=$lat,$lng';
+    if (lat != "" && lng != "null") {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        String _formattedAddress = data["results"][0]["formatted_address"];
+        //Address = _formattedAddress;
+        print("response ==== $_formattedAddress");
+        return _formattedAddress;
+      } else
+        return null;
+    } else
+      return null;
+  }*/
+  Future<String> getAddressFromLatLngMapMyIndia(
+      String lat, String lng, String skey) async {
+    String _host =
+        'https://apis.mapmyindia.com/advancedmaps/v1/$skey/rev_geocode';
+    final url = '$_host?lat=$lat&lng=$lng';
+
+    print("MapRequest" + url);
     if (lat != "" && lng != "null") {
       var response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -931,7 +955,11 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
   void _onSaveAttendanceResponseSuccess(AttendanceSaveCallResponseState state) {
     print(
         "AttendanceSave23" + " Message : " + state.response.details[0].column2);
-    Navigator.of(context).pop();
+    showCommonDialogWithSingleOption(context, state.response.details[0].column2,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      navigateTo(context, AttendanceListScreen.routeName, clearAllStack: true);
+    });
+    // Navigator.of(context).pop();
     // navigateTo(context, AttendanceListScreen.routeName, clearAllStack: true);
     /* _FollowupBloc
       ..add(AttendanceCallEvent(AttendanceApiRequest(

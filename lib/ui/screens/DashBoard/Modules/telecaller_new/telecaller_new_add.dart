@@ -14,15 +14,15 @@ import 'package:soleoserp/blocs/other/bloc_modules/telecaller_new/telecaller_new
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/new_telecaller_save_request.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/swastik_telecaller_response/telecaller_new_pagination_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
@@ -37,6 +37,7 @@ import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
+import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
@@ -4302,8 +4303,8 @@ class _TeleCallerAddEditNewScreenState
       Longitude = position.longitude.toString();
       Latitude = position.latitude.toString();
 
-      Address = await getAddressFromLatLng(Latitude,Longitude,MapAPIKey);
-
+      Address = await getAddressFromLatLngMapMyIndia(
+          Latitude, Longitude, MAPMYINDIAKEY);
 
     }).catchError((e) {
       print(e);
@@ -4321,8 +4322,8 @@ class _TeleCallerAddEditNewScreenState
       //  print("${first.featureName} : ${first.addressLine}");
       Latitude = currentLocation.latitude.toString();
       Longitude = currentLocation.longitude.toString();
-      Address = await getAddressFromLatLng(Latitude,Longitude,MapAPIKey);
-
+      Address = await getAddressFromLatLngMapMyIndia(
+          Latitude, Longitude, MAPMYINDIAKEY);
       //  Address = "${first.featureName} : ${first.addressLine}";
     });
 
@@ -4331,7 +4332,7 @@ class _TeleCallerAddEditNewScreenState
 
   }
 
-  Future<String> getAddressFromLatLng(String lat, String lng, String skey) async {
+ /* Future<String> getAddressFromLatLng(String lat, String lng, String skey) async {
     String _host = 'https://maps.google.com/maps/api/geocode/json';
     final url = '$_host?key=$skey&latlng=$lat,$lng';
     if(lat != "" && lng != "null"){
@@ -4344,6 +4345,27 @@ class _TeleCallerAddEditNewScreenState
         return _formattedAddress;
       } else return null;
     } else return null;
+  }*/
+
+  Future<String> getAddressFromLatLngMapMyIndia(
+      String lat, String lng, String skey) async {
+    String _host =
+        'https://apis.mapmyindia.com/advancedmaps/v1/$skey/rev_geocode';
+    final url = '$_host?lat=$lat&lng=$lng';
+
+    print("MapRequest" + url);
+    if (lat != "" && lng != "null") {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        String _formattedAddress = data["results"][0]["formatted_address"];
+        //Address = _formattedAddress;
+        print("response ==== $_formattedAddress");
+        return _formattedAddress;
+      } else
+        return null;
+    } else
+      return null;
   }
 
 }

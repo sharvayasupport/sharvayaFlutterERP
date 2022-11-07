@@ -8,15 +8,19 @@ import 'package:soleoserp/models/api_requests/complaint/complaint_no_list_reques
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_requests/transection_mode_list_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/transection_mode_list_request.dart';
 import 'package:soleoserp/models/api_responses/AttendVisit/attend_visit_delete_response.dart';
-import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
-import 'package:soleoserp/models/api_responses/attend_visit_save_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_list_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_no_list_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/transection_mode_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_save_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_list_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_no_list_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_response.dart';
+import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_list_request.dart';
+import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_save_request.dart';
+import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_list_response.dart';
+import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_save_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'attend_visit_events.dart';
@@ -61,6 +65,13 @@ class AttendVisitBloc extends Bloc<AttendVisitEvents, AttendVisitStates> {
     if (event is ComplaintSearchByIDCallEvent) {
       yield* _mapSearchByComplaintIDCallEventToState(event);
     }
+    if (event is QuickComplaintListRequestCallEvent) {
+      yield* _mapQuickComplaintListRequestCallEventToState(event);
+    }
+    if (event is QuickComplaintSaveRequestCallEvent) {
+      yield* _mapQuickComplaintSaveRequestCallEventToState(event);
+    }
+    //QuickComplaintSaveRequestCallEvent
   }
 
   Stream<AttendVisitStates> _mapAttenVisitCallEventToState(
@@ -209,6 +220,41 @@ class AttendVisitBloc extends Bloc<AttendVisitEvents, AttendVisitStates> {
       ComplaintListResponse response = await userRepository
           .getComplaintSearchByID(event.pkID, event.complaintSearchByIDRequest);
       yield ComplaintSearchByIDResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<AttendVisitStates> _mapQuickComplaintListRequestCallEventToState(
+      QuickComplaintListRequestCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      QucikComplaintListResponse response = await userRepository
+          .getQuickComplaintListAPI(event.quickComplaintListRequest);
+      yield QuickComplaintListResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<AttendVisitStates> _mapQuickComplaintSaveRequestCallEventToState(
+      QuickComplaintSaveRequestCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      QucikComplaintSaveResponse response =
+          await userRepository.getQuickComplaintSaveAPI(
+              event.pkID, event.quickComplaintSaveRequest);
+      yield QuickComplaintSaveResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

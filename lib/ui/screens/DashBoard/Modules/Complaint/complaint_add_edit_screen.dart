@@ -7,11 +7,11 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_save_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -89,7 +89,7 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
 
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
-  ALL_EmployeeList_Response _offlineALLEmployeeListData;
+  FollowerEmployeeListResponse _offlineALLEmployeeListData;
   SearchDetails _searchDetails;
   bool _isForUpdate;
   int CompanyID = 0;
@@ -107,7 +107,7 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     _offlineALLEmployeeListData =
-        SharedPrefHelper.instance.getALLEmployeeList();
+        SharedPrefHelper.instance.getFollowerEmployeeList();
 
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
@@ -1348,7 +1348,8 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
         clearAllStack: true);
   }
 
-  FetchAssignTODetails(ALL_EmployeeList_Response offlineALLEmployeeListData) {
+  FetchAssignTODetails(
+      FollowerEmployeeListResponse offlineALLEmployeeListData) {
     arr_ALL_Name_ID_For_AssignTo.clear();
     for (var i = 0; i < offlineALLEmployeeListData.details.length; i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();

@@ -6,11 +6,10 @@ import 'package:soleoserp/models/api_requests/installation_request/installation_
 import 'package:soleoserp/models/api_requests/product_activity_request/productionActivity_save_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_packing_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/typeofwork_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/productionActivity_save_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_list_response.dart';
-
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/production_activity/production_activity_screen.dart';
@@ -19,7 +18,8 @@ import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-class ProductionActivityEditArguments{
+
+class ProductionActivityEditArguments {
   ProductionActivityDetails editDetails;
   ProductionActivityEditArguments(this.editDetails);
 }
@@ -29,11 +29,12 @@ class ProductionActivityAdd extends BaseStatefulWidget {
   final ProductionActivityEditArguments arguments;
   ProductionActivityAdd(this.arguments);
 
-
-   @override
+  @override
   _ProductionActivityAddState createState() => _ProductionActivityAddState();
 }
-class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with WidgetsBindingObserver,BasicScreen {
+
+class _ProductionActivityAddState extends BaseState<ProductionActivityAdd>
+    with WidgetsBindingObserver, BasicScreen {
   ProductionActivityBloc productionActivityBloc;
   double height = 50;
   double circular = 8;
@@ -43,14 +44,13 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
   String LoginUserID = "";
   DateTime selectdate = DateTime.now();
   TimeOfDay selecttime = TimeOfDay.now();
-  List<ALL_Name_ID>status = [];
-  List<ALL_Name_ID>typeofwork = [];
-  List<ALL_Name_ID>employee = [];
-  List<ALL_Name_ID>packinglist = [];
+  List<ALL_Name_ID> status = [];
+  List<ALL_Name_ID> typeofwork = [];
+  List<ALL_Name_ID> employee = [];
+  List<ALL_Name_ID> packinglist = [];
   bool _isTapped;
   ProductionActivityDetails _editmodel;
-  int savePkid=0;
-
+  int savePkid = 0;
 
   TextEditingController employeename = TextEditingController();
   TextEditingController packingno = TextEditingController();
@@ -70,16 +70,24 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
-    date.text = selectdate.day.toString() + "-" + selectdate.month.toString() + "-" + selectdate.year.toString();
-    reversedate.text = selectdate.year.toString() + "-" + selectdate.month.toString() + "-" + selectdate.day.toString();
+    date.text = selectdate.day.toString() +
+        "-" +
+        selectdate.month.toString() +
+        "-" +
+        selectdate.year.toString();
+    reversedate.text = selectdate.year.toString() +
+        "-" +
+        selectdate.month.toString() +
+        "-" +
+        selectdate.day.toString();
     productionActivityBloc = ProductionActivityBloc(baseBloc);
-    _isTapped = widget.arguments!=null;
-    if(_isTapped){
+    _isTapped = widget.arguments != null;
+    if (_isTapped) {
       _editmodel = widget.arguments.editDetails;
       fillData();
-    }else{}
-
+    } else {}
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -92,30 +100,26 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
           return false;
         },
         listener: (BuildContext context, ProductionActivityListState state) {
-
-          if(state is ProductionActivityTypeofWorkCallResponseState){
+          if (state is ProductionActivityTypeofWorkCallResponseState) {
             _ontapoftypeofwork(state);
           }
-          if(state is EmployeeCallResponseState){
+          if (state is EmployeeCallResponseState) {
             _ontapofselectemployee(state);
           }
-          if(state is PackingListCallResponseState){
+          if (state is PackingListCallResponseState) {
             _ontapofselectpackinglist(state);
           }
-          if(state is ProductionActivitySaveCallResponseState){
+          if (state is ProductionActivitySaveCallResponseState) {
             _ontapofsaveactivity(state);
           }
 
           return super.build(context);
-
         },
         listenWhen: (oldState, currentState) {
-          if(
-          currentState is ProductionActivityTypeofWorkCallResponseState ||
-              currentState is EmployeeCallResponseState  ||
+          if (currentState is ProductionActivityTypeofWorkCallResponseState ||
+              currentState is EmployeeCallResponseState ||
               currentState is PackingListCallResponseState ||
-              currentState is ProductionActivitySaveCallResponseState
-          ){
+              currentState is ProductionActivitySaveCallResponseState) {
             return true;
           }
 
@@ -124,7 +128,6 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
       ),
     );
   }
-
 
   @override
   Widget buildBody(BuildContext context) {
@@ -164,9 +167,10 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
               child: InkWell(
                 onTap: () {
                   productionActivityBloc.add(EmployeeCallEvent(
-                      InstallationEmployeeRequest(CompanyId: this.CompanyID.toString())));
+                      InstallationEmployeeRequest(
+                          CompanyId: this.CompanyID.toString())));
                 },
-                child:Card(
+                child: Card(
                   elevation: 5,
                   color: colorLightGray,
                   shape: RoundedRectangleBorder(
@@ -194,7 +198,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                 fontSize: 15,
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -226,9 +230,10 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
               child: InkWell(
                 onTap: () {
                   productionActivityBloc.add(PackingListCallEvent(
-                      ProductionPackingListRequest(CompanyId: this.CompanyID.toString())));
+                      ProductionPackingListRequest(
+                          CompanyId: this.CompanyID.toString())));
                 },
-                child:Card(
+                child: Card(
                   elevation: 5,
                   color: colorLightGray,
                   shape: RoundedRectangleBorder(
@@ -256,7 +261,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                 fontSize: 15,
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -267,7 +272,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                   ),
                 ),
               ),
-            ),  //inwarddate
+            ), //inwarddate
             SizedBox(height: 20),
             Align(
               alignment: Alignment.topLeft,
@@ -321,7 +326,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                     fontSize: 15,
                                     color: Color(0xFF000000),
                                   ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-                              ),
+                                  ),
                             ),
                             Icon(
                               Icons.calendar_today,
@@ -358,8 +363,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                     borderRadius: BorderRadius.circular(15)),
                 child: Container(
                   height: 100,
-                  padding: EdgeInsets.only(left: 20, right: 20,top: 10),
-
+                  padding: EdgeInsets.only(left: 20, right: 20, top: 10),
                   child: Row(
                     children: [
                       Expanded(
@@ -377,14 +381,13 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                 ),
                                 border: InputBorder.none,
                               ),
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF000000),
-                            ) // baseTheme.textTheme.headline2.
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              ) // baseTheme.textTheme.headline2.
                               ),
-                          ),
                         ),
-
+                      ),
                     ],
                   ),
                 ),
@@ -409,10 +412,11 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
               margin: EdgeInsets.only(left: 10, right: 10),
               child: InkWell(
                 onTap: () {
-                  productionActivityBloc.add(ProductionActivityTypeofWorkCallEvent(
-                      TypeOfWorkRequest(pkID: "",CompanyId: this.CompanyID.toString())));
+                  productionActivityBloc.add(
+                      ProductionActivityTypeofWorkCallEvent(TypeOfWorkRequest(
+                          pkID: "", CompanyId: this.CompanyID.toString())));
                 },
-                child:Card(
+                child: Card(
                   elevation: 5,
                   color: colorLightGray,
                   shape: RoundedRectangleBorder(
@@ -440,7 +444,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                 fontSize: 15,
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-                          ),
+                              ),
                         ),
                         Icon(
                           Icons.arrow_drop_down,
@@ -451,13 +455,13 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                   ),
                 ),
               ),
-            ),//basicammount
+            ), //basicammount
             SizedBox(height: 20),
             Container(
-              margin: EdgeInsets.only(left: 20,right: 10),
+              margin: EdgeInsets.only(left: 20, right: 10),
               child: Row(children: [
                 Expanded(
-                  flex:1,
+                  flex: 1,
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: Container(
@@ -473,9 +477,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                 Expanded(
                   flex: 2,
                   child: Align(
-
                     child: Container(
-
                       child: Text("Production Status",
                           style: TextStyle(
                               fontSize: 12,
@@ -487,15 +489,14 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
               ]),
             ), //heading
             Container(
-              margin: EdgeInsets.only(left: 10,right: 10),
+              margin: EdgeInsets.only(left: 10, right: 10),
               child: Row(
                 children: [
                   Expanded(
                     flex: 1,
                     child: Container(
                       child: InkWell(
-                        onTap: (){
-                        },
+                        onTap: () {},
                         child: Card(
                           elevation: 5,
                           color: colorLightGray,
@@ -509,7 +510,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                               children: [
                                 Expanded(
                                   child: TextField(
-                                    controller: hour,
+                                      controller: hour,
                                       textInputAction: TextInputAction.next,
                                       keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
@@ -522,8 +523,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                       style: TextStyle(
                                         fontSize: 15,
                                         color: Color(0xFF000000),
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ],
                             ),
@@ -535,7 +535,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                   Expanded(
                     flex: 2,
                     child: InkWell(
-                      onTap: (){
+                      onTap: () {
                         status.clear();
                         for (int i = 0; i < 2; i++) {
                           ALL_Name_ID st = ALL_Name_ID();
@@ -581,7 +581,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
                                       fontSize: 15,
                                       color: Color(0xFF000000),
                                     ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-                                ),
+                                    ),
                               ),
                               Icon(
                                 Icons.arrow_drop_down,
@@ -603,15 +603,17 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
               width: double.maxFinite,
               child: ElevatedButton(
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10))),
                   backgroundColor: MaterialStateProperty.all(colorPrimary),
                 ),
-                onPressed: (){
+                onPressed: () {
                   _ontapofsave();
                 },
-                child:Text("Save",
+                child: Text(
+                  "Save",
                   textAlign: TextAlign.center,
-                  style:TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     color: colorWhite,
                   ),
@@ -626,60 +628,55 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
       ),
     );
   }
+
   void _ontapofsave() {
-   if(employeename.text==""){
-     showCommonDialogWithSingleOption(context,"Select Employee");
-   }
-   else if(packingno.text==""){
-     showCommonDialogWithSingleOption(context,"Select Packing No");
-   }
-   else if(reversedate.text==""){
-     showCommonDialogWithSingleOption(context,"Select Date");
-   }
-   else if(notes.text==""){
-     showCommonDialogWithSingleOption(context,"Fill Work Notes");
-   }
-   else if(work.text==""){
-     showCommonDialogWithSingleOption(context,"Select Type of Work");
-   }
-   else if(hour.text==""){
-     showCommonDialogWithSingleOption(context,"Fill Hours");
-   }
-   else if(productionstatus.text==""){
-     showCommonDialogWithSingleOption(context,"Select Production Status");
-   }
-   else{productionActivityBloc.add(ProductionActivitySaveCallEvent(savePkid,
-       SaveProductionActivityRequest(
-         ActivityDate: reversedate.text,
-         TaskCategoryID: workid.text,
-         TaskDescription: notes.text,
-         TaskDuration: hour.text,
-         Status: productionstatus.text,
-         LoginUserID: this.LoginUserID,
-         CompanyId: this.CompanyID.toString(),
-         PCNo: packingno.text,
-       )));}
-
-
+    if (employeename.text == "") {
+      showCommonDialogWithSingleOption(context, "Select Employee");
+    } else if (packingno.text == "") {
+      showCommonDialogWithSingleOption(context, "Select Packing No");
+    } else if (reversedate.text == "") {
+      showCommonDialogWithSingleOption(context, "Select Date");
+    } else if (notes.text == "") {
+      showCommonDialogWithSingleOption(context, "Fill Work Notes");
+    } else if (work.text == "") {
+      showCommonDialogWithSingleOption(context, "Select Type of Work");
+    } else if (hour.text == "") {
+      showCommonDialogWithSingleOption(context, "Fill Hours");
+    } else if (productionstatus.text == "") {
+      showCommonDialogWithSingleOption(context, "Select Production Status");
+    } else {
+      productionActivityBloc.add(ProductionActivitySaveCallEvent(
+          savePkid,
+          SaveProductionActivityRequest(
+            ActivityDate: reversedate.text,
+            TaskCategoryID: workid.text,
+            TaskDescription: notes.text,
+            TaskDuration: hour.text,
+            Status: productionstatus.text,
+            LoginUserID: this.LoginUserID,
+            CompanyId: this.CompanyID.toString(),
+            PCNo: packingno.text,
+          )));
+    }
   }
 
   void _ontapoftypeofwork(ProductionActivityTypeofWorkCallResponseState state) {
-      typeofwork.clear();
-      print("Second Time");
-      for(int i=0;i<state.response.details.length;i++){
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = state.response.details[i].taskCategoryName;
-        all_name_id.pkID = state.response.details[i].pkID;
-        typeofwork.add(all_name_id);
-      }
-   showcustomdialog(
-     values: typeofwork,
-     context1: context,
-     controller:work,
-     controller2:workid,
-     lable: "Select Type of Work"
-   );
+    typeofwork.clear();
+    print("Second Time");
+    for (int i = 0; i < state.response.details.length; i++) {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name = state.response.details[i].taskCategoryName;
+      all_name_id.pkID = state.response.details[i].pkID;
+      typeofwork.add(all_name_id);
+    }
+    showcustomdialog(
+        values: typeofwork,
+        context1: context,
+        controller: work,
+        controller2: workid,
+        lable: "Select Type of Work");
   }
+
   Future<void> _selectDate(
       BuildContext context, TextEditingController F_datecontroller) async {
     final DateTime picked = await showDatePicker(
@@ -702,10 +699,11 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
             selectdate.day.toString();
       });
   }
+
   void _ontapofselectemployee(EmployeeCallResponseState state) {
     employee.clear();
     print("Second Time");
-    for(int i=0;i<state.response.details.length;i++){
+    for (int i = 0; i < state.response.details.length; i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();
       all_name_id.Name = state.response.details[i].employeeName;
       all_name_id.pkID = state.response.details[i].pkID;
@@ -721,7 +719,7 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
 
   void _ontapofselectpackinglist(PackingListCallResponseState state) {
     packinglist.clear();
-    for(int i=0;i<state.response.details.length;i++){
+    for (int i = 0; i < state.response.details.length; i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();
       all_name_id.Name = state.response.details[i].pCNo;
       packinglist.add(all_name_id);
@@ -736,36 +734,31 @@ class _ProductionActivityAddState extends BaseState<ProductionActivityAdd> with 
 
   void _ontapofsaveactivity(ProductionActivitySaveCallResponseState state) {
     ProductionActivitySaveDetails saveresponse = state.response.details[0];
-    showCommonDialogWithSingleOption(context,saveresponse.column2,
-    onTapOfPositiveButton: (){
-      ontapofok(date,employeeid,employeename);
-    }
-    );
+    showCommonDialogWithSingleOption(context, saveresponse.column2,
+        onTapOfPositiveButton: () {
+      ontapofok(date, employeeid, employeename);
+    });
   }
-
 
   void fillData() async {
-    employeename.text=_editmodel.createdEmployeeName.toString();
+    employeename.text = _editmodel.createdEmployeeName.toString();
     employeeid.text = _editmodel.createdEmployeeID.toString();
-    packingno.text=_editmodel.pCno.toString();
-    date.text=_editmodel.activityDate.getFormattedDate(
-        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-        toFormat: "dd-MM-yyyy");
-    reversedate.text=_editmodel.activityDate.getFormattedDate(
-        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-        toFormat: "yyyy-MM-dd");
-    notes.text=_editmodel.taskDescription.toString();
-    work.text=_editmodel.taskCategoryName.toString();
-    workid.text=_editmodel.taskCategoryID.toString();
-    hour.text=_editmodel.taskDuration.toString();
-    productionstatus.text=_editmodel.status.toString();
+    packingno.text = _editmodel.pCno.toString();
+    date.text = _editmodel.activityDate.getFormattedDate(
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "dd-MM-yyyy");
+    reversedate.text = _editmodel.activityDate.getFormattedDate(
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
+    notes.text = _editmodel.taskDescription.toString();
+    work.text = _editmodel.taskCategoryName.toString();
+    workid.text = _editmodel.taskCategoryID.toString();
+    hour.text = _editmodel.taskDuration.toString();
+    productionstatus.text = _editmodel.status.toString();
     savePkid = _editmodel.pkID;
-
   }
 
-  void ontapofok(TextEditingController IN_Date,TextEditingController IN_Id,TextEditingController IN_Name) {
+  void ontapofok(TextEditingController IN_Date, TextEditingController IN_Id,
+      TextEditingController IN_Name) {
     navigateTo(context, ProductionActivityListScreen.routeName,
-    arguments: ProductionDate(IN_Date,IN_Id,IN_Name)
-    );
+        arguments: ProductionDate(IN_Date, IN_Id, IN_Name));
   }
 }

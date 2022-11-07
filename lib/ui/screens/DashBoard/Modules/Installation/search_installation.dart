@@ -1,23 +1,21 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/installation/installation_bloc.dart';
-import 'package:soleoserp/models/api_requests/search_installation_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_requests/installation_request/search_installation_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/search_installation_label_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-
-
 
 class SearchInstallationScreen extends BaseStatefulWidget {
   static const routeName = '/SearchInstallationScreen';
 
   @override
-  _SearchInstallationScreenState createState() => _SearchInstallationScreenState();
+  _SearchInstallationScreenState createState() =>
+      _SearchInstallationScreenState();
 }
 
 class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
@@ -71,7 +69,8 @@ class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Column(
@@ -81,7 +80,6 @@ class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
             ],
           ),
         ),
-
       ],
     );
   }
@@ -92,21 +90,24 @@ class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.only(left: 20, top: 20,right: 10),
-          child: Text(
-              "Min. 3 chars to search Customer",
-              style:TextStyle(fontFamily: "QuickSand",fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)     ),
+          padding: EdgeInsets.only(left: 20, top: 20, right: 10),
+          child: Text("Min. 3 chars to search Customer",
+              style: TextStyle(
+                  fontFamily: "QuickSand",
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
         ),
         Container(
-          margin: EdgeInsets.only(left: 10,right: 10),
+          margin: EdgeInsets.only(left: 10, right: 10),
           child: Card(
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 50,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -115,7 +116,7 @@ class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
                 children: [
                   Expanded(
                     child: TextFormField(
-                      autofocus:true,
+                      autofocus: true,
                       keyboardType: TextInputType.name,
                       textCapitalization: TextCapitalization.words,
                       onChanged: (value) {
@@ -169,13 +170,16 @@ class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
         child: Card(
           elevation: 4,
           child: Container(
-            padding: EdgeInsets.only(left: 10, right: 10, /*top: 25, bottom: 25*/),
-            child:ListTile(
+            padding: EdgeInsets.only(
+              left: 10,
+              right: 10, /*top: 25, bottom: 25*/
+            ),
+            child: ListTile(
               title: Text(cs.label),
               subtitle: Text(cs.installationNo),
             ),
           ),
-          margin: EdgeInsets.only(top: 10,left: 10,right: 10),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
         ),
       ),
     );
@@ -185,7 +189,11 @@ class _SearchInstallationScreenState extends BaseState<SearchInstallationScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       installationBloc.add(SearchInstallationLabelCallEvent(
-          SearchInstallationRequest(word: value,CompanyId: CompanyID.toString(),LoginUserID: LoginUserID,needALL:'1' )));
+          SearchInstallationRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              needALL: '1')));
     }
   }
 

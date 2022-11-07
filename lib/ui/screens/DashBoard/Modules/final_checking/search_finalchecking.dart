@@ -1,28 +1,26 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/final_checking/final_checking_bloc.dart';
-import 'package:soleoserp/models/api_requests/search_finalchecking_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/search_finalchecking_label_response.dart';
+import 'package:soleoserp/models/api_requests/checking/search_finalchecking_request.dart';
+import 'package:soleoserp/models/api_responses/checking/search_finalchecking_label_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class SearchFinalCheckingScreen extends BaseStatefulWidget {
   static const routeName = '/SearchFinalCheckingScreen';
 
   @override
-  _SearchFinalCheckingScreenState createState() => _SearchFinalCheckingScreenState();
+  _SearchFinalCheckingScreenState createState() =>
+      _SearchFinalCheckingScreenState();
 }
 
-class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScreen>
+class _SearchFinalCheckingScreenState
+    extends BaseState<SearchFinalCheckingScreen>
     with BasicScreen, WidgetsBindingObserver {
   FinalCheckingBloc finalCheckingBloc;
   int CompanyID = 0;
@@ -75,9 +73,9 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
-
         Expanded(
           child: Container(
             padding: EdgeInsets.only(
@@ -93,8 +91,6 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
             ),
           ),
         ),
-
-
       ],
     );
   }
@@ -106,9 +102,12 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
       children: [
         Container(
           padding: EdgeInsets.only(left: 10, right: 20),
-          child: Text(
-              "Min. 3 chars to search Customer",
-              style:TextStyle(fontFamily: "QuickSand",fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)     ),
+          child: Text("Min. 3 chars to search Customer",
+              style: TextStyle(
+                  fontFamily: "QuickSand",
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
@@ -117,7 +116,7 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 50,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -126,7 +125,7 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -183,7 +182,6 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
             child: Text(
               cs.label + "\n" + cs.checkingNo,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
             ),
           ),
           margin: EdgeInsets.only(top: 10),
@@ -196,7 +194,11 @@ class _SearchFinalCheckingScreenState extends BaseState<SearchFinalCheckingScree
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       finalCheckingBloc.add(SearchFinalCheckingLabelCallEvent(
-          SearchFinalCheckingRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString(),needALL:'1' )));
+          SearchFinalCheckingRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID.toString(),
+              needALL: '1')));
     }
   }
 

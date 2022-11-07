@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
 import 'package:soleoserp/models/common/so_other_charge_table.dart';
@@ -187,8 +187,17 @@ class _SalesOrderOtherChargeScreenState
     CompanyID = _offlineCompanyData.details[0].pkId;
     QuantityFocusNode = FocusNode();
     _inquiryBloc = QuotationBloc(baseBloc);
+
+    _HeaderDiscFromAddEditScreen =
+        widget.arguments.HeaderDiscFromAddEditScreen == null
+            ? ""
+            : widget.arguments.HeaderDiscFromAddEditScreen;
+    _headerDiscountController.text = _HeaderDiscFromAddEditScreen;
+
     _inquiryBloc.add(QuotationOtherChargeCallEvent(
-        CompanyID.toString(), QuotationOtherChargesListRequest(pkID: "")));
+        _headerDiscountController.text,
+        CompanyID.toString(),
+        QuotationOtherChargesListRequest(pkID: "")));
 
     _headerDiscountController.text = "0.00";
     _basicAmountController.text = "0.00";

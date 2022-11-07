@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 const colorPrimary = const Color(0xff362d8b);
 //const colorPrimary = const Color(0xff0969da);//0969DA
 const colorPrimaryDark = const Color(0xff362d8b);
-const colorPrimaryLight = const Color(/*0xFFF89269*/0xff362d8b);
+const colorPrimaryLight = const Color(/*0xFFF89269*/ 0xff362d8b);
 const colorAccent = const Color(0xff000000);
-
 
 const colorAppBar = const Color(0xff000000);
 const colorBlack = const Color(0xff000000);
@@ -43,11 +42,11 @@ const colorTextTitleGray = const Color(0xff7F8082);
 const colorDarkGray = const Color(0xff4F4F4F);
 const colorPresentDay = const Color(0xff26d9b6);
 const colorHalfDay = const Color(0xffF5CB49);
-const colorAbsentfDay = const Color(0xffBF0C0C);
+const colorAbsentfDay = const Color(0xff2196f3); //Color(0xffBF0C0C);
 const colorfullDay = const Color(0xff26d9b6);
 const colorgreenforicon = const Color(0xffafd034);
 const colorPink = const Color(0xFFE7C6FF);
-
+const colorRED = const Color(0xFFE02C2C);
 
 const Map<int, Color> materialColorAccentCodes = {
   50: Color.fromRGBO(255, 255, 255, 1),
@@ -61,4 +60,3 @@ const Map<int, Color> materialColorAccentCodes = {
   800: Color.fromRGBO(255, 255, 255, 1),
   900: Color.fromRGBO(255, 255, 255, 1),
 };
-

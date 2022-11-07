@@ -4,11 +4,11 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_delete_request.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_list_request.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_save_request.dart';
-import 'package:soleoserp/models/api_requests/task_category_list_request.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_delete_response.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_list_response.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_save_response.dart';
-import 'package:soleoserp/models/api_responses/task_category_list_response.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/task_category_list_request.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_delete_response.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_list_response.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_save_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/task_category_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'dailyactivity_events.dart';

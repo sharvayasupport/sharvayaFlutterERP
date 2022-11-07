@@ -9,9 +9,9 @@ import 'package:open_file/open_file.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/dealer/dealer_bloc.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
@@ -25,7 +25,7 @@ import 'package:soleoserp/utils/General_Constants.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-import '../../../../../models/api_responses/customer_label_value_response.dart';
+import '../../../../../models/api_responses/customer/customer_label_value_response.dart';
 import '../../../../widgets/common_widgets.dart';
 
 class AddUpdateDSaleBillAddEditScreenArguments {

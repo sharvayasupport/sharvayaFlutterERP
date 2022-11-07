@@ -1,39 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/installation/installation_bloc.dart';
-import 'package:soleoserp/models/api_requests/installation_request/installation_country_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_customerid_to_outwardno_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_employee_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_save_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_search_customer_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_city_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_country_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_list_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_search_customer_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/state_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/installation_response/save_installation_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/installation_add.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/installation_city_search.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/installation_country_search.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/installation_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/installation_search_customer_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/installation_state_search.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Installation/search_installation.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/General_Constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-class InstallationEditArguments{
+class InstallationEditArguments {
   InstallationListDetails editDetails;
   InstallationEditArguments(this.editDetails);
 }
@@ -43,7 +36,6 @@ class InstallationAddScreen extends BaseStatefulWidget {
   final InstallationEditArguments arguments;
 
   InstallationAddScreen(this.arguments);
-
 
   @override
   _InstallationAddScreenState createState() => _InstallationAddScreenState();
@@ -68,7 +60,6 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
   List<ALL_Name_ID> Stabilize = [];
   List<ALL_Name_ID> Outwardnolist = [];
   List<ALL_Name_ID> Employeelist = [];
-
 
   TextEditingController IP = TextEditingController();
   TextEditingController RC = TextEditingController();
@@ -146,15 +137,17 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
       fillData();
     } else {}
   }
-  visiblity(){
+
+  visiblity() {
     setState(() {
-      if(productname.text=="--Not Available--"){
+      if (productname.text == "--Not Available--") {
         _isvisible = false;
-      }else{_isvisible = true;}
-
+      } else {
+        _isvisible = true;
+      }
     });
-
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -167,33 +160,29 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
           return false;
         },
         listener: (BuildContext context, InstallationListState state) {
-
-          if(state is InstallationCustomerSearchCallResponseState){
+          if (state is InstallationCustomerSearchCallResponseState) {
             _onsearchcustomer(state);
           }
-          if(state is InstallationCountryCallResponseState){
+          if (state is InstallationCountryCallResponseState) {
             _oncountrysearch(state);
-          } if(state is CustomerIdToOutwardCallResponseState){
+          }
+          if (state is CustomerIdToOutwardCallResponseState) {
             _onoutwardnolist(state);
           }
-          if(state is InstallationEmployeeCallResponseState){
+          if (state is InstallationEmployeeCallResponseState) {
             _onemployeelist(state);
           }
-          if(state is SaveInstallationCallResponseState){
-
+          if (state is SaveInstallationCallResponseState) {
             _ontapofsavedetails(state);
           }
           return super.build(context);
-
         },
         listenWhen: (oldState, currentState) {
-          if(
-              currentState is InstallationCustomerSearchCallResponseState ||
-                  currentState is InstallationCountryCallResponseState ||
-                  currentState is CustomerIdToOutwardCallResponseState ||
-                  currentState is InstallationEmployeeCallResponseState||
-                  currentState is SaveInstallationCallResponseState
-          ){
+          if (currentState is InstallationCustomerSearchCallResponseState ||
+              currentState is InstallationCountryCallResponseState ||
+              currentState is CustomerIdToOutwardCallResponseState ||
+              currentState is InstallationEmployeeCallResponseState ||
+              currentState is SaveInstallationCallResponseState) {
             return true;
           }
 
@@ -230,9 +219,8 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
               height: 2,
             ),
             Container(
-
               margin: EdgeInsets.only(left: 10, right: 10),
-              child:Card(
+              child: Card(
                 elevation: 5,
                 color: colorLightGray,
                 shape: RoundedRectangleBorder(
@@ -245,7 +233,6 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                     children: [
                       Expanded(
                         child: Container(
-
                           child: TextField(
                               controller: installationno,
                               textInputAction: TextInputAction.next,
@@ -265,10 +252,9 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                                 color: Color(0xFF000000),
                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -358,7 +344,7 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
               height: 2,
             ),
             InkWell(
-              onTap: (){
+              onTap: () {
                 outwardno.clear();
 
                 _ontapofcustomersearch();
@@ -427,14 +413,13 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
               margin: EdgeInsets.only(left: 10, right: 10),
               child: InkWell(
                 onTap: () {
-                  if(customername.text==null||customername.text==""){
-                    showCommonDialogWithSingleOption(context, "Enter Valid Customer Name",
-                        onTapOfPositiveButton: (){
-                          Navigator.pop(context);
-                        }
-                    );
-                  }
-                  else {
+                  if (customername.text == null || customername.text == "") {
+                    showCommonDialogWithSingleOption(
+                        context, "Enter Valid Customer Name",
+                        onTapOfPositiveButton: () {
+                      Navigator.pop(context);
+                    });
+                  } else {
                     if (Outwardnolist.length != 0) {
                       showcustomdialogWithMultipleID(
                           values: Outwardnolist,
@@ -444,22 +429,16 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                           controllerID: productid,
                           lable: "Select OutwardNo");
                       PN = productname.text;
-                    }
-
-
-                    else {
-                      showCommonDialogWithSingleOption(
-                          context, " Enter Valid Customer Name Which have Exist Packing Details !",
+                    } else {
+                      showCommonDialogWithSingleOption(context,
+                          " Enter Valid Customer Name Which have Exist Packing Details !",
                           onTapOfPositiveButton: () {
-                            Navigator.pop(context);
-                          }
-                      );
+                        Navigator.pop(context);
+                      });
                     }
                   }
                 },
-
-
-                 child:Card(
+                child: Card(
                   elevation: 5,
                   color: colorLightGray,
                   shape: RoundedRectangleBorder(
@@ -503,7 +482,6 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
               ),
             ),
 
-
             SizedBox(height: 20),
             Align(
               alignment: Alignment.topLeft,
@@ -522,11 +500,10 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
             Container(
               margin: EdgeInsets.only(left: 10, right: 10),
               child: InkWell(
-                onTap: (){
-
+                onTap: () {
                   installationBloc.add(InstallationEmployeeCallEvent(
-                      InstallationEmployeeRequest(CompanyId:this.CompanyID.toString())
-                  ));
+                      InstallationEmployeeRequest(
+                          CompanyId: this.CompanyID.toString())));
                 },
                 child: Card(
                   elevation: 5,
@@ -720,7 +697,7 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                   child: Container(
                     margin: EdgeInsets.only(left: 10, right: 5),
                     child: InkWell(
-                      onTap: (){
+                      onTap: () {
                         state.clear();
                         statecode.clear();
                         _ontapofcountrysearch();
@@ -772,18 +749,20 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                 Expanded(
                   flex: 1,
                   child: InkWell(
-                    onTap: (){
+                    onTap: () {
                       city.clear();
                       citycode.clear();
                       pincode.clear();
-                      if(country.text==""||country.text==null){
-                        showCommonDialogWithSingleOption(context, "First Select Country",
-                        onTapOfPositiveButton: (){
+                      if (country.text == "" || country.text == null) {
+                        showCommonDialogWithSingleOption(
+                            context, "First Select Country",
+                            onTapOfPositiveButton: () {
                           Navigator.pop(context);
-                        }
-                        );
-                      }else{
-                      _ontapofstatesearch(installationCountryDetails.countryCode);}
+                        });
+                      } else {
+                        _ontapofstatesearch(
+                            installationCountryDetails.countryCode);
+                      }
                     },
                     child: Container(
                       margin: EdgeInsets.only(right: 10),
@@ -864,22 +843,23 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
               )
             ]), //heading
             Row(
-
               children: [
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.only(left: 10, right: 5),
                     child: InkWell(
-                      onTap: (){
-                        if(state.text==""||state.text==null){
-                          showCommonDialogWithSingleOption(context, "First Select State",onTapOfPositiveButton: (){
+                      onTap: () {
+                        if (state.text == "" || state.text == null) {
+                          showCommonDialogWithSingleOption(
+                              context, "First Select State",
+                              onTapOfPositiveButton: () {
                             Navigator.pop(context);
                           });
-                        }else{
-                        _ontapofcitysearch(stateDetails.value.toString());}
+                        } else {
+                          _ontapofcitysearch(stateDetails.value.toString());
+                        }
                       },
                       child: Container(
-
                         child: Card(
                           elevation: 5,
                           color: colorLightGray,
@@ -1018,79 +998,87 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                               color: Color(0xFF000000),
                             ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                        ),
+                            ),
                       ),
-
                     ],
                   ),
                 ),
               ),
             ),
-           _isvisible?SizedBox(
-              height: 20,
-            ):SizedBox(height: 1,),
-            _isvisible?Container(
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Container(
-                      margin: EdgeInsets.only(left: 23),
-                      child: Text("Product Name",
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: colorPrimary,
-                              fontWeight: FontWeight.bold)),
-                    ),
+            _isvisible
+                ? SizedBox(
+                    height: 20,
+                  )
+                : SizedBox(
+                    height: 1,
                   ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 10, right: 10),
-                    child: Card(
-                      elevation: 5,
-                      color: colorLightGray,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Container(
-                        height: height,
-                        padding: EdgeInsets.only(left: 20, right: 20),
-                        width: double.maxFinite,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                  controller: productname,
-                                  textInputAction: TextInputAction.next,
-                                  keyboardType: TextInputType.text,
-                                  enabled: false,
+            _isvisible
+                ? Container(
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Container(
+                            margin: EdgeInsets.only(left: 23),
+                            child: Text("Product Name",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 2,
+                        ),
+                        Container(
+                          margin: EdgeInsets.only(left: 10, right: 10),
+                          child: Card(
+                            elevation: 5,
+                            color: colorLightGray,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: height,
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              width: double.maxFinite,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                        controller: productname,
+                                        textInputAction: TextInputAction.next,
+                                        keyboardType: TextInputType.text,
+                                        enabled: false,
 
-                                  //onSubmitted: (_) => FocusScope.of(context).requestFocus(myFocusNode),
-                                  decoration: InputDecoration(
-                                    //hintText: "DD-MM-YYYY",
-                                    labelStyle: TextStyle(
-                                      color: Color(0xFF000000),
-                                    ),
-                                    border: InputBorder.none,
+                                        //onSubmitted: (_) => FocusScope.of(context).requestFocus(myFocusNode),
+                                        decoration: InputDecoration(
+                                          //hintText: "DD-MM-YYYY",
+                                          labelStyle: TextStyle(
+                                            color: Color(0xFF000000),
+                                          ),
+                                          border: InputBorder.none,
+                                        ),
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Color(0xFF000000),
+                                        ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                        ),
                                   ),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Color(0xFF000000),
-                                  ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
+                                ],
                               ),
                             ),
-
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                  )
+                : SizedBox(
+                    height: 1,
                   ),
-                ],
-              ),
-            ):SizedBox(height: 1,),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Container(
               height: 40,
               margin: EdgeInsets.only(left: 15, right: 15),
@@ -1106,7 +1094,7 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                   _onClick1();
                 },
                 child: Container(
-                  margin: EdgeInsets.only(left: 15,right: 5),
+                  margin: EdgeInsets.only(left: 15, right: 5),
                   child: TextField(
                       enabled: false,
                       decoration: InputDecoration(
@@ -1231,7 +1219,7 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                   ),
                 ),
                 child: Container(
-                  margin: EdgeInsets.only(left: 15,right: 5),
+                  margin: EdgeInsets.only(left: 15, right: 5),
                   child: TextField(
                     enabled: false,
                     decoration: InputDecoration(
@@ -1402,7 +1390,7 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                   ),
                 ),
                 child: Container(
-                  margin: EdgeInsets.only(left: 15,right: 5),
+                  margin: EdgeInsets.only(left: 15, right: 5),
                   child: TextField(
                     enabled: false,
                     decoration: InputDecoration(
@@ -1707,30 +1695,30 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
                   ),
                 ),
                 child: Container(
-                  margin: EdgeInsets.only(left: 15,right: 5),
-                          child: TextField(
-                            enabled: false,
-                            decoration: InputDecoration(
-                              icon: Icon(
-                                Icons.circle,
-                                size: 15,
-                                color: colorPrimary,
-                              ),
-                              hintText: "Approved By Details",
-                              hintStyle: TextStyle(
-                                fontSize: 17,
-                                color: colorPrimary,
-                              ),
-                              suffixIcon: Icon(
-                                _AD
-                                    ? Icons.keyboard_arrow_up
-                                    : Icons.keyboard_arrow_down,
-                                color: Colors.black,
+                  margin: EdgeInsets.only(left: 15, right: 5),
+                  child: TextField(
+                    enabled: false,
+                    decoration: InputDecoration(
+                      icon: Icon(
+                        Icons.circle,
+                        size: 15,
+                        color: colorPrimary,
+                      ),
+                      hintText: "Approved By Details",
+                      hintStyle: TextStyle(
+                        fontSize: 17,
+                        color: colorPrimary,
+                      ),
+                      suffixIcon: Icon(
+                        _AD
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: Colors.black,
 //size: 30,
-                              ),
-                            ),
-                          ),
-                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             _AD
@@ -1934,14 +1922,14 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
               height: 10,
             ),
 
-              Container(
-                margin: EdgeInsets.all(10),
-                alignment: Alignment.bottomCenter,
-                child: getCommonButton(baseTheme, () {
-                  /* _ontapofsave();*/
-                  _ontapofsave2();
-                }, "Save", width: 600),
-              ),
+            Container(
+              margin: EdgeInsets.all(10),
+              alignment: Alignment.bottomCenter,
+              child: getCommonButton(baseTheme, () {
+                /* _ontapofsave();*/
+                _ontapofsave2();
+              }, "Save", width: 600),
+            ),
 
             SizedBox(
               height: 10,
@@ -1951,8 +1939,6 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
       ),
     );
   }
-
-
 
   void _onClick1() {
     setState(() {
@@ -2126,19 +2112,22 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
     }
   }
 
-
-
-  void _onsearchcustomer(InstallationListState state) {
-
-  }
+  void _onsearchcustomer(InstallationListState state) {}
 
   Future<void> _ontapofcustomersearch() async {
-
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>InstallationSearchCustomerScreen())).then((value) {
+    Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => InstallationSearchCustomerScreen()))
+        .then((value) {
       if (value != null) {
         installationCustomerSearchDetails = value;
         installationBloc.add(InstallationSearchCustomerCallEvent(
-            InstallationCustomerSearchRequest(CompanyId:this.CompanyID, LoginUserID: this.LoginUserID,word: installationCustomerSearchDetails.label,needALL: "0")));
+            InstallationCustomerSearchRequest(
+                CompanyId: this.CompanyID,
+                LoginUserID: this.LoginUserID,
+                word: installationCustomerSearchDetails.label,
+                needALL: "0")));
         customername.text = installationCustomerSearchDetails.label;
         customerid.text = installationCustomerSearchDetails.value.toString();
         country.text = installationCustomerSearchDetails.countryName;
@@ -2149,76 +2138,69 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
         statecode.text = installationCustomerSearchDetails.stateCode.toString();
         citycode.text = installationCustomerSearchDetails.cityCode.toString();
 
-
-
-
         installationBloc.add(CustomerIdToOutwardCallEvent(
-            InstallationCustomerIdToOutwardnoRequest(CompanyId: this.CompanyID, CustomerID:customerid.text )));
+            InstallationCustomerIdToOutwardnoRequest(
+                CompanyId: this.CompanyID, CustomerID: customerid.text)));
       }
-    }
-    );
-
+    });
   }
-  Future<void> _ontapofcountrysearch() async {
 
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>InstallationSearchCountryScreen())).then((value) {
+  Future<void> _ontapofcountrysearch() async {
+    Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => InstallationSearchCountryScreen()))
+        .then((value) {
       if (value != null) {
         installationCountryDetails = value;
         country.text = installationCountryDetails.countryName;
         countrycode.text = installationCountryDetails.countryCode;
-
-      }
-    }
-    );
-
-  }
-
-  void _oncountrysearch(InstallationListState state) {
-
-  }
-
-  Future<void>  _ontapofstatesearch(String code) async{
-    navigateTo(context, InstallationStateSearchScreen.routeName,
-        arguments: InstallationAddScreenArguments(code))
-        .then((value) {
-      if (value != null) {
-           stateDetails = value;
-           state.text = stateDetails.label;
-           statecode.text = stateDetails.value.toString();
       }
     });
   }
-  Future<void>  _ontapofcitysearch(String code) async{
-    navigateTo(context, InstallationCitySearch.routeName,
-        arguments: InstallationCityArguments(code))
+
+  void _oncountrysearch(InstallationListState state) {}
+
+  Future<void> _ontapofstatesearch(String code) async {
+    navigateTo(context, InstallationStateSearchScreen.routeName,
+            arguments: InstallationAddScreenArguments(code))
         .then((value) {
       if (value != null) {
+        stateDetails = value;
+        state.text = stateDetails.label;
+        statecode.text = stateDetails.value.toString();
+      }
+    });
+  }
 
+  Future<void> _ontapofcitysearch(String code) async {
+    navigateTo(context, InstallationCitySearch.routeName,
+            arguments: InstallationCityArguments(code))
+        .then((value) {
+      if (value != null) {
         cityDetails = value;
         city.text = cityDetails.cityName;
         citycode.text = cityDetails.cityCode.toString();
       }
     });
   }
-  void _onoutwardnolist(CustomerIdToOutwardCallResponseState state) {
 
+  void _onoutwardnolist(CustomerIdToOutwardCallResponseState state) {
     Outwardnolist.clear();
 
-      for(int i=0;i<state.response.details.length;i++){
+    for (int i = 0; i < state.response.details.length; i++) {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name = state.response.details[i].outwardNo;
+      all_name_id.pkID = state.response.details[i].finishProductID;
+      all_name_id.Name1 = state.response.details[i].productName;
 
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = state.response.details[i].outwardNo;
-        all_name_id.pkID= state.response.details[i].finishProductID;
-        all_name_id.Name1 = state.response.details[i].productName;
-
-            Outwardnolist.add(all_name_id);
-      }
-
+      Outwardnolist.add(all_name_id);
     }
+  }
 
   void _onemployeelist(InstallationEmployeeCallResponseState state) {
     Employeelist.clear();
-    for(int i=0;i<state.response.details.length;i++){
+    for (int i = 0; i < state.response.details.length; i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();
       all_name_id.Name = state.response.details[i].employeeName;
       all_name_id.pkID = state.response.details[i].pkID;
@@ -2232,203 +2214,188 @@ class _InstallationAddScreenState extends BaseState<InstallationAddScreen>
         lable: "Select Employee");
   }
 
-  void _ontapofsave() async{
+  void _ontapofsave() async {
     print("save button tappaed");
-    showCommonDialogWithTwoOptions(context, "Are you sure you want to save this Details?",
-      negativeButtonTitle: "No",
-      positiveButtonTitle: "Yes",
-          onTapOfPositiveButton: (){
-            Navigator.of(context).pop();
-            if(contact!=""){
-
-              Temp = contact.text;
-              Temp2 = Temp.replaceAll("+", "").trim().toString();
-              contact.text = Temp2;
-              print(Temp2);
-            }
-            if(installationdate.text==""){
-              showCommonDialogWithSingleOption(context, "Fill InstallationDate");
-            }else if(customername.text==""){
-              showCommonDialogWithSingleOption(context, "Fill Customer/CompanyName");
-            }else if(outwardno.text==""){
-              showCommonDialogWithSingleOption(context, "Fill OutwardNo");
-            }
-            else if(engineername.text==""){
-              showCommonDialogWithSingleOption(context, "Fill EngineerName");
-            }else if(address.text==""){
-              showCommonDialogWithSingleOption(context, "Fill Address");
-            }else if(area.text==""){
-              showCommonDialogWithSingleOption(context, "Fill Area");
-            }else if(country.text==""){
-              showCommonDialogWithSingleOption(context, "Fill Country");
-            }else if(state.text==""){
-              showCommonDialogWithSingleOption(context, "Fill State");
-            }else if(city.text==""){
-              showCommonDialogWithSingleOption(context, "Fill City");
-            }else if(pincode.text==""){
-              showCommonDialogWithSingleOption(context, "Fill Pincode");
-            }
-
-            else{installationBloc.add(SaveInstallationCallEvent(saveid,
-                SaveInstallationRequest(
-                  CustomerID: customerid.text.toString(),
-                  OutwardNo: outwardno.text.toString(),
-                  Address:address.text.toString(),
-                  Area: area.text.toString(),
-                  CountryCode: countrycode.text.toString(),
-                  StateCode: statecode.text.toString(),
-                  CityCode: citycode.text.toString(),
-                  PinCode: pincode.text.toString(),
-
-                  ContactNo: contact.text.toString(),
-                  InstallationDate: reversedate.text.toString(),
-                  InstallationPlace: IP.text.toString(),
-                  RoomCooling: RC.text.toString(),
-                  PowerStabilize:PS.text.toString(),
-                  GroundEarthing:ground.text.toString(),
-                  LoginUserID: this.LoginUserID,
-                  InstallationNo: installationno.text.toString(),
-                  EmployeeID: engineerid.text.toString(),
-                  TraineeName: traineename.text.toString(),
-                  MachineSRno: machine_serial_no.text.toString(),
-                  AprovedName: approvedname.text.toString(),
-                  AprovedDepart: approveddepartment.text.toString(),
-                  AprovedDesg:  approveddesignation.text.toString(),
-                  TraineeDepart: traineedepartment.text.toString(),
-                  TraineeDesg: traineedesignation.text.toString(),
-                  TraineeQuali: traineequalification.text.toString(),
-                  CompanyId: this.CompanyID.toString(),
-                  ProductID: productid.text.toString(),
-                )));
-            }
-
-
+    showCommonDialogWithTwoOptions(
+        context, "Are you sure you want to save this Details?",
+        negativeButtonTitle: "No",
+        positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
+      Navigator.of(context).pop();
+      if (contact != "") {
+        Temp = contact.text;
+        Temp2 = Temp.replaceAll("+", "").trim().toString();
+        contact.text = Temp2;
+        print(Temp2);
+      }
+      if (installationdate.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill InstallationDate");
+      } else if (customername.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill Customer/CompanyName");
+      } else if (outwardno.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill OutwardNo");
+      } else if (engineername.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill EngineerName");
+      } else if (address.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill Address");
+      } else if (area.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill Area");
+      } else if (country.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill Country");
+      } else if (state.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill State");
+      } else if (city.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill City");
+      } else if (pincode.text == "") {
+        showCommonDialogWithSingleOption(context, "Fill Pincode");
+      } else {
+        installationBloc.add(SaveInstallationCallEvent(
+            saveid,
+            SaveInstallationRequest(
+              CustomerID: customerid.text.toString(),
+              OutwardNo: outwardno.text.toString(),
+              Address: address.text.toString(),
+              Area: area.text.toString(),
+              CountryCode: countrycode.text.toString(),
+              StateCode: statecode.text.toString(),
+              CityCode: citycode.text.toString(),
+              PinCode: pincode.text.toString(),
+              ContactNo: contact.text.toString(),
+              InstallationDate: reversedate.text.toString(),
+              InstallationPlace: IP.text.toString(),
+              RoomCooling: RC.text.toString(),
+              PowerStabilize: PS.text.toString(),
+              GroundEarthing: ground.text.toString(),
+              LoginUserID: this.LoginUserID,
+              InstallationNo: installationno.text.toString(),
+              EmployeeID: engineerid.text.toString(),
+              TraineeName: traineename.text.toString(),
+              MachineSRno: machine_serial_no.text.toString(),
+              AprovedName: approvedname.text.toString(),
+              AprovedDepart: approveddepartment.text.toString(),
+              AprovedDesg: approveddesignation.text.toString(),
+              TraineeDepart: traineedepartment.text.toString(),
+              TraineeDesg: traineedesignation.text.toString(),
+              TraineeQuali: traineequalification.text.toString(),
+              CompanyId: this.CompanyID.toString(),
+              ProductID: productid.text.toString(),
+            )));
+      }
+    });
   }
-    );
 
-  }
-  void _ontapofsave2() async{
-    if(installationdate.text==""){
+  void _ontapofsave2() async {
+    if (installationdate.text == "") {
       showCommonDialogWithSingleOption(context, "Fill InstallationDate");
-    }else if(customername.text==""){
+    } else if (customername.text == "") {
       showCommonDialogWithSingleOption(context, "Fill Customer/CompanyName");
-    }else if(outwardno.text==""){
+    } else if (outwardno.text == "") {
       showCommonDialogWithSingleOption(context, "Fill OutwardNo");
-    }
-    else if(engineername.text==""){
+    } else if (engineername.text == "") {
       showCommonDialogWithSingleOption(context, "Fill EngineerName");
-    }else if(address.text==""){
+    } else if (address.text == "") {
       showCommonDialogWithSingleOption(context, "Fill Address");
-    }else if(area.text==""){
+    } else if (area.text == "") {
       showCommonDialogWithSingleOption(context, "Fill Area");
-    }else if(country.text==""){
+    } else if (country.text == "") {
       showCommonDialogWithSingleOption(context, "Fill Country");
-    }else if(state.text==""){
+    } else if (state.text == "") {
       showCommonDialogWithSingleOption(context, "Fill State");
-    }else if(city.text==""){
+    } else if (city.text == "") {
       showCommonDialogWithSingleOption(context, "Fill City");
-    }else if(pincode.text==""){
+    } else if (pincode.text == "") {
       showCommonDialogWithSingleOption(context, "Fill Pincode");
-    }
-    else{
-      showCommonDialogWithTwoOptions(context, "Are you sure you want to save this Details?",
+    } else {
+      showCommonDialogWithTwoOptions(
+          context, "Are you sure you want to save this Details?",
           negativeButtonTitle: "No",
-          positiveButtonTitle: "Yes",
-          onTapOfPositiveButton: (){
-            Navigator.of(context).pop();
-            if(contact!=""){
-
-              Temp = contact.text;
-              Temp2 = Temp.replaceAll("+", "").trim().toString();
-              contact.text = Temp2;
-              print(Temp2);
-            }
-      installationBloc.add(SaveInstallationCallEvent(saveid,
-          SaveInstallationRequest(
-            CustomerID: customerid.text.toString(),
-            OutwardNo: outwardno.text.toString(),
-            Address:address.text.toString(),
-            Area: area.text.toString(),
-            CountryCode: countrycode.text.toString(),
-            StateCode: statecode.text.toString(),
-            CityCode: citycode.text.toString(),
-            PinCode: pincode.text.toString(),
-
-            ContactNo: contact.text.toString(),
-            InstallationDate: reversedate.text.toString(),
-            InstallationPlace: IP.text.toString(),
-            RoomCooling: RC.text.toString(),
-            PowerStabilize:PS.text.toString(),
-            GroundEarthing:ground.text.toString(),
-            LoginUserID: this.LoginUserID.toString(),
-            InstallationNo: installationno.text.toString(),
-            EmployeeID: engineerid.text.toString(),
-            TraineeName: traineename.text.toString(),
-            MachineSRno: machine_serial_no.text.toString(),
-            AprovedName: approvedname.text.toString(),
-            AprovedDepart: approveddepartment.text.toString(),
-            AprovedDesg:  approveddesignation.text.toString(),
-            TraineeDepart: traineedepartment.text.toString(),
-            TraineeDesg: traineedesignation.text.toString(),
-            TraineeQuali: traineequalification.text.toString(),
-            CompanyId: this.CompanyID.toString(),
-            ProductID: productid.text.toString(),
-          )));}
-            );
+          positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
+        Navigator.of(context).pop();
+        if (contact != "") {
+          Temp = contact.text;
+          Temp2 = Temp.replaceAll("+", "").trim().toString();
+          contact.text = Temp2;
+          print(Temp2);
+        }
+        installationBloc.add(SaveInstallationCallEvent(
+            saveid,
+            SaveInstallationRequest(
+              CustomerID: customerid.text.toString(),
+              OutwardNo: outwardno.text.toString(),
+              Address: address.text.toString(),
+              Area: area.text.toString(),
+              CountryCode: countrycode.text.toString(),
+              StateCode: statecode.text.toString(),
+              CityCode: citycode.text.toString(),
+              PinCode: pincode.text.toString(),
+              ContactNo: contact.text.toString(),
+              InstallationDate: reversedate.text.toString(),
+              InstallationPlace: IP.text.toString(),
+              RoomCooling: RC.text.toString(),
+              PowerStabilize: PS.text.toString(),
+              GroundEarthing: ground.text.toString(),
+              LoginUserID: this.LoginUserID.toString(),
+              InstallationNo: installationno.text.toString(),
+              EmployeeID: engineerid.text.toString(),
+              TraineeName: traineename.text.toString(),
+              MachineSRno: machine_serial_no.text.toString(),
+              AprovedName: approvedname.text.toString(),
+              AprovedDepart: approveddepartment.text.toString(),
+              AprovedDesg: approveddesignation.text.toString(),
+              TraineeDepart: traineedepartment.text.toString(),
+              TraineeDesg: traineedesignation.text.toString(),
+              TraineeQuali: traineequalification.text.toString(),
+              CompanyId: this.CompanyID.toString(),
+              ProductID: productid.text.toString(),
+            )));
+      });
     }
   }
+
   void fillData() async {
+    customername.text = _editModel.customerName.toString();
+    customerid.text = _editModel.customerID.toString();
+    outwardno.text = _editModel.outwardNo.toString();
+    address.text = _editModel.address.toString();
+    area.text = _editModel.area.toString();
+    countrycode.text = _editModel.countryCode.toString();
+    statecode.text = _editModel.stateCode.toString();
+    state.text = _editModel.stateName.toString();
+    citycode.text = _editModel.cityCode.toString();
+    city.text = _editModel.cityName.toString();
+    pincode.text = _editModel.pinCode.toString();
 
-         customername.text=_editModel.customerName.toString();
-     customerid.text=_editModel.customerID.toString();
-    outwardno.text=_editModel.outwardNo.toString();
-    address.text=_editModel.address.toString();
-     area.text=_editModel.area.toString();
-    countrycode.text=_editModel.countryCode.toString();
-    statecode.text=_editModel.stateCode.toString();
-    state.text=_editModel.stateName.toString();
-    citycode.text=_editModel.cityCode.toString();
-    city.text=_editModel.cityName.toString();
-    pincode.text=_editModel.pinCode.toString();
-
-     installationdate.text = _editModel.createdDate.getFormattedDate(
-         fromFormat: "yyyy-MM-ddTHH:mm:ss",
-         toFormat: "dd-MM-yyyy");
-    reversedate.text=_editModel.createdDate.getFormattedDate(
-        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-        toFormat: "yyyy-MM-dd");
-    IP.text=_editModel.installationPlace.toString();
-    RC.text=_editModel.roomCooling.toString();
-    PS.text=_editModel.powerStabilize.toString();
-    ground.text=_editModel.groundEarthing.toString();
-    installationno.text=_editModel.installationNo.toString();
-    engineername.text=_editModel.employeeName.toString();
+    installationdate.text = _editModel.createdDate.getFormattedDate(
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "dd-MM-yyyy");
+    reversedate.text = _editModel.createdDate.getFormattedDate(
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
+    IP.text = _editModel.installationPlace.toString();
+    RC.text = _editModel.roomCooling.toString();
+    PS.text = _editModel.powerStabilize.toString();
+    ground.text = _editModel.groundEarthing.toString();
+    installationno.text = _editModel.installationNo.toString();
+    engineername.text = _editModel.employeeName.toString();
     engineerid.text = _editModel.employeeID.toString();
-     traineename.text=_editModel.traineeName.toString();
-     machine_serial_no.text=_editModel.machineSRno.toString();
-     approvedname.text=_editModel.aprovedName.toString();
-     approveddepartment.text=_editModel.aprovedDepart.toString();
-      approveddesignation.text=_editModel.aprovedDesg.toString();
-     traineedepartment.text=_editModel.traineeDepart.toString();
-     traineedesignation.text=_editModel.traineeDesg.toString();
-    traineequalification.text=_editModel.traineeQuali.toString();
-    country.text=_editModel.countryName.toString();
-    contact.text=_editModel.contactNo.toString();
+    traineename.text = _editModel.traineeName.toString();
+    machine_serial_no.text = _editModel.machineSRno.toString();
+    approvedname.text = _editModel.aprovedName.toString();
+    approveddepartment.text = _editModel.aprovedDepart.toString();
+    approveddesignation.text = _editModel.aprovedDesg.toString();
+    traineedepartment.text = _editModel.traineeDepart.toString();
+    traineedesignation.text = _editModel.traineeDesg.toString();
+    traineequalification.text = _editModel.traineeQuali.toString();
+    country.text = _editModel.countryName.toString();
+    contact.text = _editModel.contactNo.toString();
     saveid = _editModel.pkID;
     productid.text = _editModel.productID.toString();
     productname.text = _editModel.productName.toString();
-    }
+  }
 
   void _ontapofsavedetails(SaveInstallationCallResponseState state) {
     print("save response");
-      state.response.details[0].column2;
+    state.response.details[0].column2;
     showCommonDialogWithSingleOption(context, state.response.details[0].column2,
-    onTapOfPositiveButton: (){
-      navigateTo(context,InstallationListScreen.routeName);
-    }
-    );
+        onTapOfPositiveButton: () {
+      navigateTo(context, InstallationListScreen.routeName);
+    });
   }
-  }
-
-
-
+}

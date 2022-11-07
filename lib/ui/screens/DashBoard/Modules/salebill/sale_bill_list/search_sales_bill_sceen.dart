@@ -1,16 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesbill/salesbill_bloc.dart';
-import 'package:soleoserp/models/api_requests/search_sale_bill_list_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/search_sales_bill_search_response.dart';
+import 'package:soleoserp/models/api_requests/salesBill/search_sale_bill_list_by_name_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/search_sales_bill_search_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class SearchSalesBillScreen extends BaseStatefulWidget {
@@ -72,8 +70,7 @@ class _SearchSalesBillScreenState extends BaseState<SearchSalesBillScreen>
         NewGradientAppBar(
           title: Text('Search SalesBill'),
           gradient:
-          LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
-
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -110,7 +107,7 @@ class _SearchSalesBillScreenState extends BaseState<SearchSalesBillScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -160,7 +157,8 @@ class _SearchSalesBillScreenState extends BaseState<SearchSalesBillScreen>
 
   ///builds row item view of inquiry list
   Widget _buildSearchInquiryListItem(int index) {
-    SearchSalesBillListResponseSearchDetails model = _searchSalesBillListResponse.details[index];
+    SearchSalesBillListResponseSearchDetails model =
+        _searchSalesBillListResponse.details[index];
 
     return Container(
       margin: EdgeInsets.all(5),
@@ -173,7 +171,11 @@ class _SearchSalesBillScreenState extends BaseState<SearchSalesBillScreen>
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.custoemerName+"\n"+model.invoiceNo+"\n"+model.quotationNo,
+              model.custoemerName +
+                  "\n" +
+                  model.invoiceNo +
+                  "\n" +
+                  model.quotationNo,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -187,7 +189,11 @@ class _SearchSalesBillScreenState extends BaseState<SearchSalesBillScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _salesBillBloc.add(SearchSaleBillListByNameCallEvent(
-          SearchSalesBillListByNameRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID,NameOnly: "1")));
+          SearchSalesBillListByNameRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              NameOnly: "1")));
     }
   }
 

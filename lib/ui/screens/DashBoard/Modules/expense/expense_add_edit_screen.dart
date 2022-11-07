@@ -9,13 +9,14 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
+import 'package:soleoserp/models/api_requests/expense/expense_delete_image_request.dart';
 import 'package:soleoserp/models/api_requests/expense/expense_save_request.dart';
 import 'package:soleoserp/models/api_requests/expense/expense_type_request.dart';
 import 'package:soleoserp/models/api_requests/expense/expense_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/expense/fetc_image_list_by_expense_pk_id_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/expense_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -347,6 +348,11 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
                                       .split('/')
                                       .last);
                             }
+
+                            _expenseBloc.add(ExpenseDeleteImageNameCallEvent(
+                                ExpensepkID,
+                                ExpenseDeleteImageRequest(
+                                    CompanyId: CompanyID.toString())));
                           }
 
                           /*if(_selectedImageFile.path !=null)
@@ -567,11 +573,6 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
               ],
             ),
           ),
@@ -1009,6 +1010,8 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
   void _onLeaveSaveStatusCallSuccess(ExpenseSaveCallResponseState state) async {
     print("SaveResponseLeave : " +
         state.expsenseSaveResponse.details[0].column3.toString());
+
+    String expnPKID = state.expsenseSaveResponse.details[0].column3.toString();
     /* List lst123 = "Expense Added Successfully !10047".split("!");
     String RetrunPkID = lst123[1].toString();
     print("SaveReturnPKID : " + RetrunPkID);
@@ -1018,6 +1021,25 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
       }*/
     if (multiple_selectedImageFile.length != 0) {
       for (var i = 0; i < multiple_selectedImageFile.length; i++) {
+        File filerty = File(multiple_selectedImageFile[i].path);
+
+        final extension = p.extension(filerty.path);
+
+        int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+
+        String expn_fileName = expnPKID +
+            "_" +
+            i.toString() +
+            "_" +
+            DateTime.now().day.toString() +
+            "_" +
+            DateTime.now().month.toString() +
+            "_" +
+            DateTime.now().year.toString() +
+            "_" +
+            timestamp1.toString() +
+            extension;
+
         _expenseBloc.add(ExpenseUploadImageNameCallEvent(
             [multiple_selectedImageFile[i]],
             ExpenseUploadImageAPIRequest(
@@ -1026,7 +1048,7 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
               pkID: "0",
               ExpenseID:
                   state.expsenseSaveResponse.details[0].column3.toString(),
-              fileName: multiple_selectedImageFile[i].path.split('/').last,
+              fileName: expn_fileName,
               Type: "0",
             )));
       }

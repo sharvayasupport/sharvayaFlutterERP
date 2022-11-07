@@ -16,17 +16,17 @@ import 'package:soleoserp/models/api_requests/customer/customer_source_list_requ
 import 'package:soleoserp/models/api_requests/general_telecaller_img_upload_request/telecaller_upload_img_request.dart';
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_delete_image/telecaller_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_save_request.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
-import 'package:soleoserp/models/api_responses/telecaller_list_response.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_save_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/telecaller_delete_image_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
@@ -41,6 +41,7 @@ import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
+import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/image_full_screen.dart';
@@ -118,6 +119,14 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   final TextEditingController edt_DisQualifiedName = TextEditingController();
   final TextEditingController edt_DisQualifiedID = TextEditingController();
   final TextEditingController edt_DisqualifiedRemarks = TextEditingController();
+  final TextEditingController edt_FollowupNotes = TextEditingController();
+  final TextEditingController edt_NextFollowupDate = TextEditingController();
+  final TextEditingController edt_ReverseNextFollowupDate = TextEditingController();
+
+  final TextEditingController edt_PreferedTime = TextEditingController();
+  TimeOfDay selectedTime = TimeOfDay.now();
+
+  //
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_LeaveType = [];
 
@@ -151,7 +160,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
 
   double CardViewHeight = 45.00;
   List<ALL_Name_ID> arr_ALL_Name_ID_For_LeadStatus = [];
-  ALL_EmployeeList_Response _offlineALLEmployeeListData;
+  FollowerEmployeeListResponse _offlineALLEmployeeListData;
   List<ALL_Name_ID> arr_All_Employee_List = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Country = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_State = [];
@@ -221,7 +230,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
 
     LeadStatus();
     _offlineALLEmployeeListData =
-        SharedPrefHelper.instance.getALLEmployeeList();
+        SharedPrefHelper.instance.getFollowerEmployeeList();
     _onFollowerEmployeeListByStatusCallSuccess(_offlineALLEmployeeListData);
     //_offlineExpenseType = SharedPrefHelper.instance.getExpenseType();
 
@@ -236,6 +245,39 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
         selectedDate.year.toString();
 
     edt_ReverseExpenseDateController.text = selectedDate.year.toString() +
+        "-" +
+        selectedDate.month.toString() +
+        "-" +
+        selectedDate.day.toString();
+
+
+    TimeOfDay selectedTime1234 = TimeOfDay.now();
+    String AM_PM123 =
+    selectedTime1234.periodOffset.toString() == "12" ? "PM" : "AM";
+    String beforZeroHour123 = selectedTime1234.hourOfPeriod <= 9
+        ? "0" + selectedTime1234.hourOfPeriod.toString()
+        : selectedTime1234.hourOfPeriod.toString();
+    String beforZerominute123 = selectedTime1234.minute <= 9
+        ? "0" + selectedTime1234.minute.toString()
+        : selectedTime1234.minute.toString();
+    edt_PreferedTime.text =
+        beforZeroHour123 + ":" + beforZerominute123 + " " + AM_PM123;
+
+    /*
+    final TextEditingController edt_NextFollowupDate = TextEditingController();
+  final TextEditingController edt_ReverseNextFollowupDate = TextEditingController();
+
+  final TextEditingController edt_PreferedTime = TextEditingController();
+    */
+
+    edt_NextFollowupDate.text = selectedDate.day.toString() +
+        "-" +
+        selectedDate.month.toString() +
+        "-" +
+        selectedDate.year.toString();
+
+
+    edt_ReverseNextFollowupDate.text = selectedDate.year.toString() +
         "-" +
         selectedDate.month.toString() +
         "-" +
@@ -780,11 +822,11 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                     LoginUserID:
                                                                     LoginUserID,
                                                                     FollowupNotes:
-                                                                    "",
+                                                                    edt_FollowupNotes.text,
                                                                     FollowupDate:
-                                                                    "",
+                                                                    edt_ReverseNextFollowupDate.text,
                                                                     PreferredTime:
-                                                                    "",
+                                                                    edt_PreferedTime.text,
                                                                     SerialKey: "",
                                                                     DisqualifedRemarks: edt_DisqualifiedRemarks
                                                                         .text ==
@@ -3309,7 +3351,11 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                           ],
                         ),
                       ),
-                    )
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    FollowupFields(),
                   ],
                 )),
           ),
@@ -3642,7 +3688,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   }
 
   void _onFollowerEmployeeListByStatusCallSuccess(
-      ALL_EmployeeList_Response offlineALLEmployeeListData) {
+      FollowerEmployeeListResponse offlineALLEmployeeListData) {
     arr_All_Employee_List.clear();
     for (int i = 0; i < offlineALLEmployeeListData.details.length; i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -4333,8 +4379,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       Longitude = position.longitude.toString();
       Latitude = position.latitude.toString();
 
-      Address = await getAddressFromLatLng(
-          Latitude, Longitude, MapAPIKey);
+      Address = await getAddressFromLatLngMapMyIndia(
+          Latitude, Longitude, MAPMYINDIAKEY);
     }).catchError((e) {
       print(e);
     });
@@ -4351,8 +4397,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       //  print("${first.featureName} : ${first.addressLine}");
       Latitude = currentLocation.latitude.toString();
       Longitude = currentLocation.longitude.toString();
-      Address = await getAddressFromLatLng(
-          Latitude, Longitude, MapAPIKey);
+      Address = await getAddressFromLatLngMapMyIndia(
+          Latitude, Longitude, MAPMYINDIAKEY);
 
       //  Address = "${first.featureName} : ${first.addressLine}";
     });
@@ -4360,10 +4406,31 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
     // _FollowupBloc.add(LocationAddressCallEvent(LocationAddressRequest(key:"",latlng:Latitude+","+Longitude)));
   }
 // esko ignor karo yeho me blank pass karta hu
-  Future<String> getAddressFromLatLng(
+  /*Future<String> getAddressFromLatLng(
       String lat, String lng, String skey) async {
     String _host = 'https://maps.google.com/maps/api/geocode/json';
     final url = '$_host?key=$skey&latlng=$lat,$lng';
+    if (lat != "" && lng != "null") {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        String _formattedAddress = data["results"][0]["formatted_address"];
+        //Address = _formattedAddress;
+        print("response ==== $_formattedAddress");
+        return _formattedAddress;
+      } else
+        return null;
+    } else
+      return null;
+  }*/
+
+  Future<String> getAddressFromLatLngMapMyIndia(
+      String lat, String lng, String skey) async {
+    String _host =
+        'https://apis.mapmyindia.com/advancedmaps/v1/$skey/rev_geocode';
+    final url = '$_host?lat=$lat&lng=$lng';
+
+    print("MapRequest" + url);
     if (lat != "" && lng != "null") {
       var response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -4421,4 +4488,225 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
         state.response.success.toString() +
         state.response.results[0].messageId);
   }
+
+
+  Widget FollowupFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(left: 10, right: 10),
+          child: Text("Followup Notes *",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight
+                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 7, right: 7, top: 10),
+          child: TextFormField(
+            controller: edt_FollowupNotes,
+            minLines: 2,
+            maxLines: 5,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(10.0),
+                hintText: 'Enter Notes',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                )),
+          ),
+        ),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+        InkWell(
+          onTap: () {
+            _selectNextFollowupDate(context, edt_NextFollowupDate);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 10, right: 10),
+                child: Text("Next FollowUp Date *",
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: colorPrimary,
+                        fontWeight: FontWeight
+                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Card(
+                elevation: 5,
+                color: colorLightGray,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: Container(
+                  height: 60,
+                  padding: EdgeInsets.only(left: 20, right: 20),
+                  width: double.maxFinite,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          edt_NextFollowupDate.text == null ||
+                              edt_NextFollowupDate.text == ""
+                              ? "DD-MM-YYYY"
+                              : edt_NextFollowupDate.text,
+                          style: baseTheme.textTheme.headline3.copyWith(
+                              color: edt_NextFollowupDate.text == null ||
+                                  edt_NextFollowupDate.text == ""
+                                  ? colorGrayDark
+                                  : colorBlack),
+                        ),
+                      ),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        color: colorGrayDark,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+        InkWell(
+          onTap: () {
+            _selectTime(context, edt_PreferedTime);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 10, right: 10),
+                child: Text("Preferred Time",
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: colorPrimary,
+                        fontWeight: FontWeight
+                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Card(
+                elevation: 5,
+                color: colorLightGray,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: Container(
+                  height: 60,
+                  padding: EdgeInsets.only(left: 20, right: 20),
+                  width: double.maxFinite,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          edt_PreferedTime.text == null ||
+                              edt_PreferedTime.text == ""
+                              ? "HH:MM:SS"
+                              : edt_PreferedTime.text,
+                          style: baseTheme.textTheme.headline3.copyWith(
+                              color: edt_PreferedTime.text == null ||
+                                  edt_PreferedTime.text == ""
+                                  ? colorGrayDark
+                                  : colorBlack),
+                        ),
+                      ),
+                      Icon(
+                        Icons.watch_later_outlined,
+                        color: colorGrayDark,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+      ],
+    );
+  }
+
+
+  Future<void> _selectNextFollowupDate(
+      BuildContext context, TextEditingController F_datecontroller) async {
+    DateTime selectedDate = DateTime.now();
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: selectedDate,
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        edt_NextFollowupDate.text = selectedDate.day.toString() +
+            "-" +
+            selectedDate.month.toString() +
+            "-" +
+            selectedDate.year.toString();
+        edt_ReverseNextFollowupDate.text = selectedDate.year.toString() +
+            "-" +
+            selectedDate.month.toString() +
+            "-" +
+            selectedDate.day.toString();
+      });
+  }
+
+
+  Future<void> _selectTime(
+      BuildContext context, TextEditingController F_datecontroller) async {
+    final TimeOfDay picked_s = await showTimePicker(
+        context: context,
+        initialTime: selectedTime,
+        builder: (BuildContext context, Widget child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+            child: child,
+          );
+        });
+
+    if (picked_s != null && picked_s != selectedTime)
+      setState(() {
+        selectedTime = picked_s;
+
+        String AM_PM =
+        selectedTime.periodOffset.toString() == "12" ? "PM" : "AM";
+        String beforZeroHour = selectedTime.hourOfPeriod <= 9
+            ? "0" + selectedTime.hourOfPeriod.toString()
+            : selectedTime.hourOfPeriod.toString();
+        String beforZerominute = selectedTime.minute <= 9
+            ? "0" + selectedTime.minute.toString()
+            : selectedTime.minute.toString();
+
+        edt_PreferedTime.text = beforZeroHour +
+            ":" +
+            beforZerominute +
+            " " +
+            AM_PM; //picked_s.periodOffset.toString();
+      });
+  }
+
+
 }

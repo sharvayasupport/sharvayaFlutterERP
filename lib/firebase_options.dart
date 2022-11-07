@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -46,21 +49,12 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDzrf4FJWble-hewGLVIiUWt1RB1lI2vYs',
-    appId: '1:1013573145835:web:b97906006b02ee4a811aae',
-    messagingSenderId: '1013573145835',
-    projectId: 'e-office-desk-flutter',
-    authDomain: 'e-office-desk-flutter.firebaseapp.com',
-    storageBucket: 'e-office-desk-flutter.appspot.com',
-    measurementId: 'G-69Z9FKN9NK',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAHMV5A4Dz0iEJGMAoYPfu5a3odBNXttV8',
     appId: '1:1013573145835:android:e0bfa3a6c8bf2f9c811aae',
     messagingSenderId: '1013573145835',
     projectId: 'e-office-desk-flutter',
+    databaseURL: 'https://e-office-desk-flutter-default-rtdb.firebaseio.com',
     storageBucket: 'e-office-desk-flutter.appspot.com',
   );
 
@@ -69,6 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:1013573145835:ios:850a068a24fdabe7811aae',
     messagingSenderId: '1013573145835',
     projectId: 'e-office-desk-flutter',
+    databaseURL: 'https://e-office-desk-flutter-default-rtdb.firebaseio.com',
     storageBucket: 'e-office-desk-flutter.appspot.com',
     iosClientId: '1013573145835-jucs16ektajtgk9b9grg4ismqgf3vspl.apps.googleusercontent.com',
     iosBundleId: 'com.sharvayainfotech.eofficedesk',

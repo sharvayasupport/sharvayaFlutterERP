@@ -6,11 +6,11 @@ import 'package:soleoserp/blocs/other/bloc_modules/attend_visit/attend_visit_blo
 import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_delete_request.dart';
 import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_list_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
-import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
@@ -252,11 +252,11 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
           ),
           InkWell(
             onTap: () {
-              showcustomdialogofEmployeeDropDown(
+              showcustomdialogWithID(
                   values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
                   context1: context,
                   controller: edt_FollowupEmployeeList,
-                  controller2: edt_FollowupEmployeeUserID,
+                  controllerID: edt_FollowupEmployeeUserID,
                   lable: "Select Employee");
             },
             child: Card(

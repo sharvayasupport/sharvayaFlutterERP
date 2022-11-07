@@ -5,10 +5,10 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dailyactivity/dailyactivity_bloc.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_delete_request.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_list_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -736,11 +736,12 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
     return InkWell(
       onTap: () {
         // _onTapOfSearchView(context);
-        showcustomdialog(
+
+        showcustomdialogWithID(
             values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
             context1: context,
             controller: edt_FollowupEmployeeList,
-            controller2: edt_FollowupEmployeeUserID,
+            controllerID: edt_FollowupEmployeeUserID,
             lable: "Select Employee");
       },
       child: Column(

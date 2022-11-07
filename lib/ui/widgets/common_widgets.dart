@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:ntp/ntp.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/custom_text_editing_controller.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -1181,7 +1181,7 @@ Widget buildRegisterbTitle(BuildContext context) {
 
 ///_________________________________________________
 
-///This Widget is For Dashboard Screen
+///This Widget is For dashboard Screen
 makeDashboardItem(
     String title, IconData icon, BuildContext context, String ImageURL) {
   return Container(
@@ -1263,9 +1263,7 @@ makeDashboardItem(
                   clearAllStack: true);
         } else if (title == "Complaint") {
           if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "DHSI-09RY-BATH-ACCU" ||
-              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "TEST-0000-SI0F-0208") {
+              "DHSI-09RY-BATH-ACCU") {
             navigateTo(context, AccurabathComplaintListScreen.routeName,
                 clearAllStack: true);
           } else {
@@ -2180,11 +2178,17 @@ getSupportList(List<ALL_Name_ID> Support, BuildContext context) {
             }
             if (Support[i].Name == "Attend Visit") {
               if (SharedPrefHelper.instance
-                      .getLoginUserData()
-                      .details[0]
-                      .serialKey
-                      .toUpperCase() ==
-                  "HEMA-AUTO-SI08-NVRL") {
+                          .getLoginUserData()
+                          .details[0]
+                          .serialKey
+                          .toUpperCase() ==
+                      "HEMA-AUTO-SI08-NVRL" ||
+                  SharedPrefHelper.instance
+                          .getLoginUserData()
+                          .details[0]
+                          .serialKey
+                          .toUpperCase() ==
+                      "TEST-0000-SI0F-0208") {
                 navigateTo(context, HemaAttendVisitListScreen.routeName,
                     clearAllStack: true);
               } else {
@@ -3682,6 +3686,7 @@ showcustomdialogWithMultipleID(
                 padding: EdgeInsets.all(10),
                 child: Text(
                   lable,
+                  softWrap: true,
                   style: TextStyle(
                       color: colorPrimary, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
@@ -3713,8 +3718,10 @@ showcustomdialogWithMultipleID(
                                 margin: EdgeInsets.only(
                                     left: 25, top: 10, bottom: 10, right: 10),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Container(
+                                    /*Container(
                                       decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: colorPrimary), //Change color
@@ -3725,10 +3732,28 @@ showcustomdialogWithMultipleID(
                                     ),
                                     SizedBox(
                                       width: 15,
+                                    ),*/
+                                    Container(
+                                      margin: EdgeInsets.only(top: 3),
+                                      child: Icon(
+                                        Icons.ac_unit,
+                                        color: colorPrimary,
+                                        size: 10,
+                                      ),
                                     ),
-                                    Text(
-                                      values[index].Name,
-                                      style: TextStyle(color: colorPrimary),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Container(
+                                      child: Flexible(
+                                        child: Text(
+                                          values[index].Name,
+                                          softWrap: true,
+                                          style: TextStyle(
+                                              color: colorPrimary,
+                                              fontSize: 12),
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),

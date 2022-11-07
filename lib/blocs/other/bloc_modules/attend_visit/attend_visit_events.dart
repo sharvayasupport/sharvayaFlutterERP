@@ -61,3 +61,18 @@ class ComplaintSearchByIDCallEvent extends AttendVisitEvents {
 
   ComplaintSearchByIDCallEvent(this.pkID, this.complaintSearchByIDRequest);
 }
+
+class QuickComplaintListRequestCallEvent extends AttendVisitEvents {
+  final QuickComplaintListRequest quickComplaintListRequest;
+
+  QuickComplaintListRequestCallEvent(this.quickComplaintListRequest);
+}
+
+class QuickComplaintSaveRequestCallEvent extends AttendVisitEvents {
+  final int pkID;
+  final QuickComplaintSaveRequest quickComplaintSaveRequest;
+
+  QuickComplaintSaveRequestCallEvent(this.pkID, this.quickComplaintSaveRequest);
+}
+
+//

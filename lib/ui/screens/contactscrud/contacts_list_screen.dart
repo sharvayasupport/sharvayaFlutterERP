@@ -1,7 +1,7 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';

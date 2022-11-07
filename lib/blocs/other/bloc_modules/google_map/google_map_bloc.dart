@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/maps/distance_matrix_api_request.dart';
 import 'package:soleoserp/models/api_requests/maps/google_place_api_request.dart';
-import 'package:soleoserp/models/api_responses/distance_matrix_api_response.dart';
-import 'package:soleoserp/models/api_responses/google_place_search_response.dart';
+import 'package:soleoserp/models/api_responses/maps/distance_matrix_api_response.dart';
+import 'package:soleoserp/models/api_responses/maps/google_place_search_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'google_map_event.dart';

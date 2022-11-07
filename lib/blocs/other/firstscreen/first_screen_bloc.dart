@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'first_screen_events.dart';

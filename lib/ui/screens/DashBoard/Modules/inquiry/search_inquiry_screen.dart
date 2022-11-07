@@ -1,18 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/search_inquiry_list_response.dart';
+import 'package:soleoserp/models/api_requests/inquiry/search_inquiry_list_by_name_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/search_inquiry_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/date_time_extensions.dart';
-import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class SearchInquiryScreen extends BaseStatefulWidget {
@@ -74,7 +70,8 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -102,9 +99,11 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
       children: [
         Container(
           padding: EdgeInsets.only(left: 10, right: 20),
-          child: Text(
-            "Min. 3 chars to search Inquiry",
-             style:TextStyle(fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)        ),
+          child: Text("Min. 3 chars to search Inquiry",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
@@ -122,7 +121,7 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -177,7 +176,7 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.customerName+"\n" + model.label ,
+              model.customerName + "\n" + model.label,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -191,7 +190,11 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _inquiryBloc.add(SearchInquiryListByNameCallEvent(
-          SearchInquiryListByNameRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID,needALL: "1")));
+          SearchInquiryListByNameRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              needALL: "1")));
     }
   }
 

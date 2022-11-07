@@ -7,8 +7,8 @@ import 'package:soleoserp/models/api_requests/loan/loan_approval_list_request.da
 import 'package:soleoserp/models/api_requests/loan/loan_list_request.dart';
 import 'package:soleoserp/models/api_requests/loan/loan_search_request.dart';
 import 'package:soleoserp/models/api_responses/Loan/loan_approval_save_response.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_delete_response.dart';
-import 'package:soleoserp/models/api_responses/loan_list_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
+import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'loan_event.dart';

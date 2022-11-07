@@ -8,19 +8,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:open_mail_app/open_mail_app.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_pdf_generate_request.dart';
-import 'package:soleoserp/models/api_requests/search_quotation_list_by_number_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
-import 'package:soleoserp/models/api_responses/search_quotation_list_response.dart';
+import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_number_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -96,9 +98,10 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   String SiteURL = "";
   String QTGEN = "";
   bool isLoading = true;
-
+  bool onWebLoadingStop = true;
   URLRequest urlRequest;
   CustomerDetails customerDetails = CustomerDetails();
+
   //EmailTO
 
   TextEditingController EmailTO = TextEditingController();
@@ -379,19 +382,30 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
           return false;
         }
       },
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return _buildInquiryListItem(index);
-        },
-        shrinkWrap: true,
-        itemCount: _quotationListResponse.details.length,
+      child: Column(
+        children: [
+          _quotationListResponse.details.length != 0
+              ? OneTimeGenerateQT(_quotationListResponse.details[0], context)
+              : Container(),
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return _buildInquiryListItem(index);
+              },
+              shrinkWrap: true,
+              itemCount: _quotationListResponse.details.length,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   ///builds row item view of inquiry list
   Widget _buildInquiryListItem(int index) {
-    return ExpantionCustomer(context, index);
+    return Column(
+      children: [ExpantionCustomer(context, index)],
+    );
   }
 
   ///builds inquiry row items title and value's common view
@@ -458,7 +472,14 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   ///checks if already all records are arrive or not
   ///calls api with new page
   void _onInquiryListPagination() {
-    if (_quotationListResponse.details.length <
+    print("jdsj" + _pageNo.toString());
+    _QuotationBloc.add(QuotationListCallEvent(
+        _pageNo + 1,
+        QuotationListApiRequest(
+            CompanyId: CompanyID.toString(),
+            LoginUserID: LoginUserID,
+            pkId: "")));
+    /*if (_quotationListResponse.details.length <
         _quotationListResponse.totalCount) {
       _QuotationBloc.add(QuotationListCallEvent(
           _pageNo + 1,
@@ -466,7 +487,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               CompanyId: CompanyID.toString(),
               LoginUserID: LoginUserID,
               pkId: "")));
-    }
+    }*/
   }
 
   ExpantionCustomer(BuildContext context, int index) {
@@ -480,7 +501,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
         elevationCurve: Curves.easeInOut,
         shadowColor: Color(0xFF504F4F),
         baseColor: Color(0xFFFCFCFC),
-        expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
+        expandedColor: Color(0xFFC1E0FA),
+        //Colors.deepOrange[50],ADD8E6
         leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
             child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
@@ -998,49 +1020,18 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Do You want to Generate Quotation ? '),
+          title: Text('Please wait..! '),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
                 Visibility(
-                  visible: false,
+                  visible: true,
                   child: GenerateQT(model, context123),
                 )
                 //GetCircular123(),
               ],
             ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(90, 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24.0),
-                    ),
-                  ),
-                ),
-                onPressed: () => Navigator.of(context)
-                    .pop(), //  We can return any object from here
-                child: Text('NO')),
-            /* prgresss!=100 ? CircularProgressIndicator() :*/ ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(90, 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24.0),
-                    ),
-                  ),
-                ),
-                onPressed: () => {
-                      Navigator.of(context).pop(),
-                      _QuotationBloc.add(QuotationPDFGenerateCallEvent(
-                          QuotationPDFGenerateRequest(
-                              CompanyId: CompanyID.toString(),
-                              QuotationNo: model.quotationNo)))
-                    }, //  We can return any object from here
-                child: Text('YES'))
-          ],
         );
       },
     );
@@ -1052,7 +1043,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Send Email '),
+          title: Text('Sending Email ...!'),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -1064,20 +1055,6 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               ],
             ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(90, 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24.0),
-                    ),
-                  ),
-                ),
-                onPressed: () => Navigator.of(context)
-                    .pop(), //  We can return any object from here
-                child: Text('Close')),
-          ],
         );
       },
     );
@@ -1144,219 +1121,494 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   }
 
   GenerateQT(QuotationDetails model, BuildContext context123) {
-    return Container(
-      height: 200,
-      child: Visibility(
-        visible: true,
-        child: InAppWebView(
-          //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
-          // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(SiteURL +
-                  "/Quotation.aspx?MobilePdf=yes&userid=" +
-                  LoginUserID +
-                  "&password=" +
-                  Password +
-                  "&pQuotID=" +
-                  model.pkID.toString())),
-          // initialFile: "assets/index.html",
-          initialUserScripts: UnmodifiableListView<UserScript>([]),
-          initialOptions: options,
-          pullToRefreshController: pullToRefreshController,
+    return Center(
+      child: Container(
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/Quotation.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
 
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
 
-          onLoadStart: (controller, url) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          androidOnPermissionRequest: (controller, origin, resources) async {
-            return PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT);
-          },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url;
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
 
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(url)) {
-                // Launch the App
-                await launch(
-                  url,
-                );
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
 
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
 
-            return NavigationActionPolicy.ALLOW;
-          },
-          onLoadStop: (controller, url) async {
-            pullToRefreshController.endRefreshing();
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
 
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onLoadError: (controller, url, code, message) {
-            pullToRefreshController.endRefreshing();
-            isLoading = false;
-          },
-          onProgressChanged: (controller, progress) {
-            if (progress == 100) {
-              pullToRefreshController.endRefreshing();
-              this.prgresss = progress;
-              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-            }
+                    String pageTitle = "";
 
-            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
 
-            setState(() {
-              this.progress = progress / 100;
-              this.prgresss = progress;
+                        print("sdf567" + pageTitle);
 
-              urlController.text = this.url;
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("LoadWeb" + consoleMessage.message.toString());
-          },
+                        if (pageTitle != "E-Office-Desk") {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "PO Generated Successfully ",
+                              onTapOfPositiveButton: () {
+                            Navigator.of(context).pop();
+                            _QuotationBloc.add(QuotationPDFGenerateCallEvent(
+                                QuotationPDFGenerateRequest(
+                                    CompanyId: CompanyID.toString(),
+                                    QuotationNo: model.quotationNo)));
+                            //Navigator.pop(context);
+                          });
+                        } else {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Please Try Again !");
+                        }
+                      });
+                    });
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  OneTimeGenerateQT(QuotationDetails model, BuildContext context123) {
+    return Center(
+      child: Container(
+        alignment: Alignment.topLeft,
+        child: Stack(
+          children: [
+            Container(
+              height: 5,
+              width: 5,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/Quotation.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    baseBloc.emit(ShowProgressIndicatorState(true));
+
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        print("sdf567" + pageTitle);
+                      });
+                    });
+                    baseBloc.emit(ShowProgressIndicatorState(false));
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            /*Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )*/
+          ],
         ),
       ),
     );
   }
 
   GenerateQTSendEmail(QuotationDetails model, BuildContext context123) {
-    return Container(
-      height: 50,
-      child: Visibility(
-        visible: true,
-        child: InAppWebView(
-          /*
-            Uri.parse(SiteURL +
-                "/Quotation.aspx?MobilePdf=yes&userid=" +
-                LoginUserID +
-                "&password=" +
-                Password +
-                "&pQuotID=" +
-                model.pkID.toString()))*/
-          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(SiteURL +
-                  "Quotation.aspx?MobilePdf=yes&userid=" +
-                  LoginUserID +
-                  "&password=" +
-                  Password +
-                  "&pQuotID=" +
-                  model.pkID.toString() +
-                  "&CustomerID=" +
-                  model.customerID.toString())),
+    return Center(
+      child: Container(
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  /*
+                    Uri.parse(SiteURL +
+                        "/Quotation.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString()))*/
+                  //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "Quotation.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString() +
+                          "&CustomerID=" +
+                          model.customerID.toString())),
 
-          // initialFile: "assets/index.html",
-          initialUserScripts: UnmodifiableListView<UserScript>([]),
-          initialOptions: options,
-          pullToRefreshController: pullToRefreshController,
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
 
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
 
-          onLoadStart: (controller, url) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          androidOnPermissionRequest: (controller, origin, resources) async {
-            return PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT);
-          },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url;
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
 
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(url)) {
-                // Launch the App
-                await launch(
-                  url,
-                );
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
 
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
 
-            return NavigationActionPolicy.ALLOW;
-          },
-          onLoadStop: (controller, url) async {
-            pullToRefreshController.endRefreshing();
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
 
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onLoadError: (controller, url, code, message) {
-            pullToRefreshController.endRefreshing();
-            isLoading = false;
-          },
-          onProgressChanged: (controller, progress) {
-            if (progress == 100) {
-              pullToRefreshController.endRefreshing();
-              this.prgresss = progress;
-              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-            }
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    Navigator.of(context).pop();
+                    showCommonDialogWithSingleOption(
+                        context, "Send Email Successfully ",
+                        onTapOfPositiveButton: () {
+                      Navigator.of(context).pop();
+                      openEmailApp(context);
+                      //Navigator.pop(context);
+                    });
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
 
-            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
 
-            setState(() {
-              this.progress = progress / 100;
-              this.prgresss = progress;
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
 
-              urlController.text = this.url;
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("LoadWeb" + consoleMessage.message.toString());
-          },
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                ),
+              ),
+            ),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+          ],
         ),
       ),
     );
+  }
+
+  void openEmailApp(BuildContext context325146) async {
+    var result = await OpenMailApp.openMailApp();
+
+    // If no mail apps found, show error
+    if (!result.didOpen && !result.canOpen) {
+      showCommonDialogWithSingleOption(
+          context, "No Any Email App Found in your Phone ",
+          onTapOfPositiveButton: () {
+        Navigator.of(context325146).pop();
+      });
+      // iOS: if multiple mail apps found, show dialog to select.
+      // There is no native intent/default app system in iOS so
+      // you have to do it yourself.
+    } else if (!result.didOpen && result.canOpen) {
+      showDialog(
+        context: context,
+        builder: (_) {
+          return MailAppPickerDialog(
+            mailApps: result.options,
+          );
+        },
+      );
+    }
   }
 
   GetCircular123() {

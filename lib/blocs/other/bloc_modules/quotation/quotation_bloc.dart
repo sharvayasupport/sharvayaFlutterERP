@@ -7,7 +7,9 @@ import 'package:soleoserp/models/api_requests/customer/customer_label_value_requ
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
+import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_kind_att_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_list_request.dart';
@@ -17,28 +19,30 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_pdf_generate_r
 import 'package:soleoserp/models/api_requests/quotation/quotation_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
-import 'package:soleoserp/models/api_requests/search_quotation_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_quotation_list_by_number_request.dart';
-import 'package:soleoserp/models/api_requests/specification_list_request.dart';
-import 'package:soleoserp/models/api_responses/bank_drop_down_response.dart';
-import 'package:soleoserp/models/api_responses/cust_id_to_inq_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/inq_no_to_product_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_delete_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_header_save_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_kind_att_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_no_to_product_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_other_charges_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_pdf_generate_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_product_delete_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_product_save_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_project_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_terms_condition_response.dart';
-import 'package:soleoserp/models/api_responses/search_quotation_list_response.dart';
-import 'package:soleoserp/models/api_responses/specification_list_response.dart';
+import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_number_request.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_drop_down_response.dart';
+import 'package:soleoserp/models/api_responses/customer/cust_id_to_inq_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inq_no_to_product_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/other/specification_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_delete_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_email_content_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_kind_att_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_no_to_product_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_pdf_generate_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_product_delete_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_product_save_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/save_email_content_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
@@ -147,6 +151,30 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     }
     if (event is QT_OtherChargeInsertRequestEvent) {
       yield* _map_QTOtherChargeInsertEventState(event);
+    }
+
+    if (event is QuotationEmailContentRequestEvent) {
+      yield* _mapSalesBillEmailContentEventState(event);
+    }
+    if (event is SaveEmailContentRequestEvent) {
+      yield* _mapSaveEmailContentRequestEventState(event);
+    }
+
+    if (event is QuotationOtherCharge1CallEvent) {
+      yield* _mapQuotationOtherCharge1ListEventToState(event);
+    }
+
+    if (event is QuotationOtherCharge2CallEvent) {
+      yield* _mapQuotationOtherCharge2ListEventToState(event);
+    }
+    if (event is QuotationOtherCharge3CallEvent) {
+      yield* _mapQuotationOtherCharge3ListEventToState(event);
+    }
+    if (event is QuotationOtherCharge4CallEvent) {
+      yield* _mapQuotationOtherCharge4ListEventToState(event);
+    }
+    if (event is QuotationOtherCharge5CallEvent) {
+      yield* _mapQuotationOtherCharge5ListEventToState(event);
     }
   }
 
@@ -352,6 +380,13 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       QuotationHeaderSaveCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
+
+      print("refdfd" +
+          " AssumptionRemarks : " +
+          event.request.AssumptionRemarks +
+          " Addtional Remarks : " +
+          event.request.AdditionalRemarks);
+
       QuotationSaveHeaderResponse response = await userRepository
           .getQuotationHeaderSaveResponse(event.pkID, event.request);
       yield QuotationHeaderSaveResponseState(
@@ -420,7 +455,7 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
           await userRepository.getQuotationOtherChargeList(
               event.CompanyID, event.request);
       yield QuotationOtherChargeListResponseState(
-          quotationOtherChargesListResponse);
+          event.headerDiscountController, quotationOtherChargesListResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -559,6 +594,121 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
 
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapSalesBillEmailContentEventState(
+      QuotationEmailContentRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationEmailContentResponse response =
+          await userRepository.getQuotationEmailContentAPI(event.request);
+      yield QuotationEmailContentResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapSaveEmailContentRequestEventState(
+      SaveEmailContentRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SaveEmailContentResponse response =
+          await userRepository.getSaveEmailContentAPI(event.request);
+      yield SaveEmailContentResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOtherCharge1ListEventToState(
+      QuotationOtherCharge1CallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherCharge1ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOtherCharge2ListEventToState(
+      QuotationOtherCharge2CallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherCharge2ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOtherCharge3ListEventToState(
+      QuotationOtherCharge3CallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherCharge3ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOtherCharge4ListEventToState(
+      QuotationOtherCharge4CallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherCharge4ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOtherCharge5ListEventToState(
+      QuotationOtherCharge5CallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherCharge5ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

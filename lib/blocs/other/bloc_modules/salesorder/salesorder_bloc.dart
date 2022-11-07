@@ -8,20 +8,26 @@ import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_det
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/bank_details_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/multi_no_to_product_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_project_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_terms_condition_response.dart';
-import 'package:soleoserp/models/api_responses/sales_order_pdf_generate_pdf_response.dart';
-import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
-import 'package:soleoserp/models/api_responses/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesOrder_Product_Save_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_pdf_generate_pdf_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_delete_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
@@ -95,6 +101,17 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
     }
     if (event is PaymentScheduleDeleteAllItemEvent) {
       yield* _mapPaymentScheduleDeleteAllEventState(event);
+    }
+
+    if (event is SaleOrderHeaderSaveRequestEvent) {
+      yield* _mapSaleOrderHeaderSaveRequestEventState(event);
+    }
+    if (event is SaleOrderProductSaveCallEvent) {
+      yield* _mapSaleOrderProductSaveCallEventState(event);
+    }
+
+    if (event is SalesOrderProductDeleteRequestEvent) {
+      yield* _mapSalesOrderProductDeleteRequestEventState(event);
     }
   }
 
@@ -372,4 +389,56 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+  Stream<SalesOrderStates> _mapSaleOrderHeaderSaveRequestEventState(
+      SaleOrderHeaderSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SaleOrderHeaderSaveResponse response =
+          await userRepository.getSalesOrderHeaderSaveAPI(
+              event.pkID, event.saleOrderHeaderSaveRequest);
+      yield SaleOrderHeaderSaveResponseState(
+          event.context, event.pkID, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSaleOrderProductSaveCallEventState(
+      SaleOrderProductSaveCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      print("dlddd" + event.arrSalesOrderProductList.length.toString());
+      SaleOrderProductSaveResponse response = await userRepository
+          .salesOrderProductSaveDetails(event.arrSalesOrderProductList);
+      yield SaleOrderProductSaveResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSalesOrderProductDeleteRequestEventState(
+      SalesOrderProductDeleteRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SaleOrderProductDeleteResponse response =
+          await userRepository.saleorder_productDelete(
+              event.pkID, event.SalesOrderProductDeleteRequest);
+      yield SaleOrderProductDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  //SalesOrderProductDeleteRequestEvent
 }

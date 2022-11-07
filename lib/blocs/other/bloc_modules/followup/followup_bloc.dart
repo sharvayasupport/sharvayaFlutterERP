@@ -17,25 +17,27 @@ import 'package:soleoserp/models/api_requests/followup/followup_save_request.dar
 import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/followup/quick_followup_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/search_followup_by_status_request.dart';
+import 'package:soleoserp/models/api_requests/followup/telecaller_followup_history_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_requests/search_followup_by_status_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
-import 'package:soleoserp/models/api_responses/closer_reason_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/followup_Image_Upload_response.dart';
-import 'package:soleoserp/models/api_responses/followup_delete_Image_response.dart';
-import 'package:soleoserp/models/api_responses/followup_delete_response.dart';
-import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_history_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_inquiry_by_customer_id_response.dart';
-import 'package:soleoserp/models/api_responses/followup_inquiry_no_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_save_success_response.dart';
-import 'package:soleoserp/models/api_responses/followup_type_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
-import 'package:soleoserp/models/api_responses/quick_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_Image_Upload_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_delete_Image_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_delete_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_history_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_inquiry_by_customer_id_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_inquiry_no_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_save_success_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/quick_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/telecaller_followup_history_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -130,6 +132,10 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
 
     if (event is AccuraBathComplaintFollowupSaveRequestEvent) {
       yield* _mapAccuraBathComlaintFollowupEventToState(event);
+    }
+
+    if (event is TeleCallerFollowupHistoryRequestEvent) {
+      yield* _mapTeleCallerFollowupHistoryRequestEventToState(event);
     }
   }
 
@@ -489,6 +495,21 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
               event.pkID, event.complaintFollowupSaveRequest);
       yield AccuraBathComplaintFollowupSaveResponseState(
           event.context, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FollowupStates> _mapTeleCallerFollowupHistoryRequestEventToState(
+      TeleCallerFollowupHistoryRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      TeleCallerFollowupHestoryResponse response =
+          await userRepository.getTeleCallerFollowupHistoryList(event.request);
+      yield TeleCallerFollowupHestoryResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

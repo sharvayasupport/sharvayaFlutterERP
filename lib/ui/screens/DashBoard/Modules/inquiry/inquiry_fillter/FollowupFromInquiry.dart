@@ -19,11 +19,11 @@ import 'package:soleoserp/models/api_requests/followup/followup_type_list_reques
 import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';

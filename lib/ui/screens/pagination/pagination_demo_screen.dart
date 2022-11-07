@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/pagination_demo_screen/pagination_demo_screen_bloc.dart';
-import 'package:soleoserp/models/api_responses/pagination_demo_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/pagination_demo_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
@@ -54,7 +53,7 @@ class _PaginationDemoScreenState extends BaseState<PaginationDemoScreen>
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) =>
-          _paginationDemoScreenBloc..add(GetListCallEvent(_page+1)),
+          _paginationDemoScreenBloc..add(GetListCallEvent(_page + 1)),
       child: BlocConsumer<PaginationDemoScreenBloc, PaginationDemoScreenStates>(
         builder: (BuildContext context, PaginationDemoScreenStates state) {
           //handle states

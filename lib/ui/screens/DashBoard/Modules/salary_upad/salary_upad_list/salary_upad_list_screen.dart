@@ -8,11 +8,11 @@ import 'package:soleoserp/blocs/other/bloc_modules/salary_upad/salary_upad_bloc.
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
 import 'package:soleoserp/models/api_requests/loan/loan_search_request.dart';
 import 'package:soleoserp/models/api_requests/salary_upad/salary_upad_list_request.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_list_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/loan_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';

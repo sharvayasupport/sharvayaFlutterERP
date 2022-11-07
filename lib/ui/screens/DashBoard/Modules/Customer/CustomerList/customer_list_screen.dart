@@ -14,11 +14,11 @@ import 'package:soleoserp/models/api_requests/customer/customer_delete_request.d
 import 'package:soleoserp/models/api_requests/customer/customer_fetch_document_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_paggination_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_fetch_document_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';

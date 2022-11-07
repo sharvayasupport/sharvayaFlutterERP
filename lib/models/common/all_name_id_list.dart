@@ -7,7 +7,17 @@ class ALL_Name_ID {
   String TaxRate;
   bool isChecked;
 
+  String GoogleAddress;
+  String Latitude;
+  String Longitude;
 
-  ALL_Name_ID({this.pkID, this.Name,this.Name1,this.PresentDate,this.isChecked});
-
+  ALL_Name_ID(
+      {this.pkID,
+      this.Name,
+      this.Name1,
+      this.PresentDate,
+      this.isChecked,
+      this.GoogleAddress,
+      this.Latitude,
+      this.Longitude});
 }

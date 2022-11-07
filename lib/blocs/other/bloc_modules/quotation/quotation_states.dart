@@ -119,7 +119,9 @@ class QuotationDeleteCallResponseState extends QuotationStates {
 class QuotationOtherChargeListResponseState extends QuotationStates {
   final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
 
-  QuotationOtherChargeListResponseState(this.quotationOtherChargesListResponse);
+  String headerDiscountController;
+  QuotationOtherChargeListResponseState(
+      this.headerDiscountController, this.quotationOtherChargesListResponse);
 }
 
 class QuotationBankDropDownResponseState extends QuotationStates {
@@ -156,4 +158,51 @@ class QT_OtherChargeInsertResponseState extends QuotationStates {
   final String response;
 
   QT_OtherChargeInsertResponseState(this.response);
+}
+
+class QuotationEmailContentResponseState extends QuotationStates {
+  final QuotationEmailContentResponse response;
+
+  QuotationEmailContentResponseState(this.response);
+}
+
+class SaveEmailContentResponseState extends QuotationStates {
+  final SaveEmailContentResponse response;
+
+  SaveEmailContentResponseState(this.response);
+}
+
+class QuotationOtherCharge1ListResponseState extends QuotationStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  QuotationOtherCharge1ListResponseState(
+      this.quotationOtherChargesListResponse);
+}
+
+class QuotationOtherCharge2ListResponseState extends QuotationStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  QuotationOtherCharge2ListResponseState(
+      this.quotationOtherChargesListResponse);
+}
+
+class QuotationOtherCharge3ListResponseState extends QuotationStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  QuotationOtherCharge3ListResponseState(
+      this.quotationOtherChargesListResponse);
+}
+
+class QuotationOtherCharge4ListResponseState extends QuotationStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  QuotationOtherCharge4ListResponseState(
+      this.quotationOtherChargesListResponse);
+}
+
+class QuotationOtherCharge5ListResponseState extends QuotationStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  QuotationOtherCharge5ListResponseState(
+      this.quotationOtherChargesListResponse);
 }

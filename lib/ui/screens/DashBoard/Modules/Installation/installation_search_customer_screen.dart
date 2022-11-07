@@ -1,28 +1,25 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/installation/installation_bloc.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_search_customer_request.dart';
-import 'package:soleoserp/models/api_requests/search_installation_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_search_customer_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/installation_response/search_installation_label_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-
-
 
 class InstallationSearchCustomerScreen extends BaseStatefulWidget {
   static const routeName = '/InstallationSearchCustomerScreen';
 
   @override
-  _InstallationSearchCustomerScreenState createState() => _InstallationSearchCustomerScreenState();
+  _InstallationSearchCustomerScreenState createState() =>
+      _InstallationSearchCustomerScreenState();
 }
 
-class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearchCustomerScreen>
+class _InstallationSearchCustomerScreenState
+    extends BaseState<InstallationSearchCustomerScreen>
     with BasicScreen, WidgetsBindingObserver {
   InstallationBloc installationBloc;
   CompanyDetailsResponse _offlineCompanyData;
@@ -30,7 +27,6 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
   int CompanyID = 0;
   String LoginUserID = "";
   InstallationSearchCustomerResponse Response1;
-
 
   @override
   void initState() {
@@ -75,7 +71,8 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Column(
@@ -85,7 +82,6 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
             ],
           ),
         ),
-
       ],
     );
   }
@@ -96,21 +92,24 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.only(left: 20, right: 20,top: 10),
-          child: Text(
-              "Min. 3 chars to search Customer",
-              style:TextStyle(fontFamily: "QuickSand",fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)     ),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+          child: Text("Min. 3 chars to search Customer",
+              style: TextStyle(
+                  fontFamily: "QuickSand",
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
         ),
         Container(
-          margin: EdgeInsets.only(left: 10,right: 10),
+          margin: EdgeInsets.only(left: 10, right: 10),
           child: Card(
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: 50,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -119,7 +118,7 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
                 children: [
                   Expanded(
                     child: TextFormField(
-                      autofocus:true,
+                      autofocus: true,
                       keyboardType: TextInputType.name,
                       textCapitalization: TextCapitalization.words,
                       onChanged: (value) {
@@ -156,7 +155,7 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
         return _buildSearchInquiryListItem(index);
       },
       shrinkWrap: true,
-      itemCount:Response1.details.length,
+      itemCount: Response1.details.length,
     );
   }
 
@@ -171,24 +170,20 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
           Navigator.of(context).pop(cs);
         },
         child: Container(
-          margin: EdgeInsets.only(top: 10,left: 10,right: 10),
+          margin: EdgeInsets.only(top: 10, left: 10, right: 10),
           child: Card(
             elevation: 4,
             child: Container(
-
-              padding: EdgeInsets.only(left: 15,  top: 20, bottom: 20),
+              padding: EdgeInsets.only(left: 15, top: 20, bottom: 20),
               child: Text(
                 cs.label,
                 style: TextStyle(
                   fontSize: 15,
                   fontFamily: "Popins-Regular",
                   color: Colors.black,
-
                 ),
-
               ),
             ),
-
           ),
         ),
       ),
@@ -199,7 +194,11 @@ class _InstallationSearchCustomerScreenState extends BaseState<InstallationSearc
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       installationBloc.add(InstallationSearchCustomerCallEvent(
-          InstallationCustomerSearchRequest(word: value,CompanyId: this.CompanyID,LoginUserID: this.LoginUserID,needALL:'1' )));
+          InstallationCustomerSearchRequest(
+              word: value,
+              CompanyId: this.CompanyID,
+              LoginUserID: this.LoginUserID,
+              needALL: '1')));
     }
   }
 

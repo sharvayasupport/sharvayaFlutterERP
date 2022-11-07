@@ -5,22 +5,28 @@ import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_kind_att_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
+import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
+import 'package:soleoserp/models/common/othercharges/other_charges.dart';
+import 'package:soleoserp/models/common/qt_other_charge_temp.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
+import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_general_customer_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_other_charges_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_list_screen.dart';
@@ -98,6 +104,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_ProjectList = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_TermConditionList = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_InqNoList = [];
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Email_Subject = [];
 
   final TextEditingController edt_KindAtt = TextEditingController();
   final TextEditingController edt_KindAttID = TextEditingController();
@@ -147,6 +154,15 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   final TextEditingController edt_ChargeGstPer5 = TextEditingController();
   final TextEditingController edt_ChargeBeforGST5 = TextEditingController();
   final TextEditingController edt_HeaderDisc = TextEditingController();
+  TextEditingController _controller_select_email_subject =
+      TextEditingController();
+  TextEditingController _controller_select_email_subject_ID =
+      TextEditingController();
+  TextEditingController _controller_Ref_Inquiry = TextEditingController();
+  TextEditingController _contrller_other_Remarks = TextEditingController();
+  TextEditingController _contrller_Email_Discription = TextEditingController();
+  TextEditingController _contrller_Email_Add_Subject = TextEditingController();
+  TextEditingController _contrller_Email_Add_Content = TextEditingController();
 
   QuotationDetails _editModel;
   bool _isForUpdate;
@@ -163,6 +179,106 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   final TextEditingController edt_Portal_details = TextEditingController();
   final TextEditingController edt_Portal_details_ID = TextEditingController();
   String ReportToToken = "";
+
+  String OtherChargName1 = "";
+  String OtherChargeAmount1 = "0.00";
+  String OtherChargeID1 = "0";
+  String OtherChargeTaxType1 = "0.00";
+  String OtherChargeGstPer1 = "0.00";
+  String OtherChargeBeforGst1 = "0.00";
+
+  String OtherChargName2 = "";
+  String OtherChargeAmount2 = "0.00";
+  String OtherChargeID2 = "0";
+  String OtherChargeTaxType2 = "0.00";
+  String OtherChargeGstPer2 = "0.00";
+  String OtherChargeBeforGst2 = "0.00";
+
+  String OtherChargName3 = "";
+  String OtherChargeAmount3 = "0.00";
+  String OtherChargeID3 = "0";
+  String OtherChargeTaxType3 = "0.00";
+  String OtherChargeGstPer3 = "0.00";
+  String OtherChargeBeforGst3 = "0.00";
+
+  String OtherChargName4 = "";
+  String OtherChargeAmount4 = "0.00";
+  String OtherChargeID4 = "0";
+  String OtherChargeTaxType4 = "0.00";
+  String OtherChargeGstPer4 = "0.00";
+  String OtherChargeBeforGst4 = "0.00";
+
+  String OtherChargName5 = "";
+  String OtherChargeAmount5 = "0.00";
+  String OtherChargeID5 = "0";
+  String OtherChargeTaxType5 = "0.00";
+  String OtherChargeGstPer5 = "0.00";
+  String OtherChargeBeforGst5 = "0.00";
+
+  double InclusiveBeforeGstAmnt1 = 0.00;
+  double InclusiveBeforeGstAmnt_Minus1 = 0.00;
+  double AfterInclusiveBeforeGstAmnt1 = 0.00;
+  double AfterInclusiveBeforeGstAmnt_Minus1 = 0.00;
+
+  double ExclusiveBeforeGStAmnt1 = 0.00;
+  double ExclusiveBeforeGStAmnt_Minus1 = 0.00;
+  double ExclusiveAfterGstAmnt1 = 0.00;
+
+  double InclusiveBeforeGstAmnt2 = 0.00;
+  double InclusiveBeforeGstAmnt_Minus2 = 0.00;
+  double AfterInclusiveBeforeGstAmnt2 = 0.00;
+  double AfterInclusiveBeforeGstAmnt_Minus2 = 0.00;
+
+  double ExclusiveBeforeGStAmnt2 = 0.00;
+  double ExclusiveBeforeGStAmnt_Minus2 = 0.00;
+  double ExclusiveAfterGstAmnt2 = 0.00;
+
+  double InclusiveBeforeGstAmnt3 = 0.00;
+  double InclusiveBeforeGstAmnt_Minus3 = 0.00;
+  double AfterInclusiveBeforeGstAmnt3 = 0.00;
+  double AfterInclusiveBeforeGstAmnt_Minus3 = 0.00;
+
+  double ExclusiveBeforeGStAmnt3 = 0.00;
+  double ExclusiveBeforeGStAmnt_Minus3 = 0.00;
+  double ExclusiveAfterGstAmnt3 = 0.00;
+
+  double InclusiveBeforeGstAmnt4 = 0.00;
+  double InclusiveBeforeGstAmnt_Minus4 = 0.00;
+  double AfterInclusiveBeforeGstAmnt4 = 0.00;
+  double AfterInclusiveBeforeGstAmnt_Minus4 = 0.00;
+
+  double ExclusiveBeforeGStAmnt4 = 0.00;
+  double ExclusiveBeforeGStAmnt_Minus4 = 0.00;
+  double ExclusiveAfterGstAmnt4 = 0.00;
+
+  double InclusiveBeforeGstAmnt5 = 0.00;
+  double InclusiveBeforeGstAmnt_Minus5 = 0.00;
+  double AfterInclusiveBeforeGstAmnt5 = 0.00;
+  double AfterInclusiveBeforeGstAmnt_Minus5 = 0.00;
+
+  double ExclusiveBeforeGStAmnt5 = 0.00;
+  double ExclusiveBeforeGStAmnt_Minus5 = 0.00;
+  double ExclusiveAfterGstAmnt5 = 0.00;
+
+  double Tot_BasicAmount = 0.00;
+  double Tot_otherChargeWithTax = 0.00;
+  double Tot_GSTAmt = 0.00;
+  double Tot_otherChargeExcludeTax = 0.00;
+  double Tot_NetAmt = 0.00;
+
+  String _basicAmountController =
+      "0.00"; //_editModel.basicAmt.toStringAsFixed(2);
+  String _otherChargeWithTaxController = "0.00";
+  String _totalGstController = "0.00";
+  String _otherChargeExcludeTaxController = "0.00";
+  String netAmountController = "0.00";
+  double HeaderDisAmnt = 0.00; //double.parse(edt_HeaderDisc.toString());
+
+  bool IsWithoutTapOtherCharges = false;
+
+  final TextEditingController editMode_netamount_controller =
+      TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -227,10 +343,30 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           if (state is GetReportToTokenResponseState) {
             _onGetTokenfromReportopersonResult(state);
           }
+          if (state is QuotationOtherCharge1ListResponseState) {
+            _OnChargID1Response(state);
+          }
+          if (state is QuotationOtherCharge2ListResponseState) {
+            _OnChargID2Response(state);
+          }
+          if (state is QuotationOtherCharge3ListResponseState) {
+            _OnChargID3Response(state);
+          }
+          if (state is QuotationOtherCharge4ListResponseState) {
+            _OnChargID4Response(state);
+          }
+          if (state is QuotationOtherCharge5ListResponseState) {
+            _OnChargID5Response(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is GetReportToTokenResponseState) {
+          if (currentState is GetReportToTokenResponseState ||
+              currentState is QuotationOtherCharge1ListResponseState ||
+              currentState is QuotationOtherCharge2ListResponseState ||
+              currentState is QuotationOtherCharge3ListResponseState ||
+              currentState is QuotationOtherCharge4ListResponseState ||
+              currentState is QuotationOtherCharge5ListResponseState) {
             return true;
           }
           return false;
@@ -278,6 +414,16 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
             _onRecevedNotification(state);
           }
 
+          if (state is QuotationEmailContentResponseState) {
+            _OnEmailContentResponse(state);
+          }
+          if (state is SaveEmailContentResponseState) {
+            _OnSaveEmailContentResponse(state);
+          }
+
+          if (state is QT_OtherChargeInsertResponseState) {
+            _onInsertAllQT_OtherTable(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -290,7 +436,10 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   currentState is QuotationHeaderSaveResponseState ||
                   currentState is QuotationProductSaveResponseState ||
                   currentState is QuotationBankDropDownResponseState ||
-                  currentState is FCMNotificationResponseState
+                  currentState is FCMNotificationResponseState ||
+                  currentState is QuotationEmailContentResponseState ||
+                  currentState is SaveEmailContentResponseState ||
+                  currentState is QT_OtherChargeInsertResponseState
 /*
               currentState is QuotationOtherChargeListResponseState
 */
@@ -419,14 +568,18 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                           width: 20,
                           height: 15,
                         ),
+                        emailContent(),
+                        AssumptionandOthers(),
                         Container(
                           margin: EdgeInsets.all(10),
                           alignment: Alignment.bottomCenter,
                           child: getCommonButton(baseTheme, () {
                             //  _onTapOfDeleteALLContact();
                             //  navigateTo(context, InquiryProductListScreen.routeName);
-
+                            //UpdateAfterHeaderDiscount();
                             if (edt_CustomerName.text != "") {
+                              //UpdateAfterHeaderDiscountToDB();
+
                               print("INWWWE" + InquiryNo.toString());
                               navigateTo(
                                   context, QuotationProductListScreen.routeName,
@@ -440,7 +593,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                   positiveButtonTitle: "OK");
                             }
                           }, "Add Product + ",
-                              width: 600, backGroundColor: Color(0xff4d62dc)),
+                              width: 600,
+                              backGroundColor: Color(0xff4d62dc),
+                              radius: 25.0),
                         ),
                         Visibility(
                           visible: true,
@@ -448,12 +603,79 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                             margin: EdgeInsets.all(10),
                             alignment: Alignment.bottomCenter,
                             child: getCommonButton(baseTheme, () async {
+                              IsWithoutTapOtherCharges = true;
+
                               //  _onTapOfDeleteALLContact();
                               //  navigateTo(context, InquiryProductListScreen.routeName);
                               await getInquiryProductDetails();
                               if (_inquiryProductList.length != 0) {
                                 print("HeaderDiscll" +
                                     edt_HeaderDisc.text.toString());
+
+                                AllOtherCharges allOtherCharges =
+                                    AllOtherCharges();
+                                allOtherCharges.HeaderDiscount =
+                                    edt_HeaderDisc.text;
+                                allOtherCharges.OtherChargName1 =
+                                    OtherChargName1;
+                                allOtherCharges.OtherChargeAmount1 =
+                                    OtherChargeAmount1;
+                                allOtherCharges.OtherChargeID1 = OtherChargeID1;
+                                allOtherCharges.OtherChargeTaxType1 =
+                                    OtherChargeTaxType1;
+                                allOtherCharges.OtherChargeGstPer1 =
+                                    OtherChargeGstPer1;
+                                allOtherCharges.OtherChargeBeforGst1 =
+                                    OtherChargeBeforGst1;
+
+                                allOtherCharges.OtherChargName2 =
+                                    OtherChargName2;
+                                allOtherCharges.OtherChargeAmount2 =
+                                    OtherChargeAmount2;
+                                allOtherCharges.OtherChargeID2 = OtherChargeID2;
+                                allOtherCharges.OtherChargeTaxType2 =
+                                    OtherChargeTaxType2;
+                                allOtherCharges.OtherChargeGstPer2 =
+                                    OtherChargeGstPer2;
+                                allOtherCharges.OtherChargeBeforGst2 =
+                                    OtherChargeBeforGst2;
+
+                                allOtherCharges.OtherChargName3 =
+                                    OtherChargName3;
+                                allOtherCharges.OtherChargeAmount3 =
+                                    OtherChargeAmount3;
+                                allOtherCharges.OtherChargeID3 = OtherChargeID3;
+                                allOtherCharges.OtherChargeTaxType3 =
+                                    OtherChargeTaxType3;
+                                allOtherCharges.OtherChargeGstPer3 =
+                                    OtherChargeGstPer3;
+                                allOtherCharges.OtherChargeBeforGst3 =
+                                    OtherChargeBeforGst3;
+
+                                allOtherCharges.OtherChargName4 =
+                                    OtherChargName4;
+                                allOtherCharges.OtherChargeAmount4 =
+                                    OtherChargeAmount4;
+                                allOtherCharges.OtherChargeID4 = OtherChargeID4;
+                                allOtherCharges.OtherChargeTaxType4 =
+                                    OtherChargeTaxType4;
+                                allOtherCharges.OtherChargeGstPer4 =
+                                    OtherChargeGstPer4;
+                                allOtherCharges.OtherChargeBeforGst4 =
+                                    OtherChargeBeforGst4;
+
+                                allOtherCharges.OtherChargName5 =
+                                    OtherChargName5;
+                                allOtherCharges.OtherChargeAmount5 =
+                                    OtherChargeAmount5;
+                                allOtherCharges.OtherChargeID5 = OtherChargeID5;
+                                allOtherCharges.OtherChargeTaxType5 =
+                                    OtherChargeTaxType5;
+                                allOtherCharges.OtherChargeGstPer5 =
+                                    OtherChargeGstPer5;
+                                allOtherCharges.OtherChargeBeforGst5 =
+                                    OtherChargeBeforGst5;
+
                                 navigateTo(context,
                                         QuotationOtherChargeScreen.routeName,
                                         arguments:
@@ -463,15 +685,87 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                                         ? 0
                                                         : edt_StateCode.text),
                                                 _editModel,
-                                                edt_HeaderDisc.text))
+                                                edt_HeaderDisc.text,
+                                                allOtherCharges))
                                     .then((value) {
-                                  if (value == null) {
+                                  AllOtherCharges allOtherCharges = value;
+                                  if (allOtherCharges == null) {
                                     print(
                                         "HeaderDiscount From QTOtherCharges 0.00");
                                   } else {
                                     print(
-                                        "HeaderDiscount From QTOtherCharges $value");
-                                    edt_HeaderDisc.text = value;
+                                        "HeaderDiscount From OtherChargeAmount " +
+                                            allOtherCharges.OtherChargeAmount1 +
+                                            " OtherChargeName1 : " +
+                                            allOtherCharges.OtherChargName1);
+                                    setState(() {
+                                      edt_HeaderDisc.text =
+                                          allOtherCharges.HeaderDiscount;
+                                      OtherChargName1 =
+                                          allOtherCharges.OtherChargName1;
+                                      OtherChargeAmount1 =
+                                          allOtherCharges.OtherChargeAmount1;
+                                      OtherChargeID1 =
+                                          allOtherCharges.OtherChargeID1;
+                                      OtherChargeTaxType1 =
+                                          allOtherCharges.OtherChargeTaxType1;
+                                      OtherChargeGstPer1 =
+                                          allOtherCharges.OtherChargeGstPer1;
+                                      OtherChargeBeforGst1 =
+                                          allOtherCharges.OtherChargeBeforGst1;
+
+                                      OtherChargName2 =
+                                          allOtherCharges.OtherChargName2;
+                                      OtherChargeAmount2 =
+                                          allOtherCharges.OtherChargeAmount2;
+                                      OtherChargeID2 =
+                                          allOtherCharges.OtherChargeID2;
+                                      OtherChargeTaxType2 =
+                                          allOtherCharges.OtherChargeTaxType2;
+                                      OtherChargeGstPer2 =
+                                          allOtherCharges.OtherChargeGstPer2;
+                                      OtherChargeBeforGst2 =
+                                          allOtherCharges.OtherChargeBeforGst2;
+
+                                      OtherChargName3 =
+                                          allOtherCharges.OtherChargName3;
+                                      OtherChargeAmount3 =
+                                          allOtherCharges.OtherChargeAmount3;
+                                      OtherChargeID3 =
+                                          allOtherCharges.OtherChargeID3;
+                                      OtherChargeTaxType3 =
+                                          allOtherCharges.OtherChargeTaxType3;
+                                      OtherChargeGstPer3 =
+                                          allOtherCharges.OtherChargeGstPer3;
+                                      OtherChargeBeforGst3 =
+                                          allOtherCharges.OtherChargeBeforGst3;
+
+                                      OtherChargName4 =
+                                          allOtherCharges.OtherChargName4;
+                                      OtherChargeAmount4 =
+                                          allOtherCharges.OtherChargeAmount4;
+                                      OtherChargeID4 =
+                                          allOtherCharges.OtherChargeID4;
+                                      OtherChargeTaxType4 =
+                                          allOtherCharges.OtherChargeTaxType4;
+                                      OtherChargeGstPer4 =
+                                          allOtherCharges.OtherChargeGstPer4;
+                                      OtherChargeBeforGst4 =
+                                          allOtherCharges.OtherChargeBeforGst4;
+
+                                      OtherChargName5 =
+                                          allOtherCharges.OtherChargName5;
+                                      OtherChargeAmount5 =
+                                          allOtherCharges.OtherChargeAmount5;
+                                      OtherChargeID5 =
+                                          allOtherCharges.OtherChargeID5;
+                                      OtherChargeTaxType5 =
+                                          allOtherCharges.OtherChargeTaxType5;
+                                      OtherChargeGstPer5 =
+                                          allOtherCharges.OtherChargeGstPer5;
+                                      OtherChargeBeforGst5 =
+                                          allOtherCharges.OtherChargeBeforGst5;
+                                    });
                                   }
                                 });
                               } else {
@@ -480,7 +774,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                     positiveButtonTitle: "OK");
                               }
                             }, "Other Charges",
-                                width: 600, backGroundColor: Color(0xff4d62dc)),
+                                width: 600,
+                                backGroundColor: Color(0xff4d62dc),
+                                radius: 25.0),
                           ),
                         ),
                         Container(
@@ -498,6 +794,376 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         ),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
+      ),
+    );
+  }
+
+  emailContent() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff4d62dc), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Email Content",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      EMAIL,
+                      width: 27,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        createTextLabel("Select Subject", 10.0, 0.0),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: EmailSubjectWithMultiID1("Email Subject",
+                                  enable1: false,
+                                  title: "Email Subject",
+                                  hintTextvalue: "Tap to Select Subject",
+                                  icon: Icon(Icons.arrow_drop_down),
+                                  Custom_values1:
+                                      arr_ALL_Name_ID_For_Email_Subject),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                height: 42,
+                                alignment: Alignment.topRight,
+                                child: FloatingActionButton(
+                                  onPressed: () async {
+                                    // Add your onPressed code here!
+                                    //await _onTapOfDeleteALLProduct();
+
+                                    // navigateTo(context, QuotationAddEditScreen.routeName);
+                                    showcustomdialogSendEmail(
+                                        context1: context, Email: "sdfj");
+                                  },
+                                  child: const Icon(Icons.add),
+                                  backgroundColor: Colors.pinkAccent,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        /*CustomDropDown1("Email Subject",
+                            enable1: false,
+                            title: "Email Subject",
+                            hintTextvalue: "Tap to Select Subject",
+                            icon: Icon(Icons.arrow_drop_down),
+                            controllerForLeft: _controller_select_email_subject,
+                            Custom_values1: arr_ALL_Name_ID_For_Email_Subject),*/
+                        SizedBox(
+                          height: 10,
+                        ),
+                        createTextLabel("Subject", 10.0, 0.0),
+                        createTextFormField(
+                            _controller_select_email_subject, "Email Subject",
+                            keyboardInput: TextInputType.text),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        createTextLabel("Email Introduction", 10.0, 0.0),
+                        createTextFormField(
+                            _contrller_Email_Discription, "Email Introduction",
+                            minLines: 2,
+                            maxLines: 5,
+                            height: 70,
+                            bottom: 5,
+                            top: 5,
+                            keyboardInput: TextInputType.text),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  AssumptionandOthers() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff4d62dc), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Assumption & Others",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      EMAIL,
+                      width: 27,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        createTextLabel("Ref. Inquiry", 10.0, 0.0),
+                        createTextFormField(
+                            _controller_Ref_Inquiry, "Enter Description",
+                            minLines: 2,
+                            maxLines: 5,
+                            height: 70,
+                            bottom: 5,
+                            top: 5,
+                            keyboardInput: TextInputType.text),
+                        SizedBox(
+                          height: 3,
+                        ),
+                        createTextLabel("Other Remarks", 10.0, 0.0),
+                        createTextFormField(
+                            _contrller_other_Remarks, "Enter Description",
+                            minLines: 2,
+                            maxLines: 5,
+                            height: 70,
+                            bottom: 5,
+                            top: 5,
+                            keyboardInput: TextInputType.text),
+                        SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  Widget createTextLabel(String labelName, double leftPad, double rightPad) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: EdgeInsets.only(left: leftPad, right: rightPad),
+        child: Row(
+          children: [
+            Text(labelName,
+                style: TextStyle(
+                    fontSize: 10,
+                    color: colorBlack,
+                    fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget EmailSubjectWithMultiID1(String Category,
+      {bool enable1,
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      List<ALL_Name_ID> Custom_values1}) {
+    return Container(
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              _inquiryBloc.add(QuotationEmailContentRequestEvent(
+                  QuotationEmailContentRequest(
+                      CompanyId: CompanyID.toString(),
+                      LoginUserID: LoginUserID)));
+            },
+            /*=> */
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /*SizedBox(
+                  height: 5,
+                ),*/
+                Card(
+                  elevation: 3,
+                  color: colorLightGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                              controller: _controller_select_email_subject,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.only(bottom: 7),
+                                hintText: hintTextvalue,
+                                labelStyle: TextStyle(
+                                  color: Color(0xFF000000),
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                              ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget createTextFormField(
+      TextEditingController _controller, String _hintText,
+      {int minLines = 1,
+      int maxLines = 1,
+      double height = 40,
+      double left = 5,
+      double right = 5,
+      double top = 8,
+      double bottom = 10,
+      TextInputType keyboardInput = TextInputType.number}) {
+    return Card(
+      color: colorLightGray,
+      margin:
+          EdgeInsets.only(left: left, right: right, top: top, bottom: bottom),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Container(
+        padding: EdgeInsets.all(5),
+        height: height,
+        decoration: BoxDecoration(
+            // color: Colors.white,
+            borderRadius: BorderRadius.circular(10)),
+        child: TextFormField(
+          minLines: minLines,
+          maxLines: maxLines,
+          style: TextStyle(fontSize: 13),
+          controller: _controller,
+          textInputAction: TextInputAction.next,
+          keyboardType: keyboardInput,
+          decoration: InputDecoration(
+              hintText: _hintText,
+              hintStyle: TextStyle(fontSize: 13, color: colorGrayDark),
+              filled: true,
+              fillColor: colorLightGray,
+              contentPadding: EdgeInsets.symmetric(horizontal: 14),
+              border: InputBorder.none,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(
+                  color: Colors.transparent,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(
+                  color: Colors.transparent,
+                ),
+              )),
+        ),
       ),
     );
   }
@@ -664,6 +1330,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           });
           _inquiryBloc.add(CustIdToInqListCallEvent(CustIdToInqListRequest(
               CustomerID: _searchInquiryListResponse.value.toString(),
+              ModuleType: "Inquiry",
               CompanyID: CompanyID.toString())));
 
           if (_searchInquiryListResponse.stateCode != 0) {
@@ -704,9 +1371,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     edt_Reference_Name.text = _editModel.referenceName.toString();
     edt_Description.text = _editModel.meetingNotes.toString();*/
     edt_ProjectName.text = _editModel.projectName;
-    edt_TermConditionHeader.text = _editModel.quotationHeader;
+    _contrller_Email_Discription.text = _editModel.quotationHeader;
     edt_TermConditionFooter.text = _editModel.quotationFooter;
-
+    _controller_select_email_subject.text = _editModel.quotationSubject;
     edt_ReverseNextFollowupDate.text = "";
     edt_PreferedTime.text = "";
     edt_FollowupNotes.text = "";
@@ -724,11 +1391,73 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       edt_InquiryNo.text = "";
     });
 
+    edt_HeaderDisc.text = _editModel.discountAmt.toStringAsFixed(2);
     edt_ChargeID1.text = _editModel.chargeID1.toString();
     edt_ChargeID2.text = _editModel.chargeID2.toString();
     edt_ChargeID3.text = _editModel.chargeID3.toString();
     edt_ChargeID4.text = _editModel.chargeID4.toString();
     edt_ChargeID5.text = _editModel.chargeID5.toString();
+
+    if (edt_ChargeID1.text != "") {
+      _inquiryBloc.add(QuotationOtherCharge1CallEvent(CompanyID.toString(),
+          QuotationOtherChargesListRequest(pkID: edt_ChargeID1.text)));
+    }
+    if (edt_ChargeID2.text != "") {
+      _inquiryBloc.add(QuotationOtherCharge2CallEvent(CompanyID.toString(),
+          QuotationOtherChargesListRequest(pkID: edt_ChargeID2.text)));
+    }
+    if (edt_ChargeID3.text != "") {
+      _inquiryBloc.add(QuotationOtherCharge3CallEvent(CompanyID.toString(),
+          QuotationOtherChargesListRequest(pkID: edt_ChargeID3.text)));
+    }
+    if (edt_ChargeID4.text != "") {
+      _inquiryBloc.add(QuotationOtherCharge4CallEvent(CompanyID.toString(),
+          QuotationOtherChargesListRequest(pkID: edt_ChargeID4.text)));
+    }
+    if (edt_ChargeID5.text != "") {
+      _inquiryBloc.add(QuotationOtherCharge5CallEvent(CompanyID.toString(),
+          QuotationOtherChargesListRequest(pkID: edt_ChargeID5.text)));
+    }
+
+    OtherChargName1 = _editModel.chargeName1;
+    OtherChargeAmount1 = _editModel.chargeAmt1.toStringAsFixed(2);
+    OtherChargeID1 = _editModel.chargeID1.toString();
+
+    OtherChargName2 = _editModel.chargeName2;
+    ;
+    OtherChargeAmount2 = _editModel.chargeAmt2.toStringAsFixed(2);
+    OtherChargeID2 = _editModel.chargeID2.toString();
+    //OtherChargeTaxType2;
+    // OtherChargeGstPer2;
+    // OtherChargeBeforGst2;
+
+    OtherChargName3 = _editModel.chargeName3;
+    OtherChargeAmount3 = _editModel.chargeAmt3.toStringAsFixed(2);
+    OtherChargeID3 = _editModel.chargeID3.toString();
+    // OtherChargeTaxType3;
+    // OtherChargeGstPer3;
+    // OtherChargeBeforGst3;
+
+    OtherChargName4 = _editModel.chargeName4;
+    OtherChargeAmount4 = _editModel.chargeAmt4.toStringAsFixed(2);
+    OtherChargeID4 = _editModel.chargeID3.toString();
+    // OtherChargeTaxType4;
+    // OtherChargeGstPer4;
+    // OtherChargeBeforGst4;
+
+    OtherChargName5 = _editModel.chargeName5;
+    OtherChargeAmount5 = _editModel.chargeAmt5.toStringAsFixed(2);
+    OtherChargeID5 = _editModel.chargeID5.toString();
+
+    edt_Portal_details.text = _editModel.bankName;
+    edt_Portal_details_ID.text = _editModel.bankID.toString();
+
+    _controller_Ref_Inquiry.text = _editModel.assumptionRemark;
+    _contrller_other_Remarks.text = _editModel.additionalRemark;
+
+    // OtherChargeTaxType5;
+    // OtherChargeGstPer5;
+    // OtherChargeBeforGst5;
 
     /* _inquiryBloc.add(QuotationOtherChargeCallEvent(CompanyID.toString(),
         QuotationOtherChargesListRequest(pkID: "")));*/
@@ -744,6 +1473,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
   Future<void> _onTapOfDeleteALLProduct() async {
     await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
+    await OfflineDbHelper.getInstance().deleteALLOldQuotationProduct();
   }
 
   /* void updateRetrunInquiryNoToDB(String ReturnInquiryNo) {
@@ -792,33 +1522,65 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     /*double Quantity,   double UnitRate,   double Disc,   double NetRate,   double Amount,   double TaxPer,   double TaxAmount,   double NetAmount,*/
 
     await OfflineDbHelper.getInstance().insertQuotationProduct(QuotationTable(
-        qtNo,
-        specification,
-        productID,
-        productName,
-        unit,
-        quantity,
-        unitPrice,
-        disc,
-        discAmount,
-        netRate,
-        amount,
-        taxPer,
-        taxAmount,
-        totalAmount,
-        taxtype,
-        cgstPer,
-        sgstPer,
-        igstPer,
-        cgstAmount,
-        sgstAmount,
-        igstAmount,
-        stateCode,
-        0,
-        LoginUserID,
-        CompanyID.toString(),
-        0,
-        HeaderDiscAmnr));
+      qtNo,
+      specification,
+      productID,
+      productName,
+      unit,
+      quantity,
+      unitPrice,
+      disc,
+      discAmount,
+      netRate,
+      amount,
+      taxPer,
+      taxAmount,
+      totalAmount,
+      taxtype,
+      cgstPer,
+      sgstPer,
+      igstPer,
+      cgstAmount,
+      sgstAmount,
+      igstAmount,
+      stateCode,
+      0,
+      LoginUserID,
+      CompanyID.toString(),
+      0,
+      HeaderDiscAmnr,
+    ));
+
+    await OfflineDbHelper.getInstance()
+        .insertOldQuotationProduct(QuotationTable(
+      qtNo,
+      specification,
+      productID,
+      productName,
+      unit,
+      quantity,
+      unitPrice,
+      disc,
+      discAmount,
+      netRate,
+      amount,
+      taxPer,
+      taxAmount,
+      totalAmount,
+      taxtype,
+      cgstPer,
+      sgstPer,
+      igstPer,
+      cgstAmount,
+      sgstAmount,
+      igstAmount,
+      stateCode,
+      0,
+      LoginUserID,
+      CompanyID.toString(),
+      0,
+      HeaderDiscAmnr,
+    ));
   }
 
   _OnInquiryNoTodeleteAllProduct(QuotationProductDeleteResponseState state) {
@@ -1581,13 +2343,17 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         TotalAmount = 0.00;
 
         TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
+        Amount1 = (Quantity * NetRate1) - TaxAmount1;
+        TotalAmount = (Quantity * NetRate1);
+
+        /*TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
         TaxAmount = getNumber(TaxAmount1, precision: 2);
 
         Amount1 = (Quantity * NetRate1) - getNumber(TaxAmount1, precision: 2);
         Amount = getNumber(Amount1, precision: 2);
 
         TotalAmount =
-            (Quantity * NetRate1) + getNumber(TaxAmount1, precision: 2);
+            (Quantity * NetRate1) + getNumber(TaxAmount1, precision: 2);*/
         // _totalAmountController.text = getNumber(TotalAmount,precision: 2).toString();
       }
 
@@ -1643,188 +2409,241 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       '$input'.substring(0, '$input'.indexOf('.') + precision + 1));
 
   void _onTaptoSaveQuotationHeader(BuildContext context) async {
+    /* bool isExistNetAmnt = false;
+    if (_isForUpdate == true) {
+      if (IsWithoutTapOtherCharges == false) {
+        await getInquiryProductDetails();
+
+        _OnTaptoSave();
+        print("netamountfj" + " NetAmnt : " + netAmountController.toString());
+        PushAllOtherChargesToDb();
+        print("netamountfj" + " NetAmnt1 : " + netAmountController.toString());
+        isExistNetAmnt = true;
+      } else {
+        isExistNetAmnt = false;
+      }
+    } else {
+      isExistNetAmnt = false;
+    }*/
+    print("netamountfj" + " NetAmnt2 : " + netAmountController.toString());
+
+    print("NETAMNTRT" + " NETAMNT : " + editMode_netamount_controller.text);
     await getInquiryProductDetails();
     List<QT_OtherChargeTable> tempOtherCharges =
         await OfflineDbHelper.getInstance().getQuotationOtherCharge();
 
     if (edt_InquiryDate.text != "") {
       if (edt_CustomerName.text != "") {
-        if (_inquiryProductList.length != 0) {
-          showCommonDialogWithTwoOptions(
-              context, "Are you sure you want to Save this Quotation ?",
-              negativeButtonTitle: "No",
-              positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
-            Navigator.of(context).pop();
+        if (edt_Portal_details.text != "") {
+          if (_inquiryProductList.length != 0) {
+            showCommonDialogWithTwoOptions(
+                context, "Are you sure you want to Save this Quotation ?",
+                negativeButtonTitle: "No",
+                positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
+              _OnTaptoSave();
+              print("netamountfj" +
+                  " NetAmnt : " +
+                  netAmountController.toString());
+              PushAllOtherChargesToDb();
+              print("netamountfj" +
+                  " NetAmnt1 : " +
+                  netAmountController.toString());
 
-            if (InquiryNo != '') {
-              _inquiryBloc.add(QuotationDeleteProductCallEvent(
-                  InquiryNo,
-                  QuotationProductDeleteRequest(
-                      CompanyId: CompanyID.toString())));
-            } else {}
+              Navigator.of(context).pop();
 
-            double tot_basicAmount = 0.00;
-            double tot_CGSTAmount = 0.00;
-            double tot_SGSTAmount = 0.00;
-            double tot_IGSTAmount = 0.00;
-            double tot_DiscountAmount = 0.00;
-            double tot_NetAmount = 0.00;
+              if (InquiryNo != '') {
+                _inquiryBloc.add(QuotationDeleteProductCallEvent(
+                    InquiryNo,
+                    QuotationProductDeleteRequest(
+                        CompanyId: CompanyID.toString())));
+              } else {}
 
-            for (int i = 0; i < _inquiryProductList.length; i++) {
-              tot_basicAmount = tot_basicAmount + _inquiryProductList[i].Amount;
-              tot_DiscountAmount =
-                  tot_DiscountAmount + _inquiryProductList[i].DiscountAmt;
-              tot_NetAmount = tot_NetAmount + _inquiryProductList[i].NetAmount;
+              double tot_basicAmount = 0.00;
+              double tot_CGSTAmount = 0.00;
+              double tot_SGSTAmount = 0.00;
+              double tot_IGSTAmount = 0.00;
+              double tot_DiscountAmount = 0.00;
+              double tot_NetAmount = 0.00;
 
-              if (_offlineLoggedInData.details[0].stateCode ==
-                  int.parse(edt_StateCode.text)) {
-                tot_CGSTAmount =
-                    tot_CGSTAmount + _inquiryProductList[i].CGSTAmt;
-                tot_SGSTAmount =
-                    tot_SGSTAmount + _inquiryProductList[i].SGSTAmt;
-                tot_IGSTAmount = 0.00;
+              for (int i = 0; i < _inquiryProductList.length; i++) {
+                tot_basicAmount =
+                    tot_basicAmount + _inquiryProductList[i].Amount;
+                tot_DiscountAmount =
+                    tot_DiscountAmount + _inquiryProductList[i].DiscountAmt;
+                tot_NetAmount =
+                    tot_NetAmount + _inquiryProductList[i].NetAmount;
+
+                if (_offlineLoggedInData.details[0].stateCode ==
+                    int.parse(edt_StateCode.text)) {
+                  tot_CGSTAmount =
+                      tot_CGSTAmount + _inquiryProductList[i].CGSTAmt;
+                  tot_SGSTAmount =
+                      tot_SGSTAmount + _inquiryProductList[i].SGSTAmt;
+                  tot_IGSTAmount = 0.00;
+                } else {
+                  tot_IGSTAmount =
+                      tot_IGSTAmount + _inquiryProductList[i].IGSTAmt;
+                  tot_CGSTAmount = 0.00;
+                  tot_SGSTAmount = 0.00;
+                }
+              }
+
+              String ChargeID1 = "";
+              String ChargeAmt1 = "";
+              String ChargeBasicAmt1 = "";
+              String ChargeGSTAmt1 = "";
+              String ChargeID2 = "";
+              String ChargeAmt2 = "";
+              String ChargeBasicAmt2 = "";
+              String ChargeGSTAmt2 = "";
+              String ChargeID3 = "";
+              String ChargeAmt3 = "";
+              String ChargeBasicAmt3 = "";
+              String ChargeGSTAmt3 = "";
+              String ChargeID4 = "";
+              String ChargeAmt4 = "";
+              String ChargeBasicAmt4 = "";
+              String ChargeGSTAmt4 = "";
+              String ChargeID5 = "";
+              String ChargeAmt5 = "";
+              String ChargeBasicAmt5 = "";
+              String ChargeGSTAmt5 = "";
+
+              if (tempOtherCharges.length != 0) {
+                for (int i = 0; i < tempOtherCharges.length; i++) {
+                  print("Cjkdfj" +
+                      " ChargeId : " +
+                      tempOtherCharges[i].ChargeID1.toString());
+                  ChargeID1 = tempOtherCharges[i].ChargeID1.toString();
+                  ChargeAmt1 =
+                      tempOtherCharges[i].ChargeAmt1.toStringAsFixed(2);
+                  ChargeBasicAmt1 =
+                      tempOtherCharges[i].ChargeBasicAmt1.toStringAsFixed(2);
+                  ChargeGSTAmt1 =
+                      tempOtherCharges[i].ChargeGSTAmt1.toStringAsFixed(2);
+                  ChargeID2 = tempOtherCharges[i].ChargeID2.toString();
+                  ChargeAmt2 =
+                      tempOtherCharges[i].ChargeAmt2.toStringAsFixed(2);
+                  ChargeBasicAmt2 =
+                      tempOtherCharges[i].ChargeBasicAmt2.toStringAsFixed(2);
+                  ChargeGSTAmt2 =
+                      tempOtherCharges[i].ChargeGSTAmt2.toStringAsFixed(2);
+                  ChargeID3 = tempOtherCharges[i].ChargeID3.toString();
+                  ChargeAmt3 =
+                      tempOtherCharges[i].ChargeAmt3.toStringAsFixed(2);
+                  ChargeBasicAmt3 =
+                      tempOtherCharges[i].ChargeBasicAmt3.toStringAsFixed(2);
+                  ChargeGSTAmt3 =
+                      tempOtherCharges[i].ChargeGSTAmt3.toStringAsFixed(2);
+                  ChargeID4 = tempOtherCharges[i].ChargeID4.toString();
+                  ChargeAmt4 =
+                      tempOtherCharges[i].ChargeAmt4.toStringAsFixed(2);
+                  ChargeBasicAmt4 =
+                      tempOtherCharges[i].ChargeBasicAmt4.toStringAsFixed(2);
+                  ChargeGSTAmt4 =
+                      tempOtherCharges[i].ChargeGSTAmt4.toStringAsFixed(2);
+                  ChargeID5 = tempOtherCharges[i].ChargeID5.toString();
+                  ChargeAmt5 =
+                      tempOtherCharges[i].ChargeAmt5.toStringAsFixed(2);
+                  ChargeBasicAmt5 =
+                      tempOtherCharges[i].ChargeBasicAmt5.toStringAsFixed(2);
+                  ChargeGSTAmt5 =
+                      tempOtherCharges[i].ChargeGSTAmt5.toStringAsFixed(2);
+                }
               } else {
-                tot_IGSTAmount =
-                    tot_IGSTAmount + _inquiryProductList[i].IGSTAmt;
-                tot_CGSTAmount = 0.00;
-                tot_SGSTAmount = 0.00;
+                ChargeID1 = "";
+                ChargeAmt1 = "";
+                ChargeBasicAmt1 = "";
+                ChargeGSTAmt1 = "";
+                ChargeID2 = "";
+                ChargeAmt2 = "";
+                ChargeBasicAmt2 = "";
+                ChargeGSTAmt2 = "";
+                ChargeID3 = "";
+                ChargeAmt3 = "";
+                ChargeBasicAmt3 = "";
+                ChargeGSTAmt3 = "";
+                ChargeID4 = "";
+                ChargeAmt4 = "";
+                ChargeBasicAmt4 = "";
+                ChargeGSTAmt4 = "";
+                ChargeID5 = "";
+                ChargeAmt5 = "";
+                ChargeBasicAmt5 = "";
+                ChargeGSTAmt5 = "";
               }
-            }
 
-            String ChargeID1 = "";
-            String ChargeAmt1 = "";
-            String ChargeBasicAmt1 = "";
-            String ChargeGSTAmt1 = "";
-            String ChargeID2 = "";
-            String ChargeAmt2 = "";
-            String ChargeBasicAmt2 = "";
-            String ChargeGSTAmt2 = "";
-            String ChargeID3 = "";
-            String ChargeAmt3 = "";
-            String ChargeBasicAmt3 = "";
-            String ChargeGSTAmt3 = "";
-            String ChargeID4 = "";
-            String ChargeAmt4 = "";
-            String ChargeBasicAmt4 = "";
-            String ChargeGSTAmt4 = "";
-            String ChargeID5 = "";
-            String ChargeAmt5 = "";
-            String ChargeBasicAmt5 = "";
-            String ChargeGSTAmt5 = "";
+              print("Assumptionn" +
+                  _contrller_other_Remarks.text +
+                  " Assumption : " +
+                  _controller_Ref_Inquiry.text);
 
-            if (tempOtherCharges.length != 0) {
-              for (int i = 0; i < tempOtherCharges.length; i++) {
-                print("Cjkdfj" +
-                    " ChargeId : " +
-                    tempOtherCharges[i].ChargeID1.toString());
-                ChargeID1 = tempOtherCharges[i].ChargeID1.toString();
-                ChargeAmt1 = tempOtherCharges[i].ChargeAmt1.toStringAsFixed(2);
-                ChargeBasicAmt1 =
-                    tempOtherCharges[i].ChargeBasicAmt1.toStringAsFixed(2);
-                ChargeGSTAmt1 =
-                    tempOtherCharges[i].ChargeGSTAmt1.toStringAsFixed(2);
-                ChargeID2 = tempOtherCharges[i].ChargeID2.toString();
-                ChargeAmt2 = tempOtherCharges[i].ChargeAmt2.toStringAsFixed(2);
-                ChargeBasicAmt2 =
-                    tempOtherCharges[i].ChargeBasicAmt2.toStringAsFixed(2);
-                ChargeGSTAmt2 =
-                    tempOtherCharges[i].ChargeGSTAmt2.toStringAsFixed(2);
-                ChargeID3 = tempOtherCharges[i].ChargeID3.toString();
-                ChargeAmt3 = tempOtherCharges[i].ChargeAmt3.toStringAsFixed(2);
-                ChargeBasicAmt3 =
-                    tempOtherCharges[i].ChargeBasicAmt3.toStringAsFixed(2);
-                ChargeGSTAmt3 =
-                    tempOtherCharges[i].ChargeGSTAmt3.toStringAsFixed(2);
-                ChargeID4 = tempOtherCharges[i].ChargeID4.toString();
-                ChargeAmt4 = tempOtherCharges[i].ChargeAmt4.toStringAsFixed(2);
-                ChargeBasicAmt4 =
-                    tempOtherCharges[i].ChargeBasicAmt4.toStringAsFixed(2);
-                ChargeGSTAmt4 =
-                    tempOtherCharges[i].ChargeGSTAmt4.toStringAsFixed(2);
-                ChargeID5 = tempOtherCharges[i].ChargeID5.toString();
-                ChargeAmt5 = tempOtherCharges[i].ChargeAmt5.toStringAsFixed(2);
-                ChargeBasicAmt5 =
-                    tempOtherCharges[i].ChargeBasicAmt5.toStringAsFixed(2);
-                ChargeGSTAmt5 =
-                    tempOtherCharges[i].ChargeGSTAmt5.toStringAsFixed(2);
-              }
-            } else {
-              ChargeID1 = "";
-              ChargeAmt1 = "";
-              ChargeBasicAmt1 = "";
-              ChargeGSTAmt1 = "";
-              ChargeID2 = "";
-              ChargeAmt2 = "";
-              ChargeBasicAmt2 = "";
-              ChargeGSTAmt2 = "";
-              ChargeID3 = "";
-              ChargeAmt3 = "";
-              ChargeBasicAmt3 = "";
-              ChargeGSTAmt3 = "";
-              ChargeID4 = "";
-              ChargeAmt4 = "";
-              ChargeBasicAmt4 = "";
-              ChargeGSTAmt4 = "";
-              ChargeID5 = "";
-              ChargeAmt5 = "";
-              ChargeBasicAmt5 = "";
-              ChargeGSTAmt5 = "";
-            }
-
-            _inquiryBloc.add(QuotationHeaderSaveCallEvent(
-                context,
-                pkID,
-                QuotationHeaderSaveRequest(
-                    pkID: pkID.toString(),
-                    InquiryNo:
-                        edt_InquiryNo.text == null ? "" : edt_InquiryNo.text,
-                    QuotationNo: InquiryNo,
-                    QuotationDate: edt_ReverseInquiryDate.text,
-                    CustomerID: edt_CustomerpkID.text,
-                    ProjectName: edt_ProjectName.text,
-                    QuotationSubject: "",
-                    QuotationHeader: edt_TermConditionHeader.text,
-                    QuotationFooter: edt_TermConditionFooter.text,
-                    LoginUserID: LoginUserID,
-                    Latitude: SharedPrefHelper.instance.getLatitude(),
-                    Longitude: SharedPrefHelper.instance.getLongitude(),
-                    DiscountAmt: tot_DiscountAmount.toString(),
-                    SGSTAmt: tot_SGSTAmount.toString(),
-                    CGSTAmt: tot_CGSTAmount.toString(),
-                    IGSTAmt: tot_IGSTAmount.toString(),
-                    ChargeID1: ChargeID1,
-                    ChargeAmt1: ChargeAmt1,
-                    ChargeBasicAmt1: ChargeBasicAmt1,
-                    ChargeGSTAmt1: ChargeGSTAmt1,
-                    ChargeID2: ChargeID2,
-                    ChargeAmt2: ChargeAmt2,
-                    ChargeBasicAmt2: ChargeBasicAmt2,
-                    ChargeGSTAmt2: ChargeGSTAmt2,
-                    ChargeID3: ChargeID3,
-                    ChargeAmt3: ChargeAmt3,
-                    ChargeBasicAmt3: ChargeBasicAmt3,
-                    ChargeGSTAmt3: ChargeGSTAmt3,
-                    ChargeID4: ChargeID4,
-                    ChargeAmt4: ChargeAmt4,
-                    ChargeBasicAmt4: ChargeBasicAmt4,
-                    ChargeGSTAmt4: ChargeGSTAmt4,
-                    ChargeID5: ChargeID5,
-                    ChargeAmt5: ChargeAmt5,
-                    ChargeBasicAmt5: ChargeBasicAmt5,
-                    ChargeGSTAmt5: ChargeGSTAmt5,
-                    NetAmt: tot_NetAmount.toString(),
-                    BasicAmt: tot_basicAmount.toString(),
-                    ROffAmt: "0.00",
-                    ChargePer1: "0.00",
-                    ChargePer2: "0.00",
-                    ChargePer3: "0.00",
-                    ChargePer4: "0.00",
-                    ChargePer5: "0.00",
-                    CompanyId: CompanyID.toString())));
-          });
+              _inquiryBloc.add(QuotationHeaderSaveCallEvent(
+                  context,
+                  pkID,
+                  QuotationHeaderSaveRequest(
+                      pkID: pkID.toString(),
+                      InquiryNo:
+                          edt_InquiryNo.text == null ? "" : edt_InquiryNo.text,
+                      QuotationNo: InquiryNo,
+                      QuotationDate: edt_ReverseInquiryDate.text,
+                      CustomerID: edt_CustomerpkID.text,
+                      ProjectName: edt_ProjectName.text,
+                      QuotationSubject: _controller_select_email_subject.text,
+                      QuotationHeader: _contrller_Email_Discription.text,
+                      QuotationFooter: edt_TermConditionFooter.text,
+                      LoginUserID: LoginUserID,
+                      Latitude: SharedPrefHelper.instance.getLatitude(),
+                      Longitude: SharedPrefHelper.instance.getLongitude(),
+                      DiscountAmt: edt_HeaderDisc.text.toString(),
+                      SGSTAmt: tot_SGSTAmount.toString(),
+                      CGSTAmt: tot_CGSTAmount.toString(),
+                      IGSTAmt: tot_IGSTAmount.toString(),
+                      ChargeID1: ChargeID1,
+                      ChargeAmt1: ChargeAmt1,
+                      ChargeBasicAmt1: ChargeBasicAmt1,
+                      ChargeGSTAmt1: ChargeGSTAmt1,
+                      ChargeID2: ChargeID2,
+                      ChargeAmt2: ChargeAmt2,
+                      ChargeBasicAmt2: ChargeBasicAmt2,
+                      ChargeGSTAmt2: ChargeGSTAmt2,
+                      ChargeID3: ChargeID3,
+                      ChargeAmt3: ChargeAmt3,
+                      ChargeBasicAmt3: ChargeBasicAmt3,
+                      ChargeGSTAmt3: ChargeGSTAmt3,
+                      ChargeID4: ChargeID4,
+                      ChargeAmt4: ChargeAmt4,
+                      ChargeBasicAmt4: ChargeBasicAmt4,
+                      ChargeGSTAmt4: ChargeGSTAmt4,
+                      ChargeID5: ChargeID5,
+                      ChargeAmt5: ChargeAmt5,
+                      ChargeBasicAmt5: ChargeBasicAmt5,
+                      ChargeGSTAmt5: ChargeGSTAmt5,
+                      NetAmt:
+                          netAmountController /*isExistNetAmnt == true
+                          ? netAmountController
+                          : tot_NetAmount.toString()*/
+                      ,
+                      BasicAmt: tot_basicAmount.toString(),
+                      ROffAmt: "0.00",
+                      ChargePer1: "0.00",
+                      ChargePer2: "0.00",
+                      ChargePer3: "0.00",
+                      ChargePer4: "0.00",
+                      ChargePer5: "0.00",
+                      CompanyId: CompanyID.toString(),
+                      BankID: edt_Portal_details_ID.text,
+                      AdditionalRemarks: _contrller_other_Remarks.text,
+                      AssumptionRemarks: _controller_Ref_Inquiry.text)));
+            });
+          } else {
+            showCommonDialogWithSingleOption(
+                context, "Quotation Product is required !",
+                positiveButtonTitle: "OK");
+          }
         } else {
           showCommonDialogWithSingleOption(
-              context, "Quotation Product is required !",
+              context, "Bank Details is required !",
               positiveButtonTitle: "OK");
         }
       } else {
@@ -2102,5 +2921,1330 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         state.response.multicastId.toString() +
         state.response.success.toString() +
         state.response.results[0].messageId);
+  }
+
+  void _OnEmailContentResponse(QuotationEmailContentResponseState state) {
+    if (state.response.details.length != 0) {
+      arr_ALL_Name_ID_For_Email_Subject.clear();
+      for (var i = 0; i < state.response.details.length; i++) {
+        print("InquiryStatus : " + state.response.details[i].contentData);
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].subject;
+        all_name_id.pkID = state.response.details[i].pkID;
+        all_name_id.Name1 = state.response.details[i].contentData;
+
+        arr_ALL_Name_ID_For_Email_Subject.add(all_name_id);
+      }
+
+      showcustomdialogWithMultipleID(
+          values: arr_ALL_Name_ID_For_Email_Subject,
+          context1: context,
+          controller: _controller_select_email_subject,
+          controllerID: _controller_select_email_subject_ID,
+          controller2: _contrller_Email_Discription,
+          lable: "Select Email Content ");
+    }
+  }
+
+  showcustomdialogSendEmail({
+    BuildContext context1,
+    String Email,
+  }) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    "Add Email Subject",
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Subject *",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 20, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller:
+                                              _contrller_Email_Add_Subject,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter Subject",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Email Content *",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                width: double.maxFinite,
+                                height: 100,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller:
+                                              _contrller_Email_Add_Content,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter content",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(baseTheme, () async {
+                            if (_contrller_Email_Add_Subject.text != "") {
+                              if (_contrller_Email_Add_Content.text != "") {
+                                Navigator.pop(context123);
+
+                                _inquiryBloc.add(SaveEmailContentRequestEvent(
+                                    SaveEmailContentRequest(
+                                        pkID: "0",
+                                        Subject:
+                                            _contrller_Email_Add_Subject.text,
+                                        ContentData:
+                                            _contrller_Email_Add_Content.text,
+                                        LoginUserID: LoginUserID,
+                                        CompanyId: CompanyID.toString())));
+                              } else {
+                                showCommonDialogWithSingleOption(
+                                    context, "Email content is required !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            } else {
+                              showCommonDialogWithSingleOption(
+                                  context, "Subject is required !",
+                                  positiveButtonTitle: "OK");
+                            }
+                          }, "Add",
+                              backGroundColor: colorPrimary,
+                              textColor: colorWhite,
+                              radius: 36),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(baseTheme, () {
+                            Navigator.pop(context);
+                          }, "Close",
+                              backGroundColor: colorPrimary,
+                              textColor: colorWhite,
+                              radius: 36),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  void _OnSaveEmailContentResponse(SaveEmailContentResponseState state) {
+    showCommonDialogWithSingleOption(context, state.response.details[0].column2,
+        positiveButtonTitle: "OK");
+  }
+
+  void _OnChargID1Response(QuotationOtherCharge1ListResponseState state) {
+    OtherChargeTaxType1 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    OtherChargeGstPer1 = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    OtherChargeBeforGst1 =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+  }
+
+  void _OnChargID2Response(QuotationOtherCharge2ListResponseState state) {
+    OtherChargeTaxType2 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    OtherChargeGstPer2 = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    OtherChargeBeforGst2 =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+  }
+
+  void _OnChargID3Response(QuotationOtherCharge3ListResponseState state) {
+    OtherChargeTaxType3 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    OtherChargeGstPer3 = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    OtherChargeBeforGst3 =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+  }
+
+  void _OnChargID4Response(QuotationOtherCharge4ListResponseState state) {
+    OtherChargeTaxType4 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    OtherChargeGstPer4 = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    OtherChargeBeforGst4 =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+  }
+
+  void _OnChargID5Response(QuotationOtherCharge5ListResponseState state) {
+    OtherChargeTaxType5 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    OtherChargeGstPer5 = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    OtherChargeBeforGst5 =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+  }
+
+  void _OnTaptoSave() async {
+    HeaderDisAmnt = double.parse(edt_HeaderDisc.text.toString());
+
+    TotalCalculation();
+    TotalCalculation2();
+    TotalCalculation3();
+    TotalCalculation4();
+    TotalCalculation5();
+
+    double ChargeAmt1 = double.parse(OtherChargeAmount1);
+    double ChargeAmt2 = double.parse(OtherChargeAmount2);
+    double ChargeAmt3 = double.parse(OtherChargeAmount3);
+    double ChargeAmt4 = double.parse(OtherChargeAmount4);
+    double ChargeAmt5 = double.parse(OtherChargeAmount5);
+
+    double TotalOtherAmnt =
+        ChargeAmt1 + ChargeAmt2 + ChargeAmt3 + ChargeAmt4 + ChargeAmt5;
+
+    Tot_BasicAmount = 0.00;
+    Tot_otherChargeWithTax = 0.00;
+    Tot_GSTAmt = 0.00;
+    Tot_otherChargeExcludeTax = 0.00;
+    Tot_NetAmt = 0.00;
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      Tot_BasicAmount = Tot_BasicAmount + _inquiryProductList[i].Amount;
+
+      print(" GetBasicAmount " +
+          " BasicTotal : " +
+          _inquiryProductList[i].Amount.toStringAsFixed(2));
+      Tot_otherChargeWithTax = 0.00;
+      Tot_GSTAmt = Tot_GSTAmt + _inquiryProductList[i].TaxAmount;
+      Tot_otherChargeExcludeTax = 0.00;
+      Tot_NetAmt = Tot_NetAmt + _inquiryProductList[i].NetAmount;
+    }
+
+    UpdateAfterHeaderDiscount();
+    Tot_otherChargeWithTax = (InclusiveBeforeGstAmnt1) +
+        (ExclusiveBeforeGStAmnt1) +
+        (InclusiveBeforeGstAmnt2) +
+        (ExclusiveBeforeGStAmnt2) +
+        (InclusiveBeforeGstAmnt3) +
+        (ExclusiveBeforeGStAmnt3) +
+        (InclusiveBeforeGstAmnt4) +
+        (ExclusiveBeforeGStAmnt4) +
+        (InclusiveBeforeGstAmnt5) +
+        (ExclusiveBeforeGStAmnt5); //+ (ChargeAmt3 - devide3) + (ChargeAmt4 - devide4) + (ChargeAmt5 - devide5);
+    Tot_GSTAmt = Tot_GSTAmt +
+        InclusiveBeforeGstAmnt_Minus1 +
+        ExclusiveBeforeGStAmnt_Minus1 +
+        InclusiveBeforeGstAmnt_Minus2 +
+        ExclusiveBeforeGStAmnt_Minus2 +
+        InclusiveBeforeGstAmnt_Minus3 +
+        ExclusiveBeforeGStAmnt_Minus3 +
+        InclusiveBeforeGstAmnt_Minus4 +
+        ExclusiveBeforeGStAmnt_Minus4 +
+        InclusiveBeforeGstAmnt_Minus5 +
+        ExclusiveBeforeGStAmnt_Minus5;
+    Tot_otherChargeExcludeTax = AfterInclusiveBeforeGstAmnt1 +
+        ExclusiveAfterGstAmnt1 +
+        AfterInclusiveBeforeGstAmnt2 +
+        ExclusiveAfterGstAmnt2 +
+        AfterInclusiveBeforeGstAmnt3 +
+        ExclusiveAfterGstAmnt3 +
+        AfterInclusiveBeforeGstAmnt4 +
+        ExclusiveAfterGstAmnt4 +
+        AfterInclusiveBeforeGstAmnt5 +
+        ExclusiveAfterGstAmnt5;
+
+    _basicAmountController = Tot_BasicAmount.toStringAsFixed(2);
+    _otherChargeWithTaxController = Tot_otherChargeWithTax.toStringAsFixed(2);
+
+    ///Final Setup Befor GST
+    _totalGstController = Tot_GSTAmt.toStringAsFixed(2);
+    _otherChargeExcludeTaxController =
+        Tot_otherChargeExcludeTax.toStringAsFixed(2);
+
+    ///Final Setup After GST
+    //double Tot_NetAmnt = Tot_NetAmt + Tot_otherChargeWithTax + Tot_otherChargeExcludeTax;
+
+    double Tot_NetAmnt = Tot_NetAmt +
+        TotalOtherAmnt +
+        ExclusiveBeforeGStAmnt_Minus1 +
+        ExclusiveBeforeGStAmnt_Minus2 +
+        ExclusiveBeforeGStAmnt_Minus3 +
+        ExclusiveBeforeGStAmnt_Minus4 +
+        ExclusiveBeforeGStAmnt_Minus5;
+
+    double MinusHeaderDiscamnt = Tot_NetAmnt - HeaderDisAmnt;
+
+    netAmountController = /*nt.toStringAsFixed(
+        2);*/
+        MinusHeaderDiscamnt.toStringAsFixed(
+            2); //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
+
+    print("sNERg" + " NETAMNT : " + netAmountController);
+
+    editMode_netamount_controller.text = MinusHeaderDiscamnt.toStringAsFixed(2);
+  }
+
+  void TotalCalculation() async {
+    double ChargeAmt1 = double.parse(OtherChargeAmount1);
+
+    double taxRate1 = double.parse(OtherChargeGstPer1);
+
+    ///_otherChargeTaxTypeController1.text = 1 (Exclusive) -- _otherChargeTaxTypeController1.text = 0 (Inclusive)
+
+    /// _otherChargeBeForeGSTController1.text=="true" (Before GST) _otherChargeBeForeGSTController1.text=="false" (After GST)
+    ///
+    double Taxtype = 0.00;
+    int ISTaxType = 0;
+
+    if (OtherChargeTaxType1 != null) {
+      Taxtype = double.parse(OtherChargeTaxType1);
+      ISTaxType = Taxtype.toInt();
+    }
+
+    print("sdfjdlf" + ISTaxType.toString());
+    if (ISTaxType == 1) {
+      InclusiveBeforeGstAmnt1 = 0.00;
+      InclusiveBeforeGstAmnt_Minus1 = 0.00;
+      AfterInclusiveBeforeGstAmnt1 = 0.00;
+      if (OtherChargeBeforGst1 == "true") {
+        double multi1 = 0.00;
+        double addtaxt1 = 0.00;
+        double devide1 = 0.00;
+        multi1 = ChargeAmt1 * taxRate1;
+        addtaxt1 = 100;
+        devide1 = multi1 / addtaxt1;
+
+        ExclusiveBeforeGStAmnt1 = ChargeAmt1;
+        ExclusiveBeforeGStAmnt_Minus1 = devide1;
+        ExclusiveAfterGstAmnt1 = 0.00;
+
+        print("jfjfj44" + devide1.toString());
+        //Tot_otherChargeWithTax = ChargeAmt1+ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
+      } else {
+        // Tot_otherChargeExcludeTax =   ChargeAmt1+  ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
+        ExclusiveAfterGstAmnt1 = ChargeAmt1;
+        ExclusiveBeforeGStAmnt1 = 0.00;
+        ExclusiveBeforeGStAmnt_Minus1 = 0.00;
+      }
+
+      // Tot_GSTAmt =  ((ChargeAmt1 * taxRate1)/100) + ((ChargeAmt2 * taxRate2)/100) + ((ChargeAmt3 * taxRate3)/100) + ((ChargeAmt4 * taxRate4)/100) + ((ChargeAmt5 * taxRate5)/100);
+    } else {
+      ExclusiveBeforeGStAmnt1 = 0.00;
+      ExclusiveBeforeGStAmnt_Minus1 = 0.00;
+      ExclusiveAfterGstAmnt1 = 0.00;
+
+      if (OtherChargeBeforGst1 == "true") {
+        double multi1 = 0.00;
+        double addtaxt1 = 0.00;
+        double devide1 = 0.00;
+        double to_InclusiveBeforeGstAmnt1 = 0.00;
+
+        multi1 = ChargeAmt1 * taxRate1;
+        addtaxt1 = 100 + taxRate1;
+        devide1 = multi1 / addtaxt1;
+
+        InclusiveBeforeGstAmnt1 = ChargeAmt1 - devide1;
+        InclusiveBeforeGstAmnt_Minus1 = devide1;
+        AfterInclusiveBeforeGstAmnt1 = 0.00;
+      } else {
+        // Tot_otherChargeExcludeTax = ChargeAmt1+  ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
+        InclusiveBeforeGstAmnt1 = 0.00;
+        InclusiveBeforeGstAmnt_Minus1 = 0.00;
+        AfterInclusiveBeforeGstAmnt1 = ChargeAmt1;
+      }
+    }
+
+    print("DFDFDFDF232" +
+        " TotalBasicAmt : " +
+        Tot_BasicAmount.toStringAsFixed(2) +
+        " Tot_otherChargeWithTax : " +
+        Tot_otherChargeWithTax.toStringAsFixed(2) +
+        " Tot_GSTAmt : " +
+        Tot_GSTAmt.toStringAsFixed(2) +
+        " Tot_otherChargeExcludeTax : " +
+        Tot_otherChargeExcludeTax.toStringAsFixed(2) +
+        " Tot_NetAmt : " +
+        Tot_NetAmt.toStringAsFixed(2));
+  }
+
+  void TotalCalculation2() async {
+    double ChargeAmt2 = double.parse(OtherChargeAmount2);
+
+    double taxRate2 = double.parse(OtherChargeGstPer2);
+
+    double Taxtype = 0.00;
+    int ISTaxType = 0;
+
+    if (OtherChargeTaxType2 != null) {
+      Taxtype = double.parse(OtherChargeTaxType2);
+      ISTaxType = Taxtype.toInt();
+    }
+
+    if (ISTaxType == 1) {
+      InclusiveBeforeGstAmnt2 = 0.00;
+      InclusiveBeforeGstAmnt_Minus2 = 0.00;
+      AfterInclusiveBeforeGstAmnt2 = 0.00;
+      if (OtherChargeBeforGst2 == "true") {
+        double multi2 = 0.00;
+        double addtaxt2 = 0.00;
+        double devide2 = 0.00;
+
+        multi2 = ChargeAmt2 * taxRate2;
+        addtaxt2 = 100;
+        devide2 = multi2 / addtaxt2;
+
+        ExclusiveBeforeGStAmnt2 = ChargeAmt2;
+        ExclusiveBeforeGStAmnt_Minus2 = devide2;
+        ExclusiveAfterGstAmnt2 = 0.00;
+      } else {
+        //Tot_otherChargeExcludeTax =  ChargeAmt1+ChargeAmt2 +ChargeAmt3+ChargeAmt4+ChargeAmt5;
+        ExclusiveAfterGstAmnt2 = ChargeAmt2;
+        ExclusiveBeforeGStAmnt2 = 0.00;
+        ExclusiveBeforeGStAmnt_Minus2 = 0.00;
+      }
+
+      //Tot_GSTAmt =  ((ChargeAmt1 * taxRate1)/100) + ((ChargeAmt2 * taxRate2)/100) + ((ChargeAmt3 * taxRate3)/100) + ((ChargeAmt4 * taxRate4)/100) + ((ChargeAmt5 * taxRate5)/100);
+    } else {
+      ExclusiveBeforeGStAmnt2 = 0.00;
+      ExclusiveBeforeGStAmnt_Minus2 = 0.00;
+      ExclusiveAfterGstAmnt2 = 0.00;
+
+      if (OtherChargeBeforGst2 == "true") {
+        double multi2 = 0.00;
+        double addtaxt2 = 0.00;
+        double devide2 = 0.00;
+        double to_InclusiveBeforeGstAmnt2 = 0.00;
+
+        multi2 = ChargeAmt2 * taxRate2;
+        addtaxt2 = 100 + taxRate2;
+        devide2 = multi2 / addtaxt2;
+
+        InclusiveBeforeGstAmnt2 = ChargeAmt2 - devide2;
+        InclusiveBeforeGstAmnt_Minus2 = devide2;
+        AfterInclusiveBeforeGstAmnt2 = 0.00;
+      } else {
+        InclusiveBeforeGstAmnt2 = 0.00;
+        InclusiveBeforeGstAmnt_Minus2 = 0.00;
+        AfterInclusiveBeforeGstAmnt2 = ChargeAmt2;
+      }
+    }
+  }
+
+  void TotalCalculation3() async {
+    double ChargeAmt3 = double.parse(OtherChargeAmount3);
+    double taxRate3 = double.parse(OtherChargeGstPer3);
+    double Taxtype = 0.00;
+    int ISTaxType = 0;
+
+    print("testOtherg" + OtherChargeTaxType3);
+
+    if (OtherChargeTaxType3 != null) {
+      Taxtype = double.parse(OtherChargeTaxType3);
+      ISTaxType = Taxtype.toInt();
+    }
+    if (ISTaxType == 1) {
+      InclusiveBeforeGstAmnt3 = 0.00;
+      InclusiveBeforeGstAmnt_Minus3 = 0.00;
+      AfterInclusiveBeforeGstAmnt3 = 0.00;
+      if (OtherChargeBeforGst3 == "true") {
+        double multi3 = 0.00;
+        double addtaxt3 = 0.00;
+        double devide3 = 0.00;
+
+        multi3 = ChargeAmt3 * taxRate3;
+        addtaxt3 = 100;
+        devide3 = multi3 / addtaxt3;
+
+        ExclusiveBeforeGStAmnt3 = ChargeAmt3;
+        ExclusiveBeforeGStAmnt_Minus3 = devide3;
+        ExclusiveAfterGstAmnt3 = 0.00;
+      } else {
+        ExclusiveAfterGstAmnt3 = ChargeAmt3;
+        ExclusiveBeforeGStAmnt3 = 0.00;
+        ExclusiveBeforeGStAmnt_Minus3 = 0.00;
+      }
+    } else {
+      ExclusiveBeforeGStAmnt3 = 0.00;
+      ExclusiveBeforeGStAmnt_Minus3 = 0.00;
+      ExclusiveAfterGstAmnt3 = 0.00;
+
+      if (OtherChargeBeforGst3 == "true") {
+        double multi3 = 0.00;
+        double addtaxt3 = 0.00;
+        double devide3 = 0.00;
+        double to_InclusiveBeforeGstAmnt2 = 0.00;
+
+        multi3 = ChargeAmt3 * taxRate3;
+        addtaxt3 = 100 + taxRate3;
+        devide3 = multi3 / addtaxt3;
+
+        InclusiveBeforeGstAmnt3 = ChargeAmt3 - devide3;
+        InclusiveBeforeGstAmnt_Minus3 = devide3;
+        AfterInclusiveBeforeGstAmnt3 = 0.00;
+      } else {
+        InclusiveBeforeGstAmnt3 = 0.00;
+        InclusiveBeforeGstAmnt_Minus3 = 0.00;
+        AfterInclusiveBeforeGstAmnt3 = ChargeAmt3;
+      }
+    }
+  }
+
+  void TotalCalculation4() async {
+    double ChargeAmt4 = double.parse(OtherChargeAmount4);
+    double taxRate4 = double.parse(OtherChargeGstPer4);
+
+    double Taxtype = 0.00;
+    int ISTaxType = 0;
+
+    if (OtherChargeTaxType4 != null) {
+      Taxtype = double.parse(OtherChargeTaxType4);
+      ISTaxType = Taxtype.toInt();
+    }
+
+    if (ISTaxType == 1) {
+      InclusiveBeforeGstAmnt4 = 0.00;
+      InclusiveBeforeGstAmnt_Minus4 = 0.00;
+      AfterInclusiveBeforeGstAmnt4 = 0.00;
+      if (OtherChargeBeforGst4 == "true") {
+        double multi4 = 0.00;
+        double addtaxt4 = 0.00;
+        double devide4 = 0.00;
+
+        multi4 = ChargeAmt4 * taxRate4;
+        addtaxt4 = 100;
+        devide4 = multi4 / addtaxt4;
+
+        ExclusiveBeforeGStAmnt4 = ChargeAmt4;
+        ExclusiveBeforeGStAmnt_Minus4 = devide4;
+        ExclusiveAfterGstAmnt4 = 0.00;
+      } else {
+        ExclusiveAfterGstAmnt4 = ChargeAmt4;
+        ExclusiveBeforeGStAmnt4 = 0.00;
+        ExclusiveBeforeGStAmnt_Minus4 = 0.00;
+      }
+    } else {
+      ExclusiveBeforeGStAmnt4 = 0.00;
+      ExclusiveBeforeGStAmnt_Minus4 = 0.00;
+      ExclusiveAfterGstAmnt4 = 0.00;
+
+      if (OtherChargeBeforGst4 == "true") {
+        double multi4 = 0.00;
+        double addtaxt4 = 0.00;
+        double devide4 = 0.00;
+        double to_InclusiveBeforeGstAmnt4 = 0.00;
+
+        multi4 = ChargeAmt4 * taxRate4;
+        addtaxt4 = 100 + taxRate4;
+        devide4 = multi4 / addtaxt4;
+
+        InclusiveBeforeGstAmnt4 = ChargeAmt4 - devide4;
+        InclusiveBeforeGstAmnt_Minus4 = devide4;
+        AfterInclusiveBeforeGstAmnt4 = 0.00;
+      } else {
+        InclusiveBeforeGstAmnt4 = 0.00;
+        InclusiveBeforeGstAmnt_Minus4 = 0.00;
+        AfterInclusiveBeforeGstAmnt4 = ChargeAmt4;
+      }
+    }
+  }
+
+  void TotalCalculation5() async {
+    double ChargeAmt5 = double.parse(OtherChargeAmount5);
+    double taxRate5 = double.parse(OtherChargeGstPer5);
+
+    double Taxtype = 0.00;
+    int ISTaxType = 0;
+
+    if (OtherChargeTaxType5 != null) {
+      Taxtype = double.parse(OtherChargeTaxType5);
+      ISTaxType = Taxtype.toInt();
+    }
+
+    if (ISTaxType == 1) {
+      InclusiveBeforeGstAmnt5 = 0.00;
+      InclusiveBeforeGstAmnt_Minus5 = 0.00;
+      AfterInclusiveBeforeGstAmnt5 = 0.00;
+      if (OtherChargeBeforGst5 == "true") {
+        double multi5 = 0.00;
+        double addtaxt5 = 0.00;
+        double devide5 = 0.00;
+
+        multi5 = ChargeAmt5 * taxRate5;
+        addtaxt5 = 100;
+        devide5 = multi5 / addtaxt5;
+
+        ExclusiveBeforeGStAmnt5 = ChargeAmt5;
+        ExclusiveBeforeGStAmnt_Minus5 = devide5;
+        ExclusiveAfterGstAmnt5 = 0.00;
+      } else {
+        ExclusiveAfterGstAmnt5 = ChargeAmt5;
+        ExclusiveBeforeGStAmnt5 = 0.00;
+        ExclusiveBeforeGStAmnt_Minus5 = 0.00;
+      }
+    } else {
+      ExclusiveBeforeGStAmnt5 = 0.00;
+      ExclusiveBeforeGStAmnt_Minus5 = 0.00;
+      ExclusiveAfterGstAmnt5 = 0.00;
+
+      if (OtherChargeBeforGst5 == "true") {
+        double multi5 = 0.00;
+        double addtaxt5 = 0.00;
+        double devide5 = 0.00;
+        double to_InclusiveBeforeGstAmnt5 = 0.00;
+
+        multi5 = ChargeAmt5 * taxRate5;
+        addtaxt5 = 100 + taxRate5;
+        devide5 = multi5 / addtaxt5;
+
+        InclusiveBeforeGstAmnt5 = ChargeAmt5 - devide5;
+        InclusiveBeforeGstAmnt_Minus5 = devide5;
+        AfterInclusiveBeforeGstAmnt5 = 0.00;
+      } else {
+        InclusiveBeforeGstAmnt5 = 0.00;
+        InclusiveBeforeGstAmnt_Minus5 = 0.00;
+        AfterInclusiveBeforeGstAmnt5 = ChargeAmt5;
+      }
+    }
+  }
+
+  void UpdateAfterHeaderDiscount() async {
+    double tot_amnt_net = 0.00;
+
+    Tot_NetAmt = 0.00;
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      print("_inquiryProductList[i].NetAmount234" +
+          " Tot_NetAmt : " +
+          _inquiryProductList[i].NetAmount.toString());
+
+      tot_amnt_net = tot_amnt_net + _inquiryProductList[i].NetAmount;
+    }
+    print("Tot_NetAmtTot_NetAmt" + " Tot_NetAmt : " + tot_amnt_net.toString());
+
+    HeaderDisAmnt = double.parse(edt_HeaderDisc.text.toString());
+
+    double ExclusiveItemWiseHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseAmount = 0.00;
+    double ExclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseTaxAmnt = 0.00;
+    double ExclusiveTaxPluse100 = 0.00;
+    double ExclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double ExclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveItemWiseHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseAmount = 0.00;
+    double InclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseTaxAmnt = 0.00;
+    double InclusiveTaxPluse100 = 0.00;
+    double InclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExTotalBasic = 0.00;
+    double ExTotalGSTamt = 0.00;
+    double ExTotalNetAmnt = 0.00;
+    double InTotalBasic = 0.00;
+    double InTotalGSTamt = 0.00;
+    double InTotalNetAmnt = 0.00;
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      if (_inquiryProductList[i].TaxType == 1) {
+        ExclusiveItemWiseHeaderDisAmnt =
+            (_inquiryProductList[i].NetAmount * HeaderDisAmnt) / tot_amnt_net;
+        print("sdf434" +
+            ExclusiveItemWiseHeaderDisAmnt.toString() +
+            "  Net amnt : " +
+            _inquiryProductList[i].NetAmount.toString() +
+            " Hder : " +
+            HeaderDisAmnt.toString());
+        ExclusiveItemWiseAmount =
+            _inquiryProductList[i].Quantity * _inquiryProductList[i].NetRate;
+        ExclusiveNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount - ExclusiveItemWiseHeaderDisAmnt;
+        ExclusiveItemWiseTaxAmnt = (ExclusiveNetAmntAfterHeaderDisAmnt *
+                _inquiryProductList[i].TaxRate) /
+            100;
+
+        print("dfjfj221223" + ExclusiveNetAmntAfterHeaderDisAmnt.toString());
+
+        ExclusiveFinalNetAmntAfterHeaderDisAmnt =
+            ExclusiveNetAmntAfterHeaderDisAmnt;
+        ExclusiveTotalNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount + ExclusiveItemWiseTaxAmnt;
+
+        ExTotalBasic += ExclusiveFinalNetAmntAfterHeaderDisAmnt;
+        ExTotalGSTamt += ExclusiveItemWiseTaxAmnt;
+        ExTotalNetAmnt += ExclusiveTotalNetAmntAfterHeaderDisAmnt;
+      } else {
+        InclusiveItemWiseHeaderDisAmnt =
+            (_inquiryProductList[i].NetAmount * HeaderDisAmnt) / tot_amnt_net;
+        InclusiveItemWiseAmount =
+            _inquiryProductList[i].Quantity * _inquiryProductList[i].NetRate;
+        InclusiveNetAmntAfterHeaderDisAmnt =
+            InclusiveItemWiseAmount - InclusiveItemWiseHeaderDisAmnt;
+        InclusiveTaxPluse100 = 100 + _inquiryProductList[i].TaxRate;
+        InclusiveItemWiseTaxAmnt = (InclusiveNetAmntAfterHeaderDisAmnt *
+                _inquiryProductList[i].TaxRate) /
+            InclusiveTaxPluse100;
+        InclusiveFinalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
+        InclusiveTotalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
+
+        InTotalBasic += InclusiveFinalNetAmntAfterHeaderDisAmnt;
+        InTotalGSTamt += InclusiveItemWiseTaxAmnt;
+        InTotalNetAmnt += InclusiveTotalNetAmntAfterHeaderDisAmnt;
+      }
+
+      /* double TotNet =0.00; // ExclusiveTotalNetAmntAfterHeaderDisAmnt+InclusiveTotalNetAmntAfterHeaderDisAmnt;
+      print("TotNet3455gg"+" Total : "+TotNet.toStringAsFixed(2) + " TotExclNetAmnt : " + ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+          " TotIncNetAmnt : " + InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2)
+      );*/
+    }
+    print("testExclusive" +
+        " Total ExcBasic : " +
+        ExTotalBasic.toStringAsFixed(2) +
+        "Total ExGSTAmnt : " +
+        ExTotalGSTamt.toStringAsFixed(2) +
+        "Total ExNetAmnt " +
+        ExTotalNetAmnt.toStringAsFixed(2));
+    print("testExclusive" +
+        " Total ExcBasic : " +
+        InTotalBasic.toStringAsFixed(2) +
+        "Total ExGSTAmnt : " +
+        InTotalGSTamt.toStringAsFixed(2) +
+        "Total ExNetAmnt " +
+        InTotalNetAmnt.toStringAsFixed(2));
+
+    Tot_BasicAmount = ExTotalBasic + InTotalBasic;
+    Tot_GSTAmt = ExTotalGSTamt + InTotalGSTamt;
+    Tot_NetAmt = 0.00;
+    double TotNet = ExTotalNetAmnt + InTotalNetAmnt;
+
+    Tot_NetAmt = TotNet;
+
+/*
+     Tot_BasicAmount +=  ExclusiveFinalNetAmntAfterHeaderDisAmnt+InclusiveFinalNetAmntAfterHeaderDisAmnt;
+     Tot_GSTAmt += ExclusiveItemWiseTaxAmnt+InclusiveItemWiseTaxAmnt;
+     Tot_NetAmt =0.00;
+     double TotNet = ExclusiveTotalNetAmntAfterHeaderDisAmnt+InclusiveTotalNetAmntAfterHeaderDisAmnt;
+     print("TotNet3455gg"+" Total : "+TotNet.toStringAsFixed(2) + " TotExclNetAmnt : " + ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+         " TotIncNetAmnt : " + InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2)
+     );
+     Tot_NetAmt +=  TotNet - HeaderDisAmnt;*/
+
+    //print("TotNATe"+ " NetAmnt : " + Tot_NetAmt.toStringAsFixed(2));
+
+    _basicAmountController = Tot_BasicAmount.toStringAsFixed(2);
+    _otherChargeWithTaxController = Tot_otherChargeWithTax.toStringAsFixed(2);
+
+    ///Final Setup Befor GST
+    _totalGstController = Tot_GSTAmt.toStringAsFixed(2);
+    _otherChargeExcludeTaxController =
+        Tot_otherChargeExcludeTax.toStringAsFixed(2);
+
+    ///Final Setup After GST
+    // double Tot_NetAmnt = Tot_NetAmt + Tot_otherChargeWithTax +   Tot_otherChargeExcludeTax;
+    netAmountController = Tot_NetAmt.toStringAsFixed(2);
+    print("netamountfj" + " NetAmount4 : " + netAmountController);
+    //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
+  }
+
+  void PushAllOtherChargesToDb() {
+    /* List<QT_OtherChargeTable> arrTemp = await OfflineDbHelper.getInstance().getQuotationOtherCharge();
+
+   if(arrTemp.isNotEmpty)
+     {
+         await OfflineDbHelper.getInstance().deleteALLQuotationOtherCharge();
+     }*/
+
+    print("BeforGSTAmnt" +
+        "ChargeAmnt1 : " +
+        OtherChargeAmount1.toString() +
+        "ChargeAmnt2 : " +
+        OtherChargeAmount2.toString() +
+        " ChargeBasicAmnt1 : " +
+        InclusiveBeforeGstAmnt1.toStringAsFixed(2) +
+        " ChargeBasicAmnt2 : " +
+        InclusiveBeforeGstAmnt2.toStringAsFixed(2) +
+        " ChargeGstAmnt1 : " +
+        InclusiveBeforeGstAmnt_Minus1.toStringAsFixed(2) +
+        " ChargeGstAmnt2 : " +
+        InclusiveBeforeGstAmnt_Minus2.toStringAsFixed(2));
+    //  print("AfterGSTAmnt" + " AfterGSTAmnt1 : " + AfterInclusiveBeforeGstAmnt1.toStringAsFixed(2) + " AfterGSTAmnt2 : " + AfterInclusiveBeforeGstAmnt2.toStringAsFixed(2)  );
+    print("AfterGSTAmnt" +
+        "ChargeAmnt1 : " +
+        OtherChargeAmount1.toString() +
+        "ChargeAmnt2 : " +
+        OtherChargeAmount2.toString() +
+        " ChargeBasicAmnt1 : " +
+        AfterInclusiveBeforeGstAmnt1.toStringAsFixed(2) +
+        " ChargeBasicAmnt2 : " +
+        AfterInclusiveBeforeGstAmnt2.toStringAsFixed(2) +
+        " ChargeGstAmnt1 : " +
+        "0.00" +
+        " ChargeGstAmnt2 : " +
+        "0.00");
+    print("ExclusiveBeforeGst" +
+        " BeforeGST_AMNT1 : " +
+        ExclusiveBeforeGStAmnt1.toStringAsFixed(2) +
+        " GSTMinus1 : " +
+        ExclusiveBeforeGStAmnt_Minus1.toStringAsFixed(2) +
+        " BeforeGST_AMNT2 : " +
+        ExclusiveBeforeGStAmnt2.toStringAsFixed(2) +
+        " GSTMinus2 : " +
+        ExclusiveBeforeGStAmnt_Minus2.toStringAsFixed(2));
+
+    print("ExclusiveAfterGst" +
+        " AfterGST_AMNT1 : " +
+        ExclusiveAfterGstAmnt1.toStringAsFixed(2) +
+        " AfterGST_AMNT2 : " +
+        ExclusiveAfterGstAmnt2.toStringAsFixed(2));
+
+    QT_OtherChargeTemp qt_otherChargeTable = QT_OtherChargeTemp();
+    print("ChargeID" + OtherChargeID2.toString());
+    qt_otherChargeTable.ChargeID1 = int.parse(
+        OtherChargeID1); //==null?0:_otherChargeIDController1.text.toString());
+    qt_otherChargeTable.ChargeID2 = int.parse(
+        OtherChargeID2); //==null?0:_otherChargeIDController2.text.toString());
+    qt_otherChargeTable.ChargeID3 = int.parse(
+        OtherChargeID3); //==null?0:_otherChargeIDController3.text.toString());
+    qt_otherChargeTable.ChargeID4 = int.parse(
+        OtherChargeID4); //==null?0:_otherChargeIDController4.text.toString());
+    qt_otherChargeTable.ChargeID5 = int.parse(
+        OtherChargeID5); //==null?0:_otherChargeIDController5.text.toString());
+    qt_otherChargeTable.Headerdiscount = 0.00;
+    qt_otherChargeTable.Tot_BasicAmt = double.parse(
+        _basicAmountController == null ? 0.00 : _basicAmountController);
+    qt_otherChargeTable.OtherChargeWithTaxamt = double.parse(
+        _otherChargeWithTaxController == null
+            ? 0.00
+            : _otherChargeWithTaxController);
+    qt_otherChargeTable.Tot_GstAmt =
+        double.parse(_totalGstController == null ? 0.00 : _totalGstController);
+    qt_otherChargeTable.OtherChargeExcludeTaxamt = double.parse(
+        _otherChargeExcludeTaxController == null
+            ? 0.00
+            : _otherChargeExcludeTaxController);
+    qt_otherChargeTable.Tot_NetAmount =
+        double.parse(netAmountController == null ? 0.00 : netAmountController);
+    qt_otherChargeTable.ChargeAmt1 = double.parse(OtherChargeAmount1);
+    qt_otherChargeTable.ChargeAmt2 = double.parse(OtherChargeAmount2);
+    qt_otherChargeTable.ChargeAmt3 = double.parse(OtherChargeAmount3);
+    qt_otherChargeTable.ChargeAmt4 = double.parse(OtherChargeAmount4);
+    qt_otherChargeTable.ChargeAmt5 = double.parse(OtherChargeAmount5);
+
+    if (OtherChargeTaxType1 == "1") {
+      if (OtherChargeBeforGst1 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt1 = ExclusiveBeforeGStAmnt1;
+        qt_otherChargeTable.ChargeGSTAmt1 = ExclusiveBeforeGStAmnt_Minus1;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt1 = ExclusiveAfterGstAmnt1;
+        qt_otherChargeTable.ChargeGSTAmt1 = 0.00;
+      }
+    } else {
+      if (OtherChargeBeforGst1 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt1 = InclusiveBeforeGstAmnt1;
+        qt_otherChargeTable.ChargeGSTAmt1 = InclusiveBeforeGstAmnt_Minus1;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt1 = AfterInclusiveBeforeGstAmnt1;
+        qt_otherChargeTable.ChargeGSTAmt1 = 0.00;
+      }
+    }
+
+    if (OtherChargeTaxType2 == "1") {
+      if (OtherChargeBeforGst2 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt2 = ExclusiveBeforeGStAmnt2;
+        qt_otherChargeTable.ChargeGSTAmt2 = ExclusiveBeforeGStAmnt_Minus2;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt2 = ExclusiveAfterGstAmnt2;
+        qt_otherChargeTable.ChargeGSTAmt2 = 0.00;
+      }
+    } else {
+      if (OtherChargeBeforGst2 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt2 = InclusiveBeforeGstAmnt2;
+        qt_otherChargeTable.ChargeGSTAmt2 = InclusiveBeforeGstAmnt_Minus2;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt2 = AfterInclusiveBeforeGstAmnt2;
+        qt_otherChargeTable.ChargeGSTAmt2 = 0.00;
+      }
+    }
+
+    if (OtherChargeTaxType3 == "1") {
+      if (OtherChargeBeforGst3 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt3 = ExclusiveBeforeGStAmnt3;
+        qt_otherChargeTable.ChargeGSTAmt3 = ExclusiveBeforeGStAmnt_Minus3;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt3 = ExclusiveAfterGstAmnt3;
+        qt_otherChargeTable.ChargeGSTAmt3 = 0.00;
+      }
+    } else {
+      if (OtherChargeBeforGst3 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt3 = InclusiveBeforeGstAmnt3;
+        qt_otherChargeTable.ChargeGSTAmt3 = InclusiveBeforeGstAmnt_Minus3;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt3 = AfterInclusiveBeforeGstAmnt3;
+        qt_otherChargeTable.ChargeGSTAmt3 = 0.00;
+      }
+    }
+
+    if (OtherChargeTaxType4 == "1") {
+      if (OtherChargeBeforGst4 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt4 = ExclusiveBeforeGStAmnt4;
+        qt_otherChargeTable.ChargeGSTAmt4 = ExclusiveBeforeGStAmnt_Minus4;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt4 = ExclusiveAfterGstAmnt4;
+        qt_otherChargeTable.ChargeGSTAmt4 = 0.00;
+      }
+    } else {
+      if (OtherChargeBeforGst4 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt4 = InclusiveBeforeGstAmnt4;
+        qt_otherChargeTable.ChargeGSTAmt4 = InclusiveBeforeGstAmnt_Minus4;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt4 = AfterInclusiveBeforeGstAmnt4;
+        qt_otherChargeTable.ChargeGSTAmt4 = 0.00;
+      }
+    }
+
+    if (OtherChargeTaxType5 == "1") {
+      if (OtherChargeBeforGst5 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt5 = ExclusiveBeforeGStAmnt5;
+        qt_otherChargeTable.ChargeGSTAmt5 = ExclusiveBeforeGStAmnt_Minus5;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt5 = ExclusiveAfterGstAmnt5;
+        qt_otherChargeTable.ChargeGSTAmt5 = 0.00;
+      }
+    } else {
+      if (OtherChargeBeforGst5 == "true") {
+        qt_otherChargeTable.ChargeBasicAmt5 = InclusiveBeforeGstAmnt5;
+        qt_otherChargeTable.ChargeGSTAmt5 = InclusiveBeforeGstAmnt_Minus5;
+      } else {
+        qt_otherChargeTable.ChargeBasicAmt5 = AfterInclusiveBeforeGstAmnt5;
+        qt_otherChargeTable.ChargeGSTAmt5 = 0.00;
+      }
+    }
+
+    print("hhfdh" +
+        " ChargeID1 : " +
+        qt_otherChargeTable.ChargeID1.toString() +
+        " ChargeID2 : " +
+        qt_otherChargeTable.ChargeID2.toString() +
+        " ChargeID3 : " +
+        qt_otherChargeTable.ChargeID3.toString() +
+        " ChargeID4 : " +
+        qt_otherChargeTable.ChargeID4.toString() +
+        " ChargeID5 : " +
+        qt_otherChargeTable.ChargeID5.toString());
+
+    _inquiryBloc.add(QT_OtherChargeInsertRequestEvent(QT_OtherChargeTable(
+      qt_otherChargeTable.Headerdiscount,
+      qt_otherChargeTable.Tot_BasicAmt,
+      qt_otherChargeTable.OtherChargeWithTaxamt,
+      qt_otherChargeTable.Tot_GstAmt,
+      qt_otherChargeTable.OtherChargeExcludeTaxamt,
+      qt_otherChargeTable.Tot_NetAmount,
+      qt_otherChargeTable.ChargeID1,
+      qt_otherChargeTable.ChargeAmt1,
+      qt_otherChargeTable.ChargeBasicAmt1,
+      qt_otherChargeTable.ChargeGSTAmt1,
+      qt_otherChargeTable.ChargeID2,
+      qt_otherChargeTable.ChargeAmt2,
+      qt_otherChargeTable.ChargeBasicAmt2,
+      qt_otherChargeTable.ChargeGSTAmt2,
+      qt_otherChargeTable.ChargeID3,
+      qt_otherChargeTable.ChargeAmt3,
+      qt_otherChargeTable.ChargeBasicAmt3,
+      qt_otherChargeTable.ChargeGSTAmt3,
+      qt_otherChargeTable.ChargeID4,
+      qt_otherChargeTable.ChargeAmt4,
+      qt_otherChargeTable.ChargeBasicAmt4,
+      qt_otherChargeTable.ChargeGSTAmt4,
+      qt_otherChargeTable.ChargeID5,
+      qt_otherChargeTable.ChargeAmt5,
+      qt_otherChargeTable.ChargeBasicAmt5,
+      qt_otherChargeTable.ChargeGSTAmt5,
+    )));
+  }
+
+  void _onInsertAllQT_OtherTable(QT_OtherChargeInsertResponseState state) {
+    print("sucess123" + state.response.toString());
+  }
+
+  UpdateAfterHeaderDiscountToDB() {
+    double tot_amnt_net = 0.00;
+
+    double Tot_NetAmt = 0.00;
+
+    List<QuotationTable> _TempinquiryProductList = [];
+
+    _TempinquiryProductList.clear();
+    _TempinquiryProductList.addAll(_inquiryProductList);
+
+    _inquiryProductList.clear();
+
+    QuotationTable tempQuotationTable;
+
+    //await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
+
+    for (int i = 0; i < _TempinquiryProductList.length; i++) {
+      print("_inquiryProductList[i].NetAmount234" +
+          " Tot_NetAmt : " +
+          _TempinquiryProductList[i].NetAmount.toString());
+
+      tot_amnt_net = tot_amnt_net + _TempinquiryProductList[i].NetAmount;
+    }
+    print("Tot_NetAmtTot_NetAmt" + " Tot_NetAmt : " + tot_amnt_net.toString());
+
+    double HeaderDisAmnt =
+        double.parse(edt_HeaderDisc.text == null ? 0.00 : edt_HeaderDisc.text);
+    double ExclusiveItemWiseHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseAmount = 0.00;
+    double ExclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseTaxAmnt = 0.00;
+    double ExclusiveTaxPluse100 = 0.00;
+    double ExclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double ExclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveItemWiseHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseAmount = 0.00;
+    double InclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseTaxAmnt = 0.00;
+    double InclusiveTaxPluse100 = 0.00;
+    double InclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExTotalBasic = 0.00;
+    double ExTotalGSTamt = 0.00;
+    double ExTotalNetAmnt = 0.00;
+    double InTotalBasic = 0.00;
+    double InTotalGSTamt = 0.00;
+    double InTotalNetAmnt = 0.00;
+
+    for (int i = 0; i < _TempinquiryProductList.length; i++) {
+      if (_TempinquiryProductList[i].TaxType == 1) {
+        ExclusiveItemWiseHeaderDisAmnt =
+            (_TempinquiryProductList[i].NetAmount * HeaderDisAmnt) /
+                tot_amnt_net;
+        ExclusiveItemWiseAmount = _TempinquiryProductList[i].Quantity *
+            _TempinquiryProductList[i].NetRate;
+        ExclusiveNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount - ExclusiveItemWiseHeaderDisAmnt;
+        ExclusiveItemWiseTaxAmnt = (ExclusiveNetAmntAfterHeaderDisAmnt *
+                _TempinquiryProductList[i].TaxRate) /
+            100;
+        ExclusiveFinalNetAmntAfterHeaderDisAmnt =
+            ExclusiveNetAmntAfterHeaderDisAmnt;
+        ExclusiveTotalNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount + ExclusiveItemWiseTaxAmnt;
+
+        var CGSTPer = 0.00;
+        var CGSTAmount = 0.00;
+        var SGSTPer = 0.00;
+        var SGSTAmount = 0.00;
+        var IGSTPer = 0.00;
+        var IGSTAmount = 0.00;
+        if (_offlineLoggedInData.details[0].stateCode ==
+            int.parse(_TempinquiryProductList[i].StateCode.toString())) {
+          CGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          SGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          CGSTAmount = ExclusiveItemWiseTaxAmnt / 2;
+          SGSTAmount = ExclusiveItemWiseTaxAmnt / 2;
+          IGSTPer = 0.00;
+          IGSTAmount = 0.00;
+        } else {
+          IGSTPer = _TempinquiryProductList[i].TaxRate;
+          IGSTAmount = ExclusiveItemWiseTaxAmnt;
+          CGSTPer = 0.00;
+          SGSTPer = 0.00;
+          CGSTAmount = 0.00;
+          SGSTAmount = 0.00;
+        }
+
+        tempQuotationTable = QuotationTable(
+            _TempinquiryProductList[i].QuotationNo,
+            _TempinquiryProductList[i].ProductSpecification,
+            _TempinquiryProductList[i].ProductID,
+            _TempinquiryProductList[i].ProductName,
+            _TempinquiryProductList[i].Unit,
+            _TempinquiryProductList[i].Quantity,
+            _TempinquiryProductList[i].UnitRate,
+            _TempinquiryProductList[i].DiscountPercent,
+            _TempinquiryProductList[i].DiscountAmt,
+            _TempinquiryProductList[i].NetRate,
+            ExclusiveFinalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxRate,
+            ExclusiveItemWiseTaxAmnt,
+            ExclusiveTotalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxType,
+            CGSTPer,
+            SGSTPer,
+            IGSTPer,
+            CGSTAmount,
+            SGSTAmount,
+            IGSTAmount,
+            _TempinquiryProductList[i].StateCode,
+            _TempinquiryProductList[i].pkID,
+            LoginUserID,
+            CompanyID.toString(),
+            0,
+            ExclusiveItemWiseHeaderDisAmnt);
+        _inquiryProductList.add(tempQuotationTable);
+        /* await OfflineDbHelper.getInstance().insertQuotationProduct(
+            QuotationTable(
+                _TempinquiryProductList[i].QuotationNo,
+                _TempinquiryProductList[i].ProductSpecification,
+                _TempinquiryProductList[i].ProductID,
+                _TempinquiryProductList[i].ProductName,
+                _TempinquiryProductList[i].Unit,
+                _TempinquiryProductList[i].Quantity,
+                _TempinquiryProductList[i].UnitRate,
+                _TempinquiryProductList[i].DiscountPercent,
+                _TempinquiryProductList[i].DiscountAmt,
+                _TempinquiryProductList[i].NetRate,
+                ExclusiveFinalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxRate,
+                ExclusiveItemWiseTaxAmnt,
+                ExclusiveTotalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxType,
+                CGSTPer,
+                SGSTPer,
+                IGSTPer,
+                CGSTAmount,
+                SGSTAmount,
+                IGSTAmount,
+                _TempinquiryProductList[i].StateCode,
+                _TempinquiryProductList[i].pkID,
+                LoginUserID,
+                CompanyID.toString(),
+                0,
+                ExclusiveItemWiseHeaderDisAmnt));*/
+      } else {
+        InclusiveItemWiseHeaderDisAmnt =
+            (_TempinquiryProductList[i].NetAmount * HeaderDisAmnt) /
+                tot_amnt_net;
+        InclusiveItemWiseAmount = _TempinquiryProductList[i].Quantity *
+            _TempinquiryProductList[i].NetRate;
+        InclusiveNetAmntAfterHeaderDisAmnt =
+            InclusiveItemWiseAmount - InclusiveItemWiseHeaderDisAmnt;
+        InclusiveTaxPluse100 = 100 + _TempinquiryProductList[i].TaxRate;
+        InclusiveItemWiseTaxAmnt = (InclusiveNetAmntAfterHeaderDisAmnt *
+                _TempinquiryProductList[i].TaxRate) /
+            InclusiveTaxPluse100;
+        InclusiveFinalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
+        InclusiveTotalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
+
+        var CGSTPer = 0.00;
+        var CGSTAmount = 0.00;
+        var SGSTPer = 0.00;
+        var SGSTAmount = 0.00;
+        var IGSTPer = 0.00;
+        var IGSTAmount = 0.00;
+        if (_offlineLoggedInData.details[0].stateCode ==
+            int.parse(_TempinquiryProductList[i].StateCode.toString())) {
+          CGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          SGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          CGSTAmount = InclusiveItemWiseTaxAmnt / 2;
+          SGSTAmount = InclusiveItemWiseTaxAmnt / 2;
+          IGSTPer = 0.00;
+          IGSTAmount = 0.00;
+        } else {
+          IGSTPer = _TempinquiryProductList[i].TaxRate;
+          IGSTAmount = InclusiveItemWiseTaxAmnt;
+          CGSTPer = 0.00;
+          SGSTPer = 0.00;
+          CGSTAmount = 0.00;
+          SGSTAmount = 0.00;
+        }
+        tempQuotationTable = QuotationTable(
+            _TempinquiryProductList[i].QuotationNo,
+            _TempinquiryProductList[i].ProductSpecification,
+            _TempinquiryProductList[i].ProductID,
+            _TempinquiryProductList[i].ProductName,
+            _TempinquiryProductList[i].Unit,
+            _TempinquiryProductList[i].Quantity,
+            _TempinquiryProductList[i].UnitRate,
+            _TempinquiryProductList[i].DiscountPercent,
+            _TempinquiryProductList[i].DiscountAmt,
+            _TempinquiryProductList[i].NetRate,
+            InclusiveFinalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxRate,
+            InclusiveItemWiseTaxAmnt,
+            InclusiveTotalNetAmntAfterHeaderDisAmnt,
+            _TempinquiryProductList[i].TaxType,
+            CGSTPer,
+            SGSTPer,
+            IGSTPer,
+            CGSTAmount,
+            SGSTAmount,
+            IGSTAmount,
+            _TempinquiryProductList[i].StateCode,
+            _TempinquiryProductList[i].pkID,
+            LoginUserID,
+            CompanyID.toString(),
+            0,
+            InclusiveItemWiseHeaderDisAmnt);
+        _inquiryProductList.add(tempQuotationTable);
+        /*await OfflineDbHelper.getInstance().insertQuotationProduct(
+            QuotationTable(
+                _TempinquiryProductList[i].QuotationNo,
+                _TempinquiryProductList[i].ProductSpecification,
+                _TempinquiryProductList[i].ProductID,
+                _TempinquiryProductList[i].ProductName,
+                _TempinquiryProductList[i].Unit,
+                _TempinquiryProductList[i].Quantity,
+                _TempinquiryProductList[i].UnitRate,
+                _TempinquiryProductList[i].DiscountPercent,
+                _TempinquiryProductList[i].DiscountAmt,
+                _TempinquiryProductList[i].NetRate,
+                InclusiveFinalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxRate,
+                InclusiveItemWiseTaxAmnt,
+                InclusiveTotalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxType,
+                CGSTPer,
+                SGSTPer,
+                IGSTPer,
+                CGSTAmount,
+                SGSTAmount,
+                IGSTAmount,
+                _TempinquiryProductList[i].StateCode,
+                _TempinquiryProductList[i].pkID,
+                LoginUserID,
+                CompanyID.toString(),
+                0,
+                InclusiveItemWiseHeaderDisAmnt));*/
+      }
+    }
   }
 }

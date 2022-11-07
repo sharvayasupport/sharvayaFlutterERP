@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
-import 'package:soleoserp/models/api_responses/pagination_demo_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/pagination_demo_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'pagination_demo_screen_events.dart';

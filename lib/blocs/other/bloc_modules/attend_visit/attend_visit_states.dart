@@ -59,3 +59,15 @@ class ComplaintSearchByIDResponseState extends AttendVisitStates {
 
   ComplaintSearchByIDResponseState(this.complaintSearchByIDResponse);
 }
+
+class QuickComplaintListResponseState extends AttendVisitStates {
+  final QucikComplaintListResponse response;
+
+  QuickComplaintListResponseState(this.response);
+}
+
+class QuickComplaintSaveResponseState extends AttendVisitStates {
+  final QucikComplaintSaveResponse response;
+
+  QuickComplaintSaveResponseState(this.response);
+}

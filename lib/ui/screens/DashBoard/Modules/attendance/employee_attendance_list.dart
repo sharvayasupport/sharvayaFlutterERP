@@ -9,9 +9,9 @@ import 'package:ntp/ntp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attendance_employee/attendance_bloc.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/attendance/employee_attandance_add_edit_screen.dart';
@@ -348,10 +348,10 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                         Visibility(
                           visible: isvisible_Out_time,
                           child: Container(
-                            margin: EdgeInsets.only(left: 10, right: 60),
+                            margin: EdgeInsets.only(left: 10),
                             child: Card(
                               elevation: 5,
-                              color: colorLightGray,
+                              color: colorPrimary,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15)),
                               child: Container(
@@ -361,81 +361,229 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        // crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Container(
-                                            padding: EdgeInsets.all(5),
-                                            child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "In-Time",
-                                                    style: TextStyle(
-                                                        color: colorPrimary,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                            padding: EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                              color: Colors.white,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.all(5),
+                                                  child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          "In-Time",
+                                                          style: TextStyle(
+                                                            color: colorPrimary,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                            _selectedEvents
+                                                                    .isNotEmpty
+                                                                ? _selectedEvents[
+                                                                        0]
+                                                                    .toString()
+                                                                : "00:00",
+                                                            style: TextStyle(
+                                                                color:
+                                                                    colorBlack,
+                                                                fontSize: 10)),
+                                                      ]),
+                                                ),
+                                                Visibility(
+                                                  visible: _selectedEvents
+                                                              .isEmpty ||
+                                                          _selectedEvents[1]
+                                                                  .toString() ==
+                                                              ""
+                                                      ? false
+                                                      : true,
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Out-Time",
+                                                            style: TextStyle(
+                                                                color:
+                                                                    colorPrimary,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          Text(
+                                                              _selectedEvents
+                                                                      .isNotEmpty
+                                                                  ? _selectedEvents[
+                                                                          1]
+                                                                      .toString()
+                                                                  : "00:00",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      colorBlack,
+                                                                  fontSize:
+                                                                      10)),
+                                                        ]),
                                                   ),
-                                                  Text(
-                                                      _selectedEvents.isNotEmpty
-                                                          ? _selectedEvents[0]
-                                                              .toString()
-                                                          : "00:00",
-                                                      style: TextStyle(
-                                                          color: colorBlack,
-                                                          fontSize: 12)),
-                                                ]),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
                                           ),
                                           Container(
-                                            padding: EdgeInsets.all(5),
-                                            child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "Out-Time",
-                                                    style: TextStyle(
-                                                        color: colorPrimary,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                            decoration: const BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10)),
+                                              color: colorWhite,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Visibility(
+                                                  visible: _selectedEvents
+                                                              .isEmpty ||
+                                                          _selectedEvents[3]
+                                                                  .toString() ==
+                                                              ""
+                                                      ? false
+                                                      : true,
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Lunch-In",
+                                                            style: TextStyle(
+                                                                color:
+                                                                    colorPrimary,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          Text(
+                                                              _selectedEvents
+                                                                      .isNotEmpty
+                                                                  ? _selectedEvents[
+                                                                          3]
+                                                                      .toString()
+                                                                  : "00:00",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      colorBlack,
+                                                                  fontSize:
+                                                                      10)),
+                                                        ]),
                                                   ),
-                                                  Text(
-                                                      _selectedEvents.isNotEmpty
-                                                          ? _selectedEvents[1]
-                                                              .toString()
-                                                          : "00:00",
-                                                      style: TextStyle(
-                                                          color: colorBlack,
-                                                          fontSize: 12)),
-                                                ]),
+                                                ),
+                                                Visibility(
+                                                  visible: _selectedEvents
+                                                              .isEmpty ||
+                                                          _selectedEvents[4]
+                                                                  .toString() ==
+                                                              ""
+                                                      ? false
+                                                      : true,
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "Lunch-Out",
+                                                            style: TextStyle(
+                                                                color:
+                                                                    colorPrimary,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                          Text(
+                                                              _selectedEvents
+                                                                      .isNotEmpty
+                                                                  ? _selectedEvents[
+                                                                          4]
+                                                                      .toString()
+                                                                  : "00:00",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      colorBlack,
+                                                                  fontSize:
+                                                                      10)),
+                                                        ]),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Notes ",
-                                                style: TextStyle(
-                                                    color: colorPrimary,
-                                                    fontSize: 10,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Text(
-                                                  _selectedEvents.isNotEmpty
-                                                      ? _selectedEvents[2]
-                                                          .toString()
-                                                      : "N/A",
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Visibility(
+                                        visible: _selectedEvents.isEmpty ||
+                                                _selectedEvents[2].toString() ==
+                                                    ""
+                                            ? false
+                                            : true,
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.all(5),
+                                          decoration: const BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(10)),
+                                            color: colorWhite,
+                                          ),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Notes : ",
                                                   style: TextStyle(
-                                                      color: colorBlack,
-                                                      fontSize: 12)),
-                                            ]),
+                                                      color: colorPrimary,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                Container(
+                                                  margin:
+                                                      EdgeInsets.only(left: 5),
+                                                  child: Text(
+                                                      _selectedEvents.isNotEmpty
+                                                          ? _selectedEvents[2]
+                                                              .toString()
+                                                          : "N/A",
+                                                      style: TextStyle(
+                                                          color: colorBlack,
+                                                          fontSize: 10)),
+                                                ),
+                                              ]),
+                                        ),
                                       ),
                                     ]),
                               ),
@@ -476,7 +624,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
           builder: (context) =>
               Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             FloatingActionButton(
-              backgroundColor: colorPrimary,
+              backgroundColor: colorfullDay,
               onPressed: () async {
                 await showMonthYearPicker(
                   context: context,
@@ -517,7 +665,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
               child: FloatingActionButton(
                 onPressed: _showAddDialog,
                 child: const Icon(Icons.add),
-                backgroundColor: colorPrimary,
+                backgroundColor: colorfullDay,
               ),
             ),
           ]),
@@ -562,7 +710,9 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
       _events[DateTime.parse(state.response.details[i].presenceDate)] = [
         state.response.details[i].timeIn.toString(),
         state.response.details[i].timeOut.toString(),
-        state.response.details[i].notes.toString()
+        state.response.details[i].notes.toString(),
+        state.response.details[i].LunchIn.toString(),
+        state.response.details[i].LunchOut.toString()
       ];
 
       prefs.setString("events", json.encode(encodeMap(_events)));
@@ -692,6 +842,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
     return InkWell(
       onTap: () {
         // _onTapOfSearchView(context);
+
         showcustomdialogWithMultipleID(
             values: arr_ALL_Name_ID_For_Attendance_EmplyeeList,
             context1: context,

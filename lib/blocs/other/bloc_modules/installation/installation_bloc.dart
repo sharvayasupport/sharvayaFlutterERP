@@ -9,8 +9,8 @@ import 'package:soleoserp/models/api_requests/installation_request/installation_
 import 'package:soleoserp/models/api_requests/installation_request/installation_list_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_save_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_search_customer_request.dart';
-import 'package:soleoserp/models/api_requests/search_installation_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/installation_request/search_installation_request.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/installation_response/Installation_customerid_to_outwardno_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_city_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_country_response.dart';

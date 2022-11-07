@@ -13,7 +13,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:soleoserp/firebase_options.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/ui/res/style_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Dealer/bank_voucher/add_edit_screen.dart';
@@ -109,6 +108,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_add_edi
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_history_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/search_followup_customer_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/telecaller_followup_history_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/map_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/search_destination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/google_map_distance/search_source_screen.dart';
@@ -171,6 +171,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_mana
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/sales_order_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/search_salesorder_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/FollowUpDialog/telecaller_followup_ADD_EDIT_Screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_add_edit/company_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_add_edit/telecaller_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
@@ -201,9 +202,10 @@ Location location = new Location();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+      // options: DefaultFirebaseOptions.currentPlatform,
+      );
   await SharedPrefHelper.createInstance();
   await OfflineDbHelper.createInstance();
 
@@ -228,7 +230,7 @@ Future<void> main() async {
     }
   }
   checkPermissionStatus();
-  /*runApp(DevicePreview(
+  /* runApp(DevicePreview(
     enabled: true,
     builder: (context) => MyApp(),
   ));*/
@@ -723,7 +725,8 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(HemaAttendVisitListScreen());
 
       case HemaAttendVisitAddEditScreen.routeName:
-        return getMaterialPageRoute(HemaAttendVisitAddEditScreen());
+        return getMaterialPageRoute(
+            HemaAttendVisitAddEditScreen(settings.arguments));
 
       case DBankVoucherListScreen.routeName:
         return getMaterialPageRoute(DBankVoucherListScreen());
@@ -767,8 +770,14 @@ class MyApp extends StatefulWidget {
       case DSaleBillOtherChargeScreen.routeName:
         return getMaterialPageRoute(
             DSaleBillOtherChargeScreen(settings.arguments));
+      case FollowUpFromTeleCallerddEditScreen.routeName:
+        return getMaterialPageRoute(
+            FollowUpFromTeleCallerddEditScreen(settings.arguments));
 
-      //DSaleBillOtherChargeScreen
+      case TeleCallerFollowupHistoryScreen.routeName:
+        return getMaterialPageRoute(
+            TeleCallerFollowupHistoryScreen(settings.arguments));
+      //TeleCallerFollowupHistoryScreen
       default:
         return null;
     }

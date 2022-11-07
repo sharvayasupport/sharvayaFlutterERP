@@ -11,16 +11,21 @@ import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_reque
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
+import 'package:soleoserp/models/common/so_other_charge_table.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
@@ -208,6 +213,8 @@ class _SaleOrderNewAddEditScreenState
   String SalesOrderNo = "";
   final TextEditingController edt_HeaderDisc = TextEditingController();
   List<SalesOrderTable> _inquiryProductList = [];
+
+  List<SalesOrderProductRequest> arrSOProductList = [];
   final TextEditingController edt_StateCode = TextEditingController();
 
   List<SoPaymentScheduleTable> arr_PaymentScheduleList = [];
@@ -348,6 +355,14 @@ class _SaleOrderNewAddEditScreenState
           if (state is PaymentScheduleEditResponseState) {
             OnUpdatePaymentSchedule(state);
           }
+
+          if (state is SaleOrderHeaderSaveResponseState) {
+            _OnSalesOrderHeaderSaveSucessResponse(state);
+          }
+
+          if (state is SaleOrderProductSaveResponseState) {
+            _OnSaleOrderProductSaveResponse(state);
+          }
           return super.build(context);
           //handle states
         },
@@ -358,7 +373,9 @@ class _SaleOrderNewAddEditScreenState
               currentState is MultiNoToProductDetailsResponseState ||
               currentState is PaymentScheduleResponseState ||
               currentState is PaymentScheduleDeleteResponseState ||
-              currentState is PaymentScheduleEditResponseState) {
+              currentState is PaymentScheduleEditResponseState ||
+              currentState is SaleOrderHeaderSaveResponseState ||
+              currentState is SaleOrderProductSaveResponseState) {
             return true;
           }
           return false;
@@ -413,8 +430,8 @@ class _SaleOrderNewAddEditScreenState
                         mandetoryDetails(),
                         space(10),
                         productDetails(),
-                        space(10),
-                        otherCharges(),
+                        /*space(10),
+                        otherCharges(),*/
                         space(20),
                         basicInformation(),
                         space(10),
@@ -1550,6 +1567,7 @@ class _SaleOrderNewAddEditScreenState
     _inquiryProductList.clear();
     List<SalesOrderTable> temp =
         await OfflineDbHelper.getInstance().getSalesOrderProduct();
+    print("Prodiuucy" + temp.length.toString());
     _inquiryProductList.addAll(temp);
     setState(() {});
   }
@@ -2703,10 +2721,13 @@ class _SaleOrderNewAddEditScreenState
               print("HeaderDiscll" + edt_HeaderDisc.text.toString());
               navigateTo(context, SalesOrderOtherChargeScreen.routeName,
                       arguments: SalesOrderOtherChargesScreenArguments(
-                          int.parse(
-                              edt_StateCode == null ? 0 : edt_StateCode.text),
+                          edt_StateCode.text != ""
+                              ? int.parse(edt_StateCode.text)
+                              : 0,
                           _editModel,
-                          edt_HeaderDisc.text))
+                          edt_HeaderDisc.text != ""
+                              ? edt_HeaderDisc.text
+                              : "0.00"))
                   .then((value) {
                 if (value == null) {
                   print("HeaderDiscount From QTOtherCharges 0.00");
@@ -2732,7 +2753,250 @@ class _SaleOrderNewAddEditScreenState
             margin: EdgeInsets.only(left: 8, right: 8),
             child: getCommonButton(
               baseTheme,
-              () {},
+              () async {
+                if (_controller_order_date.text != "") {
+                  if (_controller_customer_name.text != "") {
+                    await getInquiryProductDetails();
+
+                    if (_inquiryProductList.length != 0) {
+                      showCommonDialogWithTwoOptions(context,
+                          "Are you sure you want to Save this SalesOrder ?",
+                          negativeButtonTitle: "No", positiveButtonTitle: "Yes",
+                          onTapOfPositiveButton: () async {
+                        Navigator.of(context).pop();
+
+                        if (SalesOrderNo != '') {
+                          _salesOrderBloc.add(
+                              SalesOrderProductDeleteRequestEvent(
+                                  pkID,
+                                  SalesOrderAllProductDeleteRequest(
+                                      CompanyId: CompanyID.toString())));
+                        } else {}
+
+                        List<SO_OtherChargeTable> tempOtherCharges =
+                            await OfflineDbHelper.getInstance()
+                                .getSalesOrderOtherCharge();
+                        List<SalesOrderTable> tempProductList =
+                            await OfflineDbHelper.getInstance()
+                                .getSalesOrderProduct();
+
+                        double tot_basicAmount = 0.00;
+                        double tot_CGSTAmount = 0.00;
+                        double tot_SGSTAmount = 0.00;
+                        double tot_IGSTAmount = 0.00;
+                        double tot_DiscountAmount = 0.00;
+                        double tot_NetAmount = 0.00;
+
+                        for (int i = 0; i < tempProductList.length; i++) {
+                          tot_basicAmount =
+                              tot_basicAmount + tempProductList[i].Amount;
+                          tot_DiscountAmount = tot_DiscountAmount +
+                              tempProductList[i].DiscountAmt;
+                          tot_NetAmount =
+                              tot_NetAmount + tempProductList[i].NetAmount;
+
+                          int STCODE = edt_StateCode.text != ""
+                              ? int.parse(edt_StateCode.text)
+                              : 0;
+
+                          tot_CGSTAmount =
+                              tot_CGSTAmount + tempProductList[i].CGSTAmt;
+                          tot_SGSTAmount =
+                              tot_SGSTAmount + tempProductList[i].SGSTAmt;
+                          tot_IGSTAmount = 0.00;
+
+                          /* if (_offlineLoggedInData.details[0].stateCode == STCODE ) {
+                            tot_CGSTAmount =
+                                tot_CGSTAmount + tempProductList[i].CGSTAmt;
+                            tot_SGSTAmount =
+                                tot_SGSTAmount + tempProductList[i].SGSTAmt;
+                            tot_IGSTAmount = 0.00;
+                          } else {
+                            tot_IGSTAmount =
+                                tot_IGSTAmount + tempProductList[i].IGSTAmt;
+                            tot_CGSTAmount = 0.00;
+                            tot_SGSTAmount = 0.00;
+                          }*/
+                        }
+
+                        String ChargeID1 = "";
+                        String ChargeAmt1 = "";
+                        String ChargeBasicAmt1 = "";
+                        String ChargeGSTAmt1 = "";
+                        String ChargeID2 = "";
+                        String ChargeAmt2 = "";
+                        String ChargeBasicAmt2 = "";
+                        String ChargeGSTAmt2 = "";
+                        String ChargeID3 = "";
+                        String ChargeAmt3 = "";
+                        String ChargeBasicAmt3 = "";
+                        String ChargeGSTAmt3 = "";
+                        String ChargeID4 = "";
+                        String ChargeAmt4 = "";
+                        String ChargeBasicAmt4 = "";
+                        String ChargeGSTAmt4 = "";
+                        String ChargeID5 = "";
+                        String ChargeAmt5 = "";
+                        String ChargeBasicAmt5 = "";
+                        String ChargeGSTAmt5 = "";
+
+                        if (tempOtherCharges.length != 0) {
+                          for (int i = 0; i < tempOtherCharges.length; i++) {
+                            print("Cjkdfj" +
+                                " ChargeId : " +
+                                tempOtherCharges[i].ChargeID1.toString());
+                            ChargeID1 =
+                                tempOtherCharges[i].ChargeID1.toString();
+                            ChargeAmt1 = tempOtherCharges[i]
+                                .ChargeAmt1
+                                .toStringAsFixed(2);
+                            ChargeBasicAmt1 = tempOtherCharges[i]
+                                .ChargeBasicAmt1
+                                .toStringAsFixed(2);
+                            ChargeGSTAmt1 = tempOtherCharges[i]
+                                .ChargeGSTAmt1
+                                .toStringAsFixed(2);
+                            ChargeID2 =
+                                tempOtherCharges[i].ChargeID2.toString();
+                            ChargeAmt2 = tempOtherCharges[i]
+                                .ChargeAmt2
+                                .toStringAsFixed(2);
+                            ChargeBasicAmt2 = tempOtherCharges[i]
+                                .ChargeBasicAmt2
+                                .toStringAsFixed(2);
+                            ChargeGSTAmt2 = tempOtherCharges[i]
+                                .ChargeGSTAmt2
+                                .toStringAsFixed(2);
+                            ChargeID3 =
+                                tempOtherCharges[i].ChargeID3.toString();
+                            ChargeAmt3 = tempOtherCharges[i]
+                                .ChargeAmt3
+                                .toStringAsFixed(2);
+                            ChargeBasicAmt3 = tempOtherCharges[i]
+                                .ChargeBasicAmt3
+                                .toStringAsFixed(2);
+                            ChargeGSTAmt3 = tempOtherCharges[i]
+                                .ChargeGSTAmt3
+                                .toStringAsFixed(2);
+                            ChargeID4 =
+                                tempOtherCharges[i].ChargeID4.toString();
+                            ChargeAmt4 = tempOtherCharges[i]
+                                .ChargeAmt4
+                                .toStringAsFixed(2);
+                            ChargeBasicAmt4 = tempOtherCharges[i]
+                                .ChargeBasicAmt4
+                                .toStringAsFixed(2);
+                            ChargeGSTAmt4 = tempOtherCharges[i]
+                                .ChargeGSTAmt4
+                                .toStringAsFixed(2);
+                            ChargeID5 =
+                                tempOtherCharges[i].ChargeID5.toString();
+                            ChargeAmt5 = tempOtherCharges[i]
+                                .ChargeAmt5
+                                .toStringAsFixed(2);
+                            ChargeBasicAmt5 = tempOtherCharges[i]
+                                .ChargeBasicAmt5
+                                .toStringAsFixed(2);
+                            ChargeGSTAmt5 = tempOtherCharges[i]
+                                .ChargeGSTAmt5
+                                .toStringAsFixed(2);
+                          }
+                        } else {
+                          ChargeID1 = "";
+                          ChargeAmt1 = "";
+                          ChargeBasicAmt1 = "";
+                          ChargeGSTAmt1 = "";
+                          ChargeID2 = "";
+                          ChargeAmt2 = "";
+                          ChargeBasicAmt2 = "";
+                          ChargeGSTAmt2 = "";
+                          ChargeID3 = "";
+                          ChargeAmt3 = "";
+                          ChargeBasicAmt3 = "";
+                          ChargeGSTAmt3 = "";
+                          ChargeID4 = "";
+                          ChargeAmt4 = "";
+                          ChargeBasicAmt4 = "";
+                          ChargeGSTAmt4 = "";
+                          ChargeID5 = "";
+                          ChargeAmt5 = "";
+                          ChargeBasicAmt5 = "";
+                          ChargeGSTAmt5 = "";
+                        }
+
+                        _salesOrderBloc.add(SaleOrderHeaderSaveRequestEvent(
+                            context,
+                            pkID,
+                            SaleOrderHeaderSaveRequest(
+                              CompanyId: CompanyID.toString(),
+                              OrderNo: _controller_order_no.text,
+                              OrderDate: _controller_rev_order_date.text,
+                              LoginUserID: LoginUserID,
+                              CustomerId: _controller_customer_pkID.text,
+                              QuotationNo: "",
+                              DeliveryDate: _controller_rev_delivery_date.text,
+                              TermsCondition:
+                                  _contrller_terms_and_condition.text,
+                              Latitude: SharedPrefHelper.instance.getLatitude(),
+                              Longitude:
+                                  SharedPrefHelper.instance.getLongitude(),
+                              DiscountAmt: edt_HeaderDisc.text,
+                              SGSTAmt: tot_SGSTAmount.toStringAsFixed(2),
+                              CGSTAmt: tot_CGSTAmount.toStringAsFixed(2),
+                              IGSTAmt: tot_IGSTAmount.toStringAsFixed(2),
+                              ChargeID1: ChargeID1,
+                              ChargeAmt1: ChargeAmt1,
+                              ChargeBasicAmt1: ChargeBasicAmt1,
+                              ChargeGSTAmt1: ChargeGSTAmt1,
+                              ChargeID2: ChargeID2,
+                              ChargeAmt2: ChargeAmt2,
+                              ChargeBasicAmt2: ChargeBasicAmt2,
+                              ChargeGSTAmt2: ChargeGSTAmt2,
+                              ChargeID3: ChargeID3,
+                              ChargeAmt3: ChargeAmt3,
+                              ChargeBasicAmt3: ChargeBasicAmt3,
+                              ChargeGSTAmt3: ChargeGSTAmt3,
+                              ChargeID4: ChargeID4,
+                              ChargeAmt4: ChargeAmt4,
+                              ChargeBasicAmt4: ChargeBasicAmt4,
+                              ChargeGSTAmt4: ChargeGSTAmt4,
+                              ChargeID5: ChargeID5,
+                              ChargeAmt5: ChargeAmt5,
+                              ChargeBasicAmt5: ChargeBasicAmt5,
+                              ChargeGSTAmt5: ChargeGSTAmt5,
+                              NetAmt: tot_NetAmount.toStringAsFixed(2),
+                              BasicAmt: tot_basicAmount.toStringAsFixed(2),
+                              ROffAmt: "0.00",
+                              ApprovalStatus: "",
+                              ChargePer1: "0.00",
+                              ChargePer2: "0.00",
+                              ChargePer3: "0.00",
+                              ChargePer4: "0.00",
+                              ChargePer5: "0.00",
+                              AdvancePer: "0.00",
+                              AdvanceAmt: "0.00",
+                              CurrencyName: "",
+                              CurrencySymbol: "",
+                              ExchangeRate: "0.00",
+                              RefType: "",
+                            )));
+                      });
+                    } else {
+                      showCommonDialogWithSingleOption(
+                          context, "ProductDetails is required !",
+                          positiveButtonTitle: "OK");
+                    }
+                  } else {
+                    showCommonDialogWithSingleOption(
+                        context, "CustomerName is required !",
+                        positiveButtonTitle: "OK");
+                  }
+                } else {
+                  showCommonDialogWithSingleOption(
+                      context, "SaleOrder date is required !",
+                      positiveButtonTitle: "OK");
+                }
+              },
               "Save",
               backGroundColor: Color(0xff362d8b),
               radius: 18,
@@ -3190,6 +3454,8 @@ class _SaleOrderNewAddEditScreenState
     _controller_customer_pkID.text = _editModel.customerID.toString();
     _controller_sales_executive.text = _editModel.employeeName;
     _controller_sales_executiveID.text = _editModel.employeeID.toString();
+
+    await getInquiryProductDetails();
   }
 
   BankDetails(BuildContext context) {
@@ -3828,5 +4094,95 @@ class _SaleOrderNewAddEditScreenState
   void OnUpdatePaymentSchedule(PaymentScheduleEditResponseState state) {
     print("UpdatePayment" + state.response);
     _salesOrderBloc.add(PaymentScheduleListEvent());
+  }
+
+  void _OnSalesOrderHeaderSaveSucessResponse(
+      SaleOrderHeaderSaveResponseState state) {
+    int returnPKID = 0;
+    String retrunQT_No = "";
+    for (int i = 0; i < state.response.details.length; i++) {
+      returnPKID = int.parse(state.response.details[i].column3);
+      retrunQT_No = state.response.details[i].column4;
+    }
+
+    updateRetrunInquiryNoToDB(state.context, returnPKID, retrunQT_No);
+  }
+
+  void updateRetrunInquiryNoToDB(
+      context1, int returnPKID, String retrunSO_No) async {
+    await getInquiryProductDetails();
+
+    /*_inquiryProductList.forEach((element) {
+      element.pkID = pkID;
+      element.LoginUserID = LoginUserID;
+      element.CompanyId = CompanyID.toString();
+    });*/
+
+    arrSOProductList.clear();
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      SalesOrderProductRequest salesOrderProductRequest =
+          SalesOrderProductRequest(
+        pkID: "0",
+        OrderNo: retrunSO_No,
+        ProductID: int.parse(_inquiryProductList[i].ProductID.toString()),
+        Quantity: double.parse(_inquiryProductList[i].Quantity.toString()),
+        Unit: _inquiryProductList[i].Unit,
+        UnitRate:
+            double.parse(_inquiryProductList[i].UnitRate.toStringAsFixed(2)),
+        DiscountPercent: double.parse(
+            _inquiryProductList[i].DiscountPercent.toStringAsFixed(2)),
+        NetRate:
+            double.parse(_inquiryProductList[i].NetRate.toStringAsFixed(2)),
+        Amount: double.parse(_inquiryProductList[i].Amount.toStringAsFixed(2)),
+        TaxAmount:
+            double.parse(_inquiryProductList[i].TaxAmount.toStringAsFixed(2)),
+        NetAmount:
+            double.parse(_inquiryProductList[i].NetAmount.toStringAsFixed(2)),
+        LoginUserID: LoginUserID,
+        TaxRate:
+            double.parse(_inquiryProductList[i].TaxRate.toStringAsFixed(2)),
+        SGSTPer:
+            double.parse(_inquiryProductList[i].SGSTPer.toStringAsFixed(2)),
+        SGSTAmt:
+            double.parse(_inquiryProductList[i].SGSTAmt.toStringAsFixed(2)),
+        CGSTPer:
+            double.parse(_inquiryProductList[i].CGSTPer.toStringAsFixed(2)),
+        CGSTAmt:
+            double.parse(_inquiryProductList[i].CGSTAmt.toStringAsFixed(2)),
+        IGSTPer:
+            double.parse(_inquiryProductList[i].IGSTPer.toStringAsFixed(2)),
+        IGSTAmt:
+            double.parse(_inquiryProductList[i].IGSTAmt.toStringAsFixed(2)),
+        TaxType: _inquiryProductList[i].TaxType,
+        DiscountAmt:
+            double.parse(_inquiryProductList[i].DiscountAmt.toStringAsFixed(2)),
+        HeaderDiscAmt: double.parse(
+            _inquiryProductList[i].HeaderDiscAmt.toStringAsFixed(2)),
+        DeliveryDate: _inquiryProductList[i].DeliveryDate.toString(),
+        CompanyId: int.parse(CompanyID.toString()),
+      );
+
+      arrSOProductList.add(salesOrderProductRequest);
+    }
+    print("dsljdf1" + arrSOProductList.length.toString());
+
+    _salesOrderBloc.add(
+        SaleOrderProductSaveCallEvent(context1, retrunSO_No, arrSOProductList));
+  }
+
+  void _OnSaleOrderProductSaveResponse(
+      SaleOrderProductSaveResponseState state) async {
+    String Msg = _isForUpdate == true
+        ? "SalesOrder Updated Successfully"
+        : "SalesOrder Added Successfully";
+
+    /* showCommonDialogWithSingleOption(context, Msg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+          navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+        });*/
+    await showCommonDialogWithSingleOption(Globals.context, Msg,
+        positiveButtonTitle: "OK");
+    Navigator.of(context).pop();
   }
 }

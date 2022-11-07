@@ -7,10 +7,10 @@ import 'package:soleoserp/models/api_requests/checking/final_checking_delete_all
 import 'package:soleoserp/models/api_requests/checking/final_checking_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/checking/final_checking_items_request.dart';
 import 'package:soleoserp/models/api_requests/packing/out_word_no_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/final_checking_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/checking/final_checking_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
 import 'package:soleoserp/models/common/globals.dart';

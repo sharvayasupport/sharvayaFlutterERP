@@ -92,6 +92,9 @@ class QuotationHeaderSaveRequest {
   String ChargePer4;
   String ChargePer5;
   String CompanyId;
+  String BankID;
+  String AdditionalRemarks;
+  String AssumptionRemarks;
 
   QuotationHeaderSaveRequest(
       {this.pkID,
@@ -139,7 +142,10 @@ class QuotationHeaderSaveRequest {
       this.ChargePer3,
       this.ChargePer4,
       this.ChargePer5,
-      this.CompanyId});
+      this.CompanyId,
+      this.BankID,
+      this.AdditionalRemarks,
+      this.AssumptionRemarks});
 
   QuotationHeaderSaveRequest.fromJson(Map<String, dynamic> json) {
     pkID = json['pkID'];
@@ -188,6 +194,9 @@ class QuotationHeaderSaveRequest {
     ChargePer4 = json['ChargePer4'];
     ChargePer5 = json['ChargePer5'];
     CompanyId = json['CompanyId'];
+    BankID = json['BankID'];
+    AdditionalRemarks = json['AdditionalRemarks'];
+    AssumptionRemarks = json['AssumptionRemarks'];
   }
 
   Map<String, dynamic> toJson() {
@@ -238,6 +247,9 @@ class QuotationHeaderSaveRequest {
     data['ChargePer4'] = this.ChargePer4;
     data['ChargePer5'] = this.ChargePer5;
     data['CompanyId'] = this.CompanyId;
+    data['BankID'] = this.BankID;
+    data['AdditionalRemarks'] = this.AdditionalRemarks;
+    data['AssumptionRemarks'] = this.AssumptionRemarks;
     return data;
   }
 }

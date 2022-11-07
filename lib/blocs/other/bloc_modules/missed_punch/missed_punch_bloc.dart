@@ -8,10 +8,10 @@ import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_list_requ
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_search_by_name_request.dart';
 import 'package:soleoserp/models/api_responses/MissedPunch/missed_punch_add_edit_response.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_delete_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_approval_list_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_list_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_approval_list_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_list_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_search_by_name_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'missed_punch_event.dart';

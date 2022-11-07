@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/SalesOrder/salesorder_bloc.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -171,13 +170,29 @@ class _SearchSalesOrderScreenState extends BaseState<SearchSalesOrderScreen>
           elevation: 4,
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
-            child: Text(
-              model.custoemerName + "\n" + model.quotationNo == ""
-                  ? ""
-                  : model.quotationNo + "\n" + model.salesOrderNo == ""
-                      ? ""
-                      : model.salesOrderNo,
-              style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  model.custoemerName,
+                  style:
+                      baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                ),
+                model.quotationNo != ""
+                    ? Text(
+                        model.quotationNo,
+                        style: baseTheme.textTheme.headline2
+                            .copyWith(color: colorBlack),
+                      )
+                    : Container(),
+                model.salesOrderNo != ""
+                    ? Text(
+                        model.salesOrderNo,
+                        style: baseTheme.textTheme.headline2
+                            .copyWith(color: colorBlack),
+                      )
+                    : Container(),
+              ],
             ),
           ),
           margin: EdgeInsets.only(top: 10),

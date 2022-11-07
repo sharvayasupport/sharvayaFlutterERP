@@ -13,12 +13,12 @@ import 'package:soleoserp/blocs/other/bloc_modules/salesorder/salesorder_bloc.da
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_number_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
-import 'package:soleoserp/models/api_responses/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -794,6 +794,10 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                         child: _buildTitleWithValueView(
                             "Quot.#", model.quotationNo ?? "-"),
                       ),
+                      Expanded(
+                        child: _buildTitleWithValueView(
+                            "Lead.#", model.inquiryNo ?? "-"),
+                      ),
                     ]),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
@@ -801,7 +805,12 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                     Row(children: [
                       Expanded(
                         child: _buildTitleWithValueView(
-                            "Lead.#", model.inquiryNo ?? "-"),
+                            "Project Name",
+                            /*model.referenceName ?? "-" */ model.projectName ==
+                                        "" ||
+                                    model.projectName == null
+                                ? '-'
+                                : model.projectName),
                       ),
                       Expanded(
                         child: _buildTitleWithValueView(
@@ -811,29 +820,18 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
-                    _buildTitleWithValueView(
-                        "Project Name",
-                        /*model.referenceName ?? "-" */ model.projectName ==
-                                    "" ||
-                                model.projectName == null
-                            ? '-'
-                            : model.projectName),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
                     Row(children: [
                       Expanded(
-                        child: _buildTitleWithValueView("Order Amount.",
-                            model.orderAmount.toString() ?? "-"),
+                        child: _buildTitleWithValueView(
+                            "Order Amount.", model.basicAmt.toString() ?? "-"),
                       ),
+                      Expanded(
+                          child: _buildTitleWithValueView(
+                              "Sales Exec.", model.createdBy)),
                       /* Expanded(
                         child: _buildTitleWithValueView("NetAmt.", model.netAmt.toString() ?? "-"),
                       ),*/
                     ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView("Sales Exec.", model.createdBy),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),

@@ -29,6 +29,7 @@ import 'package:soleoserp/models/api_requests/api_token/api_token_update_request
 import 'package:soleoserp/models/api_requests/attendance/attendance_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_list_request.dart';
@@ -40,6 +41,7 @@ import 'package:soleoserp/models/api_requests/checking/final_checking_delete_all
 import 'package:soleoserp/models/api_requests/checking/final_checking_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/checking/final_checking_items_request.dart';
 import 'package:soleoserp/models/api_requests/checking/final_checking_list_request.dart';
+import 'package:soleoserp/models/api_requests/checking/search_finalchecking_request.dart';
 import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_delete_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_list_request.dart';
@@ -91,6 +93,8 @@ import 'package:soleoserp/models/api_requests/followup/followup_save_request.dar
 import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/followup/quick_followup_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/search_followup_by_status_request.dart';
+import 'package:soleoserp/models/api_requests/followup/telecaller_followup_history_request.dart';
 import 'package:soleoserp/models/api_requests/general_telecaller_img_upload_request/telecaller_upload_img_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/InquiryShareModel.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inqiory_header_save_request.dart';
@@ -102,6 +106,9 @@ import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_req
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_search_by_pk_id_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_share_emp_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/search_inquiry_fillter_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/search_inquiry_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/search_inquiry_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/city_search_installtion_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_country_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_customerid_to_outwardno_request.dart';
@@ -110,6 +117,7 @@ import 'package:soleoserp/models/api_requests/installation_request/installation_
 import 'package:soleoserp/models/api_requests/installation_request/installation_list_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_save_request.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_search_customer_request.dart';
+import 'package:soleoserp/models/api_requests/installation_request/search_installation_request.dart';
 import 'package:soleoserp/models/api_requests/leave_request/leave_approval_save_request.dart';
 import 'package:soleoserp/models/api_requests/leave_request/leave_request_list_request.dart';
 import 'package:soleoserp/models/api_requests/leave_request/leave_request_save_request.dart';
@@ -136,6 +144,9 @@ import 'package:soleoserp/models/api_requests/other/location_address_request.dar
 import 'package:soleoserp/models/api_requests/other/menu_rights_request.dart';
 import 'package:soleoserp/models/api_requests/other/product_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/other/product_group_drop_down_request.dart';
+import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
 import 'package:soleoserp/models/api_requests/packing/delete_all_packing_assambly_request.dart';
 import 'package:soleoserp/models/api_requests/packing/out_word_no_list_request.dart';
 import 'package:soleoserp/models/api_requests/packing/packing_assambly_edit_mode_request.dart';
@@ -143,12 +154,14 @@ import 'package:soleoserp/models/api_requests/packing/packing_check_list_delete_
 import 'package:soleoserp/models/api_requests/packing/packing_checklist_list.dart';
 import 'package:soleoserp/models/api_requests/packing/packing_productassambly_list_request.dart';
 import 'package:soleoserp/models/api_requests/packing/packing_save_request.dart';
+import 'package:soleoserp/models/api_requests/packing/search_packingchecklist_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/productionActivity_save_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_delete_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_packing_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/typeofwork_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_kind_att_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_list_request.dart';
@@ -158,38 +171,33 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_pdf_generate_r
 import 'package:soleoserp/models/api_requests/quotation/quotation_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/salary_upad/salary_upad_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/search_sale_bill_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
-import 'package:soleoserp/models/api_requests/search_finalchecking_request.dart';
-import 'package:soleoserp/models/api_requests/search_followup_by_status_request.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_fillter_request.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_list_by_number_request.dart';
-import 'package:soleoserp/models/api_requests/search_installation_request.dart';
-import 'package:soleoserp/models/api_requests/search_packingchecklist_request.dart';
-import 'package:soleoserp/models/api_requests/search_quotation_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_quotation_list_by_number_request.dart';
-import 'package:soleoserp/models/api_requests/search_sale_bill_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/search_salesorder_list_by_number_request.dart';
-import 'package:soleoserp/models/api_requests/specification_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/new_telecaller_save_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/telecaller_new_pagination_request.dart';
-import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
-import 'package:soleoserp/models/api_requests/task_category_list_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_delete_image/telecaller_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_save_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_search_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/telecaller_list_request.dart';
-import 'package:soleoserp/models/api_requests/to_do_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/to_do_save_sub_details_request.dart';
-import 'package:soleoserp/models/api_requests/to_do_worklog_list_request.dart';
-import 'package:soleoserp/models/api_requests/todo_list_request.dart';
-import 'package:soleoserp/models/api_requests/transection_mode_list_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_save_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/telecaller_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/telecaller_list_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/task_category_list_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/to_do_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/to_do_save_sub_details_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/to_do_worklog_list_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/transection_mode_list_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
@@ -208,95 +216,88 @@ import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/bank_details_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/multi_no_to_product_details_response.dart';
-import 'package:soleoserp/models/api_responses/ToDo_delete_response/to_do_delete_response.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/attend_visit_list_response.dart';
-import 'package:soleoserp/models/api_responses/attend_visit_save_response.dart';
-import 'package:soleoserp/models/api_responses/attendance_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/attendance_response_list.dart';
-import 'package:soleoserp/models/api_responses/attendance_save_response.dart';
-import 'package:soleoserp/models/api_responses/bank_drop_down_response.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_delete_response.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_list_response.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_save_response.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/checking_no_to_checking_item_response.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/closer_reason_list_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_delete_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_list_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_no_list_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_save_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response_for_packing_checking.dart';
-import 'package:soleoserp/models/api_responses/cust_id_to_inq_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_drop_down_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_list_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_save_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/checking/checking_no_to_checking_item_response.dart';
+import 'package:soleoserp/models/api_responses/checking/final_checking_delete_all_item_response.dart';
+import 'package:soleoserp/models/api_responses/checking/final_checking_items_response.dart';
+import 'package:soleoserp/models/api_responses/checking/final_checking_list_response.dart';
+import 'package:soleoserp/models/api_responses/checking/final_checking_sub_details_response.dart';
+import 'package:soleoserp/models/api_responses/checking/final_cheking_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/checking/search_finalchecking_label_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_delete_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_list_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_no_list_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_save_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/customer/cust_id_to_inq_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_add_edit_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_contact_save_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_delete_document_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_delete_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_fetch_document_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_id_to_contact_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_id_to_delete_all_contact_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_upload_document_response.dart';
-import 'package:soleoserp/models/api_responses/customer_add_edit_response.dart';
-import 'package:soleoserp/models/api_responses/customer_category_list.dart';
-import 'package:soleoserp/models/api_responses/customer_contact_save_response.dart';
-import 'package:soleoserp/models/api_responses/customer_delete_response.dart';
-import 'package:soleoserp/models/api_responses/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/customer_id_to_contact_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_id_to_delete_all_contact_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_delete_response.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_list_response.dart';
-import 'package:soleoserp/models/api_responses/daily_activity_save_response.dart';
-import 'package:soleoserp/models/api_responses/delete_all_packing_assambly_response.dart';
-import 'package:soleoserp/models/api_responses/designation_list_response.dart';
-import 'package:soleoserp/models/api_responses/distance_matrix_api_response.dart';
-import 'package:soleoserp/models/api_responses/district_api_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_visit_delete_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_visit_list_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_visit_save_response.dart';
-import 'package:soleoserp/models/api_responses/employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_delete_image_response.dart';
-import 'package:soleoserp/models/api_responses/expense_delete_response.dart';
-import 'package:soleoserp/models/api_responses/expense_image_upload_server_response.dart';
-import 'package:soleoserp/models/api_responses/expense_list_response.dart';
-import 'package:soleoserp/models/api_responses/expense_save_response.dart';
-import 'package:soleoserp/models/api_responses/expense_type_response.dart';
-import 'package:soleoserp/models/api_responses/expense_upload_image_response.dart';
-import 'package:soleoserp/models/api_responses/external_lead_list_response.dart';
-import 'package:soleoserp/models/api_responses/external_lead_save_response.dart';
-import 'package:soleoserp/models/api_responses/external_leadsearch_response_by_name.dart';
-import 'package:soleoserp/models/api_responses/fetch_image_by_expense_pk_id_response.dart';
-import 'package:soleoserp/models/api_responses/final_checking_delete_all_item_response.dart';
-import 'package:soleoserp/models/api_responses/final_checking_items_response.dart';
-import 'package:soleoserp/models/api_responses/final_checking_list_response.dart';
-import 'package:soleoserp/models/api_responses/final_checking_sub_details_response.dart';
-import 'package:soleoserp/models/api_responses/final_cheking_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_delete_response.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_list_response.dart';
+import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_save_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_delete_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_list_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_save_response.dart';
+import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_delete_image_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_delete_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_image_upload_server_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_list_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_save_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_upload_image_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/external_lead_list_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/external_lead_save_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/external_leadsearch_response_by_name.dart';
+import 'package:soleoserp/models/api_responses/external_leads/fetch_image_by_expense_pk_id_response.dart';
 import 'package:soleoserp/models/api_responses/firebase_token/firebase_token_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_Image_Upload_response.dart';
-import 'package:soleoserp/models/api_responses/followup_delete_Image_response.dart';
-import 'package:soleoserp/models/api_responses/followup_delete_response.dart';
-import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_history_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_inquiry_by_customer_id_response.dart';
-import 'package:soleoserp/models/api_responses/followup_inquiry_no_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_save_success_response.dart';
-import 'package:soleoserp/models/api_responses/followup_type_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_Image_Upload_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_delete_Image_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_delete_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_history_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_inquiry_by_customer_id_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_inquiry_no_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_save_success_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/quick_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/telecaller_followup_history_response.dart';
 import 'package:soleoserp/models/api_responses/general_telecaller_img_upload_response/telecaller_upload_img_response.dart';
-import 'package:soleoserp/models/api_responses/google_place_search_response.dart';
-import 'package:soleoserp/models/api_responses/inq_no_to_product_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_delete_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_header_save_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_list_reponse.dart';
-import 'package:soleoserp/models/api_responses/inquiry_no_to_delete_product_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_no_to_product_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_save_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_share_emp_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_share_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inq_no_to_product_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_delete_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_list_reponse.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_no_to_delete_product_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_no_to_product_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_save_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_share_emp_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_share_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/search_inquiry_list_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/Installation_customerid_to_outwardno_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_city_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_country_response.dart';
@@ -307,75 +308,94 @@ import 'package:soleoserp/models/api_responses/installation_response/installatio
 import 'package:soleoserp/models/api_responses/installation_response/save_installation_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/search_installation_label_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/state_search_response.dart';
-import 'package:soleoserp/models/api_responses/leave_approval_save_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_delete_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_save_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_type_response.dart';
-import 'package:soleoserp/models/api_responses/loan_list_response.dart';
-import 'package:soleoserp/models/api_responses/location_address_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/maintenance_list_response.dart';
-import 'package:soleoserp/models/api_responses/menu_rights_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_approval_list_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_list_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/out_word_no_list_response.dart';
-import 'package:soleoserp/models/api_responses/packing_assambly_edit_mode_response.dart';
-import 'package:soleoserp/models/api_responses/packing_assambly_save_response.dart';
-import 'package:soleoserp/models/api_responses/packing_check_list_delete_response.dart';
-import 'package:soleoserp/models/api_responses/packing_checking_list.dart';
-import 'package:soleoserp/models/api_responses/packing_no_list_response.dart';
-import 'package:soleoserp/models/api_responses/packing_product_assambly_list_response.dart';
-import 'package:soleoserp/models/api_responses/packing_save_response.dart';
-import 'package:soleoserp/models/api_responses/pagination_demo_list_response.dart';
-import 'package:soleoserp/models/api_responses/product_drop_down_response.dart';
-import 'package:soleoserp/models/api_responses/product_group_dropdown_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_approval_save_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_request_delete_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_request_list_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_request_save_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_request_type_response.dart';
+import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/maintenance/maintenance_list_response.dart';
+import 'package:soleoserp/models/api_responses/maps/distance_matrix_api_response.dart';
+import 'package:soleoserp/models/api_responses/maps/google_place_search_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_approval_list_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_list_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response_for_packing_checking.dart';
+import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/district_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/location_address_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
+import 'package:soleoserp/models/api_responses/other/pagination_demo_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/product_drop_down_response.dart';
+import 'package:soleoserp/models/api_responses/other/product_group_dropdown_response.dart';
+import 'package:soleoserp/models/api_responses/other/specification_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/taluka_api_response.dart';
+import 'package:soleoserp/models/api_responses/packing/delete_all_packing_assambly_response.dart';
+import 'package:soleoserp/models/api_responses/packing/out_word_no_list_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_assambly_edit_mode_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_assambly_save_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_check_list_delete_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_checking_list.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_no_list_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_product_assambly_list_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_save_response.dart';
+import 'package:soleoserp/models/api_responses/packing/search_packingchecklist_label_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/productactivity_typeofwork_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/productionActivity_save_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_delete_reponse.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_list_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_packingno_response.dart';
-import 'package:soleoserp/models/api_responses/quick_followup_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_delete_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_header_save_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_kind_att_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_no_to_product_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_other_charges_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_pdf_generate_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_product_delete_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_product_save_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_project_list_response.dart';
-import 'package:soleoserp/models/api_responses/quotation_terms_condition_response.dart';
-import 'package:soleoserp/models/api_responses/sales_bill_generate_pdf_response.dart';
-import 'package:soleoserp/models/api_responses/sales_bill_list_response.dart';
-import 'package:soleoserp/models/api_responses/sales_order_pdf_generate_pdf_response.dart';
-import 'package:soleoserp/models/api_responses/salesorder_list_response.dart';
-import 'package:soleoserp/models/api_responses/search_finalchecking_label_response.dart';
-import 'package:soleoserp/models/api_responses/search_inquiry_list_response.dart';
-import 'package:soleoserp/models/api_responses/search_packingchecklist_label_response.dart';
-import 'package:soleoserp/models/api_responses/search_quotation_list_response.dart';
-import 'package:soleoserp/models/api_responses/search_sales_bill_search_response.dart';
-import 'package:soleoserp/models/api_responses/search_salesorder_list_response.dart';
-import 'package:soleoserp/models/api_responses/specification_list_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_delete_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_email_content_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_kind_att_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_no_to_product_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_pdf_generate_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_product_delete_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_product_save_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/save_email_content_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sales_bill_generate_pdf_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/search_sales_bill_search_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesOrder_Product_Save_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_pdf_generate_pdf_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_delete_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/swastik_telecaller_response/telecaller_new_pagination_response.dart';
-import 'package:soleoserp/models/api_responses/taluka_api_response.dart';
-import 'package:soleoserp/models/api_responses/task_category_list_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_image_delete/tele_caller_delete_image_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/telecaller_list_response.dart';
-import 'package:soleoserp/models/api_responses/to_do_header_save_response.dart';
-import 'package:soleoserp/models/api_responses/to_do_save_sub_details_response.dart';
-import 'package:soleoserp/models/api_responses/to_do_worklog_list_response.dart';
-import 'package:soleoserp/models/api_responses/todo_list_response.dart';
-import 'package:soleoserp/models/api_responses/transection_mode_list_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_delete_image_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/task_category_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/to_do_delete_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/to_do_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/to_do_save_sub_details_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/to_do_worklog_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
 import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
+import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_list_request.dart';
+import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_save_request.dart';
+import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_list_response.dart';
+import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_save_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -2448,8 +2468,7 @@ class Repository {
           ApiClient.END_POINT_EXPENSE_DELETE_IMAGE +
               pkID.toString() +
               "/DeleteImageByExpenseID",
-          request.toJson(),
-          showSuccessDialog: true);
+          request.toJson());
       ExpenseDeleteImageResponse response =
           ExpenseDeleteImageResponse.fromJson(json);
 
@@ -2969,8 +2988,7 @@ class Repository {
       AttendanceSaveApiRequest request) async {
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          ApiClient.END_POINT_ATTENDANCE_SAVE, request.toJson(),
-          showSuccessDialog: true);
+          ApiClient.END_POINT_ATTENDANCE_SAVE, request.toJson());
       AttendanceSaveResponse response = AttendanceSaveResponse.fromJson(json);
       return response;
     } on ErrorResponseException catch (e) {
@@ -3813,6 +3831,20 @@ class Repository {
     }
   }
 
+  Future<QuotationEmailContentResponse> getQuotationEmailContentAPI(
+      QuotationEmailContentRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SALES_BILL_EMAIL_CONTENT, request.toJson());
+      QuotationEmailContentResponse response =
+          QuotationEmailContentResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<SalesBill_INQ_QT_SO_NO_ListResponse> getINQ_QT_SO_NO_API(
       SaleBill_INQ_QT_SO_NO_ListRequest request) async {
     try {
@@ -4089,6 +4121,176 @@ class Repository {
       Map<String, dynamic> json = await apiClient.apiCallPost(
           ApiClient.END_GET_REGION_CODE, request.toJson());
       RegionCodeResponse response = RegionCodeResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SaleOrderHeaderSaveResponse> getSalesOrderHeaderSaveAPI(
+      int pkID, SaleOrderHeaderSaveRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SALES_ORDER_HEADER_SAVE_REQUEST +
+              "$pkID" +
+              "/save",
+          request.toJson());
+      SaleOrderHeaderSaveResponse response =
+          SaleOrderHeaderSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<QucikComplaintListResponse> getQuickComplaintListAPI(
+      QuickComplaintListRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_QUICK_COMPLAINT_LIST_REQUEST, request.toJson());
+      QucikComplaintListResponse response =
+          QucikComplaintListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<QucikComplaintSaveResponse> getQuickComplaintSaveAPI(
+      int pkID, QuickComplaintSaveRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SALES_QUICK_COMPLAINT_SAVE_REQUEST +
+              "$pkID" +
+              "/Save",
+          request.toJson());
+      QucikComplaintSaveResponse response =
+          QucikComplaintSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<PunchAttendenceSaveResponse> getPunchIN_API(
+      File file, PunchAttendanceSaveRequest employeeListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      /*Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_PUNCH_ATTENDENCE_REQUEST}",
+          employeeListRequest
+              .toJson() );
+      print("ToJSONRESPONSFG : " + employeeListRequest.toJson().toString());
+      PunchAttendenceSaveResponse response =
+          PunchAttendenceSaveResponse.fromJson(json);*/
+
+      Map<String, dynamic> json = await apiClient.apiCallPostMultipart(
+          ApiClient.END_POINT_PUNCH_ATTENDENCE_REQUEST,
+          employeeListRequest.toJson(),
+          imageFilesToUpload: [file],
+          showSuccessDialog: true);
+
+      print("response - ${json}");
+
+      PunchAttendenceSaveResponse response =
+          PunchAttendenceSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  /* Future<CustomerUploadDocumentResponse> getCustomerploadDocumentAPI(
+      File imagesfiles, CustomerUploadDocumentApiRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPostMultipart(
+          ApiClient.API_UPLOAD_CUSTOMER_DOCUMENT, request.toJson(),
+          imageFilesToUpload: [imagesfiles]);
+
+      print("response - ${json}");
+
+      CustomerUploadDocumentResponse response =
+          CustomerUploadDocumentResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }*/
+
+  Future<SaleOrderProductSaveResponse> salesOrderProductSaveDetails(
+      List<SalesOrderProductRequest> arrSalesOrderProductList) async {
+    try {
+      Map<String, dynamic> json =
+          await apiClient.apiCallPostforMultipleJSONArray(
+              "${ApiClient.END_POINT_SALES_ORDER_PRODUCT_SAVE}",
+              arrSalesOrderProductList);
+      SaleOrderProductSaveResponse inquiryProductSaveResponse =
+          SaleOrderProductSaveResponse.fromJson(json);
+      return inquiryProductSaveResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SaleOrderProductDeleteResponse> saleorder_productDelete(
+      int pkID, SalesOrderAllProductDeleteRequest employeeListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SALES_ORDER_PRODUCT_DELETE + pkID.toString() + "/Detaildelete"}",
+          employeeListRequest
+              .toJson() /*jsontemparray: customerPaginationRequest.lstcontact*/);
+      print("ToJSONRESPONSFG : " + employeeListRequest.toJson().toString());
+      SaleOrderProductDeleteResponse response =
+          SaleOrderProductDeleteResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SaveEmailContentResponse> getSaveEmailContentAPI(
+      SaveEmailContentRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SAVE_EMAIL_CONTENT, request.toJson());
+      SaveEmailContentResponse response =
+          SaveEmailContentResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<TeleCallerFollowupSaveResponse> teleCallerFollowupSaveDetails(
+      TeleCallerFollowupSaveRequest teleCallerFollowupSaveRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_TELE_CALLER_FOLLOWUP_SAVE}",
+          teleCallerFollowupSaveRequest.toJson());
+      TeleCallerFollowupSaveResponse cityApiRespose =
+          TeleCallerFollowupSaveResponse.fromJson(json);
+      return cityApiRespose;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<TeleCallerFollowupHestoryResponse> getTeleCallerFollowupHistoryList(
+      TeleCallerFollowupHistoryRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_TELE_CALLER_FOLLOWUP_HISTORY, request.toJson());
+      TeleCallerFollowupHestoryResponse response =
+          TeleCallerFollowupHestoryResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {

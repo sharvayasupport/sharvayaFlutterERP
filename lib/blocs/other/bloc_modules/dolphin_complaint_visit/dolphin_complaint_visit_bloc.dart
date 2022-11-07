@@ -6,10 +6,10 @@ import 'package:soleoserp/models/api_requests/dolphin_complaint/dolphin_complain
 import 'package:soleoserp/models/api_requests/dolphin_complaint/dolphin_complaint_visit_list_request.dart';
 import 'package:soleoserp/models/api_requests/dolphin_complaint/dolphin_complaint_visit_save_request.dart';
 import 'package:soleoserp/models/api_requests/dolphin_complaint/dolphin_complaint_visit_search_by_id_request.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_visit_delete_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_visit_list_response.dart';
-import 'package:soleoserp/models/api_responses/dolphin_complaint_visit_save_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_delete_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_list_response.dart';
+import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_save_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'dolphin_complaint_visit_event.dart';

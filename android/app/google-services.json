@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "1013573145835",
+    "firebase_url": "https://e-office-desk-flutter-default-rtdb.firebaseio.com",
     "project_id": "e-office-desk-flutter",
     "storage_bucket": "e-office-desk-flutter.appspot.com"
   },

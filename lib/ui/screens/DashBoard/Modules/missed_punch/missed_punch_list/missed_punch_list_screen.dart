@@ -6,10 +6,10 @@ import 'package:soleoserp/blocs/other/bloc_modules/missed_punch/missed_punch_blo
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_list_request.dart';
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_search_by_id_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_list_response.dart';
-import 'package:soleoserp/models/api_responses/missed_punch_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_list_response.dart';
+import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_search_by_name_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/missed_punch/missed_punch_list/missed_punch_search_screen.dart';

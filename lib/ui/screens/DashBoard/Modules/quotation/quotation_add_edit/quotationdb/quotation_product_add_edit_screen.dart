@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/designation_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -317,48 +317,48 @@ class _AddQuotationProductScreenState
                   SizedBox(
                     height: 10,
                   ),
-                  isForUpdate == true
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(left: 10, right: 10),
-                              child: Text("Specification",
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: colorPrimary,
-                                      fontWeight: FontWeight
-                                          .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                  /* isForUpdate == true
+                      ?*/
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 10, right: 10),
+                        child: Text("Specification",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: colorPrimary,
+                                fontWeight: FontWeight
+                                    .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                                  ),
                             ),
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(left: 7, right: 7, top: 10),
-                              child: TextFormField(
-                                validator: (value) {
-                                  if (value.toString().trim().isEmpty) {
-                                    return "Please enter this field";
-                                  }
-                                  return null;
-                                },
-                                controller: edt_Specification,
-                                minLines: 2,
-                                maxLines: 5,
-                                keyboardType: TextInputType.multiline,
-                                decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.all(10.0),
-                                    hintText: 'Enter Details',
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(10)),
-                                    )),
-                              ),
-                            ),
-                          ],
-                        )
-                      : Container(),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 7, right: 7, top: 10),
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value.toString().trim().isEmpty) {
+                              return "Please enter this field";
+                            }
+                            return null;
+                          },
+                          controller: edt_Specification,
+                          minLines: 2,
+                          maxLines: 5,
+                          keyboardType: TextInputType.multiline,
+                          decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(10.0),
+                              hintText: 'Enter Details',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              )),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // : Container(),
                   SizedBox(
                     height: 20,
                   ),
@@ -493,7 +493,7 @@ class _AddQuotationProductScreenState
         await OfflineDbHelper.getInstance().insertQuotationProduct(
             QuotationTable(
                 "",
-                "",
+                Specification,
                 productID,
                 _productNameController.text.toString(),
                 unit,
@@ -987,11 +987,6 @@ class _AddQuotationProductScreenState
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
               ],
             ),
           ),

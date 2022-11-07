@@ -1,17 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/todo/todo_bloc.dart';
-import 'package:soleoserp/models/api_requests/task_category_list_request.dart';
-import 'package:soleoserp/models/api_requests/to_do_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/to_do_save_sub_details_request.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/todo_list_response.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/task_category_list_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/to_do_header_save_request.dart';
+import 'package:soleoserp/models/api_requests/toDo_request/to_do_save_sub_details_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
@@ -110,7 +110,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
   ToDoBloc _toDoBloc;
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
-  ALL_EmployeeList_Response _offlineFollowerEmployeeListData;
+  FollowerEmployeeListResponse _offlineFollowerEmployeeListData;
   int CompanyID = 0;
   String LoginUserID = "";
   int pkID=0;
@@ -127,6 +127,10 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
   bool IsForClient =false;
 
   String ReportToToken="";
+
+
+  ALL_EmployeeList_Response _offlineALLEmployeeListData;
+
 
   void showWidgetCompletionDate(){
     setState(() {
@@ -197,7 +201,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
     super.initState();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
-    _offlineFollowerEmployeeListData = SharedPrefHelper.instance.getALLEmployeeList();
+    _offlineFollowerEmployeeListData =  SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
@@ -209,7 +213,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         IsForClient = false;
       }
 
-    _onFollowerEmployeeListByStatusCallSuccess(_offlineFollowerEmployeeListData);
+   // _onFollowerEmployeeListByStatusCallSuccess(_offlineFollowerEmployeeListData);
 
     CategoryTypeDetails();
     FetchPriorityDetails();
@@ -221,6 +225,12 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
     edt_TaskDetails.addListener(() {
       NotesFocusNode.requestFocus();
     });
+
+    _offlineALLEmployeeListData =
+        SharedPrefHelper.instance.getALLEmployeeList();
+
+    _onALLEmplyeeList(_offlineALLEmployeeListData);
+
     _toDoBloc = ToDoBloc(baseBloc);
 
     _toDoBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
@@ -2054,7 +2064,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
     );
   }
 
-  void _onFollowerEmployeeListByStatusCallSuccess(ALL_EmployeeList_Response state) {
+  /*void _onFollowerEmployeeListByStatusCallSuccess(FollowerEmployeeListResponse state) {
     arr_ALL_Name_ID_For_Folowup_EmplyeeList.clear();
     arr_ALL_Name_ID_For_AssignTo.clear();
     if(state.details!=null)
@@ -2068,7 +2078,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         arr_ALL_Name_ID_For_AssignTo.add(all_name_id);
       }
     }
-  }
+  }*/
 
 
   Widget Area() {
@@ -2834,6 +2844,22 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         state.response.multicastId.toString() +
         state.response.success.toString() +
         state.response.results[0].messageId);
+  }
+
+  void _onALLEmplyeeList(ALL_EmployeeList_Response offlineALLEmployeeListData) {
+    arr_ALL_Name_ID_For_Folowup_EmplyeeList.clear();
+    arr_ALL_Name_ID_For_AssignTo.clear();
+    if(offlineALLEmployeeListData.details !=null)
+    {
+      for(var i=0;i<offlineALLEmployeeListData.details.length;i++)
+      {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = offlineALLEmployeeListData.details[i].employeeName;
+        all_name_id.pkID = offlineALLEmployeeListData.details[i].pkID;
+        arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
+        arr_ALL_Name_ID_For_AssignTo.add(all_name_id);
+      }
+    }
   }
 
 

@@ -6,27 +6,33 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/general_telecaller_img_upload_request/telecaller_upload_img_request.dart';
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
-import 'package:soleoserp/models/api_requests/state_list_request.dart';
-import 'package:soleoserp/models/api_requests/taluka_api_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_delete_image/telecaller_delete_image_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_save_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_search_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/telecaller_list_request.dart';
-import 'package:soleoserp/models/api_responses/city_api_response.dart';
-import 'package:soleoserp/models/api_responses/country_list_response.dart';
-import 'package:soleoserp/models/api_responses/customer_delete_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/customer_source_response.dart';
-import 'package:soleoserp/models/api_responses/external_lead_save_response.dart';
+import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_save_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/telecaller_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/telecaller_list_request.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_delete_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/external_lead_save_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
 import 'package:soleoserp/models/api_responses/general_telecaller_img_upload_response/telecaller_upload_img_response.dart';
-import 'package:soleoserp/models/api_responses/state_list_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_image_delete/tele_caller_delete_image_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/telecaller_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_delete_image_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -89,6 +95,18 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
     }
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+
+    if (event is TeleCallerFollowupSaveRequestEvent) {
+      yield* _mapTeleCallerSaveRequestEventToState(event);
+    }
+
+    if (event is FollowupTypeListByNameCallEvent) {
+      yield* _mapFollowupTypeListCallEventToState(event);
+    }
+
+    if (event is CloserReasonTypeListByNameCallEvent) {
+      yield* _mapCloserReasonStatusListCallEventToState(event);
     }
   }
 
@@ -318,5 +336,52 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+  Stream<TeleCallerStates> _mapTeleCallerSaveRequestEventToState(
+      TeleCallerFollowupSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      TeleCallerFollowupSaveResponse respo =
+          await userRepository.teleCallerFollowupSaveDetails(event.request);
+      yield TeleCallerFollowupSaveResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<TeleCallerStates> _mapFollowupTypeListCallEventToState(
+      FollowupTypeListByNameCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FollowupTypeListResponse response = await userRepository
+          .getFollowupTypeList(event.followupTypeListRequest);
+      yield FollowupTypeListCallResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<TeleCallerStates> _mapCloserReasonStatusListCallEventToState(
+      CloserReasonTypeListByNameCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      CloserReasonListResponse response = await userRepository
+          .getCloserReasonStatusList(event.closerReasonTypeListRequest);
+      yield CloserReasonListCallResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
 // Ab pata chal raha he me kar lunga agar kuch dikkat aati toh bolunga thik he
 }

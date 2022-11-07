@@ -3,20 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/bank_voucher/bank_voucher_bloc.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_search_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-
 class SearchBankVoucherScreen extends BaseStatefulWidget {
   static const routeName = '/SearchBankVoucherScreen';
 
   @override
-  _SearchBankVoucherScreenState createState() => _SearchBankVoucherScreenState();
+  _SearchBankVoucherScreenState createState() =>
+      _SearchBankVoucherScreenState();
 }
 
 class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
@@ -27,7 +27,6 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
   LoginUserDetialsResponse _offlineLoggedInData;
   int CompanyID = 0;
   String LoginUserID = "";
-
 
   @override
   void initState() {
@@ -72,7 +71,8 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -100,9 +100,11 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
       children: [
         Container(
           padding: EdgeInsets.only(left: 10, right: 20),
-          child: Text(
-              "Min. 3 chars to search BankVoucher",
-              style:TextStyle(fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)     ),
+          child: Text("Min. 3 chars to search BankVoucher",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
@@ -111,7 +113,7 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -120,7 +122,7 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -162,7 +164,8 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
 
   ///builds row item view of inquiry list
   Widget _buildSearchInquiryListItem(int index) {
-    BankVoucherSearchByNameDetails model = _searchCustomerListResponse.details[index];
+    BankVoucherSearchByNameDetails model =
+        _searchCustomerListResponse.details[index];
 
     return Container(
       margin: EdgeInsets.all(5),
@@ -175,7 +178,7 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.customerName+"\n"+ model.voucherNo,
+              model.customerName + "\n" + model.voucherNo,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -189,7 +192,11 @@ class _SearchBankVoucherScreenState extends BaseState<SearchBankVoucherScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _CustomerBloc.add(BankVoucherSearchByNameCallEvent(
-          BankVoucherSearchByNameRequest(word: value,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID,needALL: "1")));
+          BankVoucherSearchByNameRequest(
+              word: value,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              needALL: "1")));
     }
   }
 

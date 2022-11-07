@@ -134,3 +134,9 @@ class AccuraBathComplaintFollowupSaveResponseState extends FollowupStates {
   AccuraBathComplaintFollowupSaveResponseState(
       this.context, this.complaintFollowupSaveResponse);
 }
+
+class TeleCallerFollowupHestoryResponseState extends FollowupStates {
+  final TeleCallerFollowupHestoryResponse response;
+
+  TeleCallerFollowupHestoryResponseState(this.response);
+}

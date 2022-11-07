@@ -22,11 +22,11 @@ import 'package:soleoserp/models/api_requests/followup/followup_type_list_reques
 import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer_label_value_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/quick_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/followup/quick_followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -36,6 +36,7 @@ import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
+import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/image_full_screen.dart';
@@ -309,7 +310,8 @@ class _QuickFollowUpAddEditScreenScreenState
          Lat_Out =Latitude;
          Long_Out=Longitude;
 
-        Address = await getAddressFromLatLng(Latitude,Longitude,MapAPIKey);
+        Address = await getAddressFromLatLngMapMyIndia(
+            Latitude, Longitude, MAPMYINDIAKEY);
         Address_IN = Address;
         Address_OUT = Address;
       });
@@ -327,8 +329,8 @@ class _QuickFollowUpAddEditScreenScreenState
         _currentPosition = position;
         Longitude = position.longitude.toString();
         Latitude = position.latitude.toString();
-        Address = await getAddressFromLatLng(Latitude,Longitude,MapAPIKey);
-
+        Address = await getAddressFromLatLngMapMyIndia(
+            Latitude, Longitude, MAPMYINDIAKEY);
 
         Lat_In =Latitude;
         Long_In=Longitude;
@@ -363,7 +365,7 @@ class _QuickFollowUpAddEditScreenScreenState
 
 
 
-  Future<String> getAddressFromLatLng(String lat, String lng, String skey) async {
+/*  Future<String> getAddressFromLatLng(String lat, String lng, String skey) async {
     String _host = 'https://maps.google.com/maps/api/geocode/json';
     final url = '$_host?key=$skey&latlng=$lat,$lng';
     if(lat != "" && lng != "null"){
@@ -376,8 +378,27 @@ class _QuickFollowUpAddEditScreenScreenState
         return _formattedAddress;
       } else return null;
     } else return null;
-  }
+  }*/
+  Future<String> getAddressFromLatLngMapMyIndia(
+      String lat, String lng, String skey) async {
+    String _host =
+        'https://apis.mapmyindia.com/advancedmaps/v1/$skey/rev_geocode';
+    final url = '$_host?lat=$lat&lng=$lng';
 
+    print("MapRequest" + url);
+    if (lat != "" && lng != "null") {
+      var response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        String _formattedAddress = data["results"][0]["formatted_address"];
+        //Address = _formattedAddress;
+        print("response ==== $_formattedAddress");
+        return _formattedAddress;
+      } else
+        return null;
+    } else
+      return null;
+  }
   @override
   void dispose() {
     // Clean up the focus node when the Form is disposed.
@@ -1445,7 +1466,7 @@ class _QuickFollowUpAddEditScreenScreenState
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: selectedDate,
+        firstDate: DateTime(2000),//selectedDate,
         lastDate: DateTime(2101));
     if (picked != null && picked != selectedDate)
       setState(() {

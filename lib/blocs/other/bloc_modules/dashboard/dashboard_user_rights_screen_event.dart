@@ -105,3 +105,10 @@ class PunchOutWebMethodEvent extends DashBoardScreenEvents {
   final String getrequest;
   PunchOutWebMethodEvent(this.getrequest);
 }
+
+class PunchAttendanceSaveRequestEvent extends DashBoardScreenEvents {
+  File file;
+  final PunchAttendanceSaveRequest punchAttendanceSaveRequest;
+  PunchAttendanceSaveRequestEvent(this.file, this.punchAttendanceSaveRequest);
+}
+//PunchAttendanceSaveRequest

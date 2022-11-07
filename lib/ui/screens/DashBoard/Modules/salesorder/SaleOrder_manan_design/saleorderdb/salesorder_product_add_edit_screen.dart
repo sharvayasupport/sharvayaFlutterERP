@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/designation_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_product_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -1115,11 +1115,6 @@ class _AddSalesOrderProductScreenState
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
               ],
             ),
           ),
@@ -1632,8 +1627,8 @@ class _AddSalesOrderProductScreenState
             Amount1 = (Quantity * NetRate1) - TaxAmount1;
             _amountController.text = Amount1.toStringAsFixed(
                 2); //getNumber(Amount1,precision: 2).toString();
-            TotalAmount = (Quantity * NetRate1) +
-                TaxAmount1; //getNumber(TaxAmount1,precision: 2);
+            TotalAmount = (Quantity *
+                NetRate1); //+ TaxAmount1; //getNumber(TaxAmount1,precision: 2);
             _totalAmountController.text = TotalAmount.toStringAsFixed(
                 2); //getNumber(TotalAmount,precision: 2).toString();
           } else {
@@ -1656,7 +1651,7 @@ class _AddSalesOrderProductScreenState
             InclusiveFinalNetAmntAfterHeaderDisAmnt =
                 InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
             InclusiveTotalNetAmntAfterHeaderDisAmnt =
-                InclusiveNetAmntAfterHeaderDisAmnt + InclusiveItemWiseTaxAmnt;
+                InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
             _amountController.text =
                 InclusiveFinalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2);
             _taxAmountController.text =

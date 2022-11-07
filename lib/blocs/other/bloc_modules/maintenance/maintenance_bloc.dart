@@ -4,8 +4,8 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
 import 'package:soleoserp/models/api_requests/maintenance/maintenance_list_request.dart';
 import 'package:soleoserp/models/api_requests/maintenance/maintenance_search_request.dart';
-import 'package:soleoserp/models/api_responses/bank_voucher_delete_response.dart';
-import 'package:soleoserp/models/api_responses/maintenance_list_response.dart';
+import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
+import 'package:soleoserp/models/api_responses/maintenance/maintenance_list_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'maintenance_event.dart';

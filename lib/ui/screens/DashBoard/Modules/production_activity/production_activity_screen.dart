@@ -7,8 +7,8 @@ import 'package:soleoserp/blocs/other/bloc_modules/production_activity/productio
 import 'package:soleoserp/models/api_requests/installation_request/installation_employee_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_delete_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';

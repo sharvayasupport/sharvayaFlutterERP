@@ -103,3 +103,10 @@ class PunchOutWebMethodState extends DashBoardScreenStates {
 
   PunchOutWebMethodState(this.response);
 }
+
+class PunchAttendenceSaveResponseState extends DashBoardScreenStates {
+  final PunchAttendenceSaveResponse punchAttendenceSaveResponse;
+
+  PunchAttendenceSaveResponseState(this.punchAttendenceSaveResponse);
+}
+//PunchAttendenceSaveResponse

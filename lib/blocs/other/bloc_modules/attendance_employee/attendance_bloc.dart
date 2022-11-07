@@ -5,10 +5,10 @@ import 'package:soleoserp/models/api_requests/attendance/attendance_employee_lis
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
 import 'package:soleoserp/models/api_requests/other/location_address_request.dart';
-import 'package:soleoserp/models/api_responses/attendance_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/attendance_response_list.dart';
-import 'package:soleoserp/models/api_responses/attendance_save_response.dart';
-import 'package:soleoserp/models/api_responses/location_address_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
+import 'package:soleoserp/models/api_responses/other/location_address_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'attendance_events.dart';

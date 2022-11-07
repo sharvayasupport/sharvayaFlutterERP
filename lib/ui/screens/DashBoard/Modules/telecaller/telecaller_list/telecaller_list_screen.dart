@@ -8,18 +8,19 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/telecaller/telecaller_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
-import 'package:soleoserp/models/api_requests/tele_caller_search_by_name_request.dart';
-import 'package:soleoserp/models/api_requests/telecaller_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/expense_type_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/tele_caller_search_by_name_response.dart';
-import 'package:soleoserp/models/api_responses/telecaller_list_response.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/telecaller_list_request.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/FollowUpDialog/telecaller_followup_ADD_EDIT_Screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_add_edit/telecaller_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
@@ -604,6 +605,81 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                   ],
                                                 )),
                                               ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                              _expenseListResponse
+                                                          .details[index]
+                                                          .leadStatus ==
+                                                      "InProcess"
+                                                  ? GestureDetector(
+                                                      onTap: () {
+                                                        navigateTo(
+                                                                context,
+                                                                FollowUpFromTeleCallerddEditScreen
+                                                                    .routeName,
+                                                                arguments: AddUpdateFollowupFromTeleCallerScreenArguments(
+                                                                    _expenseListResponse
+                                                                        .details[
+                                                                            index]
+                                                                        .pkId
+                                                                        .toString()))
+                                                            .then((value) {
+                                                          _expenseBloc.add(TeleCallerListCallEvent(
+                                                              _pageNo,
+                                                              TeleCallerListRequest(
+                                                                  pkID: "",
+                                                                  acid: "",
+                                                                  LeadStatus: edt_LeadStatus
+                                                                              .text ==
+                                                                          "ALL Leads"
+                                                                      ? ""
+                                                                      : edt_LeadStatus
+                                                                          .text,
+                                                                  LoginUserID:
+                                                                      LoginUserID,
+                                                                  CompanyId:
+                                                                      CompanyID
+                                                                          .toString())));
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        child: Column(
+                                                          children: [
+                                                            Text(
+                                                              "FollowUp",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      colorPrimary,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                            Container(
+                                                              width: 30,
+                                                              height: 30,
+                                                              decoration: const BoxDecoration(
+                                                                  color:
+                                                                      colorPrimary,
+                                                                  shape: BoxShape
+                                                                      .circle),
+                                                              child: Center(
+                                                                  child: Icon(
+                                                                Icons.add,
+                                                                size: 24,
+                                                                color:
+                                                                    colorWhite,
+                                                              )),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Container(),
                                             ]),
                                       ),
                                       SizedBox(

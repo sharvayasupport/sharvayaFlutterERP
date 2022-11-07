@@ -3,13 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/installation/installation_bloc.dart';
 import 'package:soleoserp/models/api_requests/installation_request/installation_country_request.dart';
-import 'package:soleoserp/models/api_requests/installation_request/installation_search_customer_request.dart';
-import 'package:soleoserp/models/api_requests/search_installation_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/installation_response/installation_country_response.dart';
-import 'package:soleoserp/models/api_responses/installation_response/installation_search_customer_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/installation_response/search_installation_label_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
@@ -96,7 +92,7 @@ class _InstallationSearchCountryScreenState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.only(left: 20, right: 20,top: 10),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10),
           child: Text("Min. 3 chars to Search Country ",
               style: TextStyle(
                   fontFamily: "QuickSand",
@@ -108,7 +104,7 @@ class _InstallationSearchCountryScreenState
           height: 5,
         ),
         Container(
-          margin: EdgeInsets.only(left: 10,right: 10),
+          margin: EdgeInsets.only(left: 10, right: 10),
           child: Card(
             elevation: 5,
             color: colorLightGray,
@@ -174,11 +170,12 @@ class _InstallationSearchCountryScreenState
           Navigator.of(context).pop(cs);
         },
         child: Container(
-          margin: EdgeInsets.only(left: 10,right: 10),
+          margin: EdgeInsets.only(left: 10, right: 10),
           child: Card(
             elevation: 4,
             child: Container(
-              padding: EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20),
+              padding:
+                  EdgeInsets.only(left: 20, right: 10, top: 20, bottom: 20),
               child: Text(
                 cs.countryName,
                 style: TextStyle(
@@ -186,7 +183,6 @@ class _InstallationSearchCountryScreenState
                 ),
               ),
             ),
-
           ),
         ),
       ),
@@ -197,7 +193,8 @@ class _InstallationSearchCountryScreenState
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       installationBloc.add(InstallationCountryCallEvent(
-          InstallationCountryRequest(CompanyId:this.CompanyID, CountryCode: value)));
+          InstallationCountryRequest(
+              CompanyId: this.CompanyID, CountryCode: value)));
     }
   }
 
@@ -205,7 +202,6 @@ class _InstallationSearchCountryScreenState
       InstallationCountryCallResponseState state) {
     Response1 = state.response;
   }
-
 
   Widget CountryList() {
     return ListView.builder(

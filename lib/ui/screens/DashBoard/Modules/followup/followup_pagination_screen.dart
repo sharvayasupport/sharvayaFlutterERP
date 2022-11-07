@@ -7,10 +7,10 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/followup_filter_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
@@ -18,6 +18,7 @@ import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerList/customer_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_history_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/telecaller_followup_history_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
@@ -909,8 +910,17 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                   //await _makePhoneCall(model.contactNo1);
                                   //await _makeSms(model.contactNo1);
                                   //  _launchURL(model.contactNo1);
-                                  MoveTofollowupHistoryPage(model.inquiryNo,
-                                      model.customerID.toString());
+                                  model.inquirySource
+                                              .toString()
+                                              .toLowerCase() ==
+                                          "telecaller"
+                                      ? MoveToTeleCallerfollowupHistoryPage(
+                                          model.extpkID.toString(), "Followup")
+                                      : MoveTofollowupHistoryPage(
+                                          model.inquiryNo,
+                                          model.customerID.toString());
+
+                                  //MoveToTeleCallerfollowupHistoryPage
                                 },
                                 child: /*Container(
                                             width:40,
@@ -1144,51 +1154,28 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
               ),
             ),
           ),
-          ButtonBar(
-              alignment: MainAxisAlignment.center,
-              buttonHeight: 52.0,
-              buttonMinWidth: 90.0,
-              children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    navigateTo(context, FollowUpAddEditScreen.routeName,
-                            arguments: AddUpdateFollowupScreenArguments(model))
-                        .then((value) {
-                      setState(() {
-                        followerEmployeeList();
-                      });
-                    });
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                isDeleteVisible == true
-                    ? GestureDetector(
+          model.inquirySource.toString().toLowerCase() == "telecaller"
+              ? Container()
+              : ButtonBar(
+                  alignment: MainAxisAlignment.center,
+                  buttonHeight: 52.0,
+                  buttonMinWidth: 90.0,
+                  children: <Widget>[
+                      GestureDetector(
                         onTap: () {
-                          //  cardA.currentState?.collapse();
-                          //new ExpansionTileCardState().collapse();
-                          _onTapOfDeleteCustomer(model.pkID);
+                          navigateTo(context, FollowUpAddEditScreen.routeName,
+                                  arguments:
+                                      AddUpdateFollowupScreenArguments(model))
+                              .then((value) {
+                            setState(() {
+                              followerEmployeeList();
+                            });
+                          });
                         },
                         child: Column(
                           children: <Widget>[
                             Icon(
-                              Icons.delete,
+                              Icons.edit,
                               color: Colors.black,
                             ),
                             Padding(
@@ -1196,14 +1183,41 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                   const EdgeInsets.symmetric(vertical: 2.0),
                             ),
                             Text(
-                              'Delete',
+                              'Edit',
                               style: TextStyle(color: Colors.black),
                             ),
                           ],
                         ),
-                      )
-                    : Container(),
-              ]),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      isDeleteVisible == true
+                          ? GestureDetector(
+                              onTap: () {
+                                //  cardA.currentState?.collapse();
+                                //new ExpansionTileCardState().collapse();
+                                _onTapOfDeleteCustomer(model.pkID);
+                              },
+                              child: Column(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.delete,
+                                    color: Colors.black,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 2.0),
+                                  ),
+                                  Text(
+                                    'Delete',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(),
+                    ]),
         ],
       ),
     );
@@ -1312,6 +1326,14 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
   Future<void> MoveTofollowupHistoryPage(String inquiryNo, String CustomerID) {
     navigateTo(context, FollowupHistoryScreen.routeName,
             arguments: FollowupHistoryScreenArguments(inquiryNo, CustomerID))
+        .then((value) {});
+  }
+
+  Future<void> MoveToTeleCallerfollowupHistoryPage(
+      String inquiryNo, String CustomerID) {
+    navigateTo(context, TeleCallerFollowupHistoryScreen.routeName,
+            arguments:
+                TeleCallerFollowupHistoryScreenArguments(inquiryNo, CustomerID))
         .then((value) {});
   }
 

@@ -1,22 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
 import 'package:soleoserp/models/api_requests/employee/employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/all_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/follower_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/menu_rights_request.dart';
-import 'package:soleoserp/models/api_responses/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/attendance_response_list.dart';
-import 'package:soleoserp/models/api_responses/attendance_save_response.dart';
-import 'package:soleoserp/models/api_responses/employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
+import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/firebase_token/firebase_token_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry_status_list_response.dart';
-import 'package:soleoserp/models/api_responses/menu_rights_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'dashboard_user_rights_screen_event.dart';
@@ -74,6 +78,10 @@ class DashBoardScreenBloc
     }
     if (event is PunchOutWebMethodEvent) {
       yield* _map_api_PunchOut_webMethod(event);
+    }
+
+    if (event is PunchAttendanceSaveRequestEvent) {
+      yield* _mapPunchAttendanceSaveRequestEventToState(event);
     }
 /*    if(event is CloserReasonTypeListByNameCallEvent)
     {
@@ -358,6 +366,23 @@ class DashBoardScreenBloc
 
       print("ldjdsf" + response.toString());
       yield PunchOutWebMethodState(response.toString());
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates> _mapPunchAttendanceSaveRequestEventToState(
+      PunchAttendanceSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      PunchAttendenceSaveResponse response = await userRepository
+          .getPunchIN_API(event.file, event.punchAttendanceSaveRequest);
+      yield PunchAttendenceSaveResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

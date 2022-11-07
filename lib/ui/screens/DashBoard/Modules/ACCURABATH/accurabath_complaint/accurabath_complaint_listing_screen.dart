@@ -11,9 +11,9 @@ import 'package:soleoserp/models/api_requests/Accurabath_complaint/fetch_accurab
 import 'package:soleoserp/models/api_requests/complaint/complaint_delete_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/complaint_image_list_response.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/complaint_search_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';

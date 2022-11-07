@@ -107,3 +107,24 @@ class PaymentScheduleDeleteAllResponseState extends SalesOrderStates {
 
   PaymentScheduleDeleteAllResponseState(this.response);
 }
+//SaleOrderHeaderSaveResponse
+
+class SaleOrderHeaderSaveResponseState extends SalesOrderStates {
+  int pkID;
+  final SaleOrderHeaderSaveResponse response;
+  BuildContext context;
+  SaleOrderHeaderSaveResponseState(this.context, this.pkID, this.response);
+}
+
+class SaleOrderProductSaveResponseState extends SalesOrderStates {
+  final SaleOrderProductSaveResponse response;
+
+  SaleOrderProductSaveResponseState(this.response);
+}
+
+class SaleOrderProductDeleteResponseState extends SalesOrderStates {
+  final SaleOrderProductDeleteResponse response;
+
+  SaleOrderProductDeleteResponseState(this.response);
+}
+//

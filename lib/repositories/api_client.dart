@@ -18,8 +18,8 @@ import 'error_response_exception.dart';
 class ApiClient {
   ///set apis' base url here
 
-  static const BASE_URL = 'http://208.109.14.134:83/';
-  //  "http://122.169.111.101:108/"; //
+  static const BASE_URL = //'http://208.109.14.134:83/';
+      "http://122.169.111.101:108/"; //
 
   /// General Flutter Test SerialKey = TEST-0000-SI0F-0208 / ID : admin / Pwd : Sharvaya / SiteURL : 122.169.11.101:3346
 
@@ -58,7 +58,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_CUSTOMER_PAGINATION = 'Customer';
   static const END_POINT_CUSTOMER_SEARCH = 'Customer/Search';
   static const END_POINT_CUSTOMER_SEARCH_BY_ID = 'Customer/';
-  static const END_POINT_MENU_RIGHTS = "Dashboard/MenuList";
+  static const END_POINT_MENU_RIGHTS = "dashboard/MenuList";
   static const End_POINT_DISTRICT_LIST = "Customer/District/Search";
   static const END_POINT_TALUKA_LIST = "Customer/Taluka/Search";
   static const END_POINT_CITY_LIST = "Customer/Cities/Search";
@@ -302,6 +302,25 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       "ComplaintDoc/";
   static const END_ACCURABATH_POINT_COMPLAINT_UPLOAD = "Complaint/ImageUpload";
   static const END_GET_REGION_CODE = "Customer/Codes";
+
+  static const END_POINT_SALES_ORDER_HEADER_SAVE_REQUEST = "SalesOrder/";
+  static const END_POINT_QUICK_COMPLAINT_LIST_REQUEST =
+      "QuickVisit/ActiveStatus";
+  static const END_POINT_SALES_QUICK_COMPLAINT_SAVE_REQUEST = "QuickVisit/";
+
+  static const END_POINT_PUNCH_ATTENDENCE_REQUEST =
+      "DailyAttendanceModeNew/0/Save";
+
+  static const END_POINT_SALES_ORDER_PRODUCT_SAVE = "SalesOrder/ProductSave";
+  static const END_POINT_SALES_ORDER_PRODUCT_DELETE = "SalesOrder/";
+  static const END_POINT_SAVE_EMAIL_CONTENT = "GeneralTemplate/0/Save";
+
+  static const END_POINT_TELE_CALLER_FOLLOWUP_SAVE = 'InquiryFollowup/0/Save';
+
+  static const END_POINT_TELE_CALLER_FOLLOWUP_HISTORY =
+      'FetchByExtpkID/1-100000';
+
+  //DailyAttendanceMode/0/Save
   final http.Client httpClient;
 
   ApiClient({this.httpClient});
@@ -394,7 +413,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     print("Headers - $headers");
     String asd = json.encode(jsontemparray);
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $asd" /*+ "JSON Array $asd"*/);
+        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $asd" +
+            json.encode(jsontemparray));
     try {
       final response = await httpClient
           .post(Uri.parse("$baseUrl$url"),

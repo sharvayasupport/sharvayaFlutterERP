@@ -1,8 +1,8 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -68,6 +68,8 @@ class _QuotationProductListScreenState
     }
     //getContacts();
     getProduct();
+
+    //UpdateAfterHeaderDiscountToDB();
   }
 
   @override
@@ -106,7 +108,9 @@ class _QuotationProductListScreenState
               await navigateTo(context, AddQuotationProductScreen.routeName,
                   arguments: AddQuotationProductScreenArguments(
                       qtModel, _StateCode, _HeaderDiscAmnt));
-              getProduct(); //right now calling again get contacts, later it can be optimized
+              getProduct();
+              //UpdateAfterHeaderDiscountToDB();
+//right now calling again get contacts, later it can be optimized
             },
             child: Icon(Icons.add),
           ),
@@ -180,7 +184,6 @@ class _QuotationProductListScreenState
     _productList.clear();
     _productList
         .addAll(await OfflineDbHelper.getInstance().getQuotationProduct());
-    await UpdateAfterHeaderDiscountToDB();
     /* await UpdateAfterHeaderDiscountToDB();
     _productList.clear();
     _productList
@@ -188,7 +191,7 @@ class _QuotationProductListScreenState
     setState(() {});
   }
 
-  Future<void> UpdateAfterHeaderDiscountToDB() async {
+  UpdateAfterHeaderDiscountToDB() {
     double tot_amnt_net = 0.00;
 
     double Tot_NetAmt = 0.00;
@@ -441,14 +444,15 @@ class _QuotationProductListScreenState
     await navigateTo(context, AddQuotationProductScreen.routeName,
         arguments: AddQuotationProductScreenArguments(
             _productList[index], _StateCode, _HeaderDiscAmnt));
-    getProduct(); //right now calling again get contacts, later it can be optimized
+    getProduct();
+    //UpdateAfterHeaderDiscountToDB();
+//right now calling again get contacts, later it can be optimized
   }
 
-  Future<void> _onTapOfDeleteContact(int index) async {
-    await OfflineDbHelper.getInstance()
-        .deleteQuotationProduct(_productList[index].id);
+  Future<void> _onTapOfDeleteContact(int id, int ItemIndex) async {
+    await OfflineDbHelper.getInstance().deleteQuotationProduct(id);
     setState(() {
-      _productList.removeAt(index);
+      _productList.removeAt(ItemIndex);
     });
   }
 
@@ -1025,7 +1029,7 @@ class _QuotationProductListScreenState
                   ),
                   InkWell(
                     onTap: () {
-                      _onTapOfDeleteContact(index);
+                      _onTapOfDeleteContact(model.id, index);
                     },
                     child: Column(
                       children: <Widget>[

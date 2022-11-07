@@ -1,21 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/external_lead/external_lead_bloc.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_search_request.dart';
-import 'package:soleoserp/models/api_requests/search_inquiry_list_by_name_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/external_leadsearch_response_by_name.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/search_inquiry_list_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/external_leadsearch_response_by_name.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/date_time_extensions.dart';
-import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateExternalLeadSearchScreenArguments {
@@ -30,7 +23,8 @@ class SearchExternalLeadScreen extends BaseStatefulWidget {
 
   SearchExternalLeadScreen(this.arguments);
   @override
-  _SearchExternalLeadScreenState createState() => _SearchExternalLeadScreenState();
+  _SearchExternalLeadScreenState createState() =>
+      _SearchExternalLeadScreenState();
 }
 
 class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
@@ -42,7 +36,7 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
   int CompanyID = 0;
   String LoginUserID = "";
 
-  String _LeadStatus="";
+  String _LeadStatus = "";
 
   @override
   void initState() {
@@ -87,7 +81,8 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient:
+              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
         ),
         Expanded(
           child: Container(
@@ -115,9 +110,11 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
       children: [
         Container(
           padding: EdgeInsets.only(left: 10, right: 20),
-          child: Text(
-              "Min. 3 chars to search Inquiry",
-              style:TextStyle(fontSize: 12,color: colorPrimary,fontWeight: FontWeight.bold)        ),
+          child: Text("Min. 3 chars to search Inquiry",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight.bold)),
         ),
         SizedBox(
           height: 5,
@@ -126,7 +123,7 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -135,7 +132,7 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
               children: [
                 Expanded(
                   child: TextFormField(
-                    autofocus:true,
+                    autofocus: true,
                     keyboardType: TextInputType.name,
                     textCapitalization: TextCapitalization.words,
                     onChanged: (value) {
@@ -177,7 +174,8 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
 
   ///builds row item view of inquiry list
   Widget _buildSearchInquiryListItem(int index) {
-    ExternalLeadOnlyNameDetails model = _searchInquiryListResponse.details[index];
+    ExternalLeadOnlyNameDetails model =
+        _searchInquiryListResponse.details[index];
 
     return Container(
       margin: EdgeInsets.all(5),
@@ -190,7 +188,7 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
           child: Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
             child: Text(
-              model.label ,
+              model.label,
               style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
             ),
           ),
@@ -204,7 +202,12 @@ class _SearchExternalLeadScreenState extends BaseState<SearchExternalLeadScreen>
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
       _inquiryBloc.add(ExternalLeadSearchByNameCallEvent(
-          ExternalLeadSearchRequest(CompanyId: CompanyID.toString(),word: value.toString(),needALL: "1",LoginUserID: LoginUserID,LeadStatus: _LeadStatus)));
+          ExternalLeadSearchRequest(
+              CompanyId: CompanyID.toString(),
+              word: value.toString(),
+              needALL: "1",
+              LoginUserID: LoginUserID,
+              LeadStatus: _LeadStatus)));
     }
   }
 

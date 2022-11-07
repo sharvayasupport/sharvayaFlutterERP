@@ -7,10 +7,10 @@ import 'package:soleoserp/blocs/other/bloc_modules/leave_request/leave_request_b
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/leave_request/leave_approval_save_request.dart';
 import 'package:soleoserp/models/api_requests/leave_request/leave_request_list_request.dart';
-import 'package:soleoserp/models/api_responses/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/leave_request_list_response.dart';
-import 'package:soleoserp/models/api_responses/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/leave_request/leave_request_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
