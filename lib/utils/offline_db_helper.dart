@@ -15,6 +15,7 @@ import 'package:soleoserp/models/common/sale_bill_other_charge_table.dart';
 import 'package:soleoserp/models/common/sales_bill_table.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
 import 'package:soleoserp/models/common/so_other_charge_table.dart';
+import 'package:soleoserp/models/common/specification/quotation/quotation_specification.dart';
 import 'package:soleoserp/utils/sales_order_payment_schedule.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -46,7 +47,8 @@ class OfflineDbHelper {
       "dealer_sales_bill_product_table";
   static const TABLE_DEALER_SALESBILL_OTHERCHARGE_TABLE =
       "dealer_sales_bill_other_charge";
-
+  static const TABLE_QUOTATION_SPECIFICATION_TABLE =
+      "quotation_specification_table";
 /*  static createInstance() async {
     _offlineDbHelper = OfflineDbHelper();
     database = await openDatabase(
@@ -128,6 +130,10 @@ class OfflineDbHelper {
 
     db.execute(
       'CREATE TABLE $TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,Amount DOUBLE, DueDate TEXT, RevDueDate TEXT)',
+    );
+
+    db.execute(
+      'CREATE TABLE $TABLE_QUOTATION_SPECIFICATION_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,OrderNo TEXT, Group_Description TEXT, Head TEXT, Specification TEXT, Material_Remarks TEXT)',
     );
     //
   }
@@ -1371,5 +1377,65 @@ class OfflineDbHelper {
     final db = await database;
 
     db.delete(TABLE_SALES_ORDER_PAYMENT_SCHEDULE_LIST_TABLE);
+  }
+
+  ///Here Customer Contact Table Implimentation
+
+  Future<int> insertQuotationSpecificationTable(
+      QuotationSpecificationTable model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_QUOTATION_SPECIFICATION_TABLE,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<QuotationSpecificationTable>>
+      getQuotationSpecificationTableList() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps =
+        await db.query(TABLE_QUOTATION_SPECIFICATION_TABLE);
+
+    return List.generate(maps.length, (i) {
+      return QuotationSpecificationTable(
+        maps[i]['OrderNo'],
+        maps[i]['Group_Description'],
+        maps[i]['Head'],
+        maps[i]['Specification'],
+        maps[i]['Material_Remarks'],
+        id: maps[i]['id'],
+      );
+    });
+  }
+
+  Future<void> updateQuotationSpecificationTable(
+      QuotationSpecificationTable model) async {
+    final db = await database;
+
+    await db.update(
+      TABLE_QUOTATION_SPECIFICATION_TABLE,
+      model.toJson(),
+      where: 'id = ?',
+      whereArgs: [model.id],
+    );
+  }
+
+  Future<void> deleteQuotationSpecificationTable(int id) async {
+    final db = await database;
+
+    await db.delete(
+      TABLE_QUOTATION_SPECIFICATION_TABLE,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteALLQuotationSpecificationTable() async {
+    final db = await database;
+
+    await db.delete(TABLE_QUOTATION_SPECIFICATION_TABLE);
   }
 }

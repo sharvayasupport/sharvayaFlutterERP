@@ -708,8 +708,12 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         elevationCurve: Curves.easeInOut,
         // initiallyExpanded: index == selected,
         shadowColor: Color(0xFF504F4F),
-        baseColor: Color(0xFFFCFCFC),
-        expandedColor: Color(0xFFC1E0FA),
+        baseColor: model.extpkID.toString().toLowerCase() != "0"
+            ? Color(0xFFD1C5E0)
+            : Color(0xFFFCFCFC),
+        expandedColor: model.extpkID.toString().toLowerCase() != "0"
+            ? Color(0xFFD1C5E0)
+            : Color(0xFFC1E0FA),
         //Colors.deepOrange[50],ADD8E6
         leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
@@ -736,22 +740,20 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           //mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            Text(
-              model.inquiryStatusDesc == "--Not Available--"
-                  ? ""
-                  : model.inquiryStatusDesc,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-            ),
+            model.inquiryStatusDesc == "--Not Available--" ||
+                    model.inquiryStatusDesc == ""
+                ? Container()
+                : Text(
+                    model.inquiryStatusDesc == "--Not Available--"
+                        ? ""
+                        : model.inquiryStatusDesc,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+                  ),
             model.timeIn != "" || model.timeOut != ""
                 ? Divider(
                     thickness: 1,
                   )
                 : Container(),
-            /* model.timeIn!="" || model.timeOut!=""? Text(
-                "In-Time : "+getTime(model.timeIn) + " Out-Time : " + getTime(model.timeOut),
-                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 10),
-              ):Container(),*/
-
             model.timeIn != "" || model.timeOut != ""
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -910,10 +912,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                   //await _makePhoneCall(model.contactNo1);
                                   //await _makeSms(model.contactNo1);
                                   //  _launchURL(model.contactNo1);
-                                  model.inquirySource
-                                              .toString()
-                                              .toLowerCase() ==
-                                          "telecaller"
+                                  model.extpkID.toString().toLowerCase() != "0"
                                       ? MoveToTeleCallerfollowupHistoryPage(
                                           model.extpkID.toString(), "Followup")
                                       : MoveTofollowupHistoryPage(

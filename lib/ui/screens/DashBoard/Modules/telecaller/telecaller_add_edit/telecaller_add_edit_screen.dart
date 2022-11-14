@@ -3,12 +3,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator/geolocator.dart'
     as geolocator; // or whatever name you want
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/telecaller/telecaller_bloc.dart';
@@ -4113,6 +4116,12 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
 
         if(SucessMsg=="Inquiry Added Successfully")
           {
+
+            final extension = p.extension(_selectedImageFile.path);
+            int timestamp1 = DateTime
+                .now()
+                .millisecondsSinceEpoch;
+
             _expenseBloc.add(TeleCallerUploadImageNameCallEvent(
                 _selectedImageFile,
                 TeleCallerUploadImgApiRequest(
@@ -4121,21 +4130,31 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                   pkID: state.response.details[0].pkID.toString()=="null"?"":state.response.details[0].pkID.toString(),
                   Image: _selectedImageFile.path
                       .split('/')
-                      .last,
+                      .last,//state.response.details[0].pkID.toString()+"_TeleCaller_"+timestamp1.toString()+extension.toString(),
+
+
+                  /*state.response.details[0].pkID.toString()+"_"+_selectedImageFile.path
+                      .split('/')
+                      .last,*/
                   LeadID: state.response.details[0].leadID.toString()=="null"?"":state.response.details[0].leadID.toString(),
                 )));
           }
         else
           {
+
+            final extension = p.extension(_selectedImageFile.path);
+            int timestamp1 = DateTime
+                .now()
+                .millisecondsSinceEpoch;
             _expenseBloc.add(TeleCallerUploadImageNameCallEvent(
                 _selectedImageFile,
                 TeleCallerUploadImgApiRequest(
                   CompanyID: CompanyID.toString(),
                   LoginUserId: LoginUserID,
                   pkID: state.response.details[0].pkID.toString()=="null"?"":state.response.details[0].pkID.toString(),
-                  Image: _selectedImageFile.path
+                  Image:_selectedImageFile.path
                       .split('/')
-                      .last,
+                      .last,//state.response.details[0].pkID.toString()+"_TeleCaller_"+timestamp1.toString()+extension.toString(),
                   LeadID: state.response.details[0].leadID.toString()=="null"?"":state.response.details[0].leadID.toString(),
                 )));
           }
@@ -4272,17 +4291,55 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                   ),
                 ),
               ),
-        getCommonButton(baseTheme, () {
-          pickImage(context, onImageSelection: (file)
+        getCommonButton(baseTheme, ()  {
+
+
+
+
+          pickImage(context, onImageSelection: (file) async
           {
-            final bytes = file.readAsBytesSync().lengthInBytes;
+
+            final dir = await path_provider.getTemporaryDirectory();
+
+            final extension = p.extension(file.path);
+            int timestamp1 = DateTime
+                .now()
+                .millisecondsSinceEpoch;
+            String FileNameWithTimeStamp = savepkID.toString() + "_TeleCaller_"+ DateTime.now()
+                .day
+                .toString() +
+                "_" +
+                DateTime.now()
+                    .month
+                    .toString() +
+                "_" +
+                DateTime.now()
+                    .year
+                    .toString() +
+                "_" +
+                timestamp1
+                    .toString();
+
+            /*Directory appDocDir = await getApplicationDocumentsDirectory();
+            String appDocPath = appDocDir.path;*/
+
+            final targetPath = dir.absolute.path + "/"+FileNameWithTimeStamp.toString() + extension;
+
+
+            print("DirectoryPath"+" DirectoryPath : " + targetPath.toString());
+
+            File file1 = await testCompressAndGetFile(file,targetPath);
+            final bytes = file1.readAsBytesSync().lengthInBytes;
             final kb = bytes / 1024;
             final mb = kb / 1024;
             /*if(mb<5)
               {*/
 
                 //clearimage();
-                _selectedImageFile = file;
+                _selectedImageFile = file1;
+
+
+
                 print("Image File Is Largre" + mb.toString());
                 isImageDeleted = false;
               //}
@@ -4708,5 +4765,33 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       });
   }
 
+
+  Future<File> testCompressAndGetFile(File file, String targetPath) async {
+    print('testCompressAndGetFile');
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 90,
+      minWidth: 1024,
+      minHeight: 1024,
+
+    );
+    print(file.lengthSync());
+    print(result?.lengthSync());
+    return result;
+  }
+
+  Future<File> testCompressAndGetFile1(File file, String targetPath) async {
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path, targetPath,
+      quality: 88,
+      rotate: 180,
+    );
+
+    print(file.lengthSync());
+    print(result.lengthSync());
+
+    return result;
+  }
 
 }

@@ -7,6 +7,8 @@ import 'package:soleoserp/models/api_requests/api_token/api_token_update_request
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
+import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/employee/employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/all_employee_list_request.dart';
@@ -15,6 +17,8 @@ import 'package:soleoserp/models/api_requests/other/menu_rights_request.dart';
 import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
 import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
 import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/punch_without_image_response.dart';
+import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/firebase_token/firebase_token_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
@@ -82,6 +86,14 @@ class DashBoardScreenBloc
 
     if (event is PunchAttendanceSaveRequestEvent) {
       yield* _mapPunchAttendanceSaveRequestEventToState(event);
+    }
+
+    if (event is PunchWithoutImageAttendanceSaveRequestEvent) {
+      yield* _mapPunchWithoutImageAttendanceSaveRequestEventToState(event);
+    }
+
+    if (event is ConstantRequestEvent) {
+      yield* _mapConstantRequestEventToState(event);
     }
 /*    if(event is CloserReasonTypeListByNameCallEvent)
     {
@@ -388,6 +400,37 @@ class DashBoardScreenBloc
       print(stacktrace);
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates>
+      _mapPunchWithoutImageAttendanceSaveRequestEventToState(
+          PunchWithoutImageAttendanceSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      PunchWithoutAttendenceSaveResponse respo =
+          await userRepository.getwithoutImageAttendanceSaveAPI(event.request);
+      yield PunchWithoutAttendenceSaveResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates> _mapConstantRequestEventToState(
+      ConstantRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      ConstantResponse respo =
+          await userRepository.getConstantAPI(event.CompanyID, event.request);
+      yield ConstantResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

@@ -206,3 +206,39 @@ class QuotationOtherCharge5ListResponseState extends QuotationStates {
   QuotationOtherCharge5ListResponseState(
       this.quotationOtherChargesListResponse);
 }
+
+class InsertQuotationSpecificationTableState extends QuotationStates {
+  final String response;
+
+  InsertQuotationSpecificationTableState(this.response);
+}
+
+class UpdateQuotationSpecificationTableState extends QuotationStates {
+  final String response;
+
+  UpdateQuotationSpecificationTableState(this.response);
+}
+
+class GetQuotationSpecificationTableState extends QuotationStates {
+  final List<QuotationSpecificationTable> response;
+
+  GetQuotationSpecificationTableState(this.response);
+}
+
+class DeleteQuotationSpecificationTableState extends QuotationStates {
+  final String response;
+
+  DeleteQuotationSpecificationTableState(this.response);
+}
+
+class DeleteALLQuotationSpecificationTableState extends QuotationStates {
+  final String response;
+
+  DeleteALLQuotationSpecificationTableState(this.response);
+}
+
+class GetQuotationProductListState extends QuotationStates {
+  final List<QuotationTable> response;
+
+  GetQuotationProductListState(this.response);
+}

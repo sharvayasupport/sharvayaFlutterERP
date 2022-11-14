@@ -216,3 +216,35 @@ class QuotationOtherCharge5CallEvent extends QuotationEvents {
 
   QuotationOtherCharge5CallEvent(this.CompanyID, this.request);
 }
+
+class InsertQuotationSpecificationTableEvent extends QuotationEvents {
+  final QuotationSpecificationTable quotationSpecificationTable;
+  InsertQuotationSpecificationTableEvent(this.quotationSpecificationTable);
+}
+
+class UpdateQuotationSpecificationTableEvent extends QuotationEvents {
+  final QuotationSpecificationTable quotationSpecificationTable;
+  UpdateQuotationSpecificationTableEvent(this.quotationSpecificationTable);
+}
+
+class GetQuotationSpecificationTableEvent extends QuotationEvents {
+  //final FCMNotificationRequest request;
+  GetQuotationSpecificationTableEvent();
+}
+
+class DeleteQuotationSpecificationTableEvent extends QuotationEvents {
+  //final FCMNotificationRequest request;
+
+  int id;
+  DeleteQuotationSpecificationTableEvent(this.id);
+}
+
+class DeleteAllQuotationSpecificationTableEvent extends QuotationEvents {
+  //final FCMNotificationRequest request;
+  DeleteAllQuotationSpecificationTableEvent();
+}
+
+class GetQuotationProductListEvent extends QuotationEvents {
+  //final FCMNotificationRequest request;
+  GetQuotationProductListEvent();
+}

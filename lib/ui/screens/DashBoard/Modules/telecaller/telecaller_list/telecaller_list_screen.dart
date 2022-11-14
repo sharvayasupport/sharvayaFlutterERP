@@ -20,6 +20,7 @@ import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/telecaller_followup_history_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/FollowUpDialog/telecaller_followup_ADD_EDIT_Screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_add_edit/telecaller_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_search_screen.dart';
@@ -461,7 +462,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                 child: Container(
                                                     child: Column(
                                                   children: [
-                                                    Text(
+                                                    /* Text(
                                                       "Call",
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -472,7 +473,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                     ),
                                                     SizedBox(
                                                       height: 5,
-                                                    ),
+                                                    ),*/
                                                     Image.asset(
                                                       PHONE_CALL_IMAGE,
                                                       width: 30,
@@ -525,7 +526,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                   ),*/
                                                       Column(
                                                     children: [
-                                                      Text(
+                                                      /* Text(
                                                         "Share",
                                                         style: TextStyle(
                                                             fontSize: 12,
@@ -536,7 +537,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                       ),
                                                       SizedBox(
                                                         height: 5,
-                                                      ),
+                                                      ),*/
                                                       Image.asset(
                                                         WHATSAPP_IMAGE,
                                                         width: 30,
@@ -585,7 +586,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                 child: Container(
                                                     child: Column(
                                                   children: [
-                                                    Text(
+                                                    /* Text(
                                                       "Location",
                                                       style: TextStyle(
                                                           fontSize: 12,
@@ -596,7 +597,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                     ),
                                                     SizedBox(
                                                       height: 5,
-                                                    ),
+                                                    ),*/
                                                     Image.asset(
                                                       LOCATION_ICON,
                                                       width: 30,
@@ -646,7 +647,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                       child: Container(
                                                         child: Column(
                                                           children: [
-                                                            Text(
+                                                            /* Text(
                                                               "FollowUp",
                                                               style: TextStyle(
                                                                   fontSize: 12,
@@ -658,7 +659,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                             ),
                                                             SizedBox(
                                                               height: 5,
-                                                            ),
+                                                            ),*/
                                                             Container(
                                                               width: 30,
                                                               height: 30,
@@ -676,6 +677,46 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                                               )),
                                                             ),
                                                           ],
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Container(),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                              _expenseListResponse
+                                                          .details[index]
+                                                          .leadStatus ==
+                                                      "InProcess"
+                                                  ? GestureDetector(
+                                                      onTap: () {
+                                                        MoveToTeleCallerfollowupHistoryPage(
+                                                            _expenseListResponse
+                                                                .details[index]
+                                                                .pkId
+                                                                .toString(),
+                                                            "Followup");
+                                                      },
+                                                      child: Container(
+                                                        width: 32,
+                                                        height: 32,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                                color:
+                                                                    colorWhite,
+                                                                shape: BoxShape
+                                                                    .circle),
+                                                        child: Center(
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8),
+                                                            child: Image.asset(
+                                                              HISTORY_ICON,
+                                                              width: 24,
+                                                              height: 24,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ),
                                                     )
@@ -1474,5 +1515,13 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
         //linkUrl: 'https://flutter.dev/',
         phone: "91" + contactNo1,
         package: Package.businessWhatsapp);*/
+  }
+
+  Future<void> MoveToTeleCallerfollowupHistoryPage(
+      String inquiryNo, String CustomerID) {
+    navigateTo(context, TeleCallerFollowupHistoryScreen.routeName,
+            arguments:
+                TeleCallerFollowupHistoryScreenArguments(inquiryNo, CustomerID))
+        .then((value) {});
   }
 }

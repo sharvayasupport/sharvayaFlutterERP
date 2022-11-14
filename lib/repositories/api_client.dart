@@ -19,7 +19,7 @@ class ApiClient {
   ///set apis' base url here
 
   static const BASE_URL = //'http://208.109.14.134:83/';
-      "http://122.169.111.101:108/"; //
+   "http://122.169.111.101:108/"; //
 
   /// General Flutter Test SerialKey = TEST-0000-SI0F-0208 / ID : admin / Pwd : Sharvaya / SiteURL : 122.169.11.101:3346
 
@@ -319,7 +319,9 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
   static const END_POINT_TELE_CALLER_FOLLOWUP_HISTORY =
       'FetchByExtpkID/1-100000';
-
+  static const END_POINT_WITHOUT_IMAGE_SAVE_ATTENDANCE =
+      'DailyAttendanceMode/0/Save';
+  static const END_POINT_CONSTANT_MASTER = 'ConstantMaster/';
   //DailyAttendanceMode/0/Save
   final http.Client httpClient;
 
@@ -857,7 +859,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       case 200:
         var responseJson = json.decode(response.body);
         final data = responseJson["Data"];
-        final message = responseJson["Message"];
+        final message =
+            responseJson["Message"] == null ? "" : responseJson["Message"];
 
         if (responseJson["Status"] == 1) {
           if (showSuccessDialog) {

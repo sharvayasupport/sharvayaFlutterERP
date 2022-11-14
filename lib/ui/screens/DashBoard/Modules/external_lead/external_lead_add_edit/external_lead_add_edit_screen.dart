@@ -20,6 +20,7 @@ import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_country_screen.dart';
@@ -160,6 +161,8 @@ class _ExternalLeadAddEditScreenState
 
   bool isViewSaveButton=false;
   bool isAllEditable = false;
+
+  String ReportToToken = "";
 
   @override
   void initState() {
@@ -302,9 +305,13 @@ class _ExternalLeadAddEditScreenState
           if (state is CustomerSourceCallEventResponseState) {
             _onDisQualifiedResonResult(state);
           }
+          if (state is GetReportToTokenResponseState) {
+            _onGetTokenfromReportopersonResult(state);
+          }
           if (state is ExternalLeadSaveResponseState) {
             _onExternalLeadSucessResponse(state);
           }
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -312,7 +319,8 @@ class _ExternalLeadAddEditScreenState
               currentState is StateListEventResponseState ||
               currentState is CityListEventResponseState ||
               currentState is CustomerSourceCallEventResponseState ||
-              currentState is ExternalLeadSaveResponseState
+              currentState is ExternalLeadSaveResponseState ||
+              currentState is GetReportToTokenResponseState
               ) {
             return true;
           }
@@ -544,7 +552,9 @@ class _ExternalLeadAddEditScreenState
                           height: 15,
                         ),
                         isViewSaveButton==true?getCommonButton(baseTheme, () {
-
+                          _expenseBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+                              CompanyId: CompanyID.toString(),
+                              EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
                           print("EMPIDDD"+" EmployeeName : "+edt_QualifiedEmplyeeName.text + " EmpID : " + edt_QualifiedEmplyeeID.text);
 
                           if(edt_CompanyName.text!="")
@@ -573,6 +583,10 @@ class _ExternalLeadAddEditScreenState
                                                                 Navigator.of(
                                                                     context)
                                                                     .pop();
+
+
+
+
                                                                 _expenseBloc.add(
                                                                     ExternalLeadSaveCallEvent(
                                                                         savepkID,
@@ -2433,6 +2447,7 @@ class _ExternalLeadAddEditScreenState
               Text("Matured Lead Information")],
           ),*/
 
+
           GestureDetector(
             onTap: () => isAllEditable==true?showcustomdialogWithID(
                 values: arr_All_Employee_List,
@@ -3241,6 +3256,31 @@ class _ExternalLeadAddEditScreenState
     Navigator.of(context).pop();*/
    /* await showCommonDialogWithSingleOption(Globals.context,state.response.details[0].column2,
         positiveButtonTitle: "OK");*/
+    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+    String notiTitle = "Portal Lead";
+
+    String notibody = "Inquiry " +
+        state.response.details[0].column2 +
+        updatemsg +
+        " For " +
+        edt_SenderName.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": ReportToToken,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("Notificationdf" + request123.toString());
+    _expenseBloc.add(FCMNotificationRequestEvent(request123));
+
 
     showCommonDialogWithSingleOption(context, state.response.details[0].column2,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
@@ -3263,5 +3303,9 @@ class _ExternalLeadAddEditScreenState
           }
       }
 
+  }
+
+  void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
+    ReportToToken = state.response.details[0].reportPersonTokenNo;
   }
 }

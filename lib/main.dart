@@ -149,11 +149,17 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_foll
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_followup_list/quick_followup_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_inquiry/quick_inquiry_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_inquiry/search_quick_inquiry_customer_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_other_charges_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_general_customer_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_other_charges_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_summary_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/specification/specification_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/specification/specification_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/search_quotation_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salary_upad/salary_upad_list/salary_upad_list_screen.dart';
@@ -777,7 +783,31 @@ class MyApp extends StatefulWidget {
       case TeleCallerFollowupHistoryScreen.routeName:
         return getMaterialPageRoute(
             TeleCallerFollowupHistoryScreen(settings.arguments));
-      //TeleCallerFollowupHistoryScreen
+
+      case QuotationSpecificationAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            QuotationSpecificationAddEditScreen(settings.arguments));
+
+      case SpecificationListScreen.routeName:
+        return getMaterialPageRoute(
+            SpecificationListScreen(settings.arguments));
+
+      case OldQuotationProductListScreen.routeName:
+        return getMaterialPageRoute(
+            OldQuotationProductListScreen(settings.arguments));
+
+      case OldAddQuotationProductScreen.routeName:
+        return getMaterialPageRoute(
+            OldAddQuotationProductScreen(settings.arguments));
+
+      case OldQuotationOtherChargeScreen.routeName:
+        return getMaterialPageRoute(
+            OldQuotationOtherChargeScreen(settings.arguments));
+
+      case NewQuotationOtherChargeScreen.routeName:
+        return getMaterialPageRoute(
+            NewQuotationOtherChargeScreen(settings.arguments));
+      //NewQuotationOtherChargeScreen
       default:
         return null;
     }

@@ -111,4 +111,19 @@ class PunchAttendanceSaveRequestEvent extends DashBoardScreenEvents {
   final PunchAttendanceSaveRequest punchAttendanceSaveRequest;
   PunchAttendanceSaveRequestEvent(this.file, this.punchAttendanceSaveRequest);
 }
-//PunchAttendanceSaveRequest
+
+class PunchWithoutImageAttendanceSaveRequestEvent
+    extends DashBoardScreenEvents {
+  final PunchWithoutImageAttendanceSaveRequest request;
+
+  PunchWithoutImageAttendanceSaveRequestEvent(this.request);
+}
+
+class ConstantRequestEvent extends DashBoardScreenEvents {
+  String CompanyID;
+  final ConstantRequest request;
+
+  ConstantRequestEvent(this.CompanyID, this.request);
+}
+
+//ConstantRequest

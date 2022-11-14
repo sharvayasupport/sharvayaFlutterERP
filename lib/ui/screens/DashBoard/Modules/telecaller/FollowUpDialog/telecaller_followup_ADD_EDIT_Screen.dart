@@ -531,14 +531,14 @@ class _FollowUpFromTeleCallerddEditScreenState
                           width: 20,
                           height: 15,
                         ),
-                        LeadStatusDropDown(),
+                        /* LeadStatusDropDown(),
                         SizedBox(
                           width: 20,
                           height: 15,
-                        ),
-                        edt_LeadStatus.text == "Disqualified"
+                        ),*/
+                        /*edt_LeadStatus.text == "Disqualified"
                             ? Container()
-                            : _buildEmplyeeListView(),
+                            : _buildEmplyeeListView(),*/
                         Visibility(
                           visible: _isInqury_details_Exist,
                           child: showcustomdialogWithID1("Inquiry Status",
@@ -652,10 +652,12 @@ class _FollowUpFromTeleCallerddEditScreenState
                                         NextFollowupDate:
                                             edt_ReverseNextFollowupDate.text,
                                         PreferredTime: edt_PreferedTime.text,
-                                        LeadStatus: edt_LeadStatus.text,
+                                        LeadStatus: "InProcess",
                                         NoFollClosureID:
                                             edt_CloserReasonStatusTypepkID.text,
-                                        AssignToEmployee: edt_EmployeeID.text,
+                                        AssignToEmployee: _offlineLoggedInData
+                                            .details[0].employeeID
+                                            .toString(),
                                         LoginUserID: LoginUserID,
                                         CompanyId: CompanyID.toString(),
                                       )));
@@ -734,11 +736,13 @@ class _FollowUpFromTeleCallerddEditScreenState
                                           NextFollowupDate:
                                               edt_ReverseNextFollowupDate.text,
                                           PreferredTime: edt_PreferedTime.text,
-                                          LeadStatus: edt_LeadStatus.text,
+                                          LeadStatus: "InProcess",
                                           NoFollClosureID:
                                               edt_CloserReasonStatusTypepkID
                                                   .text,
-                                          AssignToEmployee: edt_EmployeeID.text,
+                                          AssignToEmployee: _offlineLoggedInData
+                                              .details[0].employeeID
+                                              .toString(),
                                           LoginUserID: LoginUserID,
                                           CompanyId: CompanyID.toString(),
                                         )));

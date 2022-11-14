@@ -6,32 +6,32 @@ import 'package:soleoserp/models/api_responses/login/login_user_details_api_resp
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-class AddQuotationProductListArgument {
+class OldAddQuotationProductListArgument {
   String quotation_No;
   String stateCode;
   String HeaderDiscAmnt;
 
-  AddQuotationProductListArgument(
+  OldAddQuotationProductListArgument(
       this.quotation_No, this.stateCode, this.HeaderDiscAmnt);
 }
 
-class QuotationProductListScreen extends BaseStatefulWidget {
-  static const routeName = '/QuotationProductListScreen';
-  final AddQuotationProductListArgument arguments;
-  QuotationProductListScreen(this.arguments);
+class OldQuotationProductListScreen extends BaseStatefulWidget {
+  static const routeName = '/OldQuotationProductListScreen';
+  final OldAddQuotationProductListArgument arguments;
+  OldQuotationProductListScreen(this.arguments);
   @override
-  _QuotationProductListScreenState createState() =>
-      _QuotationProductListScreenState();
+  _OldQuotationProductListScreenState createState() =>
+      _OldQuotationProductListScreenState();
 }
 
-class _QuotationProductListScreenState
-    extends BaseState<QuotationProductListScreen>
+class _OldQuotationProductListScreenState
+    extends BaseState<OldQuotationProductListScreen>
     with BasicScreen, WidgetsBindingObserver {
   List<QuotationTable> _productList = [];
   List<QuotationTable> _TempinquiryProductList = [];
@@ -107,8 +107,8 @@ class _QuotationProductListScreenState
                           context,
                           AddQuotationProductScreen.routeName,
                         );*/
-              await navigateTo(context, AddQuotationProductScreen.routeName,
-                  arguments: AddQuotationProductScreenArguments(
+              await navigateTo(context, OldAddQuotationProductScreen.routeName,
+                  arguments: OldAddQuotationProductScreenArguments(
                       qtModel, _StateCode, _HeaderDiscAmnt));
               getProduct();
               //UpdateAfterHeaderDiscountToDB();
@@ -444,8 +444,8 @@ class _QuotationProductListScreenState
 
   Future<void> _onTapOfEditContact(int index) async {
     print("fjdj" + _HeaderDiscAmnt);
-    await navigateTo(context, AddQuotationProductScreen.routeName,
-        arguments: AddQuotationProductScreenArguments(
+    await navigateTo(context, OldAddQuotationProductScreen.routeName,
+        arguments: OldAddQuotationProductScreenArguments(
             _productList[index], _StateCode, _HeaderDiscAmnt));
     getProduct();
     //UpdateAfterHeaderDiscountToDB();

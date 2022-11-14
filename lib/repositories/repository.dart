@@ -30,6 +30,7 @@ import 'package:soleoserp/models/api_requests/attendance/attendance_employee_lis
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_list_request.dart';
@@ -49,6 +50,7 @@ import 'package:soleoserp/models/api_requests/complaint/complaint_no_list_reques
 import 'package:soleoserp/models/api_requests/complaint/complaint_save_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_request.dart';
+import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_category_request.dart';
@@ -222,6 +224,7 @@ import 'package:soleoserp/models/api_responses/attendance/attendance_employee_li
 import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
 import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
 import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/punch_without_image_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_drop_down_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_list_response.dart';
@@ -240,6 +243,7 @@ import 'package:soleoserp/models/api_responses/complaint/complaint_list_response
 import 'package:soleoserp/models/api_responses/complaint/complaint_no_list_response.dart';
 import 'package:soleoserp/models/api_responses/complaint/complaint_save_response.dart';
 import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
+import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/customer/cust_id_to_inq_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
@@ -4291,6 +4295,33 @@ class Repository {
           ApiClient.END_POINT_TELE_CALLER_FOLLOWUP_HISTORY, request.toJson());
       TeleCallerFollowupHestoryResponse response =
           TeleCallerFollowupHestoryResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<PunchWithoutAttendenceSaveResponse> getwithoutImageAttendanceSaveAPI(
+      PunchWithoutImageAttendanceSaveRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_WITHOUT_IMAGE_SAVE_ATTENDANCE, request.toJson());
+      PunchWithoutAttendenceSaveResponse response =
+          PunchWithoutAttendenceSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<ConstantResponse> getConstantAPI(
+      String CompanyID, ConstantRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_CONSTANT_MASTER + CompanyID, request.toJson());
+      ConstantResponse response = ConstantResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {

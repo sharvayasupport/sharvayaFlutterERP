@@ -109,4 +109,16 @@ class PunchAttendenceSaveResponseState extends DashBoardScreenStates {
 
   PunchAttendenceSaveResponseState(this.punchAttendenceSaveResponse);
 }
-//PunchAttendenceSaveResponse
+
+class PunchWithoutAttendenceSaveResponseState extends DashBoardScreenStates {
+  final PunchWithoutAttendenceSaveResponse response;
+
+  PunchWithoutAttendenceSaveResponseState(this.response);
+}
+//
+
+class ConstantResponseState extends DashBoardScreenStates {
+  final ConstantResponse response;
+
+  ConstantResponseState(this.response);
+}

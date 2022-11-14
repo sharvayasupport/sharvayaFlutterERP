@@ -16,14 +16,14 @@ import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-class QuotationOtherChargesScreenArguments {
+class OldQuotationOtherChargesScreenArguments {
   int StateCode;
   String HeaderDiscFromAddEditScreen;
   QuotationDetails editModel;
   AllOtherCharges allOtherCharges;
   String ISCalculation;
 
-  QuotationOtherChargesScreenArguments(
+  OldQuotationOtherChargesScreenArguments(
       this.StateCode,
       this.editModel,
       this.HeaderDiscFromAddEditScreen,
@@ -57,19 +57,19 @@ class QuotationOtherChargesScreenArguments {
   */
 }
 
-class QuotationOtherChargeScreen extends BaseStatefulWidget {
-  static const routeName = '/QuotationOtherChargeScreen';
-  final QuotationOtherChargesScreenArguments arguments;
+class OldQuotationOtherChargeScreen extends BaseStatefulWidget {
+  static const routeName = '/OldQuotationOtherChargeScreen';
+  final OldQuotationOtherChargesScreenArguments arguments;
 
-  QuotationOtherChargeScreen(this.arguments);
+  OldQuotationOtherChargeScreen(this.arguments);
 
   @override
-  _QuotationOtherChargeScreenState createState() =>
-      _QuotationOtherChargeScreenState();
+  _OldQuotationOtherChargeScreenState createState() =>
+      _OldQuotationOtherChargeScreenState();
 }
 
-class _QuotationOtherChargeScreenState
-    extends BaseState<QuotationOtherChargeScreen>
+class _OldQuotationOtherChargeScreenState
+    extends BaseState<OldQuotationOtherChargeScreen>
     with BasicScreen, WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   bool isForUpdate = false;
@@ -233,7 +233,6 @@ class _QuotationOtherChargeScreenState
         widget.arguments.HeaderDiscFromAddEditScreen == null
             ? ""
             : widget.arguments.HeaderDiscFromAddEditScreen;
-    _headerDiscountController.text = "0.00";
     _inquiryBloc.add(QuotationOtherChargeCallEvent(
         _headerDiscountController.text,
         CompanyID.toString(),
@@ -427,10 +426,15 @@ class _QuotationOtherChargeScreenState
           if (state is QuotationOtherChargeListResponseState) {
             _onOtherChargeListResponse(state);
           }
+
+          if (state is GetQuotationProductListState) {
+            _OnFetchProduct(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is QuotationOtherChargeListResponseState) {
+          if (currentState is QuotationOtherChargeListResponseState ||
+              currentState is GetQuotationProductListState) {
             return true;
           }
           return false;
@@ -509,8 +513,6 @@ class _QuotationOtherChargeScreenState
               showHome: false, onTapOfBack: () {
             // _inquiryBloc.add(QT_OtherChargeDeleteRequestEvent());
             //UpdateBeforHeaderDiscountToDB();
-
-            //LatestHide
             UpdateAfterHeaderDiscountToDB();
             PushAllOtherChargesToDb();
 
@@ -739,7 +741,7 @@ class _QuotationOtherChargeScreenState
 
     */
     // UpdateBeforHeaderDiscountToDB();
-     UpdateAfterHeaderDiscountToDB();
+    UpdateAfterHeaderDiscountToDB();
     AllOtherCharges allOtherCharges = AllOtherCharges();
 
     allOtherCharges.HeaderDiscount = _headerDiscountController.text;
@@ -2475,6 +2477,7 @@ class _QuotationOtherChargeScreenState
     List<QuotationTable> temp =
         await OfflineDbHelper.getInstance().getQuotationProduct();
     _inquiryProductList.addAll(temp);
+    // UpdateAfterHeaderDiscountZero();
 
     setState(() {});
   }
@@ -2571,7 +2574,7 @@ class _QuotationOtherChargeScreenState
         _netAmountController.text = Tot_NetAmt.toStringAsFixed(2);
       });
     }
-
+    // _OnTaptoWithoutHeaderSave();
     _OnTaptoSave();
   }
 
@@ -2854,6 +2857,148 @@ class _QuotationOtherChargeScreenState
 
   Future<void> _onTapOfDeleteALLQuotationCharges() async {
     await OfflineDbHelper.getInstance().deleteALLQuotationOtherCharge();
+  }
+
+  void UpdateAfterHeaderDiscountZero() {
+    double tot_amnt_net = 0.00;
+
+    Tot_NetAmt = 0.00;
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      print("_inquiryProductList[i].NetAmount234" +
+          " Tot_NetAmt : " +
+          _inquiryProductList[i].NetAmount.toString());
+
+      tot_amnt_net = tot_amnt_net + _inquiryProductList[i].NetAmount;
+    }
+    print("Tot_NetAmtTot_NetAmt" + " Tot_NetAmt : " + tot_amnt_net.toString());
+
+    HeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseAmount = 0.00;
+    double ExclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseTaxAmnt = 0.00;
+    double ExclusiveTaxPluse100 = 0.00;
+    double ExclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double ExclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveItemWiseHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseAmount = 0.00;
+    double InclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseTaxAmnt = 0.00;
+    double InclusiveTaxPluse100 = 0.00;
+    double InclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExTotalBasic = 0.00;
+    double ExTotalGSTamt = 0.00;
+    double ExTotalNetAmnt = 0.00;
+    double InTotalBasic = 0.00;
+    double InTotalGSTamt = 0.00;
+    double InTotalNetAmnt = 0.00;
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      if (_inquiryProductList[i].TaxType == 1) {
+        ExclusiveItemWiseHeaderDisAmnt =
+            (_inquiryProductList[i].NetAmount * HeaderDisAmnt) / tot_amnt_net;
+        print("sdf434" +
+            ExclusiveItemWiseHeaderDisAmnt.toString() +
+            "  Net amnt : " +
+            _inquiryProductList[i].NetAmount.toString() +
+            " Hder : " +
+            HeaderDisAmnt.toString());
+        ExclusiveItemWiseAmount =
+            _inquiryProductList[i].Quantity * _inquiryProductList[i].NetRate;
+        ExclusiveNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount - ExclusiveItemWiseHeaderDisAmnt;
+        ExclusiveItemWiseTaxAmnt = (ExclusiveNetAmntAfterHeaderDisAmnt *
+                _inquiryProductList[i].TaxRate) /
+            100;
+
+        print("dfjfj221223" + ExclusiveNetAmntAfterHeaderDisAmnt.toString());
+
+        ExclusiveFinalNetAmntAfterHeaderDisAmnt =
+            ExclusiveNetAmntAfterHeaderDisAmnt;
+        ExclusiveTotalNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount + ExclusiveItemWiseTaxAmnt;
+
+        ExTotalBasic += ExclusiveFinalNetAmntAfterHeaderDisAmnt;
+        ExTotalGSTamt += ExclusiveItemWiseTaxAmnt;
+        ExTotalNetAmnt += ExclusiveTotalNetAmntAfterHeaderDisAmnt;
+      } else {
+        InclusiveItemWiseHeaderDisAmnt =
+            (_inquiryProductList[i].NetAmount * HeaderDisAmnt) / tot_amnt_net;
+        InclusiveItemWiseAmount =
+            _inquiryProductList[i].Quantity * _inquiryProductList[i].NetRate;
+        InclusiveNetAmntAfterHeaderDisAmnt =
+            InclusiveItemWiseAmount - InclusiveItemWiseHeaderDisAmnt;
+        InclusiveTaxPluse100 = 100 + _inquiryProductList[i].TaxRate;
+        InclusiveItemWiseTaxAmnt = (InclusiveNetAmntAfterHeaderDisAmnt *
+                _inquiryProductList[i].TaxRate) /
+            InclusiveTaxPluse100;
+        InclusiveFinalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
+        InclusiveTotalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt; //+ InclusiveItemWiseTaxAmnt;
+
+        InTotalBasic += InclusiveFinalNetAmntAfterHeaderDisAmnt;
+        InTotalGSTamt += InclusiveItemWiseTaxAmnt;
+        InTotalNetAmnt += InclusiveTotalNetAmntAfterHeaderDisAmnt;
+      }
+
+      /* double TotNet =0.00; // ExclusiveTotalNetAmntAfterHeaderDisAmnt+InclusiveTotalNetAmntAfterHeaderDisAmnt;
+      print("TotNet3455gg"+" Total : "+TotNet.toStringAsFixed(2) + " TotExclNetAmnt : " + ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+          " TotIncNetAmnt : " + InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2)
+      );*/
+    }
+    print("testExclusive" +
+        " Total ExcBasic : " +
+        ExTotalBasic.toStringAsFixed(2) +
+        "Total ExGSTAmnt : " +
+        ExTotalGSTamt.toStringAsFixed(2) +
+        "Total ExNetAmnt " +
+        ExTotalNetAmnt.toStringAsFixed(2));
+    print("testExclusive" +
+        " Total ExcBasic : " +
+        InTotalBasic.toStringAsFixed(2) +
+        "Total ExGSTAmnt : " +
+        InTotalGSTamt.toStringAsFixed(2) +
+        "Total ExNetAmnt " +
+        InTotalNetAmnt.toStringAsFixed(2));
+
+    Tot_BasicAmount = ExTotalBasic + InTotalBasic;
+    Tot_GSTAmt = ExTotalGSTamt + InTotalGSTamt;
+    Tot_NetAmt = 0.00;
+    double TotNet = ExTotalNetAmnt + InTotalNetAmnt;
+
+    Tot_NetAmt = TotNet;
+
+/*
+     Tot_BasicAmount +=  ExclusiveFinalNetAmntAfterHeaderDisAmnt+InclusiveFinalNetAmntAfterHeaderDisAmnt;
+     Tot_GSTAmt += ExclusiveItemWiseTaxAmnt+InclusiveItemWiseTaxAmnt;
+     Tot_NetAmt =0.00;
+     double TotNet = ExclusiveTotalNetAmntAfterHeaderDisAmnt+InclusiveTotalNetAmntAfterHeaderDisAmnt;
+     print("TotNet3455gg"+" Total : "+TotNet.toStringAsFixed(2) + " TotExclNetAmnt : " + ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+         " TotIncNetAmnt : " + InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2)
+     );
+     Tot_NetAmt +=  TotNet - HeaderDisAmnt;*/
+
+    //print("TotNATe"+ " NetAmnt : " + Tot_NetAmt.toStringAsFixed(2));
+
+    _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
+    _otherChargeWithTaxController.text =
+        Tot_otherChargeWithTax.toStringAsFixed(2);
+
+    ///Final Setup Befor GST
+    _totalGstController.text = Tot_GSTAmt.toStringAsFixed(2);
+    _otherChargeExcludeTaxController.text =
+        Tot_otherChargeExcludeTax.toStringAsFixed(2);
+
+    ///Final Setup After GST
+    // double Tot_NetAmnt = Tot_NetAmt + Tot_otherChargeWithTax +   Tot_otherChargeExcludeTax;
+    _netAmountController.text = Tot_NetAmt.toStringAsFixed(2);
+    //Tot_BasicAmount.toStringAsFixed(2) + Tot_otherChargeWithTax.toStringAsFixed(2) + Tot_GSTAmt.toStringAsFixed(2) + Tot_otherChargeExcludeTax.toStringAsFixed(2);
   }
 
   void UpdateAfterHeaderDiscount() async {
@@ -3229,11 +3374,389 @@ class _QuotationOtherChargeScreenState
     }
   }
 
+  void UpdateAfterHeaderDiscountZeroToDB() async {
+    double tot_amnt_net = 0.00;
+
+    Tot_NetAmt = 0.00;
+
+    _TempinquiryProductList.clear();
+    _TempinquiryProductList.addAll(_inquiryProductList);
+
+    _onTapOfDeleteALLProduct();
+
+    for (int i = 0; i < _TempinquiryProductList.length; i++) {
+      print("_inquiryProductList[i].NetAmount234" +
+          " Tot_NetAmt : " +
+          _TempinquiryProductList[i].NetAmount.toString());
+
+      tot_amnt_net = tot_amnt_net + _TempinquiryProductList[i].NetAmount;
+    }
+    print("Tot_NetAmtTot_NetAmt" + " Tot_NetAmt : " + tot_amnt_net.toString());
+
+    HeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseAmount = 0.00;
+    double ExclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExclusiveItemWiseTaxAmnt = 0.00;
+    double ExclusiveTaxPluse100 = 0.00;
+    double ExclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double ExclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveItemWiseHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseAmount = 0.00;
+    double InclusiveNetAmntAfterHeaderDisAmnt = 0.00;
+    double InclusiveItemWiseTaxAmnt = 0.00;
+    double InclusiveTaxPluse100 = 0.00;
+    double InclusiveFinalNetAmntAfterHeaderDisAmnt = 0.00;
+
+    double InclusiveTotalNetAmntAfterHeaderDisAmnt = 0.00;
+    double ExTotalBasic = 0.00;
+    double ExTotalGSTamt = 0.00;
+    double ExTotalNetAmnt = 0.00;
+    double InTotalBasic = 0.00;
+    double InTotalGSTamt = 0.00;
+    double InTotalNetAmnt = 0.00;
+
+    for (int i = 0; i < _TempinquiryProductList.length; i++) {
+      if (_TempinquiryProductList[i].TaxType == 1) {
+        ExclusiveItemWiseHeaderDisAmnt =
+            (_TempinquiryProductList[i].NetAmount * HeaderDisAmnt) /
+                tot_amnt_net;
+
+        print("1eeee " +
+            ExclusiveItemWiseHeaderDisAmnt.toStringAsFixed(2) +
+            " totnet " +
+            tot_amnt_net.toStringAsFixed(2));
+        ExclusiveItemWiseAmount = _TempinquiryProductList[i].Quantity *
+            _TempinquiryProductList[i].NetRate;
+
+        print("2eeee " + ExclusiveItemWiseAmount.toStringAsFixed(2));
+        ExclusiveNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount - ExclusiveItemWiseHeaderDisAmnt;
+        print("3eeee " + ExclusiveNetAmntAfterHeaderDisAmnt.toStringAsFixed(2));
+
+        ExclusiveItemWiseTaxAmnt = (ExclusiveNetAmntAfterHeaderDisAmnt *
+                _TempinquiryProductList[i].TaxRate) /
+            100;
+
+        print("4eeeee " +
+            ExclusiveNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+            "  " +
+            ExclusiveItemWiseTaxAmnt.toStringAsFixed(2));
+
+        ExclusiveFinalNetAmntAfterHeaderDisAmnt =
+            ExclusiveNetAmntAfterHeaderDisAmnt;
+        ExclusiveTotalNetAmntAfterHeaderDisAmnt =
+            ExclusiveItemWiseAmount + ExclusiveItemWiseTaxAmnt;
+        print("5eeeee " +
+            ExclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+            "  " +
+            ExclusiveItemWiseAmount.toStringAsFixed(2));
+
+        var CGSTPer = 0.00;
+        var CGSTAmount = 0.00;
+        var SGSTPer = 0.00;
+        var SGSTAmount = 0.00;
+        var IGSTPer = 0.00;
+        var IGSTAmount = 0.00;
+        if (_offlineLoggedInData.details[0].stateCode ==
+            int.parse(_TempinquiryProductList[i].StateCode.toString())) {
+          CGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          SGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          CGSTAmount = ExclusiveItemWiseTaxAmnt / 2;
+          SGSTAmount = ExclusiveItemWiseTaxAmnt / 2;
+          IGSTPer = 0.00;
+          IGSTAmount = 0.00;
+        } else {
+          IGSTPer = _TempinquiryProductList[i].TaxRate;
+          IGSTAmount = ExclusiveItemWiseTaxAmnt;
+          CGSTPer = 0.00;
+          SGSTPer = 0.00;
+          CGSTAmount = 0.00;
+          SGSTAmount = 0.00;
+        }
+
+        await OfflineDbHelper.getInstance().insertQuotationProduct(
+            QuotationTable(
+                _TempinquiryProductList[i].QuotationNo,
+                _TempinquiryProductList[i].ProductSpecification,
+                _TempinquiryProductList[i].ProductID,
+                _TempinquiryProductList[i].ProductName,
+                _TempinquiryProductList[i].Unit,
+                _TempinquiryProductList[i].Quantity,
+                _TempinquiryProductList[i].UnitRate,
+                _TempinquiryProductList[i].DiscountPercent,
+                _TempinquiryProductList[i].DiscountAmt,
+                _TempinquiryProductList[i].NetRate,
+                ExclusiveFinalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxRate,
+                ExclusiveItemWiseTaxAmnt,
+                ExclusiveTotalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxType,
+                CGSTPer,
+                SGSTPer,
+                IGSTPer,
+                CGSTAmount,
+                SGSTAmount,
+                IGSTAmount,
+                _TempinquiryProductList[i].StateCode,
+                _TempinquiryProductList[i].pkID,
+                LoginUserID,
+                CompanyID.toString(),
+                0,
+                ExclusiveItemWiseHeaderDisAmnt));
+      } else {
+        InclusiveItemWiseHeaderDisAmnt =
+            (_TempinquiryProductList[i].NetAmount * HeaderDisAmnt) /
+                tot_amnt_net;
+
+        print("1eeee " +
+            InclusiveItemWiseHeaderDisAmnt.toStringAsFixed(2) +
+            " totnet " +
+            tot_amnt_net.toStringAsFixed(2));
+        InclusiveItemWiseAmount = _TempinquiryProductList[i].Quantity *
+            _TempinquiryProductList[i].NetRate;
+
+        print("2eeee " + InclusiveItemWiseAmount.toStringAsFixed(2));
+        InclusiveNetAmntAfterHeaderDisAmnt =
+            InclusiveItemWiseAmount - InclusiveItemWiseHeaderDisAmnt;
+
+        print("3eeee " + InclusiveNetAmntAfterHeaderDisAmnt.toStringAsFixed(2));
+
+        InclusiveTaxPluse100 = 100 + _TempinquiryProductList[i].TaxRate;
+        InclusiveItemWiseTaxAmnt = (InclusiveNetAmntAfterHeaderDisAmnt *
+                _TempinquiryProductList[i].TaxRate) /
+            InclusiveTaxPluse100;
+
+        print("4eeeee " +
+            ExclusiveNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+            "  " +
+            ExclusiveItemWiseTaxAmnt.toStringAsFixed(2));
+
+        InclusiveFinalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt - InclusiveItemWiseTaxAmnt;
+
+        InclusiveTotalNetAmntAfterHeaderDisAmnt =
+            InclusiveNetAmntAfterHeaderDisAmnt; // + InclusiveItemWiseTaxAmnt;
+
+        print("4eeeee " +
+            InclusiveTotalNetAmntAfterHeaderDisAmnt.toStringAsFixed(2) +
+            "  " +
+            InclusiveNetAmntAfterHeaderDisAmnt.toStringAsFixed(2));
+
+        var CGSTPer = 0.00;
+        var CGSTAmount = 0.00;
+        var SGSTPer = 0.00;
+        var SGSTAmount = 0.00;
+        var IGSTPer = 0.00;
+        var IGSTAmount = 0.00;
+        if (_offlineLoggedInData.details[0].stateCode ==
+            int.parse(_TempinquiryProductList[i].StateCode.toString())) {
+          CGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          SGSTPer = _TempinquiryProductList[i].TaxRate / 2;
+          CGSTAmount = InclusiveItemWiseTaxAmnt / 2;
+          SGSTAmount = InclusiveItemWiseTaxAmnt / 2;
+          IGSTPer = 0.00;
+          IGSTAmount = 0.00;
+        } else {
+          IGSTPer = _TempinquiryProductList[i].TaxRate;
+          IGSTAmount = InclusiveItemWiseTaxAmnt;
+          CGSTPer = 0.00;
+          SGSTPer = 0.00;
+          CGSTAmount = 0.00;
+          SGSTAmount = 0.00;
+        }
+
+        await OfflineDbHelper.getInstance().insertQuotationProduct(
+            QuotationTable(
+                _TempinquiryProductList[i].QuotationNo,
+                _TempinquiryProductList[i].ProductSpecification,
+                _TempinquiryProductList[i].ProductID,
+                _TempinquiryProductList[i].ProductName,
+                _TempinquiryProductList[i].Unit,
+                _TempinquiryProductList[i].Quantity,
+                _TempinquiryProductList[i].UnitRate,
+                _TempinquiryProductList[i].DiscountPercent,
+                _TempinquiryProductList[i].DiscountAmt,
+                _TempinquiryProductList[i].NetRate,
+                InclusiveFinalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxRate,
+                InclusiveItemWiseTaxAmnt,
+                InclusiveTotalNetAmntAfterHeaderDisAmnt,
+                _TempinquiryProductList[i].TaxType,
+                CGSTPer,
+                SGSTPer,
+                IGSTPer,
+                CGSTAmount,
+                SGSTAmount,
+                IGSTAmount,
+                _TempinquiryProductList[i].StateCode,
+                _TempinquiryProductList[i].pkID,
+                LoginUserID,
+                CompanyID.toString(),
+                0,
+                InclusiveItemWiseHeaderDisAmnt));
+      }
+    }
+  }
+
   Future<void> _onTapOfDeleteALLProduct() async {
     await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
   }
 
+  void _OnTaptoWithoutHeaderSave() async {
+    _headerDiscountController.text = "0.00";
+
+    /* if (_headerDiscountController.text == "") {
+      _headerDiscountController.text = "0.00";
+    }*/
+    if (_otherAmount1.text == "") {
+      _otherAmount1.text = "0.00";
+    }
+    if (_otherAmount2.text == "") {
+      _otherAmount2.text = "0.00";
+    }
+    if (_otherAmount3.text == "") {
+      _otherAmount3.text = "0.00";
+    }
+    if (_otherAmount4.text == "") {
+      _otherAmount4.text = "0.00";
+    }
+    if (_otherAmount5.text == "") {
+      _otherAmount5.text = "0.00";
+    }
+
+    if (_otherChargeNameController1.text == "") {
+      _otherAmount1.text = "0.00";
+    }
+    if (_otherChargeNameController2.text == "") {
+      _otherAmount2.text = "0.00";
+    }
+    if (_otherChargeNameController3.text == "") {
+      _otherAmount3.text = "0.00";
+    }
+    if (_otherChargeNameController4.text == "") {
+      _otherAmount4.text = "0.00";
+    }
+    if (_otherChargeNameController5.text == "") {
+      _otherAmount5.text = "0.00";
+    }
+
+    TotalCalculation();
+    TotalCalculation2();
+    TotalCalculation3();
+    TotalCalculation4();
+    TotalCalculation5();
+
+    double ChargeAmt1 = 0.00;
+    double ChargeAmt2 = 0.00;
+    double ChargeAmt3 = 0.00;
+    double ChargeAmt4 = 0.00;
+    double ChargeAmt5 = 0.00;
+    double TotalOtherAmnt = 0.00;
+
+    ChargeAmt1 =
+        double.parse(_otherAmount1.text == null ? 0.00 : _otherAmount1.text);
+    ChargeAmt2 =
+        double.parse(_otherAmount2.text == null ? 0.00 : _otherAmount2.text);
+    ChargeAmt3 =
+        double.parse(_otherAmount3.text == null ? 0.00 : _otherAmount3.text);
+    ChargeAmt4 =
+        double.parse(_otherAmount4.text == null ? 0.00 : _otherAmount4.text);
+    ChargeAmt5 =
+        double.parse(_otherAmount5.text == null ? 0.00 : _otherAmount5.text);
+
+    TotalOtherAmnt =
+        ChargeAmt1 + ChargeAmt2 + ChargeAmt3 + ChargeAmt4 + ChargeAmt5;
+
+    Tot_BasicAmount = 0.00;
+    Tot_otherChargeWithTax = 0.00;
+    Tot_GSTAmt = 0.00;
+    Tot_otherChargeExcludeTax = 0.00;
+    Tot_NetAmt = 0.00;
+
+    await getInquiryProductDetails();
+
+    for (int i = 0; i < _inquiryProductList.length; i++) {
+      Tot_BasicAmount = Tot_BasicAmount + _inquiryProductList[i].Amount;
+
+      print(" GetBasicAmount " +
+          " BasicTotal : " +
+          _inquiryProductList[i].Amount.toStringAsFixed(2));
+      Tot_otherChargeWithTax = 0.00;
+      Tot_GSTAmt = Tot_GSTAmt + _inquiryProductList[i].TaxAmount;
+      Tot_otherChargeExcludeTax = 0.00;
+      Tot_NetAmt = Tot_NetAmt + _inquiryProductList[i].NetAmount;
+    }
+
+    UpdateAfterHeaderDiscount();
+    Tot_otherChargeWithTax = (InclusiveBeforeGstAmnt1) +
+        (ExclusiveBeforeGStAmnt1) +
+        (InclusiveBeforeGstAmnt2) +
+        (ExclusiveBeforeGStAmnt2) +
+        (InclusiveBeforeGstAmnt3) +
+        (ExclusiveBeforeGStAmnt3) +
+        (InclusiveBeforeGstAmnt4) +
+        (ExclusiveBeforeGStAmnt4) +
+        (InclusiveBeforeGstAmnt5) +
+        (ExclusiveBeforeGStAmnt5); //+ (ChargeAmt3 - devide3) + (ChargeAmt4 - devide4) + (ChargeAmt5 - devide5);
+    Tot_GSTAmt = Tot_GSTAmt +
+        InclusiveBeforeGstAmnt_Minus1 +
+        ExclusiveBeforeGStAmnt_Minus1 +
+        InclusiveBeforeGstAmnt_Minus2 +
+        ExclusiveBeforeGStAmnt_Minus2 +
+        InclusiveBeforeGstAmnt_Minus3 +
+        ExclusiveBeforeGStAmnt_Minus3 +
+        InclusiveBeforeGstAmnt_Minus4 +
+        ExclusiveBeforeGStAmnt_Minus4 +
+        InclusiveBeforeGstAmnt_Minus5 +
+        ExclusiveBeforeGStAmnt_Minus5;
+    Tot_otherChargeExcludeTax = AfterInclusiveBeforeGstAmnt1 +
+        ExclusiveAfterGstAmnt1 +
+        AfterInclusiveBeforeGstAmnt2 +
+        ExclusiveAfterGstAmnt2 +
+        AfterInclusiveBeforeGstAmnt3 +
+        ExclusiveAfterGstAmnt3 +
+        AfterInclusiveBeforeGstAmnt4 +
+        ExclusiveAfterGstAmnt4 +
+        AfterInclusiveBeforeGstAmnt5 +
+        ExclusiveAfterGstAmnt5;
+
+    _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
+    _otherChargeWithTaxController.text =
+        Tot_otherChargeWithTax.toStringAsFixed(2);
+
+    ///Final Setup Befor GST
+    _totalGstController.text = Tot_GSTAmt.toStringAsFixed(2);
+    _otherChargeExcludeTaxController.text =
+        Tot_otherChargeExcludeTax.toStringAsFixed(2);
+
+    ///Final Setup After GST
+    //double Tot_NetAmnt = Tot_NetAmt + Tot_otherChargeWithTax + Tot_otherChargeExcludeTax;
+
+    double Tot_NetAmnt = Tot_NetAmt +
+        TotalOtherAmnt +
+        ExclusiveBeforeGStAmnt_Minus1 +
+        ExclusiveBeforeGStAmnt_Minus2 +
+        ExclusiveBeforeGStAmnt_Minus3 +
+        ExclusiveBeforeGStAmnt_Minus4 +
+        ExclusiveBeforeGStAmnt_Minus5;
+
+    double MinusHeaderDiscamnt = Tot_NetAmnt - HeaderDisAmnt;
+
+    _netAmountController.text = MinusHeaderDiscamnt.roundToDouble()
+        .toStringAsFixed(2); //MinusHeaderDiscamnt.toStringAsFixed(2);
+
+    double value = MinusHeaderDiscamnt;
+    double decimalValue = value - value.toInt();
+
+    _roundOFController.text = decimalValue.toStringAsFixed(2);
+  }
+
   void _OnTaptoSave() async {
+    //UpdateAfterHeaderDiscountZeroToDB();
+
     if (_headerDiscountController.text == "") {
       _headerDiscountController.text = "0.00";
     }
@@ -3388,13 +3911,5 @@ class _QuotationOtherChargeScreenState
     print("sucess123" + state.response.toString());
   }
 
-  GenericMethod() {
-    if (_headerDiscountController.text == null ||
-        _headerDiscountController.text == "") {
-      _headerDiscountController.text = "0.00";
-    }
-
-    double HDSCNT = double.parse(_headerDiscountController.text);
-    //List<QuotationTable> qtTable = HeaderDiscountCalculation.txtHeadDiscount_TextChanged(_inquiryProductList, HDSCNT, _offlineLoggedInData.details[0].stateCode.toString(), StateCode.toString());
-  }
+  void _OnFetchProduct(GetQuotationProductListState state) {}
 }

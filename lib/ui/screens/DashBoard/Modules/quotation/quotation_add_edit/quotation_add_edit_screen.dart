@@ -27,9 +27,9 @@ import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_general_customer_search_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_other_charges_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_summary_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -581,9 +581,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                               //UpdateAfterHeaderDiscountToDB();
 
                               print("INWWWE" + InquiryNo.toString());
-                              navigateTo(
-                                  context, QuotationProductListScreen.routeName,
-                                  arguments: AddQuotationProductListArgument(
+                              navigateTo(context,
+                                  OldQuotationProductListScreen.routeName,
+                                  arguments: OldAddQuotationProductListArgument(
                                       InquiryNo,
                                       edt_StateCode.text,
                                       edt_HeaderDisc.text));
@@ -677,17 +677,17 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                     OtherChargeBeforGst5;
 
                                 navigateTo(context,
-                                        QuotationOtherChargeScreen.routeName,
-                                        arguments:
-                                            QuotationOtherChargesScreenArguments(
-                                                int.parse(
-                                                    edt_StateCode.text == null
-                                                        ? 0
-                                                        : edt_StateCode.text),
-                                                _editModel,
-                                                edt_HeaderDisc.text,
-                                                allOtherCharges))
-                                    .then((value) {
+                                    NewQuotationOtherChargeScreen.routeName,
+                                    arguments:
+                                        NewQuotationOtherChargesScreenArguments(
+                                      int.parse(edt_StateCode.text == null
+                                          ? 0
+                                          : edt_StateCode.text),
+                                      _editModel,
+                                      edt_HeaderDisc.text,
+                                      allOtherCharges,
+                                      "OtherCharged",
+                                    )).then((value) {
                                   AllOtherCharges allOtherCharges = value;
                                   if (allOtherCharges == null) {
                                     print(
@@ -774,6 +774,188 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                     positiveButtonTitle: "OK");
                               }
                             }, "Other Charges",
+                                width: 600,
+                                backGroundColor: Color(0xff4d62dc),
+                                radius: 25.0),
+                          ),
+                        ),
+                        Visibility(
+                          visible: true,
+                          child: Container(
+                            margin: EdgeInsets.all(10),
+                            alignment: Alignment.bottomCenter,
+                            child: getCommonButton(baseTheme, () async {
+                              IsWithoutTapOtherCharges = true;
+
+                              //  _onTapOfDeleteALLContact();
+                              //  navigateTo(context, InquiryProductListScreen.routeName);
+                              await getInquiryProductDetails();
+                              if (_inquiryProductList.length != 0) {
+                                print("HeaderDiscll" +
+                                    edt_HeaderDisc.text.toString());
+
+                                AllOtherCharges allOtherCharges =
+                                    AllOtherCharges();
+                                allOtherCharges.HeaderDiscount =
+                                    edt_HeaderDisc.text;
+                                allOtherCharges.OtherChargName1 =
+                                    OtherChargName1;
+                                allOtherCharges.OtherChargeAmount1 =
+                                    OtherChargeAmount1;
+                                allOtherCharges.OtherChargeID1 = OtherChargeID1;
+                                allOtherCharges.OtherChargeTaxType1 =
+                                    OtherChargeTaxType1;
+                                allOtherCharges.OtherChargeGstPer1 =
+                                    OtherChargeGstPer1;
+                                allOtherCharges.OtherChargeBeforGst1 =
+                                    OtherChargeBeforGst1;
+
+                                allOtherCharges.OtherChargName2 =
+                                    OtherChargName2;
+                                allOtherCharges.OtherChargeAmount2 =
+                                    OtherChargeAmount2;
+                                allOtherCharges.OtherChargeID2 = OtherChargeID2;
+                                allOtherCharges.OtherChargeTaxType2 =
+                                    OtherChargeTaxType2;
+                                allOtherCharges.OtherChargeGstPer2 =
+                                    OtherChargeGstPer2;
+                                allOtherCharges.OtherChargeBeforGst2 =
+                                    OtherChargeBeforGst2;
+
+                                allOtherCharges.OtherChargName3 =
+                                    OtherChargName3;
+                                allOtherCharges.OtherChargeAmount3 =
+                                    OtherChargeAmount3;
+                                allOtherCharges.OtherChargeID3 = OtherChargeID3;
+                                allOtherCharges.OtherChargeTaxType3 =
+                                    OtherChargeTaxType3;
+                                allOtherCharges.OtherChargeGstPer3 =
+                                    OtherChargeGstPer3;
+                                allOtherCharges.OtherChargeBeforGst3 =
+                                    OtherChargeBeforGst3;
+
+                                allOtherCharges.OtherChargName4 =
+                                    OtherChargName4;
+                                allOtherCharges.OtherChargeAmount4 =
+                                    OtherChargeAmount4;
+                                allOtherCharges.OtherChargeID4 = OtherChargeID4;
+                                allOtherCharges.OtherChargeTaxType4 =
+                                    OtherChargeTaxType4;
+                                allOtherCharges.OtherChargeGstPer4 =
+                                    OtherChargeGstPer4;
+                                allOtherCharges.OtherChargeBeforGst4 =
+                                    OtherChargeBeforGst4;
+
+                                allOtherCharges.OtherChargName5 =
+                                    OtherChargName5;
+                                allOtherCharges.OtherChargeAmount5 =
+                                    OtherChargeAmount5;
+                                allOtherCharges.OtherChargeID5 = OtherChargeID5;
+                                allOtherCharges.OtherChargeTaxType5 =
+                                    OtherChargeTaxType5;
+                                allOtherCharges.OtherChargeGstPer5 =
+                                    OtherChargeGstPer5;
+                                allOtherCharges.OtherChargeBeforGst5 =
+                                    OtherChargeBeforGst5;
+
+                                navigateTo(context,
+                                    NewQuotationOtherChargeScreen.routeName,
+                                    arguments:
+                                        NewQuotationOtherChargesScreenArguments(
+                                      int.parse(edt_StateCode.text == null
+                                          ? 0
+                                          : edt_StateCode.text),
+                                      _editModel,
+                                      edt_HeaderDisc.text,
+                                      allOtherCharges,
+                                      "Calculation",
+                                    )).then((value) {
+                                  AllOtherCharges allOtherCharges = value;
+                                  if (allOtherCharges == null) {
+                                    print(
+                                        "HeaderDiscount From QTOtherCharges 0.00");
+                                  } else {
+                                    print(
+                                        "HeaderDiscount From OtherChargeAmount " +
+                                            allOtherCharges.OtherChargeAmount1 +
+                                            " OtherChargeName1 : " +
+                                            allOtherCharges.OtherChargName1);
+                                    setState(() {
+                                      edt_HeaderDisc.text =
+                                          allOtherCharges.HeaderDiscount;
+                                      OtherChargName1 =
+                                          allOtherCharges.OtherChargName1;
+                                      OtherChargeAmount1 =
+                                          allOtherCharges.OtherChargeAmount1;
+                                      OtherChargeID1 =
+                                          allOtherCharges.OtherChargeID1;
+                                      OtherChargeTaxType1 =
+                                          allOtherCharges.OtherChargeTaxType1;
+                                      OtherChargeGstPer1 =
+                                          allOtherCharges.OtherChargeGstPer1;
+                                      OtherChargeBeforGst1 =
+                                          allOtherCharges.OtherChargeBeforGst1;
+
+                                      OtherChargName2 =
+                                          allOtherCharges.OtherChargName2;
+                                      OtherChargeAmount2 =
+                                          allOtherCharges.OtherChargeAmount2;
+                                      OtherChargeID2 =
+                                          allOtherCharges.OtherChargeID2;
+                                      OtherChargeTaxType2 =
+                                          allOtherCharges.OtherChargeTaxType2;
+                                      OtherChargeGstPer2 =
+                                          allOtherCharges.OtherChargeGstPer2;
+                                      OtherChargeBeforGst2 =
+                                          allOtherCharges.OtherChargeBeforGst2;
+
+                                      OtherChargName3 =
+                                          allOtherCharges.OtherChargName3;
+                                      OtherChargeAmount3 =
+                                          allOtherCharges.OtherChargeAmount3;
+                                      OtherChargeID3 =
+                                          allOtherCharges.OtherChargeID3;
+                                      OtherChargeTaxType3 =
+                                          allOtherCharges.OtherChargeTaxType3;
+                                      OtherChargeGstPer3 =
+                                          allOtherCharges.OtherChargeGstPer3;
+                                      OtherChargeBeforGst3 =
+                                          allOtherCharges.OtherChargeBeforGst3;
+
+                                      OtherChargName4 =
+                                          allOtherCharges.OtherChargName4;
+                                      OtherChargeAmount4 =
+                                          allOtherCharges.OtherChargeAmount4;
+                                      OtherChargeID4 =
+                                          allOtherCharges.OtherChargeID4;
+                                      OtherChargeTaxType4 =
+                                          allOtherCharges.OtherChargeTaxType4;
+                                      OtherChargeGstPer4 =
+                                          allOtherCharges.OtherChargeGstPer4;
+                                      OtherChargeBeforGst4 =
+                                          allOtherCharges.OtherChargeBeforGst4;
+
+                                      OtherChargName5 =
+                                          allOtherCharges.OtherChargName5;
+                                      OtherChargeAmount5 =
+                                          allOtherCharges.OtherChargeAmount5;
+                                      OtherChargeID5 =
+                                          allOtherCharges.OtherChargeID5;
+                                      OtherChargeTaxType5 =
+                                          allOtherCharges.OtherChargeTaxType5;
+                                      OtherChargeGstPer5 =
+                                          allOtherCharges.OtherChargeGstPer5;
+                                      OtherChargeBeforGst5 =
+                                          allOtherCharges.OtherChargeBeforGst5;
+                                    });
+                                  }
+                                });
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "Atleast one product is required to view other charges !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            }, "Final Summary",
                                 width: 600,
                                 backGroundColor: Color(0xff4d62dc),
                                 radius: 25.0),

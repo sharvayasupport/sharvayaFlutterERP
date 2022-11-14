@@ -30,6 +30,8 @@ import 'package:soleoserp/firebase_options.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
+import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/other/all_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/follower_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/menu_rights_request.dart';
@@ -165,6 +167,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
   File Lunch_In_OUT_File;
 
+  String ConstantMAster = "";
+
   @override
   void initState() {
     super.initState();
@@ -282,6 +286,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
     getProductionListFromDashBoard(arr_ALL_Name_ID_For_Production);
     getDealerListFromDashBoard(arr_ALL_Name_ID_For_Dealer);
 
+    _dashBoardScreenBloc.add(ConstantRequestEvent(
+        CompanyID.toString(),
+        ConstantRequest(
+            ConstantHead: "AttendenceWithImage",
+            CompanyId: CompanyID.toString())));
+    //ConstantRequestEvent
     _dashBoardScreenBloc.add(AttendanceCallEvent(AttendanceApiRequest(
         pkID: "",
         EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
@@ -341,11 +351,16 @@ class _HomeScreenState extends BaseState<HomeScreen>
           if (state is ALL_EmployeeNameListResponseState) {
             _onALLEmployeeListByStatusCallSuccess(state);
           }
+
           if (state is AttendanceListCallResponseState) {
             _OnAttendanceListResponse(state);
           }
           if (state is EmployeeListResponseState) {
             _OnFethEmployeeImage(state);
+          }
+
+          if (state is ConstantResponseState) {
+            _onGetConstant(state);
           }
           return super.build(context);
         },
@@ -357,7 +372,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
               currentState is FollowerEmployeeListByStatusCallResponseState ||
               currentState is ALL_EmployeeNameListResponseState ||
               currentState is AttendanceListCallResponseState ||
-              currentState is EmployeeListResponseState) {
+              currentState is EmployeeListResponseState ||
+              currentState is ConstantResponseState) {
             return true;
           }
           return false;
@@ -374,12 +390,17 @@ class _HomeScreenState extends BaseState<HomeScreen>
           if (state is PunchOutWebMethodState) {
             _OnwebSucessResponse(state);
           }
+
+          if (state is PunchWithoutAttendenceSaveResponseState) {
+            _OnPunchOutWithoutImageSucess(state);
+          }
           //handle states
         },
         listenWhen: (oldState, currentState) {
           if (currentState is AttendanceSaveCallResponseState ||
               currentState is PunchOutWebMethodState ||
-              currentState is PunchAttendenceSaveResponseState) {
+              currentState is PunchAttendenceSaveResponseState ||
+              currentState is PunchWithoutAttendenceSaveResponseState) {
             return true;
           }
           //return true for state for which listener method should be called
@@ -393,6 +414,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
   Widget buildBody(BuildContext context123) {
     //getcurrentTimeInfoFromMain(context123);
 
+    print("FromScreen" + ConstantMAster.toString());
     if (Platform.isAndroid) {
       // Android-specific code
 
@@ -491,6 +513,11 @@ class _HomeScreenState extends BaseState<HomeScreen>
                         Year: selectedDate.year.toString(),
                         CompanyId: CompanyID.toString(),
                         LoginUserID: LoginUserID)));
+                _dashBoardScreenBloc.add(ConstantRequestEvent(
+                    CompanyID.toString(),
+                    ConstantRequest(
+                        ConstantHead: "AttendenceWithImage",
+                        CompanyId: CompanyID.toString())));
                 _dashBoardScreenBloc.add(MenuRightsCallEvent(MenuRightsRequest(
                     CompanyID: CompanyID.toString(),
                     LoginUserID: LoginUserID)));
@@ -551,6 +578,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                           flex: 1,
                                           child: InkWell(
                                             onTap: () async {
+                                              TimeOfDay selectedTime =
+                                                  TimeOfDay.now();
+
                                               if (isCurrentTime == true) {
                                                 if (isPunchIn == true) {
                                                   showCommonDialogWithSingleOption(
@@ -569,18 +599,50 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
                                                     checkPhotoPermissionStatus();
                                                   } else {
-                                                    showCommonDialogWithTwoOptions(
-                                                        context,
-                                                        "PunchIn With Photo ?",
-                                                        negativeButtonTitle:
-                                                            "No",
-                                                        positiveButtonTitle:
-                                                            "Yes",
-                                                        onTapOfPositiveButton:
-                                                            () async {
-                                                      Navigator.of(context)
-                                                          .pop();
-
+                                                    if (ConstantMAster
+                                                                .toString() ==
+                                                            "" ||
+                                                        ConstantMAster
+                                                                    .toString()
+                                                                .toLowerCase() ==
+                                                            "no") {
+                                                      _dashBoardScreenBloc.add(PunchWithoutImageAttendanceSaveRequestEvent(PunchWithoutImageAttendanceSaveRequest(
+                                                          Mode: "punchin",
+                                                          pkID: "0",
+                                                          EmployeeID:
+                                                              _offlineLoggedInData
+                                                                  .details[0]
+                                                                  .employeeID
+                                                                  .toString(),
+                                                          PresenceDate: selectedDate
+                                                                  .year
+                                                                  .toString() +
+                                                              "-" +
+                                                              selectedDate.month
+                                                                  .toString() +
+                                                              "-" +
+                                                              selectedDate.day
+                                                                  .toString(),
+                                                          TimeIn: selectedTime
+                                                                  .hour
+                                                                  .toString() +
+                                                              ":" +
+                                                              selectedTime
+                                                                  .minute
+                                                                  .toString(),
+                                                          TimeOut: "",
+                                                          LunchIn: "",
+                                                          LunchOut: "",
+                                                          LoginUserID:
+                                                              LoginUserID,
+                                                          Notes: "",
+                                                          Latitude: Latitude,
+                                                          Longitude: Longitude,
+                                                          LocationAddress:
+                                                              Address,
+                                                          CompanyId: CompanyID
+                                                              .toString())));
+                                                    } else {
                                                       final imagepicker =
                                                           ImagePicker();
 
@@ -589,6 +651,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                               .pickImage(
                                                         source:
                                                             ImageSource.camera,
+                                                        imageQuality: 85,
                                                       );
 
                                                       if (file != null) {
@@ -670,63 +733,14 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                                   LoginUserId:
                                                                       LoginUserID,
                                                                 )));
-                                                      } else {
+                                                      } /*else {
                                                         showCommonDialogWithSingleOption(
                                                             context,
-                                                            "Your Selfie is Required to do PunchIn !",
+                                                            "Something Went Wrong File Not Found Exception!",
                                                             positiveButtonTitle:
                                                                 "OK");
-                                                      }
-                                                      setState(() {});
-                                                    }, onTapOfNegativeButton:
-                                                            () {
-                                                      Navigator.of(context)
-                                                          .pop();
-
-                                                      _dashBoardScreenBloc.add(
-                                                          PunchAttendanceSaveRequestEvent(
-                                                              Lunch_In_OUT_File,
-                                                              PunchAttendanceSaveRequest(
-                                                                pkID: "0",
-                                                                CompanyId: CompanyID
-                                                                    .toString(),
-                                                                Mode: "punchIN",
-                                                                EmployeeID: _offlineLoggedInData
-                                                                    .details[0]
-                                                                    .employeeID
-                                                                    .toString(),
-                                                                FileName:
-                                                                    "demo.png",
-                                                                PresenceDate: selectedDate
-                                                                        .year
-                                                                        .toString() +
-                                                                    "-" +
-                                                                    selectedDate
-                                                                        .month
-                                                                        .toString() +
-                                                                    "-" +
-                                                                    selectedDate
-                                                                        .day
-                                                                        .toString(),
-                                                                Time: selectedTime
-                                                                        .hour
-                                                                        .toString() +
-                                                                    ":" +
-                                                                    selectedTime
-                                                                        .minute
-                                                                        .toString(),
-                                                                Notes: "",
-                                                                Latitude:
-                                                                    Latitude,
-                                                                Longitude:
-                                                                    Longitude,
-                                                                LocationAddress:
-                                                                    Address,
-                                                                LoginUserId:
-                                                                    LoginUserID,
-                                                              )));
-                                                      //Lunch_In_OUT_File
-                                                    });
+                                                      }*/
+                                                    }
                                                   }
                                                 }
                                               }
@@ -769,43 +783,54 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                         ),
                                         Expanded(
                                           flex: 2,
-                                          child: Container(
-                                            child: Column(
-                                              children: [
-                                                Image.network(
-                                                  ImgFromTextFiled.text,
-                                                  key: ValueKey(new Random()
-                                                      .nextInt(100)),
-                                                  height: 48,
-                                                  width: 48,
-                                                  errorBuilder: (BuildContext
-                                                          context,
-                                                      Object exception,
-                                                      StackTrace stackTrace) {
-                                                    return Image.network(
-                                                        "https://img.icons8.com/color/2x/no-image.png",
-                                                        height: 48,
-                                                        width: 48);
-                                                  },
-                                                ),
-                                                // Image.network(ImgFromTextFiled.text,height: 48, width: 48, ),
-                                                Text(
-                                                  _offlineLoggedInData
-                                                      .details[0].employeeName,
-                                                  style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: colorDarkBlue),
-                                                ),
-                                                Text(
-                                                  _offlineLoggedInData
-                                                      .details[0].roleName,
-                                                  style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: colorDarkBlue),
-                                                )
-                                              ],
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              //https://drive.google.com/file/d/1hZHStrGY718yD59ZY4MCOwJe6v1e-EtE/view?usp=sharing
+                                              /*  lkjdjds
+                                              ;sdfksd*/
+
+                                              OpenDriveLink(
+                                                  "https://drive.google.com/file/d/1hZHStrGY718yD59ZY4MCOwJe6v1e-EtE/view?usp=sharing");
+                                            },
+                                            child: Container(
+                                              child: Column(
+                                                children: [
+                                                  Image.network(
+                                                    ImgFromTextFiled.text,
+                                                    key: ValueKey(new Random()
+                                                        .nextInt(100)),
+                                                    height: 48,
+                                                    width: 48,
+                                                    errorBuilder: (BuildContext
+                                                            context,
+                                                        Object exception,
+                                                        StackTrace stackTrace) {
+                                                      return Image.network(
+                                                          "https://img.icons8.com/color/2x/no-image.png",
+                                                          height: 48,
+                                                          width: 48);
+                                                    },
+                                                  ),
+                                                  // Image.network(ImgFromTextFiled.text,height: 48, width: 48, ),
+                                                  Text(
+                                                    _offlineLoggedInData
+                                                        .details[0]
+                                                        .employeeName,
+                                                    style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: colorDarkBlue),
+                                                  ),
+                                                  Text(
+                                                    _offlineLoggedInData
+                                                        .details[0].roleName,
+                                                    style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: colorDarkBlue),
+                                                  )
+                                                ],
+                                              ),
+                                              width: double.infinity,
                                             ),
-                                            width: double.infinity,
                                           ),
                                         ),
                                         Expanded(
@@ -869,7 +894,185 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                         Expanded(
                                           flex: 1,
                                           child: InkWell(
-                                            onTap: () => isCurrentTime == true
+                                              onTap: () {
+                                                TimeOfDay selectedTime =
+                                                    TimeOfDay.now();
+
+                                                if (isCurrentTime == true) {
+                                                  if (isPunchIn == true) {
+                                                    if (isPunchOut == false) {
+                                                      if (isLunchIn == true) {
+                                                        showCommonDialogWithSingleOption(
+                                                            context,
+                                                            _offlineLoggedInData
+                                                                    .details[0]
+                                                                    .employeeName +
+                                                                " \n Lunch In : " +
+                                                                LunchInTime
+                                                                    .text,
+                                                            positiveButtonTitle:
+                                                                "OK");
+                                                      } else {
+                                                        if (ConstantMAster
+                                                                    .toString() ==
+                                                                "" ||
+                                                            ConstantMAster
+                                                                        .toString()
+                                                                    .toLowerCase() ==
+                                                                "no") {
+                                                          _dashBoardScreenBloc.add(PunchWithoutImageAttendanceSaveRequestEvent(PunchWithoutImageAttendanceSaveRequest(
+                                                              Mode: "lunchin",
+                                                              pkID: "0",
+                                                              EmployeeID: _offlineLoggedInData
+                                                                  .details[0]
+                                                                  .employeeID
+                                                                  .toString(),
+                                                              PresenceDate: selectedDate
+                                                                      .year
+                                                                      .toString() +
+                                                                  "-" +
+                                                                  selectedDate
+                                                                      .month
+                                                                      .toString() +
+                                                                  "-" +
+                                                                  selectedDate.day
+                                                                      .toString(),
+                                                              TimeIn: "",
+                                                              TimeOut: "",
+                                                              LunchIn: selectedTime
+                                                                      .hour
+                                                                      .toString() +
+                                                                  ":" +
+                                                                  selectedTime
+                                                                      .minute
+                                                                      .toString(),
+                                                              LunchOut: "",
+                                                              LoginUserID:
+                                                                  LoginUserID,
+                                                              Notes: "",
+                                                              Latitude:
+                                                                  Latitude,
+                                                              Longitude:
+                                                                  Longitude,
+                                                              LocationAddress:
+                                                                  Address,
+                                                              CompanyId: CompanyID
+                                                                  .toString())));
+                                                        } else {
+                                                          _dashBoardScreenBloc.add(
+                                                              PunchAttendanceSaveRequestEvent(
+                                                                  Lunch_In_OUT_File,
+                                                                  PunchAttendanceSaveRequest(
+                                                                    pkID: "0",
+                                                                    CompanyId:
+                                                                        CompanyID
+                                                                            .toString(),
+                                                                    Mode:
+                                                                        "lunchin",
+                                                                    EmployeeID: _offlineLoggedInData
+                                                                        .details[
+                                                                            0]
+                                                                        .employeeID
+                                                                        .toString(),
+                                                                    FileName:
+                                                                        "demo.png",
+                                                                    PresenceDate: selectedDate.year.toString() +
+                                                                        "-" +
+                                                                        selectedDate
+                                                                            .month
+                                                                            .toString() +
+                                                                        "-" +
+                                                                        selectedDate
+                                                                            .day
+                                                                            .toString(),
+                                                                    Time: selectedTime
+                                                                            .hour
+                                                                            .toString() +
+                                                                        ":" +
+                                                                        selectedTime
+                                                                            .minute
+                                                                            .toString(),
+                                                                    Notes: "",
+                                                                    Latitude:
+                                                                        Latitude,
+                                                                    Longitude:
+                                                                        Longitude,
+                                                                    LocationAddress:
+                                                                        Address,
+                                                                    LoginUserId:
+                                                                        LoginUserID,
+                                                                  )));
+                                                        }
+                                                      }
+                                                    } else {
+                                                      if (isLunchIn == false) {
+                                                        showCommonDialogWithSingleOption(
+                                                            context,
+                                                            "After Punch Out, You can't be able to do Lunch In!!",
+                                                            positiveButtonTitle:
+                                                                "OK");
+                                                      }
+                                                    }
+                                                  } else {
+                                                    showCommonDialogWithSingleOption(
+                                                        context,
+                                                        "Punch in Is Required !",
+                                                        positiveButtonTitle:
+                                                            "OK");
+                                                  }
+                                                } else {
+                                                  showCommonDialogWithSingleOption(
+                                                      context,
+                                                      "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
+                                                      positiveButtonTitle: "OK",
+                                                      onTapOfPositiveButton:
+                                                          () {
+                                                    navigateTo(context,
+                                                        HomeScreen.routeName,
+                                                        clearAllStack: true);
+                                                  });
+                                                }
+                                              },
+                                              child: Card(
+                                                elevation: 5,
+                                                color: LunchInTime.text == ""
+                                                    ? colorAbsentfDay
+                                                    : colorPresentDay,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                child: Container(
+                                                  height: 35,
+                                                  width: 100,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: Text(
+                                                            "Lunch In",
+                                                            style: TextStyle(
+                                                                color:
+                                                                    colorWhite,
+
+                                                                // <-- Change this
+                                                                fontSize: 10,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )),
+
+                                          /*child: InkWell(
+                                            onTap: () =>
+                                            isCurrentTime == true
                                                 ? isPunchIn == true
                                                     ? isPunchOut == false
                                                         ? isLunchIn == true
@@ -884,54 +1087,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                                         .text,
                                                                 positiveButtonTitle:
                                                                     "OK")
-                                                            : /*_dashBoardScreenBloc.add(
-                                                                PunchAttendanceSaveRequestEvent(
-                                                                    PunchAttendanceSaveRequest(
-                                                                Mode: "lunchin",
-                                                                pkID: "0",
-                                                                EmployeeID: _offlineLoggedInData
-                                                                    .details[0]
-                                                                    .employeeID
-                                                                    .toString(),
-                                                                PresenceDate: selectedDate
-                                                                        .year
-                                                                        .toString() +
-                                                                    "-" +
-                                                                    selectedDate
-                                                                        .month
-                                                                        .toString() +
-                                                                    "-" +
-                                                                    selectedDate
-                                                                        .day
-                                                                        .toString(),
-                                                                TimeIn: selectedTime
-                                                                        .hour
-                                                                        .toString() +
-                                                                    ":" +
-                                                                    selectedTime
-                                                                        .minute
-                                                                        .toString(),
-                                                                TimeOut: "",
-                                                                LunchIn: selectedTime
-                                                                        .hour
-                                                                        .toString() +
-                                                                    ":" +
-                                                                    selectedTime
-                                                                        .minute
-                                                                        .toString(),
-                                                                LunchOut: "",
-                                                                LoginUserID:
-                                                                    LoginUserID,
-                                                                Notes: "",
-                                                                Latitude:
-                                                                    Latitude,
-                                                                Longitude:
-                                                                    Longitude,
-                                                                LocationAddress:
-                                                                    Address,
-                                                                CompanyId: CompanyID
-                                                                    .toString(),
-                                                              )))*/
+                                                            :
 
                                                             _dashBoardScreenBloc.add(
                                                                 PunchAttendanceSaveRequestEvent(
@@ -1032,7 +1188,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                 ),
                                               ),
                                             ),
-                                          ),
+                                          ),*/
                                         ),
                                         SizedBox(
                                           width: 70,
@@ -3122,6 +3278,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
   punchoutLogic() async {
     if (isPunchIn == true) {
+      TimeOfDay selectedTime = TimeOfDay.now();
+
       //EmailTO.text = model.emailAddress;
 
       /*PunchAttendanceSaveRequest(
@@ -3196,14 +3354,37 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
           checkPhotoPermissionStatus();
         } else {
-          showCommonDialogWithTwoOptions(context, "PunchOut With Photo ?",
-              negativeButtonTitle: "No",
-              positiveButtonTitle: "Yes", onTapOfPositiveButton: () async {
-            Navigator.of(context).pop();
+          if (ConstantMAster.toString() == "" ||
+              ConstantMAster.toString().toLowerCase() == "no") {
+            _dashBoardScreenBloc.add(
+                PunchWithoutImageAttendanceSaveRequestEvent(
+                    PunchWithoutImageAttendanceSaveRequest(
+                        Mode: "punchout",
+                        pkID: "0",
+                        EmployeeID: _offlineLoggedInData.details[0].employeeID
+                            .toString(),
+                        PresenceDate: selectedDate.year.toString() +
+                            "-" +
+                            selectedDate.month.toString() +
+                            "-" +
+                            selectedDate.day.toString(),
+                        TimeIn: "",
+                        TimeOut: selectedTime.hour.toString() +
+                            ":" +
+                            selectedTime.minute.toString(),
+                        LunchIn: "",
+                        LunchOut: "",
+                        LoginUserID: LoginUserID,
+                        Notes: "",
+                        Latitude: Latitude,
+                        Longitude: Longitude,
+                        LocationAddress: Address,
+                        CompanyId: CompanyID.toString())));
+          } else {
             final imagepicker = ImagePicker();
 
             XFile file = await imagepicker.pickImage(
-                source: ImageSource.camera, imageQuality: 60);
+                source: ImageSource.camera, imageQuality: 85);
 
             File filerty = File(file.path);
 
@@ -3247,41 +3428,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
                     LocationAddress: Address,
                     LoginUserId: LoginUserID,
                   )));
-            } else {
+            } /*else {
               showCommonDialogWithSingleOption(
-                  context, "Your Selfie is Required to do PunchOut !",
+                  context, "Something Went Wrong File Not Found Exception !",
                   positiveButtonTitle: "OK");
-            }
-            // print("sdjdsfj" + MultipleVideoList[index].path);
-            // OpenFile.open(MultipleVideoList[index].path);
-            setState(() {});
-          }, onTapOfNegativeButton: () {
-            Navigator.of(context).pop();
-
-            _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                Lunch_In_OUT_File,
-                PunchAttendanceSaveRequest(
-                  pkID: "0",
-                  CompanyId: CompanyID.toString(),
-                  Mode: "punchout",
-                  EmployeeID:
-                      _offlineLoggedInData.details[0].employeeID.toString(),
-                  FileName: "demo.png",
-                  PresenceDate: selectedDate.year.toString() +
-                      "-" +
-                      selectedDate.month.toString() +
-                      "-" +
-                      selectedDate.day.toString(),
-                  Time: selectedTime.hour.toString() +
-                      ":" +
-                      selectedTime.minute.toString(),
-                  Notes: "",
-                  Latitude: Latitude,
-                  Longitude: Longitude,
-                  LocationAddress: Address,
-                  LoginUserId: LoginUserID,
-                )));
-          });
+            }*/
+          }
         }
       }
     } else {
@@ -3293,6 +3445,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
   lunchoutLogic() {
     if (isLunchIn == true) {
       //EmailTO.text = model.emailAddress;
+      TimeOfDay selectedTime = TimeOfDay.now();
 
       if (isPunchOut == false) {
         PunchAttendanceSaveRequest punchAttendanceSaveRequest =
@@ -3353,15 +3506,60 @@ class _HomeScreenState extends BaseState<HomeScreen>
                 context1: context, att: punchAttendanceSaveRequest)
             : Container();
         // _showMyDialog();
-        isLunchOut == true
-            ? /* showCommonDialogWithSingleOption(
-              context,
-              _offlineLoggedInData.details[0].employeeName +
-                  " \n Punch Out : " +
-                  PuchOutTime.text,
-              positiveButtonTitle: "OK")
 
-              Contract License Information : SI08-SB94-MY45-RY15*/
+        if (isLunchOut == true) {
+          if (_offlineLoggedInData
+                      .details[0].serialKey
+                      .toUpperCase() ==
+                  "SW0T-GLA5-IND7-AS71" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "SI08-SB94-MY45-RY15" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "TEST-0000-SI0F-0208") {
+            showcustomdialogSendEmail(
+                context1: context, att: punchAttendanceSaveRequest);
+          } else {
+            showCommonDialogWithSingleOption(
+                context,
+                _offlineLoggedInData.details[0].employeeName +
+                    " \n Punch Out : " +
+                    PuchOutTime.text,
+                positiveButtonTitle: "OK");
+          }
+        } else {
+          if (ConstantMAster.toString() == "" ||
+              ConstantMAster.toString().toLowerCase() == "no") {
+            _dashBoardScreenBloc.add(
+                PunchWithoutImageAttendanceSaveRequestEvent(
+                    PunchWithoutImageAttendanceSaveRequest(
+                        Mode: "lunchout",
+                        pkID: "0",
+                        EmployeeID: _offlineLoggedInData.details[0].employeeID
+                            .toString(),
+                        PresenceDate: selectedDate.year.toString() +
+                            "-" +
+                            selectedDate.month.toString() +
+                            "-" +
+                            selectedDate.day.toString(),
+                        TimeIn: "",
+                        TimeOut: "",
+                        LunchIn: "",
+                        LunchOut: selectedTime.hour.toString() +
+                            ":" +
+                            selectedTime.minute.toString(),
+                        LoginUserID: LoginUserID,
+                        Notes: "",
+                        Latitude: Latitude,
+                        Longitude: Longitude,
+                        LocationAddress: Address,
+                        CompanyId: CompanyID.toString())));
+          } else {
+            _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
+                Lunch_In_OUT_File, punchAttendanceSaveRequest));
+          }
+        }
+        /*isLunchOut == true
+            ?
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
                         "SW0T-GLA5-IND7-AS71" ||
                     _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
@@ -3377,7 +3575,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
                         PuchOutTime.text,
                     positiveButtonTitle: "OK")
             : _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                Lunch_In_OUT_File, punchAttendanceSaveRequest));
+                Lunch_In_OUT_File, punchAttendanceSaveRequest));*/
       } else {
         if (isLunchOut == false) {
           showCommonDialogWithSingleOption(
@@ -3577,6 +3775,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         navigateTo(Globals.context, InquiryListScreen.routeName,
             clearAllStack: true);
       }
+
       //
     }
   }
@@ -3645,5 +3844,31 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
       setState(() {});
     }
+  }
+
+  void _onGetConstant(ConstantResponseState state) {
+    print("ConstantValue" + state.response.details[0].value.toString());
+
+    ConstantMAster = state.response.details[0].value.toString();
+  }
+
+  void _OnPunchOutWithoutImageSucess(
+      PunchWithoutAttendenceSaveResponseState state) {
+    _dashBoardScreenBloc.add(AttendanceCallEvent(AttendanceApiRequest(
+        pkID: "",
+        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
+        Month: selectedDate.month.toString(),
+        Year: selectedDate.year.toString(),
+        CompanyId: CompanyID.toString(),
+        LoginUserID: LoginUserID)));
+  }
+
+  Future<void> OpenDriveLink(String phoneNumber) async {
+    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
+    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
+    // such as spaces in the input, which would cause `launch` to fail on some
+    // platforms.
+    final Uri launchUri = Uri.parse(phoneNumber);
+    await launch(launchUri.toString());
   }
 }

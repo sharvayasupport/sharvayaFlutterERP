@@ -18,12 +18,12 @@ import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-class AddQuotationProductScreenArguments {
+class OldAddQuotationProductScreenArguments {
   QuotationTable model;
   int StateCode;
   String HeaderDiscAmnt;
 
-  AddQuotationProductScreenArguments(
+  OldAddQuotationProductScreenArguments(
       this.model, this.StateCode, this.HeaderDiscAmnt);
 }
 
@@ -33,19 +33,19 @@ class AddQuotationProductScreenArguments {
   AddStateCodeArguments(this.StateCode);
 }*/
 
-class AddQuotationProductScreen extends BaseStatefulWidget {
-  static const routeName = '/AddQuotationProductScreen';
-  final AddQuotationProductScreenArguments arguments;
+class OldAddQuotationProductScreen extends BaseStatefulWidget {
+  static const routeName = '/OldAddQuotationProductScreen';
+  final OldAddQuotationProductScreenArguments arguments;
 
-  AddQuotationProductScreen(this.arguments);
+  OldAddQuotationProductScreen(this.arguments);
 
   @override
-  _AddQuotationProductScreenState createState() =>
-      _AddQuotationProductScreenState();
+  _OldAddQuotationProductScreenState createState() =>
+      _OldAddQuotationProductScreenState();
 }
 
-class _AddQuotationProductScreenState
-    extends BaseState<AddQuotationProductScreen>
+class _OldAddQuotationProductScreenState
+    extends BaseState<OldAddQuotationProductScreen>
     with BasicScreen, WidgetsBindingObserver {
   //DesignationApiResponse _offlineCustomerDesignationData;
 
@@ -132,9 +132,8 @@ class _AddQuotationProductScreenState
           widget.arguments.model.DiscountAmt.toStringAsFixed(2);
 
       _amountController.text = widget.arguments.model.Amount.toStringAsFixed(2);
-      _taxTypeController.text = widget.arguments.model.TaxType.toString();
-
-      print("jfjds" + widget.arguments.model.TaxType.toString());
+      _taxTypeController.text =
+          widget.arguments.model.TaxType.toStringAsFixed(2);
       _taxPerController.text =
           widget.arguments.model.TaxRate.toStringAsFixed(2);
       _taxAmountController.text =
@@ -399,45 +398,39 @@ class _AddQuotationProductScreenState
                                     table[i]);
                               }
 
-                              ProductCalculationModel productoutparam =
+                              /*  List<double> productoutparam =
                                   productCalculation.funCalculateProduct(
-                                UnitQuantity: 1,
-                                TaxType: 1,
-                                Qty: double.parse(_quantityController.text),
-                                Rate: double.parse(_unitPriceController.text),
-                                ItmDiscPer:
-                                    double.parse(_discPerController.text),
-                                ItmDiscAmt: 0,
-                                TaxPer: 18,
-                                AddTaxPer: 0,
-                                HdDiscAmt: 0,
-                                CustomerStateId: "12",
-                                CompanyStateId: "12",
-                                TaxAmt: 0,
-                                CGSTPer: 0,
-                                CGSTAmt: 0,
-                                SGSTPer: 0,
-                                SGSTAmt: 0,
-                                IGSTPer: 0,
-                                IGSTAmt: 0,
-                                NetRate: 0,
-                                BasicAmt: 0,
-                                NetAmt: 0,
-                                ItmDiscPer1: 0,
-                                ItmDiscAmt1: 0,
-                                AddTaxAmt: 0,
-                              );
+                                      1,
+                                      1,
+                                      1,
+                                      1000,
+                                      10,
+                                      0,
+                                      18,
+                                      0,
+                                      0,
+                                      "12",
+                                      "12",
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0,
+                                      0);
 
-                              /*   for (int i = 0; i < productoutparam.length; i++) {
-                                print("fsff" + productoutparam[i].toString());
-                              }*/
-
-                              print("fsff" +
-                                  productoutparam.NetRate.toString() +
-                                  productoutparam.BasicAmt.toString() +
-                                  productoutparam.TaxAmt.toString() +
-                                  productoutparam.NetAmt.toString());
-
+                              for (int i = 0; i < productoutparam.length; i++) {
+                                print("Array123456" +
+                                    " List = " +
+                                    productoutparam[i].toString());
+                              }
+*/
                               _onTapOfAdd();
                             } else {
                               showCommonDialogWithSingleOption(context,
@@ -488,178 +481,6 @@ class _AddQuotationProductScreenState
     );
   }
 
-  _onTapOfAdd1() async {
-    var CGSTPer = 0.00;
-    var CGSTAmount = 0.00;
-    var SGSTPer = 0.00;
-    var SGSTAmount = 0.00;
-    var IGSTPer = 0.00;
-    var IGSTAmount = 0.00;
-
-    if (_discPerController.text == "") {
-      _discPerController.text = "0.00";
-    }
-
-    int productID = int.parse(_productIDController.text.toString());
-    double quantity = double.parse(_quantityController.text.toString());
-    double unitRate = double.parse(_unitPriceController.text.toString());
-    double disc = double.parse(_discPerController.text.toString());
-    double discAmount = double.parse(_discAmountController.text.toString());
-    double netRate = double.parse(_netRateController.text.toString());
-    double amount = double.parse(_amountController.text.toString());
-    double taxPer = double.parse(_taxPerController.text.toString());
-    double taxAmount = double.parse(_taxAmountController.text.toString());
-    double netAmount = double.parse(_totalAmountController.text.toString());
-    String Specification = edt_Specification.text.toString();
-    String unit = _unitController.text.toString();
-
-    double Taxtype = 0.00;
-    int ISTaxType = 0;
-
-    if (_taxTypeController.text != null) {
-      Taxtype = double.parse(_taxTypeController.text);
-      ISTaxType = Taxtype.toInt();
-    }
-    int StateCode = int.parse(edt_StateCode.text);
-
-    if (_offlineLoggedInData.details[0].stateCode ==
-        int.parse(edt_StateCode.text)) {
-      CGSTPer = taxPer / 2;
-      edt_CGST_Per.text = CGSTPer.toStringAsFixed(2);
-      SGSTPer = taxPer / 2;
-      edt_SGST_Per.text = CGSTPer.toStringAsFixed(2);
-      CGSTAmount = taxAmount / 2;
-      edt_CGST_Amount.text = CGSTPer.toStringAsFixed(2);
-      SGSTAmount = taxAmount / 2;
-      edt_SGST_Amount.text = CGSTPer.toStringAsFixed(2);
-      edt_IGST_Per.text = "";
-      edt_IGST_Amount.text = "";
-    } else {
-      edt_CGST_Per.text = "";
-      edt_SGST_Per.text = "";
-      edt_CGST_Amount.text = "";
-      edt_SGST_Amount.text = "";
-      IGSTPer = taxPer;
-      edt_IGST_Per.text = CGSTPer.toStringAsFixed(2);
-      IGSTAmount = taxAmount;
-      edt_IGST_Amount.text = CGSTPer.toStringAsFixed(2);
-    }
-
-    await getInquiryProductDetails();
-
-    if (isProductExist == false) {
-      if (isForUpdate) {
-        await OfflineDbHelper.getInstance().updateQuotationProduct(
-            QuotationTable(
-                "",
-                Specification,
-                productID,
-                _productNameController.text.toString(),
-                unit,
-                quantity,
-                unitRate,
-                disc,
-                discAmount,
-                netRate,
-                amount,
-                taxPer,
-                taxAmount,
-                netAmount,
-                ISTaxType,
-                CGSTPer,
-                SGSTPer,
-                IGSTPer,
-                CGSTAmount,
-                SGSTAmount,
-                IGSTAmount,
-                StateCode,
-                0,
-                LoginUserID,
-                CompanyID.toString(),
-                0,
-                0.00,
-                id: widget.arguments.model.id));
-      } else {
-        await OfflineDbHelper.getInstance().insertQuotationProduct(
-            QuotationTable(
-                "",
-                Specification,
-                productID,
-                _productNameController.text.toString(),
-                unit,
-                quantity,
-                unitRate,
-                disc,
-                discAmount,
-                netRate,
-                amount,
-                taxPer,
-                taxAmount,
-                netAmount,
-                ISTaxType,
-                CGSTPer,
-                SGSTPer,
-                IGSTPer,
-                CGSTAmount,
-                SGSTAmount,
-                IGSTAmount,
-                StateCode,
-                0,
-                LoginUserID,
-                CompanyID.toString(),
-                0,
-                0.00));
-      }
-      Navigator.of(context).pop();
-    } else {
-      if (isForUpdate) {
-        await OfflineDbHelper.getInstance().updateQuotationProduct(
-            QuotationTable(
-                "",
-                Specification,
-                productID,
-                _productNameController.text.toString(),
-                unit,
-                quantity,
-                unitRate,
-                disc,
-                discAmount,
-                netRate,
-                amount,
-                taxPer,
-                taxAmount,
-                netAmount,
-                ISTaxType,
-                CGSTPer,
-                SGSTPer,
-                IGSTPer,
-                CGSTAmount,
-                SGSTAmount,
-                IGSTAmount,
-                StateCode,
-                0,
-                LoginUserID,
-                CompanyID.toString(),
-                0,
-                0.00,
-                id: widget.arguments.model.id));
-        Navigator.of(context).pop();
-      } else {
-        showCommonDialogWithSingleOption(
-            context, "Duplicate Product Not Allowed..!!",
-            positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-          Navigator.of(context).pop();
-        });
-      }
-    }
-
-    /* if (_formKey.currentState.validate()) {
-      //checkExistProduct();
-      print("BoolProductValue"+" IsExist : " + isProductExist.toString() + "ISUpdate : " + isForUpdate.toString());
-
-    }*/
-  }
-
   _onTapOfAdd() async {
     var CGSTPer = 0.00;
     var CGSTAmount = 0.00;
@@ -693,17 +514,6 @@ class _AddQuotationProductScreenState
       ISTaxType = Taxtype.toInt();
     }
 
-    print("ISTaxtTypeeee" + ISTaxType.toString());
-
-    CGSTPer = double.parse(edt_CGST_Per.text.toString());
-    SGSTPer = double.parse(edt_SGST_Per.text.toString());
-    IGSTPer = double.parse(edt_IGST_Per.text.toString());
-
-    CGSTAmount = double.parse(edt_CGST_Amount.text.toString());
-    SGSTAmount = double.parse(edt_SGST_Amount.text.toString());
-    IGSTAmount = double.parse(edt_IGST_Amount.text.toString());
-    int StateCode = int.parse(edt_StateCode.text);
-
     /*int ISTaxType = int.parse(_taxTypeController.text.toString() == null
         ? 0
         : _taxTypeController.text.toString());*/
@@ -715,6 +525,30 @@ class _AddQuotationProductScreenState
     double CGSTAmount = double.parse(edt_CGST_Amount.text.toString());
     double SGSTAmount = double.parse(edt_SGST_Amount.text.toString());
     double IGSTAmount = double.parse(edt_IGST_Amount.text.toString());*/
+    int StateCode = int.parse(edt_StateCode.text);
+
+    if (_offlineLoggedInData.details[0].stateCode ==
+        int.parse(edt_StateCode.text)) {
+      CGSTPer = taxPer / 2;
+      edt_CGST_Per.text = CGSTPer.toStringAsFixed(2);
+      SGSTPer = taxPer / 2;
+      edt_SGST_Per.text = CGSTPer.toStringAsFixed(2);
+      CGSTAmount = taxAmount / 2;
+      edt_CGST_Amount.text = CGSTPer.toStringAsFixed(2);
+      SGSTAmount = taxAmount / 2;
+      edt_SGST_Amount.text = CGSTPer.toStringAsFixed(2);
+      edt_IGST_Per.text = "";
+      edt_IGST_Amount.text = "";
+    } else {
+      edt_CGST_Per.text = "";
+      edt_SGST_Per.text = "";
+      edt_CGST_Amount.text = "";
+      edt_SGST_Amount.text = "";
+      IGSTPer = taxPer;
+      edt_IGST_Per.text = CGSTPer.toStringAsFixed(2);
+      IGSTAmount = taxAmount;
+      edt_IGST_Amount.text = CGSTPer.toStringAsFixed(2);
+    }
 
     await getInquiryProductDetails();
 
@@ -1638,7 +1472,16 @@ class _AddQuotationProductScreenState
     double Hdrdis = _HeaderDiscAmnt == "" || _HeaderDiscAmnt == null
         ? 0.00
         : double.parse(_HeaderDiscAmnt);
+    // double.parse(_HeaderDiscAmnt == null ? 0.00 : _HeaderDiscAmnt);
 
+    /* if(isForUpdate!=true)
+      {
+        Hdrdis = 0.00;
+      }
+    else
+      {
+        Hdrdis = double.parse(_HeaderDiscAmnt == null ? 0.00 : _HeaderDiscAmnt);
+      }*/
     print("NetAfggkj" +
         TotEXINNetmant.toStringAsFixed(2) +
         Hdrdis.toStringAsFixed(2));
@@ -1658,7 +1501,10 @@ class _AddQuotationProductScreenState
                 .toString()); //double.parse(_unitPriceController.text.toString());
         var DisPer = _discPerController.text == ""
             ? 0.00
-            : double.parse(_discPerController.text.toString());
+            : double.parse(_discPerController.text
+                .toString()); /*double.parse(_discPerController.text.toString() == null
+            ? 0.00
+            : _discPerController.text.toString());*/
         var TaxPer = _taxPerController.text == ""
             ? 0.00
             : double.parse(_taxPerController.text
