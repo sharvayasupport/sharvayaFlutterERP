@@ -17,6 +17,8 @@ import 'package:soleoserp/models/api_responses/complaint/complaint_no_list_respo
 import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_list_request.dart';
 import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_save_request.dart';
 import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_list_response.dart';
@@ -71,7 +73,11 @@ class AttendVisitBloc extends Bloc<AttendVisitEvents, AttendVisitStates> {
     if (event is QuickComplaintSaveRequestCallEvent) {
       yield* _mapQuickComplaintSaveRequestCallEventToState(event);
     }
-    //QuickComplaintSaveRequestCallEvent
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
+    }
+    //
   }
 
   Stream<AttendVisitStates> _mapAttenVisitCallEventToState(
@@ -260,6 +266,22 @@ class AttendVisitBloc extends Bloc<AttendVisitEvents, AttendVisitStates> {
       print(stacktrace);
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<AttendVisitStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

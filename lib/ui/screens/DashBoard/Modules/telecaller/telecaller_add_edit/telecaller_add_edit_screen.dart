@@ -451,9 +451,13 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          title: Text('TeleCaller Details'),
+          title: Text('TeleCaller Details123'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -890,7 +894,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                   Navigator.of(context).pop();
                                                 });
                                           }
-                                        } else if (isDisqualified == true) {
+                                        }
+                                        else if (isDisqualified == true) {
                                           if (edt_DisQualifiedName.text !=
                                               "") {
                                             showCommonDialogWithTwoOptions(
@@ -1041,7 +1046,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                   Navigator.of(context).pop();
                                                 });
                                           }
-                                        } else if (isInProcess == true) {
+                                        }
+                                        else if (isInProcess == true) {
                                           if (edt_QualifiedEmplyeeName
                                               .text !=
                                               "") {
@@ -1164,9 +1170,9 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                   .text,
                                                               LoginUserID:
                                                               LoginUserID,
-                                                              FollowupNotes: "",
-                                                              FollowupDate: "",
-                                                              PreferredTime: "",
+                                                              FollowupNotes: edt_FollowupNotes.text,
+                                                              FollowupDate: edt_ReverseNextFollowupDate.text,
+                                                              PreferredTime: edt_PreferedTime.text.toString(),
                                                               SerialKey: "",
                                                               DisqualifedRemarks:
                                                               edt_DisqualifiedRemarks
@@ -1430,11 +1436,11 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                       LoginUserID:
                                                                       LoginUserID,
                                                                       FollowupNotes:
-                                                                      "",
+                                                                      edt_FollowupNotes.text.toString(),
                                                                       FollowupDate:
-                                                                      "",
+                                                                      edt_ReverseNextFollowupDate.text.toString(),
                                                                       PreferredTime:
-                                                                      "",
+                                                                      edt_PreferedTime.text.toString(),
                                                                       SerialKey: "",
                                                                       DisqualifedRemarks: edt_DisqualifiedRemarks
                                                                           .text ==
@@ -2020,11 +2026,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
+
               ],
             ),
           ),

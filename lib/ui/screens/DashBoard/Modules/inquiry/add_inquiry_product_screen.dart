@@ -400,11 +400,6 @@ class _AddInquiryProductScreenState extends BaseState<AddInquiryProductScreen>
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
               ],
             ),
           ),
@@ -487,11 +482,7 @@ class _AddInquiryProductScreenState extends BaseState<AddInquiryProductScreen>
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
+
               ],
             ),
           ),

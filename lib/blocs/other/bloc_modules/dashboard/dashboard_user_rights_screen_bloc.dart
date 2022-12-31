@@ -25,6 +25,8 @@ import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_respo
 import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'dashboard_user_rights_screen_event.dart';
@@ -94,6 +96,10 @@ class DashBoardScreenBloc
 
     if (event is ConstantRequestEvent) {
       yield* _mapConstantRequestEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
 /*    if(event is CloserReasonTypeListByNameCallEvent)
     {
@@ -427,6 +433,22 @@ class DashBoardScreenBloc
       ConstantResponse respo =
           await userRepository.getConstantAPI(event.CompanyID, event.request);
       yield ConstantResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(event.MenuScreenName, respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

@@ -7,6 +7,7 @@ import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/external_lead/external_lead_bloc.dart';
 import 'package:soleoserp/models/api_requests/External_leads/region_code_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/assign_to_notification_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_save_request.dart';
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
@@ -164,6 +165,9 @@ class _ExternalLeadAddEditScreenState
 
   String ReportToToken = "";
 
+  String AssignToToken = "";
+
+
   @override
   void initState() {
     super.initState();
@@ -312,6 +316,11 @@ class _ExternalLeadAddEditScreenState
             _onExternalLeadSucessResponse(state);
           }
 
+          if(state is AssignToNotificationResponseState)
+            {
+              _onAssignToNotificationSucess(state);
+            }
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -320,7 +329,9 @@ class _ExternalLeadAddEditScreenState
               currentState is CityListEventResponseState ||
               currentState is CustomerSourceCallEventResponseState ||
               currentState is ExternalLeadSaveResponseState ||
-              currentState is GetReportToTokenResponseState
+              currentState is GetReportToTokenResponseState ||
+              currentState is AssignToNotificationResponseState
+
               ) {
             return true;
           }
@@ -338,7 +349,11 @@ class _ExternalLeadAddEditScreenState
         appBar: NewGradientAppBar(
           title: Text('Portal Lead Details'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -552,9 +567,23 @@ class _ExternalLeadAddEditScreenState
                           height: 15,
                         ),
                         isViewSaveButton==true?getCommonButton(baseTheme, () {
-                          _expenseBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+
+                          if(_offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="DOL2-6UH7-PH03-IN5H".toLowerCase().toString() ||
+                              _offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="TEST-0000-SI0F-0208".toLowerCase().toString()
+                          ){
+                            _expenseBloc.add(AssignToNotificationRequestEvent("test",AssignToNotificationRequest(CompanyId: CompanyID.toString(),
+                                EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
+                          }
+                          else
+                            {
+                              _expenseBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
                               CompanyId: CompanyID.toString(),
                               EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
+                            }
+
+
+
+
                           print("EMPIDDD"+" EmployeeName : "+edt_QualifiedEmplyeeName.text + " EmpID : " + edt_QualifiedEmplyeeID.text);
 
                           if(edt_CompanyName.text!="")
@@ -1217,11 +1246,7 @@ class _ExternalLeadAddEditScreenState
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
+
               ],
             ),
           ),
@@ -3240,50 +3265,75 @@ class _ExternalLeadAddEditScreenState
   }
 
   void _onExternalLeadSucessResponse(ExternalLeadSaveResponseState state)  {
-    /*String SucessMsg="";
-    for(int i=0;i<state.response.details.length;i++)
+
+
+    if(_offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="DOL2-6UH7-PH03-IN5H".toLowerCase().toString() ||
+        _offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="TEST-0000-SI0F-0208".toLowerCase().toString()
+    )
       {
-        SucessMsg= state.response.details[i].column2;
+        String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+        String notiTitle = "Portal Lead";
+
+        String notibody = "Inquiry " +
+           /* state.response.details[0].column2 +*/
+            "Assigned" +
+            " For " +
+            edt_SenderName.text +
+            " By " +
+            _offlineLoggedInData.details[0].employeeName;
+
+            "Inquiry Assigned For Xyz By Admin";
+
+        var request123 = {
+          "to": AssignToToken,
+          "notification": {"body": notibody, "title": notiTitle},
+          "data": {
+            "body": notibody,
+            "title": notiTitle,
+            "click_action": "FLUTTER_NOTIFICATION_CLICK"
+          }
+        };
+
+        print("Notificationdf" + request123.toString());
+        _expenseBloc.add(FCMNotificationRequestEvent(request123));
       }
-    //String Msg = _isForUpdate == true ? "Inquiry Updated Successfully" : "Inquiry Added Successfully";
+    else{
+      String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
 
-    *//* showCommonDialogWithSingleOption(context, Msg,
-        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-          navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
-        });*//*
-    await showCommonDialogWithSingleOption(Globals.context,SucessMsg,
-        positiveButtonTitle: "OK");
-    Navigator.of(context).pop();*/
-   /* await showCommonDialogWithSingleOption(Globals.context,state.response.details[0].column2,
-        positiveButtonTitle: "OK");*/
-    String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+      String notiTitle = "Portal Lead";
 
-    String notiTitle = "Portal Lead";
+      String notibody = "Inquiry " +
+          //state.response.details[0].column2 +
+          "Assigned" +
+          " For " +
+          edt_SenderName.text +
+          " By " +
+          _offlineLoggedInData.details[0].employeeName;
 
-    String notibody = "Inquiry " +
-        state.response.details[0].column2 +
-        updatemsg +
-        " For " +
-        edt_SenderName.text +
-        " By " +
-        _offlineLoggedInData.details[0].employeeName;
+      var request123 = {
+        "to": ReportToToken,
+        "notification": {"body": notibody, "title": notiTitle},
+        "data": {
+          "body": notibody,
+          "title": notiTitle,
+          "click_action": "FLUTTER_NOTIFICATION_CLICK"
+        }
+      };
 
-    var request123 = {
-      "to": ReportToToken,
-      "notification": {"body": notibody, "title": notiTitle},
-      "data": {
-        "body": notibody,
-        "title": notiTitle,
-        "click_action": "FLUTTER_NOTIFICATION_CLICK"
-      }
-    };
+      print("Notificationdf" + request123.toString());
+      _expenseBloc.add(FCMNotificationRequestEvent(request123));
+    }
 
-    print("Notificationdf" + request123.toString());
-    _expenseBloc.add(FCMNotificationRequestEvent(request123));
 
 
     showCommonDialogWithSingleOption(context, state.response.details[0].column2,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+
+
+
+
+
           navigateTo(context, ExternalLeadListScreen.routeName, clearAllStack: true);
         });
   }
@@ -3307,5 +3357,41 @@ class _ExternalLeadAddEditScreenState
 
   void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
     ReportToToken = state.response.details[0].reportPersonTokenNo;
+  }
+
+  void _onAssignToNotificationSucess(AssignToNotificationResponseState state) {
+
+
+    for(int i=0;i<state.response.details.length;i++)
+      {
+        print("AssignTOTokenNo" + "TokenNo : " + state.response.details[i].tokenNo);
+        AssignToToken =state.response.details[i].tokenNo;
+      }
+
+   /* String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
+
+    String notiTitle = "Portal Lead";
+
+    String notibody = "Inquiry " +
+        state.ColumnMsg +
+        updatemsg +
+        " For " +
+        edt_SenderName.text +
+        " By " +
+        _offlineLoggedInData.details[0].employeeName;
+
+    var request123 = {
+      "to": state.response.details[0].tokenNo,
+      "notification": {"body": notibody, "title": notiTitle},
+      "data": {
+        "body": notibody,
+        "title": notiTitle,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK"
+      }
+    };
+
+    print("AssignToNotification" + request123.toString());
+    _expenseBloc.add(FCMNotificationRequestEvent(request123));*/
+
   }
 }

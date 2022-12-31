@@ -14,7 +14,6 @@ class SalesOrderTable {
   double TaxRate;
   double TaxAmount;
   double NetAmount;
-
   double CGSTPer;
   double SGSTPer;
   double IGSTPer;

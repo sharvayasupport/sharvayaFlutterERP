@@ -5,9 +5,17 @@ class QuotationSpecificationTable {
   String Head;
   String Specification;
   String Material_Remarks;
+  String QuotationNo;
+  String ProductID;
 
-  QuotationSpecificationTable(this.OrderNo, this.Group_Description, this.Head,
-      this.Specification, this.Material_Remarks,
+  QuotationSpecificationTable(
+      this.OrderNo,
+      this.Group_Description,
+      this.Head,
+      this.Specification,
+      this.Material_Remarks,
+      this.QuotationNo,
+      this.ProductID,
       {this.id});
 
   Map<String, dynamic> toJson() {
@@ -17,17 +25,14 @@ class QuotationSpecificationTable {
     data['Head'] = this.Head;
     data['Specification'] = this.Specification;
     data['Material_Remarks'] = this.Material_Remarks;
+    data['QuotationNo'] = this.QuotationNo;
+    data['ProductID'] = this.ProductID;
+
     return data;
   }
 
   @override
   String toString() {
-    return 'QuotationSpecificationTable{id: $id, OrderNo: $OrderNo, Group_Description: $Group_Description, Head: $Head, Specification: $Specification, Material_Remarks: $Material_Remarks}';
+    return 'QuotationSpecificationTable{id: $id, OrderNo: $OrderNo, Group_Description: $Group_Description, Head: $Head, Specification: $Specification, Material_Remarks: $Material_Remarks, QuotationNo: $QuotationNo, ProductID: $ProductID}';
   }
-
-/* @override
-  String toString() {
-    return 'QuotationTable{id: $id, QuotationNo:$QuotationNo, Specification : $Specification , ProductID: $ProductID, ProductName: $ProductName, Unit: $Unit, Quantity: $Quantity, UnitRate: $UnitRate, Disc: $Disc, NetRate: $NetRate, Amount: $Amount, TaxPer: $TaxPer, TaxAmount: $TaxAmount, NetAmount: $NetAmount, IsTaxType: $IsTaxType}';
-  }
-*/
 }

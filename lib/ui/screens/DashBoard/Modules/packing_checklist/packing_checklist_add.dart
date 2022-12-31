@@ -17,8 +17,8 @@ import 'package:soleoserp/models/api_responses/login/login_user_details_api_resp
 import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
 import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response_for_packing_checking.dart';
-import 'package:soleoserp/models/api_responses/packing/packing_checking_list.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/packing/packing_checking_list.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
@@ -291,8 +291,11 @@ class _PackingChecklistAddScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Packing Checking List Details'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(

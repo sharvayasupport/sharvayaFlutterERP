@@ -3,7 +3,6 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:lottie/lottie.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -20,16 +19,16 @@ import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerList/customer_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_history_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_followup_add_edit/quick_followup_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/broadcast_msg/make_call.dart';
+import 'package:soleoserp/utils/broadcast_msg/share_msg.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-import 'package:url_launcher/url_launcher.dart';
 //import 'package:whatsapp_share/whatsapp_share.dart';
 
 class QuickFollowupListScreen extends BaseStatefulWidget {
@@ -184,8 +183,11 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('QuickFollowup List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -659,7 +661,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                               children: <Widget>[
                                 GestureDetector(
                                   onTap: () async {
-                                    await _makePhoneCall(model.contactNo1);
+                                    MakeCall.callto(model.contactNo1);
                                   },
                                   child: Container(
                                       child: Column(
@@ -687,25 +689,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    //await _makePhoneCall(model.contactNo1);
-                                    //await _makeSms(model.contactNo1);
-                                    showCommonDialogWithTwoOptions(
-                                        context,
-                                        "Do you have Two Accounts of WhatsApp ?" +
-                                            "\n" +
-                                            "Select one From below Option !",
-                                        positiveButtonTitle: "WhatsApp",
-                                        onTapOfPositiveButton: () {
-                                          Navigator.pop(context);
-                                          onButtonTap(
-                                              Share.whatsapp_personal, model);
-                                        },
-                                        negativeButtonTitle: "Business",
-                                        onTapOfNegativeButton: () {
-                                          Navigator.pop(context);
-
-                                          _launchWhatsAppBuz(model.contactNo1);
-                                        });
+                                    ShareMsg.msg(context, model.contactNo1);
                                   },
                                   child: Container(
                                     child: /*Image.asset(
@@ -1119,75 +1103,10 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
         clearAllStack: true);*/
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  void _launchURL(txt) async => await canLaunch(_url + txt)
-      ? await launch(_url + txt)
-      : throw 'Could not Launch $_url';
-
   Future<void> MoveTofollowupHistoryPage(String inquiryNo, String CustomerID) {
     navigateTo(context, FollowupHistoryScreen.routeName,
             arguments: FollowupHistoryScreenArguments(inquiryNo, CustomerID))
         .then((value) {});
-  }
-
-  Future<void> onButtonTap(
-      Share share, QuickFollowupListResponseDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
-  }
-
-  Future<void> share(String contactNo1) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-
-    /*await WhatsappShare.share(
-        text: msg,
-        //linkUrl: 'https://flutter.dev/',
-        phone: "91" + contactNo1,
-        package: Package.businessWhatsapp);*/
   }
 
   showcustomdialogPunchIn({

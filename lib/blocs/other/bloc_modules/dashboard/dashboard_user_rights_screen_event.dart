@@ -126,4 +126,12 @@ class ConstantRequestEvent extends DashBoardScreenEvents {
   ConstantRequestEvent(this.CompanyID, this.request);
 }
 
+class UserMenuRightsRequestEvent extends DashBoardScreenEvents {
+  String MenuID;
+  String MenuScreenName;
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(
+      this.MenuScreenName, this.MenuID, this.userMenuRightsRequest);
+}
+
 //ConstantRequest

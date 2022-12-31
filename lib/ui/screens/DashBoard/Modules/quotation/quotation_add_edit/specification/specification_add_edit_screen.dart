@@ -26,7 +26,7 @@ import 'package:soleoserp/utils/image_full_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateQuotationSpecificationScreenArguments {
-  String editModel;
+  QuotationSpecificationTable editModel;
 
   AddUpdateQuotationSpecificationScreenArguments(this.editModel);
 }
@@ -96,6 +96,11 @@ class _QuotationSpecificationAddEditScreenState
   String GetImageNamefromEditMode = "";
   FocusNode AmountFocusNode, FromLocationFocusNode;
 
+  int tablepkID = 0;
+
+  String QuotationNo = "";
+  String ProductID = "";
+
   @override
   void initState() {
     super.initState();
@@ -131,7 +136,19 @@ class _QuotationSpecificationAddEditScreenState
       }
     });
 
-    if (_isForUpdate) {}
+    if (_isForUpdate) {
+      edt_OrderNo.text = widget.arguments.editModel.OrderNo;
+      edt_GroupDiscription.text = widget.arguments.editModel.Group_Description;
+      edt_Head.text = widget.arguments.editModel.Head;
+      edt_Specification.text = widget.arguments.editModel.Specification;
+      edt_MatirialSpecification.text =
+          widget.arguments.editModel.Material_Remarks.toString();
+      tablepkID = widget.arguments.editModel.id;
+
+      QuotationNo = widget.arguments.editModel.QuotationNo;
+
+      ProductID = widget.arguments.editModel.ProductID;
+    }
 
     is_visibleLocation = false;
     edt_ExpenseType.addListener(() {
@@ -161,12 +178,15 @@ class _QuotationSpecificationAddEditScreenState
           return false;
         },
         listener: (BuildContext context, QuotationStates state) {
-          if (state is InsertQuotationSpecificationTableState) {
+          if (state is UpdateQuotationSpecificationTableState) {
             _SpecificationSaveResponse(state);
           }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
+          if (currentState is UpdateQuotationSpecificationTableState) {
+            return true;
+          }
           return false;
         },
       ),
@@ -180,8 +200,11 @@ class _QuotationSpecificationAddEditScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Specification Details'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -236,15 +259,27 @@ class _QuotationSpecificationAddEditScreenState
                               onTapOfPositiveButton: () {
                             Navigator.of(context).pop();
 
+                            print("uuyrt" +
+                                " QT_NO : " +
+                                QuotationNo +
+                                " ProductID : " +
+                                ProductID +
+                                " Table PKID : " +
+                                tablepkID.toString());
+
                             _expenseBloc.add(
-                                InsertQuotationSpecificationTableEvent(
+                                UpdateQuotationSpecificationTableEvent(
+                                    context,
                                     QuotationSpecificationTable(
                                         edt_OrderNo.text.toString(),
                                         edt_GroupDiscription.text.toString(),
                                         edt_Head.text.toString(),
                                         edt_Specification.text.toString(),
                                         edt_MatirialSpecification.text
-                                            .toString())));
+                                            .toString(),
+                                        QuotationNo,
+                                        ProductID,
+                                        id: tablepkID)));
                           });
                         }, "Save", backGroundColor: colorPrimary),
                         SizedBox(
@@ -997,9 +1032,9 @@ class _QuotationSpecificationAddEditScreenState
   }
 
   void _SpecificationSaveResponse(
-      InsertQuotationSpecificationTableState state) {
+      UpdateQuotationSpecificationTableState state) {
     print("mdf" + state.response.toString());
 
-    Navigator.of(context).pop("SaveSpecification");
+    Navigator.of(state.context).pop(state.response.toString());
   }
 }

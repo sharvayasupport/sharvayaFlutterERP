@@ -3,10 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
 import 'package:intl/intl.dart';
-import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
@@ -117,10 +114,6 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
   String GetImageNamefromEditMode = "";
   FocusNode NotesFocusNode;
 
-  String Latitude = "";
-  String Longitude = "";
-  Location location = new Location();
-
   bool _serviceEnabled;
   Position _currentPosition;
   final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
@@ -135,7 +128,6 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
     super.initState();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
-    _getCurrentLocation();
 
     // permission();
     // checkPhotoPermissionStatus();
@@ -217,20 +209,6 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
     }
   }
 
-  _getCurrentLocation() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
-
   @override
   void dispose() {
     // Clean up the focus node when the Form is disposed.
@@ -310,8 +288,11 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Complaint FollowUp'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(

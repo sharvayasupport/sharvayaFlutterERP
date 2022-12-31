@@ -4,6 +4,7 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/External_leads/region_code_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/assign_to_notification_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_list_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_save_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_search_request.dart';
@@ -15,12 +16,15 @@ import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
 import 'package:soleoserp/models/api_responses/External_leads/region_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_delete_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/assign_to_notification_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_lead_list_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_lead_save_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_leadsearch_response_by_name.dart';
 import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -77,6 +81,16 @@ class ExternalLeadBloc extends Bloc<ExternalLeadEvents, ExternalLeadStates> {
     if (event is RegionCodeRequestEvent) {
       yield* _map_RegionCodeRequestEventState(event);
     }
+
+    if (event is AssignToNotificationRequestEvent) {
+      yield* _mapAssignToNotificationRequestEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
+    }
+
+    //
   }
 
   Stream<ExternalLeadStates> _mapCountryListCallEventToState(
@@ -270,6 +284,37 @@ class ExternalLeadBloc extends Bloc<ExternalLeadEvents, ExternalLeadStates> {
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
 
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ExternalLeadStates> _mapAssignToNotificationRequestEventToState(
+      AssignToNotificationRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      AssignToNotificationResponse respo =
+          await userRepository.assignToNotificationAPI(event.request);
+      yield AssignToNotificationResponseState(event.Msg, respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ExternalLeadStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

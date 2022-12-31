@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:geocoder2/geocoder2.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
@@ -36,11 +35,11 @@ import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
-import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/image_full_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
+
 
 
 class QuickAddUpdateFollowupScreenArguments {
@@ -116,10 +115,7 @@ class _QuickFollowUpAddEditScreenScreenState
   QuickFollowupListResponseDetails _editModel;
   bool _futureflag;
   String _PunchStatus;
-  String Lat_In ="";
-  String Long_In="";
-  String Lat_Out ="";
-  String Long_Out="";
+
   double _rating;
   bool _isSwitched;
   File _selectedImageFile;
@@ -172,6 +168,8 @@ class _QuickFollowUpAddEditScreenScreenState
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
     MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
+
+    getLocationAddressFromAPI();
     SaveSucess = false;
     _FollowupBloc = FollowupBloc(baseBloc);
     NotesFocusNode = FocusNode();
@@ -190,12 +188,10 @@ class _QuickFollowUpAddEditScreenScreenState
       _futureflag = widget.arguments.futureflag;
       _PunchStatus = widget.arguments.PunchStatus;
       fillData();
-      _getCurrentLocation123();
 
     } else {
 
       _PunchStatus = "PunchIn";
-      _getCurrentLocation123();
       selectedDate = DateTime.now();
       edt_FollowUpDate.text = selectedDate.day.toString() +
           "-" +
@@ -296,71 +292,8 @@ class _QuickFollowUpAddEditScreenScreenState
 */
   }
 
-  _getCurrentLocation()  {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() async {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-
-         Lat_In =Latitude;
-         Long_In=Longitude;
-         Lat_Out =Latitude;
-         Long_Out=Longitude;
-
-        Address = await getAddressFromLatLngMapMyIndia(
-            Latitude, Longitude, MAPMYINDIAKEY);
-        Address_IN = Address;
-        Address_OUT = Address;
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
 
 
-  _getCurrentLocation123()  {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() async {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-        Address = await getAddressFromLatLngMapMyIndia(
-            Latitude, Longitude, MAPMYINDIAKEY);
-
-        Lat_In =Latitude;
-        Long_In=Longitude;
-        Lat_Out =Latitude;
-        Long_Out=Longitude;
-        Address_IN = Address;
-        Address_OUT = Address;
-
-        if(_PunchStatus=="PunchIn")
-        {
-
-          Lat_Out = "";
-          Long_Out = "";
-          Address_OUT = "";
-        }
-        else
-        {
-          Lat_In = editableLatitude;
-          Long_In = editableLongitude;
-          Lat_Out = Latitude;
-          Long_Out = Longitude;
-          Address_IN = editableAddress;
-          Address_OUT = Address;
-        }
-
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
 
 
 
@@ -482,7 +415,11 @@ class _QuickFollowUpAddEditScreenScreenState
         appBar: NewGradientAppBar(
           title: Text('Quick Followup Details'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -717,6 +654,7 @@ class _QuickFollowUpAddEditScreenScreenState
                           height: 30,
                         ),
                         getCommonButton(baseTheme, () async {
+                          getLocationAddressFromAPI();
 
                           print("fdsfjk"+ "Latttkf : " + _PunchStatus);
 
@@ -770,7 +708,6 @@ class _QuickFollowUpAddEditScreenScreenState
                                               .isDisabled;
 
                                           if (serviceLocation == false) {
-                                            _getCurrentLocation();
                                             baseBloc.emit(
                                                 ShowProgressIndicatorState(
                                                     false));
@@ -848,13 +785,13 @@ class _QuickFollowUpAddEditScreenScreenState
                                                             FollowupPriority: FollowupPriorityDetails,
                                                             FollowUpImage: fileName,
                                                             timeIn: _eventControllerIn_Time.text,
-                                                            latitude_IN: Lat_In,
-                                                            longitude_IN: Long_In,
+                                                            latitude_IN: SharedPrefHelper.instance.getLatitude(),
+                                                            longitude_IN: SharedPrefHelper.instance.getLongitude(),
                                                             timeOut: isvisible_Out_time==false?"":_eventControllerOut_Time.text,
-                                                            latitude_OUT: Lat_Out,
-                                                            longitude_OUT:Long_Out,
-                                                            locationAddress_IN: Address_IN/*Address*/,
-                                                            locationAddress_OUT: Address_OUT,//isvisible_Out_time==false?"":editableAddress
+                                                            latitude_OUT: SharedPrefHelper.instance.getLatitude(),
+                                                            longitude_OUT:SharedPrefHelper.instance.getLongitude(),
+                                                            locationAddress_IN: Address,
+                                                            locationAddress_OUT: Address,//isvisible_Out_time==false?"":editableAddress
                                                         )));
 
 
@@ -924,13 +861,13 @@ class _QuickFollowUpAddEditScreenScreenState
                                                               FollowupPriority: FollowupPriorityDetails,
                                                               FollowUpImage: fileName,
                                                               timeIn: _eventControllerIn_Time.text,
-                                                              latitude_IN: Lat_In,
-                                                              longitude_IN: Long_In,
+                                                              latitude_IN: SharedPrefHelper.instance.getLatitude(),
+                                                              longitude_IN: SharedPrefHelper.instance.getLongitude(),
                                                               timeOut: isvisible_Out_time==false?"":_eventControllerOut_Time.text,
-                                                              latitude_OUT: Lat_Out,
-                                                              longitude_OUT:Long_Out,
-                                                              locationAddress_IN: Address_IN,
-                                                              locationAddress_OUT: Address_OUT//isvisible_Out_time==false?"":editableAddress
+                                                              latitude_OUT: SharedPrefHelper.instance.getLatitude(),
+                                                              longitude_OUT:SharedPrefHelper.instance.getLongitude(),
+                                                              locationAddress_IN:Address,
+                                                              locationAddress_OUT: Address//isvisible_Out_time==false?"":editableAddress
                                                           )));
                                                     });
                                               } else {
@@ -1003,7 +940,6 @@ class _QuickFollowUpAddEditScreenScreenState
                                                 .isDisabled;
 
                                             if (serviceLocation == false) {
-                                              _getCurrentLocation();
                                               baseBloc.emit(
                                                   ShowProgressIndicatorState(
                                                       false));
@@ -1077,13 +1013,13 @@ class _QuickFollowUpAddEditScreenScreenState
                                                               FollowupPriority: FollowupPriorityDetails,
                                                               FollowUpImage: fileName,
                                                               timeIn: _eventControllerIn_Time.text,
-                                                              latitude_IN: Lat_In,
-                                                              longitude_IN: Long_In,
+                                                              latitude_IN: SharedPrefHelper.instance.getLatitude(),
+                                                              longitude_IN: SharedPrefHelper.instance.getLongitude(),
                                                               timeOut: isvisible_Out_time==false?"":_eventControllerOut_Time.text,
-                                                              latitude_OUT: Lat_Out,
-                                                              longitude_OUT:Long_Out,
-                                                              locationAddress_IN: Address_IN,
-                                                              locationAddress_OUT: Address_OUT//isvisible_Out_time==false?"":editableAddress
+                                                              latitude_OUT: SharedPrefHelper.instance.getLatitude(),
+                                                              longitude_OUT:SharedPrefHelper.instance.getLongitude(),
+                                                              locationAddress_IN: Address,
+                                                              locationAddress_OUT: Address//isvisible_Out_time==false?"":editableAddress
                                                           )));
 
 
@@ -1151,13 +1087,13 @@ class _QuickFollowUpAddEditScreenScreenState
                                                                 FollowupPriority: FollowupPriorityDetails,
                                                                 FollowUpImage: fileName,
                                                                 timeIn: _eventControllerIn_Time.text,
-                                                                latitude_IN: Lat_In,
-                                                                longitude_IN: Long_In,
+                                                                latitude_IN: SharedPrefHelper.instance.getLatitude(),
+                                                                longitude_IN: SharedPrefHelper.instance.getLongitude(),
                                                                 timeOut: isvisible_Out_time==false?"":_eventControllerOut_Time.text,
-                                                                latitude_OUT: Lat_Out,
-                                                                longitude_OUT:Long_Out,
-                                                                locationAddress_IN: Address_IN,
-                                                                locationAddress_OUT: Address_OUT//isvisible_Out_time==false?"":editableAddress
+                                                                latitude_OUT: SharedPrefHelper.instance.getLatitude(),
+                                                                longitude_OUT:SharedPrefHelper.instance.getLongitude(),
+                                                                locationAddress_IN: Address,
+                                                                locationAddress_OUT: Address//isvisible_Out_time==false?"":editableAddress
                                                             )));
                                                       });
                                                 } else {
@@ -1232,7 +1168,6 @@ class _QuickFollowUpAddEditScreenScreenState
                                       .isDisabled;
 
                                   if (serviceLocation == false) {
-                                    _getCurrentLocation();
                                     baseBloc.emit(
                                         ShowProgressIndicatorState(
                                             false));
@@ -1302,13 +1237,13 @@ class _QuickFollowUpAddEditScreenScreenState
                                                     FollowupPriority: "2",
                                                     FollowUpImage: fileName,
                                                     timeIn: _eventControllerIn_Time.text,
-                                                    latitude_IN: Lat_In,
-                                                    longitude_IN: Long_In,
+                                                    latitude_IN: SharedPrefHelper.instance.getLatitude(),
+                                                    longitude_IN: SharedPrefHelper.instance.getLongitude(),
                                                     timeOut: "",
-                                                    latitude_OUT: Lat_Out,
-                                                    longitude_OUT:Long_Out,
-                                                    locationAddress_IN: Address_IN,
-                                                    locationAddress_OUT: Address_OUT
+                                                    latitude_OUT: SharedPrefHelper.instance.getLatitude(),
+                                                    longitude_OUT:SharedPrefHelper.instance.getLongitude(),
+                                                    locationAddress_IN: Address,
+                                                    locationAddress_OUT:Address
                                                 )));
                                           });
                                     } else {
@@ -1371,13 +1306,13 @@ class _QuickFollowUpAddEditScreenScreenState
                                                       FollowupPriority: "2",
                                                       FollowUpImage: fileName,
                                                       timeIn: _eventControllerIn_Time.text,
-                                                      latitude_IN: Lat_In,
-                                                      longitude_IN: Long_In,
+                                                      latitude_IN: SharedPrefHelper.instance.getLatitude(),
+                                                      longitude_IN: SharedPrefHelper.instance.getLongitude(),
                                                       timeOut: "",
-                                                      latitude_OUT: Lat_Out,
-                                                      longitude_OUT:Long_Out,
-                                                      locationAddress_IN: Address_IN,
-                                                      locationAddress_OUT: Address_OUT
+                                                      latitude_OUT: SharedPrefHelper.instance.getLatitude(),
+                                                      longitude_OUT:SharedPrefHelper.instance.getLongitude(),
+                                                      locationAddress_IN: Address,
+                                                      locationAddress_OUT: Address
                                                   )));
                                             });
                                       } else {
@@ -2740,6 +2675,26 @@ class _QuickFollowUpAddEditScreenScreenState
       minute = int.parse(result.split(":")[1]);
     }
     return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  getLocationAddressFromAPI() async {
+    if (MapAPIKey != "") {
+      print("fromdashboardlatlong" +
+          "LatitudeHome : " +
+          SharedPrefHelper.instance.getLatitude() +
+          " LongitudeHome : " +
+          SharedPrefHelper.instance.getLongitude());
+      GeoData data = await Geocoder2.getDataFromCoordinates(
+          latitude: double.parse(SharedPrefHelper.instance.getLatitude()),
+          longitude: double.parse(SharedPrefHelper.instance.getLongitude()),
+          googleMapApiKey: MapAPIKey);
+
+
+      Address = data.address;
+      print("GogleAddress" + Address);
+    } else {
+      Address = "";
+    }
   }
 
 }

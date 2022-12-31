@@ -52,3 +52,8 @@ class GetReportToTokenResponseState extends LeaveRequestStates {
 
   GetReportToTokenResponseState(this.response);
 }
+
+class UserMenuRightsResponseState extends LeaveRequestStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

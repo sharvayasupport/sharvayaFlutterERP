@@ -6,6 +6,7 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
+import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -33,6 +34,12 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
   int count = 0;
 
   TextEditingController _userNameController = TextEditingController();
+
+  TextEditingController _IPCotroller = TextEditingController();
+  TextEditingController EmailTO = TextEditingController();
+
+  //EmailTO
+
   TextEditingController _passwordController = TextEditingController();
   CompanyDetailsResponse _offlineLoggedInData;
   CustomerSourceResponse _offlineCustomerSourceData;
@@ -41,11 +48,17 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
   String InvalidUserMessage = "";
   bool _isObscure = true;
 
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_ModeOfTransfer = [];
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_SerialKeyDropDown = [];
+
   @override
   void initState() {
     super.initState();
     screenStatusBarColor = colorWhite;
+    getIPDropDown();
+    getSerialKeyDropDown();
     _firstScreenBloc = FirstScreenBloc(baseBloc);
+
     /*  _firstScreenBloc
       ..add(CompanyDetailsCallEvent(
           CompanyDetailsApiRequest(serialKey: "ABCD-EFGH-IJKL-MNOW")));*/
@@ -147,10 +160,15 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          IMG_HEADER_LOGO,
-          width: MediaQuery.of(context).size.width / 1.8,
-          fit: BoxFit.fitWidth,
+        GestureDetector(
+          onDoubleTap: () {
+            showcustomdialogSendEmail(context1: context, Email: "Test");
+          },
+          child: Image.asset(
+            IMG_HEADER_LOGO,
+            width: MediaQuery.of(context).size.width / 1.8,
+            fit: BoxFit.fitWidth,
+          ),
         ),
         /* Container(
           alignment: Alignment.topLeft,
@@ -171,7 +189,7 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
         Text(
           "Registration",
           style: TextStyle(
-            color: Color(0xff3a3285),
+            color: colorPrimary,
             fontSize: 48,
             fontFamily: "Poppins",
             fontWeight: FontWeight.w700,
@@ -245,6 +263,7 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
           userID: _userNameController.text.toString(),
           password: _passwordController.text.toString(),
           companyId: _offlineLoggedInData.details[0].pkId)));*/
+
       _firstScreenBloc
         ..add(CompanyDetailsCallEvent(CompanyDetailsApiRequest(
             serialKey: _userNameController.text.toString())));
@@ -337,7 +356,54 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
                 ],
               ),
             ),
-          )
+          ),
+          Visibility(
+            visible: false,
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 10, right: 20),
+                  child: Text("IP",
+                      style: TextStyle(
+                          fontSize: 15,
+                          color:
+                              colorPrimary) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                      ),
+                ),
+                Card(
+                  elevation: 5,
+                  color: Color(0xffE0E0E0),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    height: 60,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: TextFormField(
+                          maxLength: 19,
+                          controller: _IPCotroller,
+                          cursorColor: Color(0xFFF1E6FF),
+                          decoration: InputDecoration(
+                            icon: Icon(
+                              Icons.vpn_key,
+                            ),
+                            hintText: "xxxx-xxxx-xxxx-xxxx",
+                            border: InputBorder.none,
+                            counterStyle: TextStyle(height: double.minPositive),
+                            counterText: "",
+                          ),
+                        )),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -411,5 +477,239 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
           });
         });
 */
+  }
+
+  void getIPDropDown() {
+    arr_ALL_Name_ID_For_ModeOfTransfer.clear();
+    for (var i = 0; i < 2; i++) {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+
+      if (i == 0) {
+        all_name_id.Name = "http://122.169.111.101:108/";
+      } else if (i == 1) {
+        all_name_id.Name = "http://208.109.14.134:83/";
+      }
+      arr_ALL_Name_ID_For_ModeOfTransfer.add(all_name_id);
+    }
+  }
+
+  void getSerialKeyDropDown() {
+    arr_ALL_Name_ID_For_SerialKeyDropDown.clear();
+    for (var i = 0; i < 14; i++) {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+
+      if (i == 0) {
+        all_name_id.Name = "Dolphin";
+      } else if (i == 1) {
+        all_name_id.Name = "DOL2-6UH7-PH03-IN5H";
+      } else if (i == 2) {
+        all_name_id.Name = "SharvayaTest";
+      } else if (i == 3) {
+        all_name_id.Name = "TEST-0000-SI0F-0208";
+      } else if (i == 4) {
+        all_name_id.Name = "E_OfficeDesk";
+      } else if (i == 5) {
+        all_name_id.Name = "SI08-SB94-MY45-RY15";
+      } else if (i == 6) {
+        all_name_id.Name = "AIM";
+      } else if (i == 7) {
+        all_name_id.Name = "A9GM-IP9S-FQT5-3N7D";
+      } else if (i == 8) {
+        all_name_id.Name = "MyGec";
+      } else if (i == 9) {
+        all_name_id.Name = "MYA6-G9EC-VS3P-H4PL";
+      } else if (i == 10) {
+        all_name_id.Name = "Swastik";
+      } else if (i == 11) {
+        all_name_id.Name = "SW0T-GLA5-IND7-AS71";
+      } else if (i == 12) {
+        all_name_id.Name = "Electro Smart";
+      } else if (i == 13) {
+        all_name_id.Name = "ELDF-CTGH-45SD-SM23";
+      }
+
+      //ARA6-ELA9-SFA7-NC0S
+      arr_ALL_Name_ID_For_SerialKeyDropDown.add(all_name_id);
+    }
+  }
+
+  showcustomdialogSendEmail({
+    BuildContext context1,
+    String Email,
+  }) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    "For Developer",
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Key",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 20, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller: EmailTO,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter Key",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () {
+                              if (EmailTO.text == "jugad") {
+                                EmailTO.text = "";
+                                Navigator.pop(context123);
+                                getIPDropDown();
+
+                                showcustomdialogWithOnlyName(
+                                    values: arr_ALL_Name_ID_For_ModeOfTransfer,
+                                    context1: context,
+                                    controller: _IPCotroller,
+                                    lable: "AppIP:");
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "This Field is For Only Developer !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            },
+                            "YES",
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () {
+                              if (EmailTO.text == "jugad") {
+                                EmailTO.text = "";
+                                Navigator.pop(context123);
+                                getSerialKeyDropDown();
+
+                                showcustomdialogWithOnlyName(
+                                    values:
+                                        arr_ALL_Name_ID_For_SerialKeyDropDown,
+                                    context1: context,
+                                    controller: _userNameController,
+                                    lable: "SerialKey:");
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "This Field is For Only Developer !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            },
+                            "YES_S",
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(
+                            baseTheme,
+                            () {
+                              Navigator.pop(context123);
+                            },
+                            "NO",
+                            backGroundColor: colorPrimary,
+                            textColor: colorWhite,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
   }
 }

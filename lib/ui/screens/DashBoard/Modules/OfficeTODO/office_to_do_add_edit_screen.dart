@@ -405,7 +405,11 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
         appBar: NewGradientAppBar(
           title: Text('Add Task Details'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -529,6 +533,7 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
                                     Navigator.of(context).pop();
 
                                     _toDoBloc.add(ToDoSaveHeaderEvent(
+                                      context,
                                         pkID,
                                         ToDoHeaderSaveRequest(
                                             Priority: "Medium",

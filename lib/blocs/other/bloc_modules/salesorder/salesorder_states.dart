@@ -50,9 +50,10 @@ class QuotationTermsCondtionResponseState extends SalesOrderStates {
 }
 
 class SearchCustomerListByNumberCallResponseState extends SalesOrderStates {
+  String IsFromDialog;
   final CustomerDetailsResponse response;
 
-  SearchCustomerListByNumberCallResponseState(this.response);
+  SearchCustomerListByNumberCallResponseState(this.IsFromDialog, this.response);
 }
 
 class SalesBill_INQ_QT_SO_NO_ListResponseState extends SalesOrderStates {
@@ -61,8 +62,10 @@ class SalesBill_INQ_QT_SO_NO_ListResponseState extends SalesOrderStates {
 }
 
 class MultiNoToProductDetailsResponseState extends SalesOrderStates {
+  String FetchFromWhichScreen;
   final MultiNoToProductDetailsResponse response;
-  MultiNoToProductDetailsResponseState(this.response);
+  MultiNoToProductDetailsResponseState(
+      this.FetchFromWhichScreen, this.response);
 }
 
 class SaleBillEmailContentResponseState extends SalesOrderStates {
@@ -127,4 +130,129 @@ class SaleOrderProductDeleteResponseState extends SalesOrderStates {
 
   SaleOrderProductDeleteResponseState(this.response);
 }
+
+class UserMenuRightsResponseState extends SalesOrderStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}
+
+class QuotationOtherCharge1ListResponseState extends SalesOrderStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  QuotationOtherCharge1ListResponseState(
+      this.quotationOtherChargesListResponse);
+}
+
+class GetGenericAddditionalChargesState extends SalesOrderStates {
+  final GenericAddditionalCharges quotationOtherChargesListResponse;
+
+  GetGenericAddditionalChargesState(this.quotationOtherChargesListResponse);
+}
+
+class QuotationOtherChargeListResponseState extends SalesOrderStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  String headerDiscountController;
+  QuotationOtherChargeListResponseState(
+      this.headerDiscountController, this.quotationOtherChargesListResponse);
+}
+
+class GetQuotationProductListState extends SalesOrderStates {
+  final List<SalesOrderTable> response;
+
+  GetQuotationProductListState(this.response);
+}
+
+class InsertProductSucessResponseState extends SalesOrderStates {
+  final String response;
+
+  InsertProductSucessResponseState(this.response);
+}
+
+class DeleteALLQuotationProductTableState extends SalesOrderStates {
+  final String response;
+
+  DeleteALLQuotationProductTableState(this.response);
+}
+
+class AddGenericAddditionalChargesState extends SalesOrderStates {
+  String response;
+  AddGenericAddditionalChargesState(this.response);
+}
+
+class DeleteAllGenericAddditionalChargesState extends SalesOrderStates {
+  String response;
+  DeleteAllGenericAddditionalChargesState(this.response);
+}
 //
+
+class GetQuotationSpecificationTableState extends SalesOrderStates {
+  final List<QuotationSpecificationTable> response;
+
+  GetQuotationSpecificationTableState(this.response);
+}
+
+class SpecificationListResponseState extends SalesOrderStates {
+  final SpecificationListResponse response;
+
+  SpecificationListResponseState(this.response);
+}
+
+class GenericOtherCharge1ListResponseState extends SalesOrderStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  GenericOtherCharge1ListResponseState(this.quotationOtherChargesListResponse);
+}
+
+class SalesOrderDeleteResponseState extends SalesOrderStates {
+  final SalesOrderDeleteResponse salesOrderDeleteResponse;
+
+  SalesOrderDeleteResponseState(this.salesOrderDeleteResponse);
+}
+
+class SOCurrencyListResponseState extends SalesOrderStates {
+  final SOCurrencyListResponse response;
+
+  SOCurrencyListResponseState(this.response);
+}
+
+class SaveEmailContentResponseState extends SalesOrderStates {
+  final SaveEmailContentResponse response;
+
+  SaveEmailContentResponseState(this.response);
+}
+
+class SOProductOneDeleteState extends SalesOrderStates {
+  final String response;
+
+  SOProductOneDeleteState(this.response);
+}
+///SO Assembly offline DB CRUD
+///
+class SOAssemblyTableListState extends SalesOrderStates {
+  final List<SOAssemblyTable> response;
+
+  SOAssemblyTableListState(this.response);
+}
+
+class SOAssemblyTableInsertState extends SalesOrderStates {
+  BuildContext context;
+  String response;
+  SOAssemblyTableInsertState(this.context, this.response);
+}
+
+class SOAssemblyTableUpdateState extends SalesOrderStates {
+  BuildContext context;
+  String response;
+  SOAssemblyTableUpdateState(this.context, this.response);
+}
+
+class SOAssemblyTableOneItemDeleteState extends SalesOrderStates {
+  String response;
+  SOAssemblyTableOneItemDeleteState(this.response);
+}
+
+class SOAssemblyTableDeleteALLState extends SalesOrderStates {
+  String response;
+  SOAssemblyTableDeleteALLState(this.response);
+}

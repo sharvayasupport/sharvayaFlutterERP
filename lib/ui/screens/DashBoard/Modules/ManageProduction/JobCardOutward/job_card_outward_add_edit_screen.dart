@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -79,8 +78,11 @@ class JobCardOutwardAddEditScreenState
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back_ios,
@@ -97,7 +99,8 @@ class JobCardOutwardAddEditScreenState
                   size: 20,
                 ),
                 onPressed: () {
-                  navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+                  navigateTo(context, HomeScreen.routeName,
+                      clearAllStack: true);
                 })
           ],
           title: Text(
@@ -127,10 +130,10 @@ class JobCardOutwardAddEditScreenState
     );
   }
 
-
   Future<bool> _onBackPressed() {
     navigateTo(context, HomeScreen.routeName, clearAllStack: true);
   }
+
   Widget basicDetails() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),

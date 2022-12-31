@@ -9,11 +9,15 @@ import 'package:soleoserp/models/api_requests/SalesBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_list_Request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
+import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
@@ -21,11 +25,11 @@ import 'package:soleoserp/models/api_responses/other/all_employee_List_response.
 import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
-import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
-import 'package:soleoserp/models/common/so_other_charge_table.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
@@ -33,12 +37,15 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_state_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/customer_search/customer_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/module_no_list_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/saleorder_other_charges_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/saleorder_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/addtional_charges/sales_order_summary_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/products/so_product_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/calculation/additional_charges_calculation.dart';
+import 'package:soleoserp/utils/calculation/model/additonalChargeDetails.dart';
+import 'package:soleoserp/utils/calculation/sales_order_calculation/sales_order_header_discount_calculation.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
@@ -76,6 +83,10 @@ class _SaleOrderNewAddEditScreenState
 
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
+  DateTime selectedDatePI = DateTime.now();
+  DateTime selectedDateRefrence = DateTime.now();
+  DateTime selectedDateDelivery = DateTime.now();
+  DateTime selectedDateWorkOrder = DateTime.now();
 
   double dateFontSize = 13;
 
@@ -96,8 +107,6 @@ class _SaleOrderNewAddEditScreenState
     'Camera',
   ];
 
-  // TabController tabControllerSalesOrder = TabController(length: 7, vsync: this);
-
   TextEditingController _controller_order_no = TextEditingController();
   TextEditingController _controller_customer_name = TextEditingController();
   TextEditingController _controller_customer_pkID = TextEditingController();
@@ -111,7 +120,6 @@ class _SaleOrderNewAddEditScreenState
   TextEditingController _controller_bank_ID = TextEditingController();
 
   TextEditingController _controller_select_inquiry = TextEditingController();
-  TextEditingController _controller_inquiry_no = TextEditingController();
   TextEditingController _controller_sales_executive = TextEditingController();
   TextEditingController _controller_sales_executiveID = TextEditingController();
 
@@ -125,6 +133,8 @@ class _SaleOrderNewAddEditScreenState
   TextEditingController _controller_rev_reference_date =
       TextEditingController();
   TextEditingController _controller_currency = TextEditingController();
+  TextEditingController _controller_currency_Symbol = TextEditingController();
+
   TextEditingController _controller_exchange_rate = TextEditingController();
   TextEditingController _controller_credit_days = TextEditingController();
   TextEditingController _controller_work_order_no = TextEditingController();
@@ -142,7 +152,6 @@ class _SaleOrderNewAddEditScreenState
       TextEditingController();
 
   TextEditingController _contrller_email_subject = TextEditingController();
-  TextEditingController _contrller_email_introcuction = TextEditingController();
   TextEditingController _controller_amount = TextEditingController();
   TextEditingController _controller_due_date = TextEditingController();
   TextEditingController _controller_rev_due_date = TextEditingController();
@@ -222,11 +231,27 @@ class _SaleOrderNewAddEditScreenState
   TextEditingController _controllerAmountDialog = TextEditingController();
   TextEditingController _controllerDueDateDialog = TextEditingController();
   TextEditingController _controllerRevDueDateDialog = TextEditingController();
+  TextEditingController _contrller_Email_Add_Subject = TextEditingController();
+  TextEditingController _contrller_Email_Add_Content = TextEditingController();
+  TextEditingController _eventHour = TextEditingController();
+  TextEditingController _eventMinute = TextEditingController();
+
+  AddditionalCharges addditionalCharges = AddditionalCharges();
+  bool isUpdateCalculation = false;
+
+  double Tot_otherChargeWithTax = 0.00;
+  double Tot_otherChargeExcludeTax = 0.00;
+
+  double HeaderDisAmnt = 0.00; //double.parse(edt_HeaderDisc.toString());
+  List<OtherChargeDetails> arrGenericOtheCharge = [];
+
+  TextEditingController _controller_reapeat = TextEditingController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _salesOrderBloc = SalesOrderBloc(baseBloc);
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
@@ -238,7 +263,9 @@ class _SaleOrderNewAddEditScreenState
     _onFollowerEmployeeListByStatusCallSuccess(
         _offlineFollowerEmployeeListData);
     getSelectOptionList();
-
+    _eventHour.text = "00";
+    _eventMinute.text = "00";
+    _controller_reapeat.text = "0";
     _salesOrderBloc.add(SaleOrderBankDetailsListRequestEvent(
         SaleOrderBankDetailsListRequest(
             CompanyId: CompanyID.toString(),
@@ -252,10 +279,12 @@ class _SaleOrderNewAddEditScreenState
         QuotationTermsConditionRequest(
             CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
 
-    _salesOrderBloc.add(SalesBillEmailContentRequestEvent(
-        SalesBillEmailContentRequest(
-            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
     _salesOrderBloc.add(PaymentScheduleListEvent());
+
+    _salesOrderBloc.add(GenericOtherChargeCallEvent(
+        CompanyID.toString(), QuotationOtherChargesListRequest(pkID: "")));
+
+    _salesOrderBloc.add(SOAssemblyTableALLDeleteEvent());
 
     _isForUpdate = widget.arguments != null;
     _controller_select_inquiry.addListener(() {
@@ -299,6 +328,68 @@ class _SaleOrderNewAddEditScreenState
       edt_QualifiedCityCode.text =
           _offlineLoggedInData.details[0].CityCode.toString();
       edt_StateCode.text = _offlineLoggedInData.details[0].stateCode.toString();
+
+      _controller_order_date.text = selectedDate.day.toString() +
+          "-" +
+          selectedDate.month.toString() +
+          "-" +
+          selectedDate.year.toString();
+      _controller_rev_order_date.text = selectedDate.year.toString() +
+          "-" +
+          selectedDate.month.toString() +
+          "-" +
+          selectedDate.day.toString();
+
+      _controller_PI_date.text = selectedDatePI.day.toString() +
+          "-" +
+          selectedDatePI.month.toString() +
+          "-" +
+          selectedDatePI.year.toString();
+      _controller_rev_PI_date.text = selectedDatePI.year.toString() +
+          "-" +
+          selectedDatePI.month.toString() +
+          "-" +
+          selectedDatePI.day.toString();
+      _controller_reference_date.text = selectedDateRefrence.day.toString() +
+          "-" +
+          selectedDateRefrence.month.toString() +
+          "-" +
+          selectedDateRefrence.year.toString();
+      _controller_rev_reference_date.text =
+          selectedDateRefrence.year.toString() +
+              "-" +
+              selectedDateRefrence.month.toString() +
+              "-" +
+              selectedDateRefrence.day.toString();
+      _controller_delivery_date.text = selectedDateDelivery.day.toString() +
+          "-" +
+          selectedDateDelivery.month.toString() +
+          "-" +
+          selectedDateDelivery.year.toString();
+      _controller_rev_delivery_date.text =
+          selectedDateDelivery.year.toString() +
+              "-" +
+              selectedDateDelivery.month.toString() +
+              "-" +
+              selectedDateDelivery.day.toString();
+      _controller_work_order_date.text = selectedDateWorkOrder.day.toString() +
+          "-" +
+          selectedDateWorkOrder.month.toString() +
+          "-" +
+          selectedDateWorkOrder.year.toString();
+      _controller_rev_work_order_date.text =
+          selectedDateWorkOrder.year.toString() +
+              "-" +
+              selectedDateWorkOrder.month.toString() +
+              "-" +
+              selectedDateWorkOrder.day.toString();
+
+      edt_StateCode.text = "";
+      _salesOrderBloc.add(DeleteGenericAddditionalChargesEvent());
+
+      _salesOrderBloc.add(AddGenericAddditionalChargesEvent(
+          GenericAddditionalCharges("0.00", "0", "0.00", "0", "0.00", "0",
+              "0.00", "0", "0.00", "0", "0.00", "", "", "", "", "")));
     }
   }
 
@@ -319,12 +410,30 @@ class _SaleOrderNewAddEditScreenState
           if (state is BankDetailsListResponseState) {
             _onBankDetailsList(state);
           }
-          if (state is SaleBillEmailContentResponseState) {
-            _OnEmailContentResponse(state);
-          }
+
           if (state is PaymentScheduleListResponseState) {
             _OnPaymentScheduleSucessList(state);
           }
+
+          if (state is AddGenericAddditionalChargesState) {
+            _OnGenericIsertCallSucess(state);
+          }
+
+          if (state is DeleteAllGenericAddditionalChargesState) {
+            _onDeleteAllGenericAddtionalAmount(state);
+          }
+
+          if (state is SearchCustomerListByNumberCallResponseState) {
+            _ONOnlyCustomerDetails(state);
+          }
+
+          if (state is GenericOtherCharge1ListResponseState) {
+            _OnGenricOtherChargeResponse(state);
+          }
+          if (state is SOAssemblyTableDeleteALLState) {
+            _onDeleteAllQTAssemblyResponse(state);
+          }
+
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
@@ -332,8 +441,12 @@ class _SaleOrderNewAddEditScreenState
           if (currentState is BankDetailsListResponseState ||
               currentState is QuotationProjectListResponseState ||
               currentState is QuotationTermsCondtionResponseState ||
-              currentState is SaleBillEmailContentResponseState ||
-              currentState is PaymentScheduleListResponseState) {
+              currentState is PaymentScheduleListResponseState ||
+              currentState is AddGenericAddditionalChargesState ||
+              currentState is DeleteAllGenericAddditionalChargesState ||
+              currentState is SearchCustomerListByNumberCallResponseState ||
+              currentState is GenericOtherCharge1ListResponseState ||
+              currentState is SOAssemblyTableDeleteALLState) {
             return true;
           }
           return false;
@@ -363,6 +476,18 @@ class _SaleOrderNewAddEditScreenState
           if (state is SaleOrderProductSaveResponseState) {
             _OnSaleOrderProductSaveResponse(state);
           }
+
+          if (state is SOCurrencyListResponseState) {
+            _ONCurrencyResponse(state);
+          }
+
+          if (state is SaveEmailContentResponseState) {
+            _OnSaveEmailContentResponse(state);
+          }
+
+          if (state is SaleBillEmailContentResponseState) {
+            _OnEmailContentResponse(state);
+          }
           return super.build(context);
           //handle states
         },
@@ -375,7 +500,10 @@ class _SaleOrderNewAddEditScreenState
               currentState is PaymentScheduleDeleteResponseState ||
               currentState is PaymentScheduleEditResponseState ||
               currentState is SaleOrderHeaderSaveResponseState ||
-              currentState is SaleOrderProductSaveResponseState) {
+              currentState is SaleOrderProductSaveResponseState ||
+              currentState is SOCurrencyListResponseState ||
+              currentState is SaveEmailContentResponseState ||
+              currentState is SaleBillEmailContentResponseState) {
             return true;
           }
           return false;
@@ -400,9 +528,11 @@ class _SaleOrderNewAddEditScreenState
                   color: Colors.white,
                   size: 19,
                 ),
-                onPressed: () => navigateTo(
-                    context, SalesOrderListScreen.routeName,
-                    clearAllStack: true),
+                onPressed: () async {
+                  await _onTapOfDeleteALLProduct();
+                  navigateTo(context, SalesOrderListScreen.routeName,
+                      clearAllStack: true);
+                },
               ),
               actions: <Widget>[
                 IconButton(
@@ -412,6 +542,7 @@ class _SaleOrderNewAddEditScreenState
                     ),
                     onPressed: () {
                       //_onTapOfLogOut();
+
                       navigateTo(context, HomeScreen.routeName,
                           clearAllStack: true);
                     })
@@ -429,12 +560,10 @@ class _SaleOrderNewAddEditScreenState
                       children: [
                         mandetoryDetails(),
                         space(10),
-                        productDetails(),
-                        /*space(10),
-                        otherCharges(),*/
-                        space(20),
+                        ProductAndAddtionalCharges(),
+                        space(5),
                         basicInformation(),
-                        space(10),
+                        space(5),
                         termsAndCondition(),
                         space(5),
                         emailContent(),
@@ -460,6 +589,7 @@ class _SaleOrderNewAddEditScreenState
 
   Future<bool> _onBackPressed() async {
     // await _onTapOfDeleteALLProduct();
+    await _onTapOfDeleteALLProduct();
     navigateTo(context, SalesOrderListScreen.routeName, clearAllStack: true);
   }
 
@@ -472,7 +602,7 @@ class _SaleOrderNewAddEditScreenState
   Widget _buildOrderDate() {
     return InkWell(
       onTap: () {
-        _selectDate(
+        _selectOrderDate(
             context, _controller_order_date, _controller_rev_order_date);
       },
       child: Column(
@@ -523,7 +653,7 @@ class _SaleOrderNewAddEditScreenState
   Widget _buildPIDate() {
     return InkWell(
       onTap: () {
-        _selectDate(context, _controller_PI_date, _controller_rev_PI_date);
+        _selectPIDate(context, _controller_PI_date, _controller_rev_PI_date);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -573,7 +703,7 @@ class _SaleOrderNewAddEditScreenState
   Widget _buildReferenceDate() {
     return InkWell(
       onTap: () {
-        _selectDate(context, _controller_reference_date,
+        _selectRefrenceDate(context, _controller_reference_date,
             _controller_rev_reference_date);
       },
       child: Column(
@@ -624,7 +754,7 @@ class _SaleOrderNewAddEditScreenState
   Widget _buildDeliveryDate() {
     return InkWell(
       onTap: () {
-        _selectDate(
+        _selectDeliveryDate(
             context, _controller_delivery_date, _controller_rev_delivery_date);
       },
       child: Column(
@@ -675,7 +805,7 @@ class _SaleOrderNewAddEditScreenState
   Widget _buildWorkOrdereDate() {
     return InkWell(
       onTap: () {
-        _selectDate(context, _controller_work_order_date,
+        _selectWorkOrderDate(context, _controller_work_order_date,
             _controller_rev_work_order_date);
       },
       child: Column(
@@ -726,7 +856,8 @@ class _SaleOrderNewAddEditScreenState
   Widget _buildDueDate() {
     return InkWell(
       onTap: () {
-        _selectDate(context, _controller_due_date, _controller_rev_due_date);
+        _selectOrderDate(
+            context, _controller_due_date, _controller_rev_due_date);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -773,7 +904,7 @@ class _SaleOrderNewAddEditScreenState
     );
   }
 
-  Future<void> _selectDate(
+  Future<void> _selectOrderDate(
       BuildContext context,
       TextEditingController F_datecontroller,
       TextEditingController Rev_dateController) async {
@@ -795,6 +926,106 @@ class _SaleOrderNewAddEditScreenState
             selectedDate.month.toString() +
             "-" +
             selectedDate.day.toString();
+      });
+  }
+
+  Future<void> _selectPIDate(
+      BuildContext context,
+      TextEditingController F_datecontroller,
+      TextEditingController Rev_dateController) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDatePI,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null)
+      setState(() {
+        selectedDatePI = picked;
+        F_datecontroller.text = selectedDatePI.day.toString() +
+            "-" +
+            selectedDatePI.month.toString() +
+            "-" +
+            selectedDatePI.year.toString();
+        Rev_dateController.text = selectedDatePI.year.toString() +
+            "-" +
+            selectedDatePI.month.toString() +
+            "-" +
+            selectedDatePI.day.toString();
+      });
+  }
+
+  Future<void> _selectRefrenceDate(
+      BuildContext context,
+      TextEditingController F_datecontroller,
+      TextEditingController Rev_dateController) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateRefrence,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null)
+      setState(() {
+        selectedDateRefrence = picked;
+        F_datecontroller.text = selectedDateRefrence.day.toString() +
+            "-" +
+            selectedDateRefrence.month.toString() +
+            "-" +
+            selectedDateRefrence.year.toString();
+        Rev_dateController.text = selectedDateRefrence.year.toString() +
+            "-" +
+            selectedDateRefrence.month.toString() +
+            "-" +
+            selectedDateRefrence.day.toString();
+      });
+  }
+
+  Future<void> _selectDeliveryDate(
+      BuildContext context,
+      TextEditingController F_datecontroller,
+      TextEditingController Rev_dateController) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateDelivery,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null)
+      setState(() {
+        selectedDateDelivery = picked;
+        F_datecontroller.text = selectedDateDelivery.day.toString() +
+            "-" +
+            selectedDateDelivery.month.toString() +
+            "-" +
+            selectedDateDelivery.year.toString();
+        Rev_dateController.text = selectedDateDelivery.year.toString() +
+            "-" +
+            selectedDateDelivery.month.toString() +
+            "-" +
+            selectedDateDelivery.day.toString();
+      });
+  }
+
+  Future<void> _selectWorkOrderDate(
+      BuildContext context,
+      TextEditingController F_datecontroller,
+      TextEditingController Rev_dateController) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateWorkOrder,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null)
+      setState(() {
+        selectedDateWorkOrder = picked;
+        F_datecontroller.text = selectedDateWorkOrder.day.toString() +
+            "-" +
+            selectedDateWorkOrder.month.toString() +
+            "-" +
+            selectedDateWorkOrder.year.toString();
+        Rev_dateController.text = selectedDateWorkOrder.year.toString() +
+            "-" +
+            selectedDateWorkOrder.month.toString() +
+            "-" +
+            selectedDateWorkOrder.day.toString();
       });
   }
 
@@ -859,11 +1090,31 @@ class _SaleOrderNewAddEditScreenState
       child: Column(
         children: [
           InkWell(
-            onTap: () => showcustomdialogWithOnlyName(
-                values: Custom_values1,
-                context1: context,
-                controller: controllerForLeft,
-                lable: "Select $Category"),
+            onTap: () {
+              if (Category == "Currency") {
+                _salesOrderBloc.add(SOCurrencyListRequestEvent(
+                    SOCurrencyListRequest(
+                        LoginUserID: LoginUserID,
+                        CurrencyName: "",
+                        CompanyID: CompanyID.toString())));
+              } else {
+                if (_controller_customer_name.text != "") {
+                  arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List != [] ??
+                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.clear();
+                  _controller_Module_NO.text = "";
+
+                  showcustomdialogWithOnlyName(
+                      values: Custom_values1,
+                      context1: context,
+                      controller: controllerForLeft,
+                      lable: "Select $Category");
+                } else {
+                  showCommonDialogWithSingleOption(
+                      context, "CustomerName is required !",
+                      positiveButtonTitle: "OK");
+                }
+              }
+            },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1186,6 +1437,8 @@ class _SaleOrderNewAddEditScreenState
       double right = 5,
       double top = 8,
       double bottom = 10,
+      bool isEnable = true,
+      double AllPadding = 0,
       TextInputType keyboardInput = TextInputType.number}) {
     return Card(
       color: colorLightGray,
@@ -1197,12 +1450,14 @@ class _SaleOrderNewAddEditScreenState
       ),
       child: Container(
         height: height,
+        padding: EdgeInsets.all(AllPadding),
         decoration: BoxDecoration(
             // color: Colors.white,
             borderRadius: BorderRadius.circular(10)),
         child: TextFormField(
           minLines: minLines,
           maxLines: maxLines,
+          enabled: isEnable,
           style: TextStyle(fontSize: 13),
           controller: _controller,
           textInputAction: TextInputAction.next,
@@ -1210,7 +1465,6 @@ class _SaleOrderNewAddEditScreenState
           decoration: InputDecoration(
               hintText: _hintText,
               hintStyle: TextStyle(fontSize: 13, color: colorGrayDark),
-              filled: true,
               fillColor: colorLightGray,
               contentPadding: EdgeInsets.symmetric(horizontal: 14),
               border: InputBorder.none,
@@ -1317,6 +1571,7 @@ class _SaleOrderNewAddEditScreenState
     );
   }
 
+//Customer/{pageNo}-{PageSize}
   Future _openCamera(BuildContext context) async {
     final pickedFile = await ImagePicker().getImage(
       source: ImageSource.camera,
@@ -1350,6 +1605,8 @@ class _SaleOrderNewAddEditScreenState
   }
 
   Future<void> _onTapOfSearchView() async {
+    await _onTapOfDeleteALLProduct();
+
     if (_isForUpdate == false) {
       navigateTo(context, SearchInquiryCustomerScreen.routeName).then((value) {
         if (value != null) {
@@ -1357,6 +1614,11 @@ class _SaleOrderNewAddEditScreenState
           _controller_customer_name.text = searchCustomerDetails.label;
           _controller_customer_pkID.text =
               searchCustomerDetails.value.toString();
+
+          arr_ALL_Name_ID_For_INQ_QT_SO_List.clear();
+          arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.clear();
+          _controller_Module_NO.text = "";
+          _controller_select_inquiry.text = "";
 
           edt_StateCode.text = searchCustomerDetails.stateCode.toString();
         }
@@ -1392,8 +1654,9 @@ class _SaleOrderNewAddEditScreenState
                 children: [
                   Flexible(
                     flex: 1,
-                    child:
-                        createTextFormField(_controller_order_no, "Order No."),
+                    child: createTextFormField(
+                        _controller_order_no, "Order No.",
+                        isEnable: false),
                   ),
                   Flexible(flex: 2, child: _buildOrderDate())
                 ],
@@ -1406,11 +1669,7 @@ class _SaleOrderNewAddEditScreenState
               SizedBox(
                 height: 10,
               ),
-              createTextLabel("Bank Name", 10.0, 0.0),
-              SizedBox(
-                height: 5,
-              ),
-              // BankDetails(context),
+              createTextLabel("Bank Name *", 10.0, 0.0),
               CustomDropDownWithID1("BankName",
                   enable1: false,
                   title: "Select Bank",
@@ -1419,33 +1678,8 @@ class _SaleOrderNewAddEditScreenState
                   controllerForLeft: _controller_bank_name,
                   controllerForID: _controller_bank_ID,
                   Custom_values1: arr_ALL_Name_ID_For_Sales_Order_Bank_Name),
-
               SizedBox(
-                height: 15,
-              ),
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: createTextLabel("PI No.", 10.0, 0.0),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: createTextLabel("PI Date", 10.0, 0.0),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: createTextFormField(_controller_PINO, "PI No."),
-                  ),
-                  Flexible(flex: 2, child: _buildPIDate())
-                ],
-              ),
-              SizedBox(
-                height: 15,
+                height: 10,
               ),
               _isForUpdate != true
                   ? Column(
@@ -1477,90 +1711,24 @@ class _SaleOrderNewAddEditScreenState
 
   productDetails() {
     return Container(
-        margin: EdgeInsets.only(left: 5, right: 5),
-        child: getCommonButton(
-          baseTheme,
-          () {
-            List<String> ModuleNoList = [];
-            if (_controller_customer_name.text != "") {
-              // print("INWWWE" + InquiryNo.toString());
-              if (arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length != 0) {
-                for (int i = 0;
-                    i < arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length;
-                    i++) {
-                  print("sldsdf" +
-                      " Filter InqList : " +
-                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name +
-                      " ISChecked : " +
-                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i]
-                          .isChecked
-                          .toString());
-                  ModuleNoList.add(
-                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name);
-                }
-
-                if (ModuleNoList.length != 0) {
-                  var stringwe = "," + ModuleNoList.join(',') + ",";
-                  print("commaseprated" + stringwe);
-                  _salesOrderBloc.add(MultiNoToProductDetailsRequestEvent(
-                      MultiNoToProductDetailsRequest(
-                          FetchType: _controller_select_inquiry.text,
-                          No: stringwe.toString(),
-                          CustomerID: _controller_customer_pkID.text,
-                          CompanyId: CompanyID.toString())));
-                }
-              } else {
-                navigateTo(context, SalesOrderProductListScreen.routeName,
-                    arguments: AddSalesOrderProductListArgument(
-                        SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
-              }
-            } else {
-              showCommonDialogWithSingleOption(
-                  context, "Customer name is required To view Product !",
-                  positiveButtonTitle: "OK");
-            }
-          },
-          "Add Product Details",
-          radius: 18,
-          //backGroundColor: Color(0xfffbb034),
-          // textColor: Color(0xff362d8b),
-        ));
-  }
-
-  productOtherCharges() {
-    return Visibility(
-      visible: true,
-      child: Container(
         margin: EdgeInsets.all(10),
-        alignment: Alignment.bottomCenter,
-        child: getCommonButton(baseTheme, () async {
-          //  _onTapOfDeleteALLContact();
-          //  navigateTo(context, InquiryProductListScreen.routeName);
-          await getInquiryProductDetails();
-          if (_inquiryProductList.length != 0) {
-            print("HeaderDiscll" + edt_HeaderDisc.text.toString());
-            navigateTo(context, SalesOrderOtherChargeScreen.routeName,
-                    arguments: SalesOrderOtherChargesScreenArguments(
-                        int.parse(
-                            edt_StateCode == null ? 0 : edt_StateCode.text),
-                        _editModel,
-                        edt_HeaderDisc.text))
-                .then((value) {
-              if (value == null) {
-                print("HeaderDiscount From QTOtherCharges 0.00");
-              } else {
-                print("HeaderDiscount From QTOtherCharges $value");
-                edt_HeaderDisc.text = value;
-              }
-            });
+        child: getCommonButton(baseTheme, () {
+          if (_controller_customer_name.text != "") {
+            // print("INWWWE" + InquiryNo.toString());
+
+            navigateTo(context, SOProductListScreen.routeName,
+                arguments: SOProductListArgument(
+                    SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
           } else {
-            showCommonDialogWithSingleOption(context,
-                "Atleast one product is required to view other charges !",
+            showCommonDialogWithSingleOption(
+                context, "Customer name is required To view Product !",
                 positiveButtonTitle: "OK");
           }
-        }, "Other Charges", width: 600, backGroundColor: Color(0xff4d62dc)),
-      ),
-    );
+        }, "Products",
+            width: 600,
+            textColor: colorPrimary,
+            backGroundColor: colorGreenLight,
+            radius: 25.0));
   }
 
   Future<void> getInquiryProductDetails() async {
@@ -1664,6 +1832,31 @@ class _SaleOrderNewAddEditScreenState
                             controllerForLeft: _controller_projectName,
                             controllerForID: _controller_projectID,
                             Custom_values1: arr_ALL_Name_ID_For_ProjectList),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: createTextLabel("PI No.", 10.0, 0.0),
+                            ),
+                            Flexible(
+                              flex: 1,
+                              child: createTextLabel("PI Date", 10.0, 0.0),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: createTextFormField(
+                                  _controller_PINO, "PI No."),
+                            ),
+                            Flexible(flex: 1, child: _buildPIDate())
+                          ],
+                        ),
                         SizedBox(
                           height: 10,
                         ),
@@ -1862,8 +2055,9 @@ class _SaleOrderNewAddEditScreenState
                         createTextFormField(
                             _contrller_terms_and_condition, "Terms & Condition",
                             minLines: 2,
-                            maxLines: 5,
-                            height: 70,
+                            maxLines: 8,
+                            height: 120,
+                            AllPadding: 10,
                             keyboardInput: TextInputType.text),
                         SizedBox(
                           height: 3,
@@ -1955,16 +2149,42 @@ class _SaleOrderNewAddEditScreenState
                             bottomLeft: Radius.circular(15))),
                     child: Column(
                       children: [
-                        createTextLabel("Select Subject", 10.0, 0.0),
+                        createTextLabel("Select Email Content", 10.0, 0.0),
                         SizedBox(
                           height: 3,
                         ),
-                        EmailSubjectWithMultiID1("Email Subject",
-                            enable1: false,
-                            title: "Email Subject",
-                            hintTextvalue: "Tap to Select Subject",
-                            icon: Icon(Icons.arrow_drop_down),
-                            Custom_values1: arr_ALL_Name_ID_For_Email_Subject),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: EmailSubjectWithMultiID1("Email Subject",
+                                  enable1: false,
+                                  title: "Email Subject",
+                                  hintTextvalue: "Tap to Select Email Content",
+                                  icon: Icon(Icons.arrow_drop_down),
+                                  Custom_values1:
+                                      arr_ALL_Name_ID_For_Email_Subject),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                height: 42,
+                                alignment: Alignment.topRight,
+                                child: FloatingActionButton(
+                                  onPressed: () async {
+                                    // Add your onPressed code here!
+                                    //await _onTapOfDeleteALLProduct();
+                                    showcustomdialogEmailContent(
+                                        context1: context, Email: "sdfj");
+                                    // navigateTo(context, QuotationAddEditScreen.routeName);
+                                  },
+                                  child: const Icon(Icons.add),
+                                  backgroundColor: Colors.pinkAccent,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                         /*CustomDropDown1("Email Subject",
                             enable1: false,
                             title: "Email Subject",
@@ -2116,20 +2336,8 @@ class _SaleOrderNewAddEditScreenState
                                                   MainAxisAlignment.spaceAround,
                                               buttonMinWidth: 90.0,
                                               children: <Widget>[
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    fixedSize: Size(90, 15),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(24.0),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    //_onTapOfEditContact(index);
+                                                GestureDetector(
+                                                  onTap: () {
                                                     _controllerAmountDialog
                                                             .text =
                                                         arr_PaymentScheduleList[
@@ -2156,69 +2364,24 @@ class _SaleOrderNewAddEditScreenState
                                                                     index]
                                                                 .id);
                                                   },
-                                                  child: Column(
-                                                    children: <Widget>[
-                                                      Icon(
-                                                        Icons.edit,
-                                                        color: colorPrimary,
-                                                        size: 20,
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                vertical: 2.0),
-                                                      ),
-                                                      Text(
-                                                        'Edit',
-                                                        style: TextStyle(
-                                                            color: colorPrimary,
-                                                            fontSize: 12),
-                                                      ),
-                                                    ],
+                                                  child: Icon(
+                                                    Icons.edit,
+                                                    color: colorPrimary,
+                                                    size: 24,
                                                   ),
                                                 ),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    fixedSize: Size(90, 15),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(24.0),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    // _onTapOfDeleteContact(index);
-
+                                                GestureDetector(
+                                                  onTap: () {
                                                     _salesOrderBloc.add(
                                                         PaymentScheduleDeleteEvent(
                                                             arr_PaymentScheduleList[
                                                                     index]
                                                                 .id));
                                                   },
-                                                  child: Column(
-                                                    children: <Widget>[
-                                                      Icon(
-                                                        Icons.delete,
-                                                        color: colorPrimary,
-                                                        size: 20,
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                vertical: 2.0),
-                                                      ),
-                                                      Text(
-                                                        'Delete',
-                                                        style: TextStyle(
-                                                            color: colorPrimary,
-                                                            fontSize: 12),
-                                                      ),
-                                                    ],
+                                                  child: Icon(
+                                                    Icons.delete,
+                                                    color: colorPrimary,
+                                                    size: 24,
                                                   ),
                                                 ),
                                               ]),
@@ -2415,7 +2578,8 @@ class _SaleOrderNewAddEditScreenState
                           children: [
                             Flexible(
                               child: createTextFormField(
-                                  _controller_flight_no, "Enter Flight No."),
+                                  _controller_flight_no, "Enter Flight No.",
+                                  keyboardInput: TextInputType.text),
                             ),
                             Flexible(
                               child: createTextFormField(
@@ -2642,7 +2806,8 @@ class _SaleOrderNewAddEditScreenState
                             Flexible(
                                 // flex: 1,
                                 child: createTextFormField(
-                                    _controller_GSTNO, "Enter GSTNo.")),
+                                    _controller_GSTNO, "Enter GSTNo.",
+                                    keyboardInput: TextInputType.text)),
                           ],
                         ),
                         SizedBox(
@@ -2710,43 +2875,6 @@ class _SaleOrderNewAddEditScreenState
     );
   }
 
-  otherCharges() {
-    return Container(
-        margin: EdgeInsets.only(left: 8, right: 8),
-        child: getCommonButton(
-          baseTheme,
-          () async {
-            await getInquiryProductDetails();
-            if (_inquiryProductList.length != 0) {
-              print("HeaderDiscll" + edt_HeaderDisc.text.toString());
-              navigateTo(context, SalesOrderOtherChargeScreen.routeName,
-                      arguments: SalesOrderOtherChargesScreenArguments(
-                          edt_StateCode.text != ""
-                              ? int.parse(edt_StateCode.text)
-                              : 0,
-                          _editModel,
-                          edt_HeaderDisc.text != ""
-                              ? edt_HeaderDisc.text
-                              : "0.00"))
-                  .then((value) {
-                if (value == null) {
-                  print("HeaderDiscount From QTOtherCharges 0.00");
-                } else {
-                  print("HeaderDiscount From QTOtherCharges $value");
-                  edt_HeaderDisc.text = value;
-                }
-              });
-            } else {
-              showCommonDialogWithSingleOption(context,
-                  "Atleast one product is required to view other charges !",
-                  positiveButtonTitle: "OK");
-            }
-          },
-          "Other Charges",
-          radius: 18,
-        ));
-  }
-
   save() {
     return // Save
         Container(
@@ -2754,253 +2882,739 @@ class _SaleOrderNewAddEditScreenState
             child: getCommonButton(
               baseTheme,
               () async {
+                print("fjsfjjjsdffkjsdfj" +
+                    _controller_currency_Symbol.text +
+                    " Name : " +
+                    _controller_currency.text);
                 if (_controller_order_date.text != "") {
                   if (_controller_customer_name.text != "") {
-                    await getInquiryProductDetails();
+                    if (_controller_bank_name.text != "") {
+                      List<SalesOrderTable> temp =
+                          await OfflineDbHelper.getInstance()
+                              .getSalesOrderProduct();
 
-                    if (_inquiryProductList.length != 0) {
-                      showCommonDialogWithTwoOptions(context,
-                          "Are you sure you want to Save this SalesOrder ?",
-                          negativeButtonTitle: "No", positiveButtonTitle: "Yes",
-                          onTapOfPositiveButton: () async {
-                        Navigator.of(context).pop();
+                      if (temp.length != 0) {
+                        showCommonDialogWithTwoOptions(context,
+                            "Are you sure you want to Save this SalesOrder ?",
+                            negativeButtonTitle: "No",
+                            positiveButtonTitle: "Yes",
+                            onTapOfPositiveButton: () async {
+                          Navigator.of(context).pop();
 
-                        if (SalesOrderNo != '') {
-                          _salesOrderBloc.add(
-                              SalesOrderProductDeleteRequestEvent(
-                                  pkID,
-                                  SalesOrderAllProductDeleteRequest(
-                                      CompanyId: CompanyID.toString())));
-                        } else {}
+                          if (SalesOrderNo != '') {
+                            _salesOrderBloc.add(
+                                SalesOrderProductDeleteRequestEvent(
+                                    pkID,
+                                    SalesOrderAllProductDeleteRequest(
+                                        CompanyId: CompanyID.toString())));
+                          } else {}
 
-                        List<SO_OtherChargeTable> tempOtherCharges =
-                            await OfflineDbHelper.getInstance()
-                                .getSalesOrderOtherCharge();
-                        List<SalesOrderTable> tempProductList =
-                            await OfflineDbHelper.getInstance()
-                                .getSalesOrderProduct();
+                          HeaderDisAmnt = edt_HeaderDisc.text.isNotEmpty
+                              ? double.parse(edt_HeaderDisc.text)
+                              : 0.00;
 
-                        double tot_basicAmount = 0.00;
-                        double tot_CGSTAmount = 0.00;
-                        double tot_SGSTAmount = 0.00;
-                        double tot_IGSTAmount = 0.00;
-                        double tot_DiscountAmount = 0.00;
-                        double tot_NetAmount = 0.00;
+                          List<SalesOrderTable> TempproductList1 =
+                              SalesOrderHeaderDiscountCalculation
+                                  .txtHeadDiscount_WithZero(
+                                      temp,
+                                      HeaderDisAmnt,
+                                      _offlineLoggedInData.details[0].stateCode
+                                          .toString(),
+                                      edt_StateCode.text.toString());
 
-                        for (int i = 0; i < tempProductList.length; i++) {
-                          tot_basicAmount =
-                              tot_basicAmount + tempProductList[i].Amount;
-                          tot_DiscountAmount = tot_DiscountAmount +
-                              tempProductList[i].DiscountAmt;
-                          tot_NetAmount =
-                              tot_NetAmount + tempProductList[i].NetAmount;
+                          List<SalesOrderTable> TempproductList =
+                              SalesOrderHeaderDiscountCalculation
+                                  .txtHeadDiscount_TextChanged(
+                                      TempproductList1,
+                                      HeaderDisAmnt,
+                                      _offlineLoggedInData.details[0].stateCode
+                                          .toString(),
+                                      edt_StateCode.text.toString());
 
-                          int STCODE = edt_StateCode.text != ""
-                              ? int.parse(edt_StateCode.text)
-                              : 0;
-
-                          tot_CGSTAmount =
-                              tot_CGSTAmount + tempProductList[i].CGSTAmt;
-                          tot_SGSTAmount =
-                              tot_SGSTAmount + tempProductList[i].SGSTAmt;
-                          tot_IGSTAmount = 0.00;
-
-                          /* if (_offlineLoggedInData.details[0].stateCode == STCODE ) {
-                            tot_CGSTAmount =
-                                tot_CGSTAmount + tempProductList[i].CGSTAmt;
-                            tot_SGSTAmount =
-                                tot_SGSTAmount + tempProductList[i].SGSTAmt;
-                            tot_IGSTAmount = 0.00;
-                          } else {
-                            tot_IGSTAmount =
-                                tot_IGSTAmount + tempProductList[i].IGSTAmt;
-                            tot_CGSTAmount = 0.00;
-                            tot_SGSTAmount = 0.00;
-                          }*/
-                        }
-
-                        String ChargeID1 = "";
-                        String ChargeAmt1 = "";
-                        String ChargeBasicAmt1 = "";
-                        String ChargeGSTAmt1 = "";
-                        String ChargeID2 = "";
-                        String ChargeAmt2 = "";
-                        String ChargeBasicAmt2 = "";
-                        String ChargeGSTAmt2 = "";
-                        String ChargeID3 = "";
-                        String ChargeAmt3 = "";
-                        String ChargeBasicAmt3 = "";
-                        String ChargeGSTAmt3 = "";
-                        String ChargeID4 = "";
-                        String ChargeAmt4 = "";
-                        String ChargeBasicAmt4 = "";
-                        String ChargeGSTAmt4 = "";
-                        String ChargeID5 = "";
-                        String ChargeAmt5 = "";
-                        String ChargeBasicAmt5 = "";
-                        String ChargeGSTAmt5 = "";
-
-                        if (tempOtherCharges.length != 0) {
-                          for (int i = 0; i < tempOtherCharges.length; i++) {
-                            print("Cjkdfj" +
-                                " ChargeId : " +
-                                tempOtherCharges[i].ChargeID1.toString());
-                            ChargeID1 =
-                                tempOtherCharges[i].ChargeID1.toString();
-                            ChargeAmt1 = tempOtherCharges[i]
-                                .ChargeAmt1
-                                .toStringAsFixed(2);
-                            ChargeBasicAmt1 = tempOtherCharges[i]
-                                .ChargeBasicAmt1
-                                .toStringAsFixed(2);
-                            ChargeGSTAmt1 = tempOtherCharges[i]
-                                .ChargeGSTAmt1
-                                .toStringAsFixed(2);
-                            ChargeID2 =
-                                tempOtherCharges[i].ChargeID2.toString();
-                            ChargeAmt2 = tempOtherCharges[i]
-                                .ChargeAmt2
-                                .toStringAsFixed(2);
-                            ChargeBasicAmt2 = tempOtherCharges[i]
-                                .ChargeBasicAmt2
-                                .toStringAsFixed(2);
-                            ChargeGSTAmt2 = tempOtherCharges[i]
-                                .ChargeGSTAmt2
-                                .toStringAsFixed(2);
-                            ChargeID3 =
-                                tempOtherCharges[i].ChargeID3.toString();
-                            ChargeAmt3 = tempOtherCharges[i]
-                                .ChargeAmt3
-                                .toStringAsFixed(2);
-                            ChargeBasicAmt3 = tempOtherCharges[i]
-                                .ChargeBasicAmt3
-                                .toStringAsFixed(2);
-                            ChargeGSTAmt3 = tempOtherCharges[i]
-                                .ChargeGSTAmt3
-                                .toStringAsFixed(2);
-                            ChargeID4 =
-                                tempOtherCharges[i].ChargeID4.toString();
-                            ChargeAmt4 = tempOtherCharges[i]
-                                .ChargeAmt4
-                                .toStringAsFixed(2);
-                            ChargeBasicAmt4 = tempOtherCharges[i]
-                                .ChargeBasicAmt4
-                                .toStringAsFixed(2);
-                            ChargeGSTAmt4 = tempOtherCharges[i]
-                                .ChargeGSTAmt4
-                                .toStringAsFixed(2);
-                            ChargeID5 =
-                                tempOtherCharges[i].ChargeID5.toString();
-                            ChargeAmt5 = tempOtherCharges[i]
-                                .ChargeAmt5
-                                .toStringAsFixed(2);
-                            ChargeBasicAmt5 = tempOtherCharges[i]
-                                .ChargeBasicAmt5
-                                .toStringAsFixed(2);
-                            ChargeGSTAmt5 = tempOtherCharges[i]
-                                .ChargeGSTAmt5
-                                .toStringAsFixed(2);
+                          for (int i = 0; i < temp.length; i++) {
+                            print("productList" +
+                                " AmountFromProductList : " +
+                                temp[i].DiscountPercent.toString() +
+                                " NetAmountFromProductList : " +
+                                temp[i].DiscountAmt.toString() +
+                                " NetRate : " +
+                                temp[i].NetRate.toString() +
+                                " BasicAmount : " +
+                                temp[i].Amount.toString() +
+                                " NetAmnount : " +
+                                temp[i].NetAmount.toString());
                           }
-                        } else {
-                          ChargeID1 = "";
-                          ChargeAmt1 = "";
-                          ChargeBasicAmt1 = "";
-                          ChargeGSTAmt1 = "";
-                          ChargeID2 = "";
-                          ChargeAmt2 = "";
-                          ChargeBasicAmt2 = "";
-                          ChargeGSTAmt2 = "";
-                          ChargeID3 = "";
-                          ChargeAmt3 = "";
-                          ChargeBasicAmt3 = "";
-                          ChargeGSTAmt3 = "";
-                          ChargeID4 = "";
-                          ChargeAmt4 = "";
-                          ChargeBasicAmt4 = "";
-                          ChargeGSTAmt4 = "";
-                          ChargeID5 = "";
-                          ChargeAmt5 = "";
-                          ChargeBasicAmt5 = "";
-                          ChargeGSTAmt5 = "";
-                        }
 
-                        _salesOrderBloc.add(SaleOrderHeaderSaveRequestEvent(
-                            context,
-                            pkID,
-                            SaleOrderHeaderSaveRequest(
-                              CompanyId: CompanyID.toString(),
-                              OrderNo: _controller_order_no.text,
-                              OrderDate: _controller_rev_order_date.text,
-                              LoginUserID: LoginUserID,
-                              CustomerId: _controller_customer_pkID.text,
-                              QuotationNo: "",
-                              DeliveryDate: _controller_rev_delivery_date.text,
-                              TermsCondition:
-                                  _contrller_terms_and_condition.text,
-                              Latitude: SharedPrefHelper.instance.getLatitude(),
-                              Longitude:
-                                  SharedPrefHelper.instance.getLongitude(),
-                              DiscountAmt: edt_HeaderDisc.text,
-                              SGSTAmt: tot_SGSTAmount.toStringAsFixed(2),
-                              CGSTAmt: tot_CGSTAmount.toStringAsFixed(2),
-                              IGSTAmt: tot_IGSTAmount.toStringAsFixed(2),
-                              ChargeID1: ChargeID1,
-                              ChargeAmt1: ChargeAmt1,
-                              ChargeBasicAmt1: ChargeBasicAmt1,
-                              ChargeGSTAmt1: ChargeGSTAmt1,
-                              ChargeID2: ChargeID2,
-                              ChargeAmt2: ChargeAmt2,
-                              ChargeBasicAmt2: ChargeBasicAmt2,
-                              ChargeGSTAmt2: ChargeGSTAmt2,
-                              ChargeID3: ChargeID3,
-                              ChargeAmt3: ChargeAmt3,
-                              ChargeBasicAmt3: ChargeBasicAmt3,
-                              ChargeGSTAmt3: ChargeGSTAmt3,
-                              ChargeID4: ChargeID4,
-                              ChargeAmt4: ChargeAmt4,
-                              ChargeBasicAmt4: ChargeBasicAmt4,
-                              ChargeGSTAmt4: ChargeGSTAmt4,
-                              ChargeID5: ChargeID5,
-                              ChargeAmt5: ChargeAmt5,
-                              ChargeBasicAmt5: ChargeBasicAmt5,
-                              ChargeGSTAmt5: ChargeGSTAmt5,
-                              NetAmt: tot_NetAmount.toStringAsFixed(2),
-                              BasicAmt: tot_basicAmount.toStringAsFixed(2),
-                              ROffAmt: "0.00",
-                              ApprovalStatus: "",
-                              ChargePer1: "0.00",
-                              ChargePer2: "0.00",
-                              ChargePer3: "0.00",
-                              ChargePer4: "0.00",
-                              ChargePer5: "0.00",
-                              AdvancePer: "0.00",
-                              AdvanceAmt: "0.00",
-                              CurrencyName: "",
-                              CurrencySymbol: "",
-                              ExchangeRate: "0.00",
-                              RefType: "",
-                            )));
-                      });
+                          for (int i = 0; i < TempproductList1.length; i++) {
+                            print("TempproductList1" +
+                                " AmountCalculation : " +
+                                TempproductList1[i].DiscountPercent.toString() +
+                                " NetAmountCalculation : " +
+                                TempproductList1[i].DiscountAmt.toString() +
+                                " NetRate : " +
+                                TempproductList1[i].NetRate.toString() +
+                                " BasicAmount : " +
+                                TempproductList1[i].Amount.toString() +
+                                " NetAmount : " +
+                                TempproductList1[i].NetAmount.toString());
+                          }
+
+                          for (int i = 0; i < TempproductList.length; i++) {
+                            print("TempproductList" +
+                                " AmountCalculation : " +
+                                TempproductList[i].DiscountPercent.toString() +
+                                " NetAmountCalculation : " +
+                                TempproductList[i].DiscountAmt.toString() +
+                                " NetRate : " +
+                                TempproductList[i].NetRate.toString() +
+                                " BasicAmount : " +
+                                TempproductList[i].Amount.toString() +
+                                " NetAmount : " +
+                                TempproductList[i].NetAmount.toString());
+                          }
+
+                          List<GenericAddditionalCharges>
+                              quotationOtherChargesListResponse =
+                              await OfflineDbHelper.getInstance()
+                                  .getGenericAddditionalCharges();
+
+                          List<double> finalPrice =
+                              UpdateHeaderDiscountCalculation(TempproductList,
+                                  quotationOtherChargesListResponse);
+
+                          for (int i = 0; i < finalPrice.length; i++) {
+                            print("finalCalfk" + finalPrice[i].toString());
+                          }
+
+                          _salesOrderBloc.add(SaleOrderHeaderSaveRequestEvent(
+                              context,
+                              pkID,
+                              SaleOrderHeaderSaveRequest(
+                                CompanyId: CompanyID.toString(),
+                                OrderNo: _controller_order_no.text,
+                                OrderDate: _controller_rev_order_date.text,
+                                LoginUserID: LoginUserID,
+                                CustomerId: _controller_customer_pkID.text,
+                                QuotationNo: "",
+                                DeliveryDate:
+                                    _controller_rev_delivery_date.text,
+                                TermsCondition:
+                                    _contrller_terms_and_condition.text,
+                                Latitude:
+                                    SharedPrefHelper.instance.getLatitude(),
+                                Longitude:
+                                    SharedPrefHelper.instance.getLongitude(),
+                                DiscountAmt: edt_HeaderDisc.text.toString(),
+                                SGSTAmt: finalPrice[4].toStringAsFixed(2),
+                                CGSTAmt: finalPrice[3].toStringAsFixed(2),
+                                IGSTAmt: finalPrice[5].toStringAsFixed(2),
+                                ChargeID1: quotationOtherChargesListResponse[0]
+                                    .ChargeID1,
+                                ChargeAmt1: quotationOtherChargesListResponse[0]
+                                    .ChargeAmt1,
+                                ChargeBasicAmt1:
+                                    finalPrice[6].toStringAsFixed(2),
+                                ChargeGSTAmt1:
+                                    finalPrice[11].toStringAsFixed(2),
+                                ChargeID2: quotationOtherChargesListResponse[0]
+                                    .ChargeID2,
+                                ChargeAmt2: quotationOtherChargesListResponse[0]
+                                    .ChargeAmt2,
+                                ChargeBasicAmt2:
+                                    finalPrice[7].toStringAsFixed(2),
+                                ChargeGSTAmt2:
+                                    finalPrice[12].toStringAsFixed(2),
+                                ChargeID3: quotationOtherChargesListResponse[0]
+                                    .ChargeID3,
+                                ChargeAmt3: quotationOtherChargesListResponse[0]
+                                    .ChargeAmt3,
+                                ChargeBasicAmt3:
+                                    finalPrice[8].toStringAsFixed(2),
+                                ChargeGSTAmt3:
+                                    finalPrice[13].toStringAsFixed(2),
+                                ChargeID4: quotationOtherChargesListResponse[0]
+                                    .ChargeID4,
+                                ChargeAmt4: quotationOtherChargesListResponse[0]
+                                    .ChargeAmt4,
+                                ChargeBasicAmt4:
+                                    finalPrice[9].toStringAsFixed(2),
+                                ChargeGSTAmt4:
+                                    finalPrice[14].toStringAsFixed(2),
+                                ChargeID5: quotationOtherChargesListResponse[0]
+                                    .ChargeID5,
+                                ChargeAmt5: quotationOtherChargesListResponse[0]
+                                    .ChargeAmt5,
+                                ChargeBasicAmt5:
+                                    finalPrice[10].toStringAsFixed(2),
+                                ChargeGSTAmt5:
+                                    finalPrice[15].toStringAsFixed(2),
+                                NetAmt: finalPrice[17].toStringAsFixed(2),
+                                BasicAmt: finalPrice[0].toStringAsFixed(2),
+                                ROffAmt: finalPrice[18].toStringAsFixed(2),
+                                ApprovalStatus: "",
+                                ChargePer1: "0.00",
+                                ChargePer2: "0.00",
+                                ChargePer3: "0.00",
+                                ChargePer4: "0.00",
+                                ChargePer5: "0.00",
+                                AdvancePer: "0.00",
+                                AdvanceAmt: "0.00",
+                                CurrencyName:
+                                    _controller_currency.text.toString() ??
+                                        _controller_currency.text,
+                                CurrencySymbol: _controller_currency_Symbol.text
+                                        .toString() ??
+                                    _controller_currency_Symbol.text,
+                                ExchangeRate: _controller_exchange_rate.text,
+                                RefType: "",
+                              )));
+                        });
+                      } else {
+                        showCommonDialogWithSingleOption(
+                            context, "ProductDetails is required !",
+                            positiveButtonTitle: "OK",
+                            onTapOfPositiveButton: () {
+                          Navigator.pop(context);
+                        });
+                      }
                     } else {
                       showCommonDialogWithSingleOption(
-                          context, "ProductDetails is required !",
-                          positiveButtonTitle: "OK");
+                          context, "Bank Name is required !",
+                          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                        Navigator.pop(context);
+                      });
                     }
                   } else {
                     showCommonDialogWithSingleOption(
                         context, "CustomerName is required !",
-                        positiveButtonTitle: "OK");
+                        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                      Navigator.pop(context);
+                    });
                   }
                 } else {
                   showCommonDialogWithSingleOption(
                       context, "SaleOrder date is required !",
-                      positiveButtonTitle: "OK");
+                      positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                    Navigator.pop(context);
+                  });
                 }
               },
               "Save",
               backGroundColor: Color(0xff362d8b),
               radius: 18,
             ));
+  }
+
+  List<double> UpdateHeaderDiscountCalculation(
+      List<SalesOrderTable> tempproductList,
+      List<GenericAddditionalCharges> quotationOtherChargesListResponse1) {
+    if (tempproductList != null) {
+      ///From OtherCharge DropDown API
+      String _otherChargeTaxTypeController1 = "";
+      String _otherChargeTaxTypeController2 = "";
+      String _otherChargeTaxTypeController3 = "";
+      String _otherChargeTaxTypeController4 = "";
+      String _otherChargeTaxTypeController5 = "";
+
+      String _otherChargeBeForeGSTController1 = "";
+      String _otherChargeBeForeGSTController2 = "";
+      String _otherChargeBeForeGSTController3 = "";
+      String _otherChargeBeForeGSTController4 = "";
+      String _otherChargeBeForeGSTController5 = "";
+
+      String _otherChargeGSTPerController1 = "";
+      String _otherChargeGSTPerController2 = "";
+      String _otherChargeGSTPerController3 = "";
+      String _otherChargeGSTPerController4 = "";
+      String _otherChargeGSTPerController5 = "";
+
+      /// From GenericAddtionalCharge DB Table
+      String _otherChargeIDController1 = "";
+      String _otherChargeIDController2 = "";
+      String _otherChargeIDController3 = "";
+      String _otherChargeIDController4 = "";
+      String _otherChargeIDController5 = "";
+
+      String _otherChargeNameController1 = "";
+      String _otherChargeNameController2 = "";
+      String _otherChargeNameController3 = "";
+      String _otherChargeNameController4 = "";
+      String _otherChargeNameController5 = "";
+
+      String _otherAmount1 = "";
+      String _otherAmount2 = "";
+      String _otherAmount3 = "";
+      String _otherAmount4 = "";
+      String _otherAmount5 = "";
+
+      double Tot_BasicAmount = 0.00;
+      double Tot_GSTAmt = 0.00;
+      double Tot_CGSTAmt = 0.00;
+      double Tot_SGSTAmt = 0.00;
+      double Tot_IGSTAmt = 0.00;
+
+      double Tot_NetAmt = 0.00;
+      Tot_otherChargeWithTax = 0.0;
+      Tot_otherChargeExcludeTax = 0.0;
+      List<GenericAddditionalCharges> quotationOtherChargesListResponse =
+          quotationOtherChargesListResponse1;
+
+      _otherChargeIDController1 =
+          quotationOtherChargesListResponse[0].ChargeID1;
+      _otherChargeIDController2 =
+          quotationOtherChargesListResponse[0].ChargeID2;
+      _otherChargeIDController3 =
+          quotationOtherChargesListResponse[0].ChargeID3;
+      _otherChargeIDController4 =
+          quotationOtherChargesListResponse[0].ChargeID4;
+      _otherChargeIDController5 =
+          quotationOtherChargesListResponse[0].ChargeID5;
+
+      _otherChargeNameController1 =
+          quotationOtherChargesListResponse[0].ChargeName1;
+      _otherChargeNameController2 =
+          quotationOtherChargesListResponse[0].ChargeName2;
+      _otherChargeNameController3 =
+          quotationOtherChargesListResponse[0].ChargeName3;
+      _otherChargeNameController4 =
+          quotationOtherChargesListResponse[0].ChargeName4;
+      _otherChargeNameController5 =
+          quotationOtherChargesListResponse[0].ChargeName5;
+
+      _otherAmount1 = quotationOtherChargesListResponse[0].ChargeAmt1;
+      _otherAmount2 = quotationOtherChargesListResponse[0].ChargeAmt2;
+      _otherAmount3 = quotationOtherChargesListResponse[0].ChargeAmt3;
+      _otherAmount4 = quotationOtherChargesListResponse[0].ChargeAmt4;
+      _otherAmount5 = quotationOtherChargesListResponse[0].ChargeAmt5;
+
+      // productList.clear();
+
+      for (int i = 0; i < tempproductList.length; i++) {
+        print("Amount" +
+            tempproductList[i].Amount.toString() +
+            "NetAmount : " +
+            tempproductList[i].Amount.toString());
+        // productList.add(tempproductList[i]);
+        Tot_BasicAmount += tempproductList[i].Amount;
+        Tot_otherChargeWithTax = 0.00;
+
+        ///Before Gst
+        Tot_GSTAmt += tempproductList[i].TaxAmount;
+        Tot_CGSTAmt += tempproductList[i].CGSTAmt;
+        Tot_SGSTAmt += tempproductList[i].SGSTAmt;
+        Tot_IGSTAmt += tempproductList[i].IGSTAmt;
+
+        Tot_otherChargeExcludeTax = 0.00;
+
+        ///AFTER gst
+        Tot_NetAmt += tempproductList[i].NetAmount;
+      }
+
+      print("FinalAmount" +
+          " BasicAmount : " +
+          Tot_BasicAmount.toString() +
+          " TotalGST Amnt : " +
+          Tot_GSTAmt.toString() +
+          " Tot_NetAmt : " +
+          Tot_NetAmt.toString());
+
+      HeaderDisAmnt = edt_HeaderDisc.text.isNotEmpty
+          ? double.parse(edt_HeaderDisc.text)
+          : 0.00;
+
+      List<double> hdnOthChrgGST1hdnOthChrgBasic1 = [],
+          hdnOthChrgGST1hdnOthChrgBasic2 = [],
+          hdnOthChrgGST1hdnOthChrgBasic3 = [],
+          hdnOthChrgGST1hdnOthChrgBasic4 = [],
+          hdnOthChrgGST1hdnOthChrgBasic5 = [];
+
+      Tot_otherChargeWithTax = 0.00;
+
+      for (int i = 0; i < arrGenericOtheCharge.length; i++) {
+        print("TAXXXXX" + arrGenericOtheCharge[i].chargeName);
+        if (_otherChargeIDController1 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController1 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController1 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+
+          _otherChargeGSTPerController1 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+
+        if (_otherChargeIDController2 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController2 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController2 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController2 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+        if (_otherChargeIDController3 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController3 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController3 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController3 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+        if (_otherChargeIDController4 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController4 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController4 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController4 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+        if (_otherChargeIDController5 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController5 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController5 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController5 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+      }
+
+      if (_otherChargeNameController1.isNotEmpty) {
+        if (_otherChargeNameController1.toString() != "null") {
+          print("AA1" + _otherChargeBeForeGSTController1.toString());
+
+          hdnOthChrgGST1hdnOthChrgBasic1 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController1.isNotEmpty
+                      ? int.parse(_otherChargeIDController1)
+                      : 0,
+                  _otherAmount1.isNotEmpty ? double.parse(_otherAmount1) : 0.00,
+                  _otherChargeGSTPerController1.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController1)
+                      : 0.00,
+                  _otherChargeTaxTypeController1.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController1.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController1.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController1.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController1 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic1[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic1[1];
+          }
+        } else {
+          _otherChargeNameController1 = "";
+        }
+      }
+      if (_otherChargeNameController2.isNotEmpty) {
+        if (_otherChargeNameController2.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic2 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController2.isNotEmpty
+                      ? int.parse(_otherChargeIDController2)
+                      : 0,
+                  _otherAmount2.isNotEmpty ? double.parse(_otherAmount2) : 0.00,
+                  _otherChargeGSTPerController2.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController2)
+                      : 0.00,
+                  _otherChargeTaxTypeController2.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController2.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController2.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController2.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController2 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic2[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic2[1];
+          }
+        } else {
+          _otherChargeNameController2 = "";
+        }
+      }
+
+      print("ds9980" + _otherChargeNameController3.toString());
+      if (_otherChargeNameController3.isNotEmpty) {
+        if (_otherChargeNameController3.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic3 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController3.isNotEmpty
+                      ? int.parse(_otherChargeIDController3)
+                      : 0,
+                  _otherAmount3.isNotEmpty ? double.parse(_otherAmount3) : 0.00,
+                  _otherChargeGSTPerController3.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController3)
+                      : 0.00,
+                  _otherChargeTaxTypeController3.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController3.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController3.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController3.toString() == "true"
+                      ? true
+                      : false);
+          if (_otherChargeBeForeGSTController3 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic3[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic3[1];
+          }
+        } else {
+          _otherChargeNameController3 = "";
+        }
+      }
+
+      if (_otherChargeNameController4.isNotEmpty) {
+        if (_otherChargeNameController4.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic4 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController4.isNotEmpty
+                      ? int.parse(_otherChargeIDController4)
+                      : 0,
+                  _otherAmount4.isNotEmpty ? double.parse(_otherAmount4) : 0.00,
+                  _otherChargeGSTPerController4.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController4)
+                      : 0.00,
+                  _otherChargeTaxTypeController4.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController4.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController4.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController4.toString() == "true"
+                      ? true
+                      : false);
+          if (_otherChargeBeForeGSTController4 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          }
+        } else {
+          _otherChargeNameController4 = "";
+        }
+      }
+
+      if (_otherChargeNameController5.isNotEmpty) {
+        if (_otherChargeNameController5.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic5 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController5.isNotEmpty
+                      ? int.parse(_otherChargeIDController5)
+                      : 0,
+                  _otherAmount5.isNotEmpty ? double.parse(_otherAmount5) : 0.00,
+                  _otherChargeGSTPerController5.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController5)
+                      : 0.00,
+                  _otherChargeTaxTypeController5.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController5.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController5.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController5.toString() == "true"
+                      ? true
+                      : false);
+          if (_otherChargeBeForeGSTController5 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          }
+        } else {
+          _otherChargeNameController5 = "";
+        }
+      }
+
+      /*if (_otherChargeNameController4.isNotEmpty) {
+        if (_otherChargeNameController4.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic4 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  int.parse(_otherChargeIDController4),
+                  double.parse(_otherAmount4),
+                  double.parse(_otherChargeGSTPerController4),
+                  int.parse(_otherChargeTaxTypeController4.toString() == "0.00"
+                      ? "0"
+                      : _otherChargeTaxTypeController4.toString()),
+                  _otherChargeBeForeGSTController4.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController4 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          }
+        } else {
+          _otherChargeNameController4 = "";
+        }
+      }
+      if (_otherChargeNameController5.isNotEmpty) {
+        if (_otherChargeNameController5.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic5 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  int.parse(_otherChargeIDController5),
+                  double.parse(_otherAmount5),
+                  double.parse(_otherChargeGSTPerController5),
+                  int.parse(_otherChargeTaxTypeController5.toString() == "0.00"
+                      ? "0"
+                      : _otherChargeTaxTypeController5.toString()),
+                  _otherChargeBeForeGSTController5.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController5 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          }
+        } else {
+          _otherChargeNameController5 = "";
+        }
+      }*/
+
+      /* print("llll" +
+          "hdnOthChrgGST1" +
+          hdnOthChrgGST1hdnOthChrgBasic1[0].toString() +
+          " hdnOthChrgBasic1 : " +
+          hdnOthChrgGST1hdnOthChrgBasic1[1].toString());*/
+
+      double otherChargeGstAmnt1 = hdnOthChrgGST1hdnOthChrgBasic1.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic1[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt1 =
+          hdnOthChrgGST1hdnOthChrgBasic1.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic1[1]
+              : 0.00;
+      double otherChargeGstAmnt2 = hdnOthChrgGST1hdnOthChrgBasic2.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic2[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt2 =
+          hdnOthChrgGST1hdnOthChrgBasic2.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic2[1]
+              : 0.00;
+      double otherChargeGstAmnt3 = hdnOthChrgGST1hdnOthChrgBasic3.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic3[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt3 =
+          hdnOthChrgGST1hdnOthChrgBasic3.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic3[1]
+              : 0.00;
+      double otherChargeGstAmnt4 = hdnOthChrgGST1hdnOthChrgBasic4.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic4[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt4 =
+          hdnOthChrgGST1hdnOthChrgBasic4.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic4[1]
+              : 0.00;
+
+      double otherChargeGstAmnt5 = hdnOthChrgGST1hdnOthChrgBasic5.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic5[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt5 =
+          hdnOthChrgGST1hdnOthChrgBasic5.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic5[1]
+              : 0.00;
+
+      List<double> TempproductList =
+          SalesOrderHeaderDiscountCalculation.funCalculateTotal(
+              otherChargeGstAmnt1,
+              otherChargeGstAmnt2,
+              otherChargeGstAmnt3,
+              otherChargeGstAmnt4,
+              otherChargeGstAmnt5,
+              otherChargeGstBasicAmnt1,
+              otherChargeGstBasicAmnt2,
+              otherChargeGstBasicAmnt3,
+              otherChargeGstBasicAmnt4,
+              otherChargeGstBasicAmnt5,
+              Tot_CGSTAmt,
+              Tot_SGSTAmt,
+              Tot_IGSTAmt,
+              Tot_BasicAmount,
+              Tot_NetAmt,
+              HeaderDisAmnt,
+              Tot_otherChargeWithTax,
+              Tot_otherChargeExcludeTax);
+
+      double totalGstController = 0.00,
+          netAmountController = 0.00,
+          roundOFController = 0.00;
+      totalGstController = TempproductList[2];
+      netAmountController = TempproductList[4];
+      roundOFController = TempproductList[5];
+
+      List<double> finalcalculation = [
+        /*0*/ Tot_BasicAmount,
+        /*1*/ Tot_otherChargeWithTax,
+        /*2*/ Tot_otherChargeExcludeTax,
+        /*3*/ Tot_CGSTAmt,
+        /*4*/ Tot_SGSTAmt,
+        /*5*/ Tot_IGSTAmt,
+        /*6*/ otherChargeGstBasicAmnt1,
+        /*7*/ otherChargeGstBasicAmnt2,
+        /*8*/ otherChargeGstBasicAmnt3,
+        /*9*/ otherChargeGstBasicAmnt4,
+        /*10*/ otherChargeGstBasicAmnt5,
+        /*11*/ otherChargeGstAmnt1,
+        /*12*/ otherChargeGstAmnt2,
+        /*13*/ otherChargeGstAmnt3,
+        /*14*/ otherChargeGstAmnt4,
+        /*15*/ otherChargeGstAmnt5,
+        /*16*/ totalGstController,
+        /*17*/ netAmountController,
+        /*18*/ roundOFController
+      ];
+
+      return finalcalculation;
+
+      /* _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
+      _otherChargeWithTaxController.text =
+          Tot_otherChargeWithTax.toStringAsFixed(2);
+      //TempproductList[0].toStringAsFixed(2);
+      _otherChargeExcludeTaxController.text =
+          Tot_otherChargeExcludeTax.toStringAsFixed(2);
+      // TempproductList[3].toStringAsFixed(2);
+
+      _totalCGSST_AMOUNT_Controller.text = Tot_CGSTAmt.toStringAsFixed(2);
+      _totalSGSST_AMOUNT_Controller.text = Tot_SGSTAmt.toStringAsFixed(2);
+      _totalIGSST_AMOUNT_Controller.text = Tot_IGSTAmt.toStringAsFixed(2);
+
+      otherChargeGstBasicAmnt1Controller.text =
+          otherChargeGstBasicAmnt1.toStringAsFixed(2);
+      otherChargeGstBasicAmnt2Controller.text =
+          otherChargeGstBasicAmnt2.toStringAsFixed(2);
+      otherChargeGstBasicAmnt3Controller.text =
+          otherChargeGstBasicAmnt3.toStringAsFixed(2);
+      otherChargeGstBasicAmnt4Controller.text =
+          otherChargeGstBasicAmnt4.toStringAsFixed(2);
+      otherChargeGstBasicAmnt5Controller.text =
+          otherChargeGstBasicAmnt5.toStringAsFixed(2);
+
+      otherChargeGstAmnt1Controller.text =
+          otherChargeGstAmnt1.toStringAsFixed(2);
+      otherChargeGstAmnt2Controller.text =
+          otherChargeGstAmnt2.toStringAsFixed(2);
+      otherChargeGstAmnt3Controller.text =
+          otherChargeGstAmnt3.toStringAsFixed(2);
+      otherChargeGstAmnt4Controller.text =
+          otherChargeGstAmnt4.toStringAsFixed(2);
+      otherChargeGstAmnt5Controller.text =
+          otherChargeGstAmnt5.toStringAsFixed(2);
+
+      _totalGstController.text = totalGstController.toStringAsFixed(2);
+      _netAmountController.text = netAmountController.toStringAsFixed(2);
+      _roundOFController.text = roundOFController.toStringAsFixed(2);*/
+    }
   }
 
   space(double height) {
@@ -3016,6 +3630,12 @@ class _SaleOrderNewAddEditScreenState
       for (int i = 0;
           i < bankDetailsListResponseState.response.details.length;
           i++) {
+        if (i == 0) {
+          _controller_bank_name.text =
+              bankDetailsListResponseState.response.details[i].bankName;
+          _controller_bank_ID.text =
+              bankDetailsListResponseState.response.details[i].pkID.toString();
+        }
         ALL_Name_ID all_name_id = ALL_Name_ID();
 
         all_name_id.Name =
@@ -3455,7 +4075,113 @@ class _SaleOrderNewAddEditScreenState
     _controller_sales_executive.text = _editModel.employeeName;
     _controller_sales_executiveID.text = _editModel.employeeID.toString();
 
+    edt_HeaderDisc.text = _editModel.discountAmt.toString();
+    _contrller_terms_and_condition.text = _editModel.termsCondition.toString();
+    // HeaderDisAmnt = _editModel.discountAmt;
+    SalesOrderNo = _editModel.orderNo.toString();
+    if (_editModel.customerID != 0 || _editModel.customerID != null) {
+      _salesOrderBloc.add(SearchCustomerListByNumberCallEvent(
+          "",
+          CustomerSearchByIdRequest(
+              companyId: CompanyID,
+              loginUserID: LoginUserID,
+              CustomerID: _editModel.customerID.toString())));
+    }
+
+    if (_editModel.orderNo.toString() != "") {
+      _salesOrderBloc.add(MultiNoToProductDetailsRequestEvent(
+          "Edit",
+          MultiNoToProductDetailsRequest(
+              FetchType: "SalesOrder",
+              No: "," + _editModel.orderNo.toString() + ",",
+              CustomerID: _editModel.customerID.toString(),
+              CompanyId: CompanyID.toString())));
+    }
+
     await getInquiryProductDetails();
+
+    _salesOrderBloc.add(DeleteGenericAddditionalChargesEvent());
+
+    _salesOrderBloc.add(AddGenericAddditionalChargesEvent(
+        GenericAddditionalCharges(
+            _editModel.discountAmt.toString(),
+            _editModel.chargeID1.toString(),
+            _editModel.chargeAmt1.toString(),
+            _editModel.chargeID2.toString(),
+            _editModel.chargeAmt2.toString(),
+            _editModel.chargeID3.toString(),
+            _editModel.chargeAmt3.toString(),
+            _editModel.chargeID4.toString(),
+            _editModel.chargeAmt4.toString(),
+            _editModel.chargeID5.toString(),
+            _editModel.chargeAmt5.toString(),
+            _editModel.chargeName1,
+            _editModel.chargeName2,
+            _editModel.chargeName3,
+            _editModel.chargeName4,
+            _editModel.chargeName5)));
+
+    addditionalCharges = AddditionalCharges(
+      DiscountAmt: _editModel.discountAmt.toString(),
+      SGSTAmt: _editModel.sGSTAmt.toString(),
+      CGSTAmt: _editModel.cGSTAmt.toString(),
+      IGSTAmt: _editModel.iGSTAmt
+          .toString(), //_totalIGSST_AMOUNT_Controller.text.toString(),
+
+      ChargeID1: _editModel.chargeID1.toString(),
+      ChargeName1: _editModel.chargeName1.toString(),
+      ChargeAmt1: _editModel.chargeAmt1.toString(),
+      ChargeBasicAmt1: _editModel.chargeBasicAmt1.toString(),
+      ChargeGSTAmt1: _editModel.chargeGSTAmt1.toString(),
+      ChargeTaxType1: "0",
+      ChargeGstPer1: "",
+      ChargeIsBeforGst1: "",
+
+      ChargeID2: _editModel.chargeID2.toString(),
+      ChargeName2: _editModel.chargeName2.toString(),
+      ChargeAmt2: _editModel.chargeAmt2.toString(),
+      ChargeBasicAmt2: _editModel.chargeBasicAmt2.toString(),
+      ChargeGSTAmt2: _editModel.chargeGSTAmt2.toString(),
+      ChargeTaxType2: "0",
+      ChargeGstPer2: "0.00",
+      ChargeIsBeforGst2: "0.00",
+
+      ChargeID3: _editModel.chargeID3.toString(),
+      ChargeName3: _editModel.chargeName3.toString(),
+      ChargeAmt3: _editModel.chargeAmt3.toString(),
+      ChargeBasicAmt3: _editModel.chargeBasicAmt3.toString(),
+      ChargeGSTAmt3: _editModel.chargeGSTAmt3.toString(),
+      ChargeTaxType3: "0",
+      ChargeGstPer3: "0.00",
+      ChargeIsBeforGst3: "0.00",
+
+      ChargeID4: _editModel.chargeID4.toString(),
+      ChargeName4: _editModel.chargeName4.toString(),
+      ChargeAmt4: _editModel.chargeAmt4.toString(),
+      ChargeBasicAmt4: _editModel.chargeBasicAmt4.toString(),
+      ChargeGSTAmt4: _editModel.chargeGSTAmt4.toString(),
+      ChargeTaxType4: "0",
+      ChargeGstPer4: "0.00",
+      ChargeIsBeforGst4: "0.00",
+
+      ChargeID5: _editModel.chargeID5.toString(),
+      ChargeName5: _editModel.chargeName5.toString(),
+      ChargeAmt5: _editModel.chargeAmt5.toString(),
+      ChargeBasicAmt5: _editModel.chargeBasicAmt5.toString(),
+      ChargeGSTAmt5: _editModel.chargeGSTAmt5.toString(),
+      ChargeTaxType5: "0",
+      ChargeGstPer5: "0.00",
+      ChargeIsBeforGst5: "0.00",
+
+      NetAmt: _editModel.netAmt.toString(),
+      BasicAmt: _editModel.basicAmt.toString(),
+      ROffAmt: _editModel.roffAmt.toString(),
+      ChargePer1: "0.00",
+      ChargePer2: "0.00",
+      ChargePer3: "0.00",
+      ChargePer4: "0.00",
+      ChargePer5: "0.00",
+    );
   }
 
   BankDetails(BuildContext context) {
@@ -3484,40 +4210,63 @@ class _SaleOrderNewAddEditScreenState
     return InkWell(
       onTap: () {
         if (_controller_select_inquiry.text != "") {
-          navigateTo(context, ModuleNoListScreen.routeName,
-                  arguments: AddModuleNoScreenArguments(
-                      arr_ALL_Name_ID_For_INQ_QT_SO_List))
-              .then((value) {
-            setState(() {
-              arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List = value;
+          if (arr_ALL_Name_ID_For_INQ_QT_SO_List.length != 0) {
+            navigateTo(context, ModuleNoListScreen.routeName,
+                    arguments: AddModuleNoScreenArguments(
+                        arr_ALL_Name_ID_For_INQ_QT_SO_List,
+                        _controller_select_inquiry.text))
+                .then((value) {
+              setState(() {
+                arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List = value;
 
-              if (arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length != 0) {
-                List<String> ModuleNoList = [];
-                for (int i = 0;
-                    i < arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length;
-                    i++) {
-                  print("sldsdf" +
-                      " Filter InqList : " +
-                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name +
-                      " ISChecked : " +
-                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i]
-                          .isChecked
-                          .toString());
-                  ModuleNoList.add(
-                      arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name);
-                  if (ModuleNoList.length != 0) {
-                    var stringwe = ModuleNoList.join('|');
-                    print("commaseprated" + stringwe);
-                    _controller_Module_NO.text = stringwe.toString();
+                print("7upyyt" +
+                    arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length
+                        .toString());
+
+                if (arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length != 0) {
+                  List<String> ModuleNoList = [];
+                  for (int i = 0;
+                      i < arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List.length;
+                      i++) {
+                    print("sldsdf" +
+                        " Filter InqList : " +
+                        arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name +
+                        " ISChecked : " +
+                        arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i]
+                            .isChecked
+                            .toString());
+                    ModuleNoList.add(
+                        arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List[i].Name);
+                    if (ModuleNoList.length != 0) {
+                      var stringwe = ModuleNoList.join(',');
+                      print("7upTTT7upTTT" + stringwe);
+                      _controller_Module_NO.text = stringwe.toString();
+
+                      _salesOrderBloc.add(MultiNoToProductDetailsRequestEvent(
+                          "Edit",
+                          MultiNoToProductDetailsRequest(
+                              FetchType: _controller_select_inquiry.text,
+                              No: "," + stringwe.toString() + ",",
+                              CustomerID: _controller_customer_pkID.text,
+                              CompanyId: CompanyID.toString())));
+                    }
                   }
                 }
-              }
+              });
             });
-          });
+          } else {
+            showCommonDialogWithSingleOption(
+                context, _controller_select_inquiry.text + " No. Not Exist !",
+                positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+              Navigator.pop(context);
+            });
+          }
         } else {
           showCommonDialogWithSingleOption(
               context, "Customer name is required To view Option !",
-              positiveButtonTitle: "OK");
+              positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+            Navigator.pop(context);
+          });
         }
       },
       child: Column(
@@ -3577,7 +4326,8 @@ class _SaleOrderNewAddEditScreenState
       if (_controller_select_inquiry.text != "") {
         navigateTo(context, ModuleNoListScreen.routeName,
                 arguments: AddModuleNoScreenArguments(
-                    arr_ALL_Name_ID_For_INQ_QT_SO_List))
+                    arr_ALL_Name_ID_For_INQ_QT_SO_List,
+                    _controller_select_inquiry.text))
             .then((value) {
           setState(() {
             arr_ALL_Name_ID_For_INQ_QT_SO_Filter_List = value;
@@ -3629,14 +4379,6 @@ class _SaleOrderNewAddEditScreenState
   void _On_No_To_ProductDetails(
       MultiNoToProductDetailsResponseState state) async {
     if (state.response.details.length != 0) {
-      /* for (int i = 0; i < state.response.details.length; i++) {
-        print("producttdf" +
-            "ProductName : " +
-            state.response.details[i].productName);
-
-
-      }*/
-
       await OfflineDbHelper.getInstance().deleteALLSalesOrderProduct();
 
       for (var i = 0; i < state.response.details.length; i++) {
@@ -3679,13 +4421,12 @@ class _SaleOrderNewAddEditScreenState
           TotalAmount = 0.00;
 
           TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
-          TaxAmount = getNumber(TaxAmount1, precision: 2);
+          TaxAmount = TaxAmount1;
 
-          Amount1 = (Quantity * NetRate1) - getNumber(TaxAmount1, precision: 2);
-          Amount = getNumber(Amount1, precision: 2);
+          Amount1 = (Quantity * NetRate1) - TaxAmount1;
+          Amount = Amount1;
 
-          TotalAmount =
-              (Quantity * NetRate1) + getNumber(TaxAmount1, precision: 2);
+          TotalAmount = (Quantity * NetRate1);
           // _totalAmountController.text = getNumber(TotalAmount,precision: 2).toString();
         }
 
@@ -3735,17 +4476,23 @@ class _SaleOrderNewAddEditScreenState
                 CompanyID.toString(),
                 0,
                 0.00,
-                ""));
+                selectedDate.year.toString() +
+                    "-" +
+                    selectedDate.month.toString() +
+                    "-" +
+                    selectedDate.day.toString()));
       }
 
-      navigateTo(context, SalesOrderProductListScreen.routeName,
-          arguments: AddSalesOrderProductListArgument(
-              SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
+      if (state.FetchFromWhichScreen == "Add") {
+        navigateTo(context, SOProductListScreen.routeName,
+            arguments: SOProductListArgument(
+                SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));
+      }
+      /*navigateTo(context, SOProductListScreen.routeName,
+          arguments: SOProductListArgument(
+              SalesOrderNo, edt_StateCode.text, edt_HeaderDisc.text));*/
     }
   }
-
-  double getNumber(double input, {int precision = 2}) => double.parse(
-      '$input'.substring(0, '$input'.indexOf('.') + precision + 1));
 
   void _OnEmailContentResponse(SaleBillEmailContentResponseState state) {
     if (state.response.details.length != 0) {
@@ -3759,6 +4506,13 @@ class _SaleOrderNewAddEditScreenState
 
         arr_ALL_Name_ID_For_Email_Subject.add(all_name_id);
       }
+      showcustomdialogWithMultipleID(
+          values: arr_ALL_Name_ID_For_Email_Subject,
+          context1: context,
+          controller: _controller_select_email_subject,
+          controllerID: _controller_select_email_subject_ID,
+          controller2: _contrller_email_subject,
+          lable: "Select Email Content ");
     }
   }
 
@@ -3772,13 +4526,14 @@ class _SaleOrderNewAddEditScreenState
       child: Column(
         children: [
           InkWell(
-            onTap: () => showcustomdialogWithMultipleID(
-                values: arr_ALL_Name_ID_For_Email_Subject,
-                context1: context,
-                controller: _controller_select_email_subject,
-                controllerID: _controller_select_email_subject_ID,
-                controller2: _contrller_email_subject,
-                lable: "Select Term & Condition "),
+            onTap: () {
+              print("sfdfsfffff");
+
+              _salesOrderBloc.add(SalesBillEmailContentRequestEvent(
+                  SalesBillEmailContentRequest(
+                      CompanyId: CompanyID.toString(),
+                      LoginUserID: LoginUserID)));
+            },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -3988,7 +4743,7 @@ class _SaleOrderNewAddEditScreenState
                                     Expanded(
                                       child: InkWell(
                                         onTap: () {
-                                          _selectDate(
+                                          _selectOrderDate(
                                               context,
                                               _controllerDueDateDialog,
                                               _controllerRevDueDateDialog);
@@ -4110,13 +4865,9 @@ class _SaleOrderNewAddEditScreenState
 
   void updateRetrunInquiryNoToDB(
       context1, int returnPKID, String retrunSO_No) async {
-    await getInquiryProductDetails();
+    /* await getInquiryProductDetails();
 
-    /*_inquiryProductList.forEach((element) {
-      element.pkID = pkID;
-      element.LoginUserID = LoginUserID;
-      element.CompanyId = CompanyID.toString();
-    });*/
+
 
     arrSOProductList.clear();
 
@@ -4168,6 +4919,69 @@ class _SaleOrderNewAddEditScreenState
     print("dsljdf1" + arrSOProductList.length.toString());
 
     _salesOrderBloc.add(
+        SaleOrderProductSaveCallEvent(context1, retrunSO_No, arrSOProductList));*/
+
+    await getInquiryProductDetails();
+
+    List<SalesOrderTable> TempproductList1 =
+        SalesOrderHeaderDiscountCalculation.txtHeadDiscount_WithZero(
+            _inquiryProductList,
+            HeaderDisAmnt,
+            _offlineLoggedInData.details[0].stateCode.toString(),
+            edt_StateCode.text.toString());
+
+    List<SalesOrderTable> TempproductList =
+        SalesOrderHeaderDiscountCalculation.txtHeadDiscount_TextChanged(
+            TempproductList1,
+            HeaderDisAmnt,
+            _offlineLoggedInData.details[0].stateCode.toString(),
+            edt_StateCode.text.toString());
+
+    /* TempproductList.forEach((element) {
+      element.pkID = pkID;
+      element.LoginUserID = LoginUserID;
+      element.CompanyId = CompanyID.toString();
+    });*/
+
+    arrSOProductList.clear();
+    for (int i = 0; i < TempproductList.length; i++) {
+      SalesOrderProductRequest salesOrderProductRequest =
+          SalesOrderProductRequest(
+        pkID: "0",
+        OrderNo: retrunSO_No,
+        ProductID: int.parse(TempproductList[i].ProductID.toString()),
+        Quantity: double.parse(TempproductList[i].Quantity.toString()),
+        Unit: TempproductList[i].Unit,
+        UnitRate: double.parse(TempproductList[i].UnitRate.toStringAsFixed(2)),
+        DiscountPercent:
+            double.parse(TempproductList[i].DiscountPercent.toStringAsFixed(2)),
+        NetRate: double.parse(TempproductList[i].NetRate.toStringAsFixed(2)),
+        Amount: double.parse(TempproductList[i].Amount.toStringAsFixed(2)),
+        TaxAmount:
+            double.parse(TempproductList[i].TaxAmount.toStringAsFixed(2)),
+        NetAmount:
+            double.parse(TempproductList[i].NetAmount.toStringAsFixed(2)),
+        LoginUserID: LoginUserID,
+        TaxRate: double.parse(TempproductList[i].TaxRate.toStringAsFixed(2)),
+        SGSTPer: double.parse(TempproductList[i].SGSTPer.toStringAsFixed(2)),
+        SGSTAmt: double.parse(TempproductList[i].SGSTAmt.toStringAsFixed(2)),
+        CGSTPer: double.parse(TempproductList[i].CGSTPer.toStringAsFixed(2)),
+        CGSTAmt: double.parse(TempproductList[i].CGSTAmt.toStringAsFixed(2)),
+        IGSTPer: double.parse(TempproductList[i].IGSTPer.toStringAsFixed(2)),
+        IGSTAmt: double.parse(TempproductList[i].IGSTAmt.toStringAsFixed(2)),
+        TaxType: TempproductList[i].TaxType,
+        DiscountAmt:
+            double.parse(TempproductList[i].DiscountAmt.toStringAsFixed(2)),
+        HeaderDiscAmt:
+            double.parse(TempproductList[i].HeaderDiscAmt.toStringAsFixed(2)),
+        DeliveryDate: TempproductList[i].DeliveryDate.toString(),
+        CompanyId: int.parse(CompanyID.toString()),
+      );
+
+      arrSOProductList.add(salesOrderProductRequest);
+    }
+
+    _salesOrderBloc.add(
         SaleOrderProductSaveCallEvent(context1, retrunSO_No, arrSOProductList));
   }
 
@@ -4177,12 +4991,479 @@ class _SaleOrderNewAddEditScreenState
         ? "SalesOrder Updated Successfully"
         : "SalesOrder Added Successfully";
 
-    /* showCommonDialogWithSingleOption(context, Msg,
-        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-          navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
-        });*/
-    await showCommonDialogWithSingleOption(Globals.context, Msg,
+    showCommonDialogWithSingleOption(context, Msg, positiveButtonTitle: "OK",
+        onTapOfPositiveButton: () {
+      navigateTo(context, SalesOrderListScreen.routeName, clearAllStack: true);
+    });
+    /* await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK");
-    Navigator.of(context).pop();
+    Navigator.of(context).pop();*/
+  }
+
+  void _OnGenericIsertCallSucess(AddGenericAddditionalChargesState state) {
+    print("_OnGenericIsertCallSucess" + state.response);
+  }
+
+  void _onDeleteAllGenericAddtionalAmount(
+      DeleteAllGenericAddditionalChargesState state) {
+    print("DeleteAllGenericAddditionalChargesState" + state.response);
+  }
+
+  void _ONOnlyCustomerDetails(
+      SearchCustomerListByNumberCallResponseState state) {
+    edt_StateCode.text = state.response.details[0].stateCode.toString();
+  }
+
+  Future<void> _onTapOfDeleteALLProduct() async {
+    await OfflineDbHelper.getInstance().deleteALLSalesOrderProduct();
+  }
+
+  void _OnGenricOtherChargeResponse(
+      GenericOtherCharge1ListResponseState state) {
+    arrGenericOtheCharge.clear();
+
+    for (int i = 0;
+        i < state.quotationOtherChargesListResponse.details.length;
+        i++) {
+      arrGenericOtheCharge
+          .add(state.quotationOtherChargesListResponse.details[i]);
+    }
+    //.add(state.quotationOtherChargesListResponse.details[i]);
+  }
+
+  void AddAddtionalCharge() async {
+    await OfflineDbHelper.getInstance()
+        .insertGenericAddditionalCharges(GenericAddditionalCharges(
+      edt_HeaderDisc.text,
+      _editModel.chargeID1.toString(),
+      _editModel.chargeAmt1.toString(),
+      _editModel.chargeID2.toString(),
+      _editModel.chargeAmt2.toString(),
+      _editModel.chargeID3.toString(),
+      _editModel.chargeAmt3.toString(),
+      _editModel.chargeID4.toString(),
+      _editModel.chargeAmt4.toString(),
+      _editModel.chargeID5.toString(),
+      _editModel.chargeAmt5.toString(),
+      _editModel.chargeName1,
+      _editModel.chargeName2,
+      _editModel.chargeName3,
+      _editModel.chargeName4,
+      _editModel.chargeName5,
+    ));
+  }
+
+  void _ONCurrencyResponse(SOCurrencyListResponseState state) {
+    arr_ALL_Name_ID_For_Sales_Order_Select_Currency.clear();
+    if (state.response.details.length != 0) {
+      for (int i = 0; i < state.response.details.length; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].currencyName;
+        all_name_id.Name1 = state.response.details[i].currencySymbol;
+        arr_ALL_Name_ID_For_Sales_Order_Select_Currency.add(all_name_id);
+      }
+
+      showcustomdialog(
+          values: arr_ALL_Name_ID_For_Sales_Order_Select_Currency,
+          context1: context,
+          controller: _controller_currency,
+          controller2: _controller_currency_Symbol,
+          lable: "Select Currency");
+    }
+  }
+
+  ProductAndAddtionalCharges() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Products & Additional Charges",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      BASIC_INFORMATION,
+                      width: 27,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        productDetails(),
+                        Visibility(
+                          visible: true,
+                          child: Container(
+                            margin: EdgeInsets.all(10),
+                            alignment: Alignment.bottomCenter,
+                            child: getCommonButton(baseTheme, () async {
+                              await getInquiryProductDetails();
+
+                              if (_inquiryProductList.length != 0) {
+                                print("HeaderDiscll" +
+                                    edt_HeaderDisc.text.toString());
+
+                                navigateTo(
+                                        context,
+                                        NewSalesOrderOtherChargeScreen
+                                            .routeName,
+                                        arguments:
+                                            NewSalesOrderOtherChargesScreenArguments(
+                                                int.parse(
+                                                    edt_StateCode.text == null
+                                                        ? 0
+                                                        : edt_StateCode.text),
+                                                _editModel,
+                                                edt_HeaderDisc.text,
+                                                "OtherCharge",
+                                                addditionalCharges))
+                                    .then((value) {
+                                  setState(() {
+                                    addditionalCharges = value;
+
+                                    isUpdateCalculation = true;
+
+                                    edt_HeaderDisc.text =
+                                        addditionalCharges.DiscountAmt;
+
+                                    print("jjff23kj" +
+                                        addditionalCharges.DiscountAmt);
+                                  });
+                                });
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "Atleast one product is required to view other charges !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            }, "Additional Charges",
+                                width: 600,
+                                textColor: colorPrimary,
+                                backGroundColor: colorGreenLight,
+                                radius: 25.0),
+                          ),
+                        ),
+                        space(5),
+                        Visibility(
+                          visible: true,
+                          child: Container(
+                            margin: EdgeInsets.all(10),
+                            alignment: Alignment.bottomCenter,
+                            child: getCommonButton(baseTheme, () async {
+                              await getInquiryProductDetails();
+
+                              if (_inquiryProductList.length != 0) {
+                                print("HeaderDiscll" +
+                                    edt_HeaderDisc.text.toString());
+
+                                navigateTo(
+                                        context,
+                                        NewSalesOrderOtherChargeScreen
+                                            .routeName,
+                                        arguments:
+                                            NewSalesOrderOtherChargesScreenArguments(
+                                                int.parse(
+                                                    edt_StateCode.text == null
+                                                        ? 0
+                                                        : edt_StateCode.text),
+                                                _editModel,
+                                                edt_HeaderDisc.text,
+                                                "Calculation",
+                                                addditionalCharges))
+                                    .then((value) {
+                                  setState(() {
+                                    addditionalCharges = value;
+
+                                    isUpdateCalculation = true;
+
+                                    edt_HeaderDisc.text =
+                                        addditionalCharges.DiscountAmt;
+
+                                    print("jjff23kj" +
+                                        addditionalCharges.DiscountAmt);
+                                  });
+                                });
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "Atleast one product is required to view other charges !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            }, "Final Summary",
+                                width: 600,
+                                textColor: colorPrimary,
+                                backGroundColor: colorGreenLight,
+                                radius: 25.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  showcustomdialogEmailContent({
+    BuildContext context1,
+    String Email,
+  }) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: colorPrimary, //                   <--- border color
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(
+                        15.0) //                 <--- border radius here
+                    ),
+              ),
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Text(
+                    "Add Email Subject",
+                    style: TextStyle(
+                        color: colorPrimary, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Subject *",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 20, right: 20),
+                                width: double.maxFinite,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller:
+                                              _contrller_Email_Add_Subject,
+                                          textInputAction: TextInputAction.next,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter Subject",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 20, right: 20),
+                            child: Text("Email Content *",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Card(
+                              elevation: 5,
+                              color: colorLightGray,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                width: double.maxFinite,
+                                height: 100,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                          controller:
+                                              _contrller_Email_Add_Content,
+                                          decoration: InputDecoration(
+                                            hintText: "Tap to enter content",
+                                            labelStyle: TextStyle(
+                                              color: Color(0xFF000000),
+                                            ),
+                                            border: InputBorder.none,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF000000),
+                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(baseTheme, () async {
+                            if (_contrller_Email_Add_Subject.text != "") {
+                              if (_contrller_Email_Add_Content.text != "") {
+                                Navigator.pop(context123);
+
+                                _salesOrderBloc.add(
+                                    SaveEmailContentRequestEvent(
+                                        SaveEmailContentRequest(
+                                            pkID: "0",
+                                            Subject:
+                                                _contrller_Email_Add_Subject
+                                                    .text,
+                                            ContentData:
+                                                _contrller_Email_Add_Content
+                                                    .text,
+                                            LoginUserID: LoginUserID,
+                                            CompanyId: CompanyID.toString())));
+                              } else {
+                                showCommonDialogWithSingleOption(
+                                    context, "Email content is required !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            } else {
+                              showCommonDialogWithSingleOption(
+                                  context, "Subject is required !",
+                                  positiveButtonTitle: "OK");
+                            }
+                          }, "Add",
+                              backGroundColor: colorPrimary,
+                              textColor: colorWhite,
+                              radius: 36),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          width: 100,
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: getCommonButton(baseTheme, () {
+                            Navigator.pop(context);
+                          }, "Close",
+                              backGroundColor: colorPrimary,
+                              textColor: colorWhite,
+                              radius: 36),
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  void _OnSaveEmailContentResponse(SaveEmailContentResponseState state) {
+    showCommonDialogWithSingleOption(context, state.response.details[0].column2,
+        positiveButtonTitle: "OK");
+  }
+
+  void _onDeleteAllQTAssemblyResponse(SOAssemblyTableDeleteALLState state) {
+    print("deleteAllSalesOrderAssembly" + state.response);
   }
 }

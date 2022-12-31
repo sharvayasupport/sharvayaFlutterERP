@@ -58,8 +58,11 @@ class _DBankVoucherListScreenState extends BaseState<DBankVoucherListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('BankVoucher List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(

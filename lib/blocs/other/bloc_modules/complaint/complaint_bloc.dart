@@ -35,6 +35,8 @@ import 'package:soleoserp/models/api_responses/customer/customer_source_response
 import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'complaint_event.dart';
@@ -104,6 +106,10 @@ class ComplaintScreenBloc
     }
     if (event is CityCallEvent) {
       yield* _mapCityListCallEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -380,6 +386,22 @@ class ComplaintScreenBloc
       CityApiRespose respo =
           await userRepository.city_list_details(event.cityApiRequest);
       yield CityListEventResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ComplaintScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

@@ -398,8 +398,11 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Customer Details'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -2202,6 +2205,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                         Navigator.of(context).pop();
 
                         _CustomerBloc.add(CustomerAddEditCallEvent(
+                            context,
                             CustomerAddEditApiRequest(
                                 customerID: customerID.toString(),
                                 customerName: edt_Customer_Name.text,
@@ -2308,7 +2312,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
             state.customerAddEditApiResponse.details[0].column1.toString());
         _CustomerBloc.add(CustomerContactSaveCallEvent(_contactsList));
       } else {
-        await showCommonDialogWithSingleOption(Globals.context,
+        showCommonDialogWithSingleOption(Globals.context,
             state.customerAddEditApiResponse.details[0].column2,
             positiveButtonTitle: "OK", onTapOfPositiveButton: () {
           if (state.customerAddEditApiResponse.details[0].column2 ==
@@ -2343,16 +2347,19 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                 "Customer Information Added Successfully" ||
             state.customerAddEditApiResponse.details[0].column2 ==
                 "Customer Information Updated Successfully") {
-          await showCommonDialogWithSingleOption(Globals.context,
+          showCommonDialogWithSingleOption(Globals.context,
               state.customerAddEditApiResponse.details[0].column2,
               positiveButtonTitle: "OK", onTapOfPositiveButton: () {
             navigateTo(context, CustomerListScreen.routeName,
                 clearAllStack: true);
           });
         } else {
-          await showCommonDialogWithSingleOption(Globals.context,
+          showCommonDialogWithSingleOption(state.context,
               state.customerAddEditApiResponse.details[0].column2,
-              positiveButtonTitle: "OK");
+              positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+            // Navigator.pop(context);
+            Navigator.pop(state.context);
+          });
         }
       }
       /*  await showCommonDialogWithSingleOption(

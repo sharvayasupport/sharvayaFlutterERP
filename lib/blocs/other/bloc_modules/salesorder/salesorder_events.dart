@@ -48,9 +48,10 @@ class QuotationTermsConditionCallEvent extends SalesOrderEvents {
 }
 
 class SearchCustomerListByNumberCallEvent extends SalesOrderEvents {
+  String IsFromDialog;
   final CustomerSearchByIdRequest request;
 
-  SearchCustomerListByNumberCallEvent(this.request);
+  SearchCustomerListByNumberCallEvent(this.IsFromDialog, this.request);
 }
 
 class SaleBill_INQ_QT_SO_NO_ListRequestEvent extends SalesOrderEvents {
@@ -59,8 +60,9 @@ class SaleBill_INQ_QT_SO_NO_ListRequestEvent extends SalesOrderEvents {
 }
 
 class MultiNoToProductDetailsRequestEvent extends SalesOrderEvents {
+  String FromWhichScreen;
   final MultiNoToProductDetailsRequest request;
-  MultiNoToProductDetailsRequestEvent(this.request);
+  MultiNoToProductDetailsRequestEvent(this.FromWhichScreen, this.request);
 }
 
 class SalesBillEmailContentRequestEvent extends SalesOrderEvents {
@@ -127,4 +129,130 @@ class SalesOrderProductDeleteRequestEvent extends SalesOrderEvents {
 
   SalesOrderProductDeleteRequestEvent(
       this.pkID, this.SalesOrderProductDeleteRequest);
+}
+
+class UserMenuRightsRequestEvent extends SalesOrderEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}
+
+class QuotationOtherCharge1CallEvent extends SalesOrderEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherCharge1CallEvent(this.CompanyID, this.request);
+}
+
+class GetGenericAddditionalChargesEvent extends SalesOrderEvents {
+  GetGenericAddditionalChargesEvent();
+}
+
+class QuotationOtherChargeCallEvent extends SalesOrderEvents {
+  String CompanyID;
+  String headerDiscountController;
+  final QuotationOtherChargesListRequest request;
+
+  QuotationOtherChargeCallEvent(
+      this.headerDiscountController, this.CompanyID, this.request);
+}
+
+class GetQuotationProductListEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  GetQuotationProductListEvent();
+}
+
+class InsertProductEvent extends SalesOrderEvents {
+  List<SalesOrderTable> quotationTable;
+  InsertProductEvent(this.quotationTable);
+}
+
+class DeleteAllQuotationProductEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  DeleteAllQuotationProductEvent();
+}
+
+class AddGenericAddditionalChargesEvent extends SalesOrderEvents {
+  final GenericAddditionalCharges genericAddditionalCharges;
+
+  AddGenericAddditionalChargesEvent(this.genericAddditionalCharges);
+}
+
+class DeleteGenericAddditionalChargesEvent extends SalesOrderEvents {
+  DeleteGenericAddditionalChargesEvent();
+}
+
+class GetQuotationSpecificationTableEvent extends SalesOrderEvents {
+  //final FCMNotificationRequest request;
+  GetQuotationSpecificationTableEvent();
+}
+
+class QuotationSpecificationCallEvent extends SalesOrderEvents {
+  final SpecificationListRequest request;
+
+  QuotationSpecificationCallEvent(this.request);
+}
+
+class GenericOtherChargeCallEvent extends SalesOrderEvents {
+  String CompanyID;
+
+  final QuotationOtherChargesListRequest request;
+
+  GenericOtherChargeCallEvent(this.CompanyID, this.request);
+}
+
+class SalesOrderDeleteRequestEvent extends SalesOrderEvents {
+  String pkID;
+
+  final SalesOrderDeleteRequest request;
+
+  SalesOrderDeleteRequestEvent(this.pkID, this.request);
+}
+
+class SOCurrencyListRequestEvent extends SalesOrderEvents {
+  final SOCurrencyListRequest request;
+
+  SOCurrencyListRequestEvent(this.request);
+}
+
+class SaveEmailContentRequestEvent extends SalesOrderEvents {
+  final SaveEmailContentRequest request;
+  SaveEmailContentRequestEvent(this.request);
+}
+
+class SOProductOneDeleteEvent extends SalesOrderEvents {
+  final int tableId;
+
+  SOProductOneDeleteEvent(this.tableId);
+}
+
+///Asembly OfflineDB CRUD
+///
+class SOAssemblyTableListEvent extends SalesOrderEvents {
+  String finishProductID;
+  SOAssemblyTableListEvent(this.finishProductID);
+}
+
+class SOAssemblyTableInsertEvent extends SalesOrderEvents {
+  BuildContext context;
+  final SOAssemblyTable soAssemblyTable;
+
+  SOAssemblyTableInsertEvent(this.context, this.soAssemblyTable);
+}
+
+class SOAssemblyTableUpdateEvent extends SalesOrderEvents {
+  BuildContext context;
+  final SOAssemblyTable soAssemblyTable;
+  SOAssemblyTableUpdateEvent(this.context, this.soAssemblyTable);
+}
+
+class SOAssemblyTableOneItemDeleteEvent extends SalesOrderEvents {
+  int tableid;
+  SOAssemblyTableOneItemDeleteEvent(this.tableid);
+}
+
+class SOAssemblyTableALLDeleteEvent extends SalesOrderEvents {
+  SOAssemblyTableALLDeleteEvent();
 }

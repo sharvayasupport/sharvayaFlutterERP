@@ -1,8 +1,5 @@
 part of 'missed_punch_bloc.dart';
 
-
-
-
 abstract class MissedPunchScreenStates extends BaseStates {
   const MissedPunchScreenStates();
 }
@@ -12,22 +9,19 @@ abstract class MissedPunchScreenStates extends BaseStates {
 class MissedPunchScreenInitialState extends MissedPunchScreenStates {}
 
 class MissedPunchListResponseState extends MissedPunchScreenStates {
-
   final MissedPunchListResponse loanListResponse;
   final int newPage;
 
-  MissedPunchListResponseState(this.newPage,this.loanListResponse);
+  MissedPunchListResponseState(this.newPage, this.loanListResponse);
 }
 
 class MissedPunchSearchByNameResponseState extends MissedPunchScreenStates {
-
   final MissedPunchSearchByNameResponse missedPunchSearchByNameResponse;
 
   MissedPunchSearchByNameResponseState(this.missedPunchSearchByNameResponse);
 }
 
 class MissedPunchSearchByIDResponseState extends MissedPunchScreenStates {
-
   final MissedPunchListResponse missedPunchListResponse;
 
   MissedPunchSearchByIDResponseState(this.missedPunchListResponse);
@@ -51,3 +45,13 @@ class MissedPunchApprovalSaveResponseState extends MissedPunchScreenStates {
   MissedPunchApprovalSaveResponseState(this.missedPunchApprovalListResponse);
 }
 
+class LoanSearchResponseState extends MissedPunchScreenStates {
+  final LoanListResponse employeeListResponse;
+
+  LoanSearchResponseState(this.employeeListResponse);
+}
+
+class UserMenuRightsResponseState extends MissedPunchScreenStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

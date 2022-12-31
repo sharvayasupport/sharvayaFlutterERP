@@ -19,8 +19,10 @@ import 'package:soleoserp/models/api_requests/followup/followup_upload_image_req
 import 'package:soleoserp/models/api_requests/followup/quick_followup_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/search_followup_by_status_request.dart';
 import 'package:soleoserp/models/api_requests/followup/telecaller_followup_history_request.dart';
+import 'package:soleoserp/models/api_requests/inquiry/inquiry_share_emp_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
@@ -36,8 +38,12 @@ import 'package:soleoserp/models/api_responses/followup/followup_save_success_re
 import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/quick_followup_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/telecaller_followup_history_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/inquiry_share_emp_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
+import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -95,6 +101,10 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     if (event is FollowupUploadImageNameCallEvent) {
       yield* _mapFollowupUploadImageCallEventToState(event);
     }
+
+    if (event is FollowupUploadImageNameFromMainFollowupCallEvent) {
+      yield* _mapFollowupUploadImageFromMainFollowupCallEventToState(event);
+    }
     if (event is FollowupImageDeleteCallEvent) {
       yield* _mapFollowupImageDeleteCallEventToState(event);
     }
@@ -137,6 +147,21 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     if (event is TeleCallerFollowupHistoryRequestEvent) {
       yield* _mapTeleCallerFollowupHistoryRequestEventToState(event);
     }
+    if (event is InquiryShareEmpListRequestEvent) {
+      yield* _mapInquiryShareEmpListEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
+    }
+
+    if(event is TeleCallerFollowupSaveRequestEvent)
+      {
+        yield* _mapTeleCallerSaveRequestEventToState(event);
+
+      }
+
+    //
   }
 
   ///event functions to states implementation
@@ -344,6 +369,25 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     }
   }
 
+  Stream<FollowupStates>
+      _mapFollowupUploadImageFromMainFollowupCallEventToState(
+          FollowupUploadImageNameFromMainFollowupCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FollowupImageUploadResponse response =
+          await userRepository.getFollowupuploadImage(
+              event.expenseImageFile, event.expenseUploadImageAPIRequest);
+      // print("RESPPDDDD" +  await userRepository.getuploadImage(event.expenseUploadImageAPIRequest).toString());
+      yield FollowupUploadImageFromMainFollowupCallResponseState(
+          event.context, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
   Stream<FollowupStates> _mapFollowupImageDeleteCallEventToState(
       FollowupImageDeleteCallEvent event) async* {
     try {
@@ -517,4 +561,55 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+  Stream<FollowupStates> _mapInquiryShareEmpListEventToState(
+      InquiryShareEmpListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      InquiryShareEmpListResponse response = await userRepository
+          .getInquiryShareEmpList(event.inquiryShareEmpListRequest);
+      yield InquiryShareEmpListResponseState(
+          event.inquiryShareEmpListRequest.InquiryNo, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FollowupStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+
+
+  Stream<FollowupStates> _mapTeleCallerSaveRequestEventToState(
+      TeleCallerFollowupSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      TeleCallerFollowupSaveResponse respo =
+      await userRepository.teleCallerFollowupFromFollowupSaveDetails(event.followuppkID,event.request);
+      yield TeleCallerFollowupSaveResponseState(event.context,respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
 }

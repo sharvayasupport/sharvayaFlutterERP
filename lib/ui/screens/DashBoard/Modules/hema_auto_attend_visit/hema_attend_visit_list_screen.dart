@@ -1,7 +1,6 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:lottie/lottie.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -9,7 +8,9 @@ import 'package:soleoserp/blocs/other/bloc_modules/attend_visit/attend_visit_blo
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_list_request.dart';
 import 'package:soleoserp/models/hema_automation/api_response/quick_complaint/quick_complaint_list_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -22,7 +23,6 @@ import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HemaAttendVisitListScreen extends BaseStatefulWidget {
   static const routeName = '/HemaAttendVisitListScreen';
@@ -30,17 +30,6 @@ class HemaAttendVisitListScreen extends BaseStatefulWidget {
   @override
   BaseState<HemaAttendVisitListScreen> createState() =>
       _HemaAttendVisitListScreenState();
-}
-
-enum Share {
-  facebook,
-  twitter,
-  whatsapp,
-  whatsapp_personal,
-  whatsapp_business,
-  share_system,
-  share_instagram,
-  share_telegram
 }
 
 class _HemaAttendVisitListScreenState
@@ -78,12 +67,18 @@ class _HemaAttendVisitListScreenState
   bool isListExist = false;
   int selected = 0; //attention
   int TotalCount = 0;
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
 
   @override
   void initState() {
     super.initState();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
@@ -115,6 +110,8 @@ class _HemaAttendVisitListScreenState
           QuickComplaintListRequest(
               Status: edt_Status.text, CompanyId: CompanyID.toString())));
     });
+
+    getUserRights(_menuRightsResponse);
   }
 
   @override
@@ -130,13 +127,16 @@ class _HemaAttendVisitListScreenState
           if (state is QuickComplaintListResponseState) {
             _onComplaintListCallSuccess(state);
           }
-
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           //return true for state for which builder method should be called
 
-          if (currentState is QuickComplaintListResponseState) {
+          if (currentState is QuickComplaintListResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -162,8 +162,11 @@ class _HemaAttendVisitListScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Hema_AttendVisit List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -187,6 +190,8 @@ class _HemaAttendVisitListScreenState
                         QuickComplaintListRequest(
                             Status: edt_Status.text,
                             CompanyId: CompanyID.toString())));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -224,14 +229,16 @@ class _HemaAttendVisitListScreenState
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Add your onPressed code here!
-            navigateTo(context, HemaAttendVisitAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () {
+                  // Add your onPressed code here!
+                  navigateTo(context, HemaAttendVisitAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: LoginUserID),
       ),
@@ -377,86 +384,6 @@ class _HemaAttendVisitListScreenState
                           child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
-                                GestureDetector(
-                                  onTap: () async {
-                                    await _makePhoneCall("7802933894");
-                                  },
-                                  child: Container(
-                                      child: Column(
-                                    children: [
-                                      Text(
-                                        "Call",
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.blueAccent,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Image.asset(
-                                        PHONE_CALL_IMAGE,
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                    ],
-                                  )),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    //await _makePhoneCall(model.contactNo1);
-                                    //await _makeSms(model.contactNo1);
-                                    showCommonDialogWithTwoOptions(
-                                        context,
-                                        "Do you have Two Accounts of WhatsApp ?" +
-                                            "\n" +
-                                            "Select one From below Option !",
-                                        positiveButtonTitle: "WhatsApp",
-                                        onTapOfPositiveButton: () {
-                                          Navigator.pop(context);
-                                          onButtonTap(
-                                              Share.whatsapp_personal, model);
-                                        },
-                                        negativeButtonTitle: "Business",
-                                        onTapOfNegativeButton: () {
-                                          Navigator.pop(context);
-
-                                          _launchWhatsAppBuz("7802933894");
-                                        });
-                                  },
-                                  child: Container(
-                                    child: /*Image.asset(
-                                                    WHATSAPP_IMAGE,
-                                                    width: 30,
-                                                    height: 30,
-                                                  ),*/
-                                        Column(
-                                      children: [
-                                        Text(
-                                          "Share",
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        SizedBox(
-                                          height: 5,
-                                        ),
-                                        Image.asset(
-                                          WHATSAPP_IMAGE,
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
                                 model.latitudeIN != "" ||
                                         model.longitudeIN != ""
                                     ? GestureDetector(
@@ -928,67 +855,6 @@ class _HemaAttendVisitListScreenState
     return "${beforZeroHour}:${beforZerominute} ${_startTime.period == DayPeriod.pm ? "PM" : "AM"}";
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> onButtonTap(
-      Share share, QucikComplaintListResponseDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + "7802933894");
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
-  }
-
-  Future<void> share(String contactNo1) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-
-    /*await WhatsappShare.share(
-        text: msg,
-        //linkUrl: 'https://flutter.dev/',
-        phone: "91" + contactNo1,
-        package: Package.businessWhatsapp);*/
-  }
-
   Widget _buildTitleWithValueView(String title, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1012,5 +878,48 @@ class _HemaAttendVisitListScreenState
             )
       ],
     );
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgVisit") {
+        _complaintScreenBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

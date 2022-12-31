@@ -116,3 +116,8 @@ class CityListEventResponseState extends ComplaintScreenStates {
   final CityApiRespose cityApiRespose;
   CityListEventResponseState(this.cityApiRespose);
 }
+
+class UserMenuRightsResponseState extends ComplaintScreenStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

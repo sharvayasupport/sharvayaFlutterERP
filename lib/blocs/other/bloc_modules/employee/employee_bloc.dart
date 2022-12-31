@@ -6,6 +6,8 @@ import 'package:soleoserp/models/api_requests/employee/employee_list_request.dar
 import 'package:soleoserp/models/api_requests/employee/employee_search_request.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
 import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'employee_event.dart';
@@ -29,6 +31,9 @@ class EmployeeScreenBloc
     }
     if (event is EmployeeDeleteCallEvent) {
       yield* _mapDeletedBankVoucherCallEventToState(event);
+    }
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -73,6 +78,22 @@ class EmployeeScreenBloc
       BankVoucherDeleteResponse bankVoucherDeleteResponse = await userRepository
           .getEmployeeDelete(event.pkID, event.bankVoucherDeleteRequest);
       yield EmployeeDeleteResponseState(bankVoucherDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<EmployeeScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

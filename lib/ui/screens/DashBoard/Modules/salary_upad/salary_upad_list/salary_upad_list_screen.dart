@@ -13,7 +13,9 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/bank_voucher/bank_voucher_add_edit/bank_voucher_add_edit.dart';
@@ -66,6 +68,8 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
 
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+  MenuRightsResponse _menuRightsResponse;
+
   int CompanyID = 0;
   String LoginUserID = "";
   List<ContactModel> _contactsList = [];
@@ -76,6 +80,11 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
   //var _url = "https://api.whatsapp.com/send?phone=91";
   var _url = "https://wa.me/91";
   bool isDeleteVisible = true;
+
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
 /*
   bool _hasPermission;
 */
@@ -90,6 +99,9 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
     screenStatusBarColor = colorDarkYellow;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
@@ -105,6 +117,8 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
+
+    getUserRights(_menuRightsResponse);
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
@@ -150,6 +164,9 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
             _onInquiryListByNumberCallSuccess(state);
           }*/
 
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           if (state is SalaryUpadSearchResponseState) {
             _onSearchInquiryListCallSuccess(state);
           }
@@ -157,7 +174,8 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
         },
         buildWhen: (oldState, currentState) {
           if (currentState is SalaryUpadListResponseState ||
-              currentState is SalaryUpadSearchResponseState) {
+              currentState is SalaryUpadSearchResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -188,8 +206,11 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Salary Upad List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -228,6 +249,7 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
                             pkID: "",
                             CompanyId: CompanyID.toString(),
                             LoginUserID: LoginUserID)));
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -247,15 +269,17 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
             ],
           ),
         ),
-        /*  floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            await _onTapOfDeleteALLContact();
-            navigateTo(context, BankVoucherAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),*/
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  // await _onTapOfDeleteALLContact();
+                  // navigateTo(context, BankVoucherAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -665,7 +689,33 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
                       ],
                     ),
                   ),*/
-                  isDeleteVisible == true
+                  IsEditRights == true
+                      ? GestureDetector(
+                          onTap: () {
+                            //_onTapOfDeleteInquiry(model.pkID);
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.edit,
+                                color: colorPrimary,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
+                              Text(
+                                'Edit',
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
@@ -830,5 +880,48 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
 
   void _onSearchInquiryListCallSuccess(SalaryUpadSearchResponseState state) {
     _inquiryListResponse = state.employeeListResponse;
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgAdvance") {
+        _CustomerBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

@@ -5,19 +5,23 @@ import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
+import 'package:lottie/lottie.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesbill/salesbill_bloc.dart';
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_delete_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/search_sales_bill_search_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -26,6 +30,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_e
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/broadcast_msg/make_call.dart';
+import 'package:soleoserp/utils/broadcast_msg/share_msg.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
@@ -73,6 +79,11 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
   bool isLoading = true;
   String Password = "";
 
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   InAppWebViewController webViewController;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
       crossPlatform: InAppWebViewOptions(
@@ -87,6 +98,8 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
       ));
 
   PullToRefreshController pullToRefreshController;
+  bool onWebLoadingStop = true;
+
   ContextMenu contextMenu;
   URLRequest urlRequest;
 
@@ -148,10 +161,16 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
 
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
     Password = _offlineLoggedInData.details[0].userPassword;
+
+    getUserRights(_menuRightsResponse);
+
+    _QuotationBloc.add(DeleteGenericAddditionalChargesEvent());
   }
 
   @override
@@ -173,11 +192,21 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
           /*if (state is SearchQuotationListByNumberCallResponseState) {
             _onInquiryListByNumberCallSuccess(state);
           }*/
+
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
+
+          if (state is DeleteAllGenericAddditionalChargesState) {
+            _OnDeleteAllGenericCharges(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is SalesBillListCallResponseState ||
-              currentState is SalesBillSearchByIDResponseState) {
+              currentState is SalesBillSearchByIDResponseState ||
+              currentState is UserMenuRightsResponseState ||
+              currentState is DeleteAllGenericAddditionalChargesState) {
             return true;
           }
 
@@ -191,10 +220,15 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
           if (state is SearchCustomerListByNumberCallResponseState) {
             _ONOnlyCustomerDetails(state);
           }
+
+          if (state is SBDeleteResponseState) {
+            _OnDeleteSBHeaderFromAPI(state);
+          }
         },
         listenWhen: (oldState, currentState) {
           if (currentState is SalesBillPDFGenerateResponseState ||
-              currentState is SearchCustomerListByNumberCallResponseState) {
+              currentState is SearchCustomerListByNumberCallResponseState ||
+              currentState is SBDeleteResponseState) {
             return true;
           }
           return false;
@@ -210,8 +244,11 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Sales Bill List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -237,6 +274,8 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                           SalesBillListRequest(
                               CompanyId: CompanyID.toString(),
                               LoginUserID: LoginUserID)));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -256,17 +295,19 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            await _onTapOfDeleteALLProduct();
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  await _onTapOfDeleteALLProduct();
 
-            navigateTo(context, SalesBillAddEditScreen.routeName,
-                clearAllStack: true);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+                  navigateTo(context, SalesBillAddEditScreen.routeName,
+                      clearAllStack: true);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -366,12 +407,22 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
           return false;
         }
       },
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return _buildInquiryListItem(index);
-        },
-        shrinkWrap: true,
-        itemCount: _quotationListResponse.details.length,
+      child: Column(
+        children: [
+          _quotationListResponse.details.length != 0
+              ? OneTimeGenerateSO(
+                  _quotationListResponse.details[0], context, "new")
+              : Container(),
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return _buildInquiryListItem(index);
+              },
+              shrinkWrap: true,
+              itemCount: _quotationListResponse.details.length,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -526,8 +577,8 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                             GestureDetector(
                               onTap: () async {
                                 //await _makePhoneCall(model.contactNo1);
-                                await _makePhoneCall(
-                                    model.createdEmployeeMobile);
+
+                                MakeCall.callto(model.createdEmployeeMobile);
                               },
                               child: Container(
                                 child: Image.asset(
@@ -542,43 +593,11 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                             ),
                             GestureDetector(
                               onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                //await _makeSms(model.contactNo1);
-                                showCommonDialogWithTwoOptions(
-                                    context,
-                                    "Do you have Two Accounts of WhatsApp ?" +
-                                        "\n" +
-                                        "Select one From below Option !",
-                                    positiveButtonTitle: "WhatsApp",
-                                    onTapOfPositiveButton: () {
-                                      // _url = "https://api.whatsapp.com/send?phone=91";
-                                      /* _url = "https://wa.me/";
-                                                        _launchURL(model.contactNo1,_url);*/
-                                      Navigator.pop(context);
-                                      onButtonTap(Share.whatsapp_personal,
-                                          model.createdEmployeeMobile);
-                                    },
-                                    negativeButtonTitle: "Business",
-                                    onTapOfNegativeButton: () {
-                                      Navigator.pop(context);
-                                      _launchWhatsAppBuz(
-                                          model.createdEmployeeMobile);
-                                    });
+                                ShareMsg.msg(
+                                    context, model.createdEmployeeMobile);
                               },
                               child: Container(
-                                /*decoration: BoxDecoration(
-                                                              shape: BoxShape.rectangle,
-                                                              color: colorPrimary,
-                                                              borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                            ),*/
-                                child: /*Icon(
-
-                                                              Icons.message_sharp,
-                                                              color: colorWhite,
-                                                              size: 20,
-                                                            )*/
-                                    Image.asset(
+                                child: Image.asset(
                                   WHATSAPP_IMAGE,
                                   width: 30,
                                   height: 30,
@@ -628,41 +647,7 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                                     "&pQuotID=" +
                                     model.pkID.toString();
 
-                                /*  http.Response response =
-                                    await http.get(Uri.parse(URLPDFF));
-
-                                if (response.statusCode == 200) {
-                                  // await _showMyDialog(model);
-
-                                  showCommonDialogWithSingleOption(
-                                      context, "PDF RUN Sucess !",
-                                      positiveButtonTitle: "OK");
-                                } else {
-                                  showCommonDialogWithSingleOption(
-                                      context, "Something Went Wrong !",
-                                      positiveButtonTitle: "OK");
-                                }*/
                                 await _showMyDialog(model);
-
-                                /* var progesCount23;
-                               webViewController.getProgress().whenComplete(() async =>  {
-                                 progesCount23 = await webViewController.getProgress(),
-                                 print("PAgeLoaded" + progesCount23.toString())
-                               });*/
-
-                                /*  await _makePhoneCall(
-                                        model.contactNo1);*/
-
-                                // baseBloc.emit(ShowProgressIndicatorState(true));
-                                /* setState(() {
-                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
-
-
-                                });*/
-
-                                // await Future.delayed(const Duration(milliseconds: 500), (){});
-                                // baseBloc.emit(ShowProgressIndicatorState(false));
-                                //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
                               },
                               child: Container(
                                 child: Image.asset(
@@ -735,42 +720,6 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                             child: _buildTitleWithValueView(
                                 "Invoice #", model.invoiceNo ?? "-"),
                           ),
-                          Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () async {
-                                    await _showMyDialog(model);
-
-                                    /* var progesCount23;
-                               webViewController.getProgress().whenComplete(() async =>  {
-                                 progesCount23 = await webViewController.getProgress(),
-                                 print("PAgeLoaded" + progesCount23.toString())
-                               });*/
-
-                                    /*  await _makePhoneCall(
-                                        model.contactNo1);*/
-
-                                    // baseBloc.emit(ShowProgressIndicatorState(true));
-                                    /* setState(() {
-                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
-
-
-                                });*/
-
-                                    // await Future.delayed(const Duration(milliseconds: 500), (){});
-                                    // baseBloc.emit(ShowProgressIndicatorState(false));
-                                    //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-                                  },
-                                  child: Container(
-                                    child: Image.asset(
-                                      PDF_ICON,
-                                      width: 48,
-                                      height: 48,
-                                    ),
-                                  ),
-                                ),
-                              ])
                         ]),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
@@ -868,103 +817,73 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    _onTaptoEditQuotation(model);
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                IsEditRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          _onTaptoEditQuotation(model);
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.edit,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   width: 10,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    //  cardA.currentState?.collapse();
-                    //new ExpansionTileCardState().collapse();
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.delete,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                IsDeleteRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          // SBDeleteRequestEvent
+                          //new ExpansionTileCardState().collapse();
+
+                          showCommonDialogWithTwoOptions(context,
+                              "Are you sure you want to delete this SalesBill ?",
+                              negativeButtonTitle: "No",
+                              positiveButtonTitle: "Yes",
+                              onTapOfPositiveButton: () {
+                            Navigator.of(context).pop();
+                            //_collapse();
+                            _QuotationBloc.add(SBDeleteRequestEvent(
+                                model.pkID.toString(),
+                                SBDeleteRequest(
+                                    CompanyID: CompanyID.toString())));
+                          });
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.delete,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
               ]),
         ],
       ),
     );
-  }
-
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> onButtonTap(Share share, String customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
   }
 
   void FetchCustomerDetails(int customerID321) {
@@ -981,7 +900,7 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Send Email '),
+          title: Text('Send Email'),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -993,133 +912,146 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
               ],
             ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(90, 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24.0),
-                    ),
-                  ),
-                ),
-                onPressed: () => Navigator.of(context)
-                    .pop(), //  We can return any object from here
-                child: Text('Close')),
-          ],
         );
       },
     );
   }
 
   GenerateQTSendEmail(SaleBillDetails model, BuildContext context123) {
-    return Container(
-      height: 50,
-      child: Visibility(
-        visible: true,
-        child: InAppWebView(
-          /*
-            Uri.parse(SiteURL +
-                "/Quotation.aspx?MobilePdf=yes&userid=" +
-                LoginUserID +
-                "&password=" +
-                Password +
-                "&pQuotID=" +
-                model.pkID.toString()))*/
-          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(SiteURL +
-                  "SalesBill.aspx?MobilePdf=yes&userid=" +
-                  LoginUserID +
-                  "&password=" +
-                  Password +
-                  "&pQuotID=" +
-                  model.pkID.toString() +
-                  "&CustomerID=" +
-                  model.customerID.toString())),
+    return Center(
+      child: Container(
+        height: 50,
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  /*
+                    Uri.parse(SiteURL +
+                        "/Quotation.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString()))*/
+                  //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "SalesBill.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString() +
+                          "&CustomerID=" +
+                          model.customerID.toString())),
 
-          // initialFile: "assets/index.html",
-          initialUserScripts: UnmodifiableListView<UserScript>([]),
-          initialOptions: options,
-          pullToRefreshController: pullToRefreshController,
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
 
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
 
-          onLoadStart: (controller, url) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          androidOnPermissionRequest: (controller, origin, resources) async {
-            return PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT);
-          },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url;
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
 
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(url)) {
-                // Launch the App
-                await launch(
-                  url,
-                );
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
 
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
 
-            return NavigationActionPolicy.ALLOW;
-          },
-          onLoadStop: (controller, url) async {
-            pullToRefreshController.endRefreshing();
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
 
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onLoadError: (controller, url, code, message) {
-            pullToRefreshController.endRefreshing();
-            isLoading = false;
-          },
-          onProgressChanged: (controller, progress) {
-            if (progress == 100) {
-              pullToRefreshController.endRefreshing();
-              this.prgresss = progress;
-              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-            }
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
 
-            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+                    showCommonDialogWithSingleOption(
+                        context, "Invoice Sent Email Successfully ",
+                        onTapOfPositiveButton: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context123).pop();
+                    });
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
 
-            setState(() {
-              this.progress = progress / 100;
-              this.prgresss = progress;
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
 
-              urlController.text = this.url;
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("LoadWeb" + consoleMessage.message.toString());
-          },
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                ),
+              ),
+            ),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+          ],
         ),
       ),
     );
@@ -1166,13 +1098,185 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Do You want to Generate SaleBill ? '),
+          title: Text('Please wait..!'),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
                 Visibility(
                   visible: true,
                   child: GenerateQT(model, context123),
+                )
+                //GetCircular123(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  GenerateQT(SaleBillDetails model, BuildContext context123) {
+    print("DFrrt" +
+        SiteURL +
+        "/salesbill.aspx?MobilePdf=yes&userid=" +
+        LoginUserID +
+        "&password=" +
+        Password +
+        "&pQuotID=" +
+        model.pkID.toString());
+    return Center(
+      child: Stack(
+        children: [
+          Container(
+            height: 20,
+            width: 20,
+            child: Visibility(
+              visible: true,
+              child: InAppWebView(
+                //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                initialUrlRequest: URLRequest(
+                    url: Uri.parse(SiteURL +
+                        "/salesbill.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString())),
+                // initialFile: "assets/index.html",
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialOptions: options,
+                pullToRefreshController: pullToRefreshController,
+
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                },
+
+                onLoadStart: (controller, url) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                androidOnPermissionRequest:
+                    (controller, origin, resources) async {
+                  return PermissionRequestResponse(
+                      resources: resources,
+                      action: PermissionRequestResponseAction.GRANT);
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  var uri = navigationAction.request.url;
+
+                  if (![
+                    "http",
+                    "https",
+                    "file",
+                    "chrome",
+                    "data",
+                    "javascript",
+                    "about"
+                  ].contains(uri.scheme)) {
+                    if (await canLaunch(url)) {
+                      // Launch the App
+                      await launch(
+                        url,
+                      );
+
+                      // and cancel the request
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                  }
+
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  pullToRefreshController.endRefreshing();
+
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+
+                  String pageTitle = "";
+
+                  controller.getTitle().then((value) {
+                    setState(() {
+                      pageTitle = value;
+
+                      print("sdf567" + pageTitle);
+                    });
+                  });
+
+                  showCommonDialogWithSingleOption(
+                      context, "SO Generated Successfully ",
+                      onTapOfPositiveButton: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context123).pop();
+                    _QuotationBloc.add(SalesBillPDFGenerateCallEvent(
+                        SalesBillPDFGenerateRequest(
+                            CompanyId: CompanyID.toString(),
+                            InvoiceNo: model.invoiceNo)));
+                    //Navigator.pop(context);
+                  });
+                },
+                onLoadError: (controller, url, code, message) {
+                  pullToRefreshController.endRefreshing();
+                  isLoading = false;
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController.endRefreshing();
+                    this.prgresss = progress;
+                    // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                  }
+
+                  //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                  setState(() {
+                    this.progress = progress / 100;
+                    this.prgresss = progress;
+
+                    urlController.text = this.url;
+                  });
+                },
+                onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  print("LoadWeb" + consoleMessage.message.toString());
+                },
+              ),
+            ),
+          ),
+          Card(
+            elevation: 5,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            color: Colors.white,
+            child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                width: 100, height: 100),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showMyDialog1(SaleBillDetails model) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Do You want to Generate SaleBill ? '),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: GenerateQT1(model, context123),
                 )
                 //GetCircular123(),
               ],
@@ -1214,7 +1318,7 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
     );
   }
 
-  GenerateQT(SaleBillDetails model, BuildContext context123) {
+  GenerateQT1(SaleBillDetails model, BuildContext context123) {
     print("DFrrt" +
         SiteURL +
         "/salesbill.aspx?MobilePdf=yes&userid=" +
@@ -1554,7 +1658,7 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                                                     children: <Widget>[
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          await _makePhoneCall(
+                                                          MakeCall.callto(
                                                               customerDetails123
                                                                   .contactNo1);
                                                         },
@@ -1571,34 +1675,10 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                                                       ),
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          showCommonDialogWithTwoOptions(
+                                                          ShareMsg.msg(
                                                               context,
-                                                              "Do you have Two Accounts of WhatsApp ?" +
-                                                                  "\n" +
-                                                                  "Select one From below Option !",
-                                                              positiveButtonTitle:
-                                                                  "WhatsApp",
-                                                              onTapOfPositiveButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                onButtonTapCustomer(
-                                                                    Share
-                                                                        .whatsapp_personal,
-                                                                    customerDetails123);
-                                                              },
-                                                              negativeButtonTitle:
-                                                                  "Business",
-                                                              onTapOfNegativeButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                _launchWhatsAppBuz(
-                                                                    customerDetails123
-                                                                        .contactNo1);
-
-                                                                //onButtonTap(Share.whatsapp_business,model);
-                                                              });
+                                                              customerDetails123
+                                                                  .contactNo1);
                                                         },
                                                         child: Container(
                                                           child: Image.asset(
@@ -1905,37 +1985,209 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
     );
   }
 
-  Future<void> onButtonTapCustomer(
-      Share share, CustomerDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
 
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
+      if (menuRightsResponse.details[i].menuName == "pgSalesBill") {
+        _QuotationBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
         break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
+      }
     }
-    debugPrint(response);
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
+  }
+
+  OneTimeGenerateSO(
+      SaleBillDetails model, BuildContext context123, String GenerateMode) {
+    return Center(
+      child: Container(
+        alignment: Alignment.topLeft,
+        child: Stack(
+          children: [
+            Container(
+              height: 5,
+              width: 5,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/salesbill.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    baseBloc.emit(ShowProgressIndicatorState(true));
+
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        print("sdf567" + pageTitle);
+                      });
+                    });
+                    baseBloc.emit(ShowProgressIndicatorState(false));
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _OnDeleteSBHeaderFromAPI(SBDeleteResponseState state) {
+    _QuotationBloc.add(SalesBillListCallEvent(
+        1,
+        SalesBillListRequest(
+            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+  }
+
+  void _OnDeleteAllGenericCharges(
+      DeleteAllGenericAddditionalChargesState state) {
+    print("_OnDeleteAllGenericCharges" +
+        " DeleteAllGenericFromDBSB : " +
+        state.response);
   }
 }

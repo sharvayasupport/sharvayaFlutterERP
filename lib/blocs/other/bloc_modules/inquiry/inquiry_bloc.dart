@@ -37,13 +37,15 @@ import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_re
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_share_emp_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_share_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
+import 'package:soleoserp/models/api_responses/inquiry/search_inquiry_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response_for_packing_checking.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
-import 'package:soleoserp/models/api_responses/inquiry/search_inquiry_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -151,6 +153,10 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
 
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -569,4 +575,20 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     }
   }
   //SearchInquiryListFillterByNameRequestEvent
+
+  Stream<InquiryStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
 }

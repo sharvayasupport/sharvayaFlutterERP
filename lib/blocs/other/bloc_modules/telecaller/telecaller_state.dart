@@ -102,3 +102,8 @@ class CloserReasonListCallResponseState extends TeleCallerStates {
 
   CloserReasonListCallResponseState(this.closerReasonListResponse);
 }
+
+class UserMenuRightsResponseState extends TeleCallerStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart' as geolocator;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
@@ -30,7 +29,6 @@ import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
-import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
@@ -109,10 +107,7 @@ class _HemaAttendVisitAddEditScreenState
   bool _isForUpdate = false;
   bool isvisible_Out_time = false;
   String _PunchStatus;
-  String Lat_In = "";
-  String Long_In = "";
-  String Lat_Out = "";
-  String Long_Out = "";
+
   SearchDetails _searchDetails;
   Position _currentPosition;
 
@@ -158,10 +153,8 @@ class _HemaAttendVisitAddEditScreenState
       _PunchStatus = widget.arguments.PunchStatus;
 
       fillData();
-      _getCurrentLocation123();
     } else {
       _PunchStatus = "PunchIn";
-      _getCurrentLocation123();
       selectedDate = DateTime.now();
       edt_FollowUpDate.text = selectedDate.day.toString() +
           "-" +
@@ -395,8 +388,11 @@ class _HemaAttendVisitAddEditScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Attend Visit Details'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -907,8 +903,6 @@ class _HemaAttendVisitAddEditScreenState
                                   .locationWhenInUse.serviceStatus.isDisabled;
 
                               if (serviceLocation == false) {
-                                _getCurrentLocation();
-
                                 DateTime FbrazilianDate =
                                     new DateFormat("dd-MM-yyyy")
                                         .parse(edt_FollowUpDate.text);
@@ -951,10 +945,18 @@ class _HemaAttendVisitAddEditScreenState
                                                       ? ""
                                                       : _eventControllerOut_Time
                                                           .text,
-                                              Latitude_IN: Lat_In,
-                                              Longitude_IN: Long_In,
-                                              Latitude_OUT: Lat_Out,
-                                              Longitude_OUT: Long_Out,
+                                              Latitude_IN: SharedPrefHelper
+                                                  .instance
+                                                  .getLatitude(),
+                                              Longitude_IN: SharedPrefHelper
+                                                  .instance
+                                                  .getLongitude(),
+                                              Latitude_OUT: SharedPrefHelper
+                                                  .instance
+                                                  .getLatitude(),
+                                              Longitude_OUT: SharedPrefHelper
+                                                  .instance
+                                                  .getLongitude(),
                                               LocationAddress_IN: Address_IN,
                                               LocationAddress_OUT: Address_OUT,
                                               NextVisitDate:
@@ -1003,10 +1005,18 @@ class _HemaAttendVisitAddEditScreenState
                                                     ? ""
                                                     : _eventControllerOut_Time
                                                         .text,
-                                                Latitude_IN: Lat_In,
-                                                Longitude_IN: Long_In,
-                                                Latitude_OUT: Lat_Out,
-                                                Longitude_OUT: Long_Out,
+                                                Latitude_IN: SharedPrefHelper
+                                                    .instance
+                                                    .getLatitude(),
+                                                Longitude_IN: SharedPrefHelper
+                                                    .instance
+                                                    .getLongitude(),
+                                                Latitude_OUT: SharedPrefHelper
+                                                    .instance
+                                                    .getLatitude(),
+                                                Longitude_OUT: SharedPrefHelper
+                                                    .instance
+                                                    .getLongitude(),
                                                 LocationAddress_IN: Address_IN,
                                                 LocationAddress_OUT:
                                                     Address_OUT,
@@ -1048,7 +1058,6 @@ class _HemaAttendVisitAddEditScreenState
                                     .locationWhenInUse.serviceStatus.isDisabled;
 
                                 if (serviceLocation == false) {
-                                  _getCurrentLocation();
                                   baseBloc
                                       .emit(ShowProgressIndicatorState(false));
 
@@ -1096,10 +1105,18 @@ class _HemaAttendVisitAddEditScreenState
                                                     ? ""
                                                     : _eventControllerOut_Time
                                                         .text,
-                                                Latitude_IN: Lat_In,
-                                                Longitude_IN: Long_In,
-                                                Latitude_OUT: Lat_Out,
-                                                Longitude_OUT: Long_Out,
+                                                Latitude_IN: SharedPrefHelper
+                                                    .instance
+                                                    .getLatitude(),
+                                                Longitude_IN: SharedPrefHelper
+                                                    .instance
+                                                    .getLongitude(),
+                                                Latitude_OUT: SharedPrefHelper
+                                                    .instance
+                                                    .getLatitude(),
+                                                Longitude_OUT: SharedPrefHelper
+                                                    .instance
+                                                    .getLongitude(),
                                                 LocationAddress_IN: Address_IN,
                                                 LocationAddress_OUT:
                                                     Address_OUT,
@@ -1153,10 +1170,18 @@ class _HemaAttendVisitAddEditScreenState
                                                       ? ""
                                                       : _eventControllerOut_Time
                                                           .text,
-                                                  Latitude_IN: Lat_In,
-                                                  Longitude_IN: Long_In,
-                                                  Latitude_OUT: Lat_Out,
-                                                  Longitude_OUT: Long_Out,
+                                                  Latitude_IN: SharedPrefHelper
+                                                      .instance
+                                                      .getLatitude(),
+                                                  Longitude_IN: SharedPrefHelper
+                                                      .instance
+                                                      .getLongitude(),
+                                                  Latitude_OUT: SharedPrefHelper
+                                                      .instance
+                                                      .getLatitude(),
+                                                  Longitude_OUT:
+                                                      SharedPrefHelper.instance
+                                                          .getLongitude(),
                                                   LocationAddress_IN:
                                                       Address_IN,
                                                   LocationAddress_OUT:
@@ -1248,10 +1273,17 @@ class _HemaAttendVisitAddEditScreenState
                                           ComplaintStatus: edt_satus.text,
                                           TimeIn: _eventControllerIn_Time.text,
                                           TimeOut: "",
-                                          Latitude_IN: Lat_In,
-                                          Longitude_IN: Long_In,
-                                          Latitude_OUT: Lat_Out,
-                                          Longitude_OUT: Long_Out,
+                                          Latitude_IN: SharedPrefHelper.instance
+                                              .getLatitude(),
+                                          Longitude_IN: SharedPrefHelper
+                                              .instance
+                                              .getLongitude(),
+                                          Latitude_OUT: SharedPrefHelper
+                                              .instance
+                                              .getLatitude(),
+                                          Longitude_OUT: SharedPrefHelper
+                                              .instance
+                                              .getLongitude(),
                                           LocationAddress_IN: Address_IN,
                                           LocationAddress_OUT: Address_OUT,
                                           NextVisitDate:
@@ -1293,10 +1325,18 @@ class _HemaAttendVisitAddEditScreenState
                                             TimeIn:
                                                 _eventControllerIn_Time.text,
                                             TimeOut: "",
-                                            Latitude_IN: Lat_In,
-                                            Longitude_IN: Long_In,
-                                            Latitude_OUT: Lat_Out,
-                                            Longitude_OUT: Long_Out,
+                                            Latitude_IN: SharedPrefHelper
+                                                .instance
+                                                .getLatitude(),
+                                            Longitude_IN: SharedPrefHelper
+                                                .instance
+                                                .getLongitude(),
+                                            Latitude_OUT: SharedPrefHelper
+                                                .instance
+                                                .getLatitude(),
+                                            Longitude_OUT: SharedPrefHelper
+                                                .instance
+                                                .getLongitude(),
                                             LocationAddress_IN: Address_IN,
                                             LocationAddress_OUT: Address_OUT,
                                             NextVisitDate:
@@ -2121,43 +2161,7 @@ class _HemaAttendVisitAddEditScreenState
     }
   }
 
-  _getCurrentLocation123() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() async {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-
-        Address = await getAddressFromLatLngMapMyIndia(
-            Latitude, Longitude, MAPMYINDIAKEY);
-        Lat_In = Latitude;
-        Long_In = Longitude;
-        Lat_Out = Latitude;
-        Long_Out = Longitude;
-        Address_IN = Address;
-        Address_OUT = Address;
-
-        if (_PunchStatus == "PunchIn") {
-          Lat_Out = "";
-          Long_Out = "";
-          Address_OUT = "";
-        } else {
-          Lat_In = editableLatitude;
-          Long_In = editableLongitude;
-          Lat_Out = Latitude;
-          Long_Out = Longitude;
-          Address_IN = editableAddress;
-          Address_OUT = Address;
-        }
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
-
- /* Future<String> getAddressFromLatLng(
+  /* Future<String> getAddressFromLatLng(
       String lat, String lng, String skey) async {
     String _host = 'https://maps.google.com/maps/api/geocode/json';
     final url = '$_host?key=$skey&latlng=$lat,$lng';
@@ -2241,30 +2245,6 @@ class _HemaAttendVisitAddEditScreenState
       // The OS restricts access, for example because of parental controls.
       is_LocationService_Permission = true;
     }
-  }
-
-  _getCurrentLocation() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() async {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-
-        Lat_In = Latitude;
-        Long_In = Longitude;
-        Lat_Out = Latitude;
-        Long_Out = Longitude;
-
-        Address = await getAddressFromLatLngMapMyIndia(
-            Latitude, Longitude, MAPMYINDIAKEY);
-        Address_IN = Address;
-        Address_OUT = Address;
-      });
-    }).catchError((e) {
-      print(e);
-    });
   }
 
   Future<bool> _onBackPressed() {

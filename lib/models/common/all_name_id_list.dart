@@ -11,13 +11,23 @@ class ALL_Name_ID {
   String Latitude;
   String Longitude;
 
-  ALL_Name_ID(
-      {this.pkID,
-      this.Name,
-      this.Name1,
-      this.PresentDate,
-      this.isChecked,
-      this.GoogleAddress,
-      this.Latitude,
-      this.Longitude});
+  String MenuName;
+  String IsAddField;
+  String IsEditField;
+  String IsDeleteField;
+
+  ALL_Name_ID({
+    this.pkID,
+    this.Name,
+    this.Name1,
+    this.PresentDate,
+    this.isChecked,
+    this.GoogleAddress,
+    this.Latitude,
+    this.Longitude,
+    this.MenuName,
+    this.IsAddField,
+    this.IsEditField,
+    this.IsDeleteField,
+  });
 }

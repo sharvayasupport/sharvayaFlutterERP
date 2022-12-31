@@ -6,28 +6,44 @@ import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/bank_details_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/multi_no_to_product_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/specification_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/save_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesOrder_Product_Save_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_delete_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_header_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_pdf_generate_pdf_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_delete_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
+import 'package:soleoserp/models/common/assembly/so_assembly_table.dart';
+import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
+import 'package:soleoserp/models/common/sales_order_table.dart';
+import 'package:soleoserp/models/common/specification/quotation/quotation_specification.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
@@ -112,6 +128,82 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
 
     if (event is SalesOrderProductDeleteRequestEvent) {
       yield* _mapSalesOrderProductDeleteRequestEventState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
+    }
+
+    if (event is QuotationOtherCharge1CallEvent) {
+      yield* _mapQuotationOtherCharge1ListEventToState(event);
+    }
+
+    if (event is GetGenericAddditionalChargesEvent) {
+      yield* _mapGetGenericAddditionalChargesEventToState(event);
+    }
+    if (event is QuotationOtherChargeCallEvent) {
+      yield* _mapQuotationOtherChargeListEventToState(event);
+    }
+
+    if (event is GetQuotationProductListEvent) {
+      yield* _mapGetQuotationProductListEventState(event);
+    }
+
+    if (event is InsertProductEvent) {
+      yield* _map_InsertProductEventState(event);
+    }
+
+    if (event is DeleteAllQuotationProductEvent) {
+      yield* _mapDeleteAllQuotationProductEventState(event);
+    }
+
+    if (event is AddGenericAddditionalChargesEvent) {
+      yield* mapAddGeneric(event);
+    }
+
+    if (event is DeleteGenericAddditionalChargesEvent) {
+      yield* _mapDeleteGenericAddditionalChargesEventToState(event);
+    }
+    if (event is GetQuotationSpecificationTableEvent) {
+      yield* _mapGetQuotationSpecificationTableEventState(event);
+    }
+
+    if (event is QuotationSpecificationCallEvent) {
+      yield* _mapSpecificationListCallEventToState(event);
+    }
+
+    if (event is GenericOtherChargeCallEvent) {
+      yield* _mapGenericOtherChargeCallEventToState(event);
+    }
+
+    if (event is SalesOrderDeleteRequestEvent) {
+      yield* _mapSalesOrderDeleteRequestEventToState(event);
+    }
+
+    if (event is SOCurrencyListRequestEvent) {
+      yield* _mapSOCurrencyListRequestEventToState(event);
+    }
+
+    if (event is SaveEmailContentRequestEvent) {
+      yield* _mapSaveEmailContentRequestEventState(event);
+    }
+    if (event is SOProductOneDeleteEvent) {
+      yield* _mapQuotationOneProductDeleteEventState(event);
+    }
+    if (event is SOAssemblyTableListEvent) {
+      yield* _mapSOAssemblyTableListEventState(event);
+    }
+    if (event is SOAssemblyTableInsertEvent) {
+      yield* mapSOAssemblyTableInsertEventState(event);
+    }
+    if (event is SOAssemblyTableUpdateEvent) {
+      yield* mapSOAssemblyTableUpdateEventState(event);
+    }
+    if (event is SOAssemblyTableOneItemDeleteEvent) {
+      yield* _mapSOAssemblyTableOneItemDeleteEventToState(event);
+    }
+    if (event is SOAssemblyTableALLDeleteEvent) {
+      yield* _mapSOAssemblyTableALLDeleteEventToState(event);
     }
   }
 
@@ -227,7 +319,8 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       CustomerDetailsResponse response =
           await userRepository.getCustomerListSearchByNumber(event.request);
-      yield SearchCustomerListByNumberCallResponseState(response);
+      yield SearchCustomerListByNumberCallResponseState(
+          event.IsFromDialog, response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -259,7 +352,8 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       MultiNoToProductDetailsResponse response =
           await userRepository.getProductDetailsFrom_No(event.request);
-      yield MultiNoToProductDetailsResponseState(response);
+      yield MultiNoToProductDetailsResponseState(
+          event.FromWhichScreen, response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -440,5 +534,433 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
     }
   }
 
+  Stream<SalesOrderStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+
+      print("dsjfd455444oopppp" + respo.details[0].addFlag1);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapQuotationOtherCharge1ListEventToState(
+      QuotationOtherCharge1CallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherCharge1ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapGetGenericAddditionalChargesEventToState(
+      GetGenericAddditionalChargesEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      List<GenericAddditionalCharges> quotationOtherChargesListResponse =
+          await OfflineDbHelper.getInstance().getGenericAddditionalCharges();
+
+      GenericAddditionalCharges genericAddditionalCharges;
+      for (int i = 0; i < quotationOtherChargesListResponse.length; i++) {
+        genericAddditionalCharges = quotationOtherChargesListResponse[i];
+      }
+      yield GetGenericAddditionalChargesState(genericAddditionalCharges);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapQuotationOtherChargeListEventToState(
+      QuotationOtherChargeCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield QuotationOtherChargeListResponseState(
+          event.headerDiscountController, quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapGetQuotationProductListEventState(
+      GetQuotationProductListEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      List<SalesOrderTable> response =
+          await OfflineDbHelper.getInstance().getSalesOrderProduct();
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield GetQuotationProductListState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _map_InsertProductEventState(
+      InsertProductEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      for (int i = 0; i < event.quotationTable.length; i++) {
+        //event.quotationTable[i]
+        await OfflineDbHelper.getInstance()
+            .insertSalesOrderProduct(SalesOrderTable(
+          event.quotationTable[i].SalesOrderNo,
+          event.quotationTable[i].ProductSpecification,
+          event.quotationTable[i].ProductID,
+          event.quotationTable[i].ProductName,
+          event.quotationTable[i].Unit,
+          event.quotationTable[i].Quantity,
+          event.quotationTable[i].UnitRate,
+          event.quotationTable[i].DiscountPercent,
+          event.quotationTable[i].DiscountAmt,
+          event.quotationTable[i].NetRate,
+          event.quotationTable[i].Amount,
+          event.quotationTable[i].TaxRate,
+          event.quotationTable[i].TaxAmount,
+          event.quotationTable[i].NetAmount,
+          event.quotationTable[i].TaxType,
+          event.quotationTable[i].CGSTPer,
+          event.quotationTable[i].SGSTPer,
+          event.quotationTable[i].IGSTPer,
+          event.quotationTable[i].CGSTAmt,
+          event.quotationTable[i].SGSTAmt,
+          event.quotationTable[i].IGSTAmt,
+          event.quotationTable[i].StateCode,
+          event.quotationTable[i].pkID,
+          event.quotationTable[i].LoginUserID,
+          event.quotationTable[i].CompanyId,
+          event.quotationTable[i].BundleId,
+          event.quotationTable[i].HeaderDiscAmt,
+          event.quotationTable[i].DeliveryDate,
+        ));
+      }
+
+      yield InsertProductSucessResponseState("Inserted Successfully");
+      //yield QT_OtherChargeDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapDeleteAllQuotationProductEventState(
+      DeleteAllQuotationProductEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().deleteALLSalesOrderProduct();
+
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield DeleteALLQuotationProductTableState(
+          "Deleted All Item in Table Successfully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> mapAddGeneric(
+      AddGenericAddditionalChargesEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance()
+          .insertGenericAddditionalCharges(GenericAddditionalCharges(
+        event.genericAddditionalCharges.DiscountAmt,
+        event.genericAddditionalCharges.ChargeID1,
+        event.genericAddditionalCharges.ChargeAmt1,
+        event.genericAddditionalCharges.ChargeID2,
+        event.genericAddditionalCharges.ChargeAmt2,
+        event.genericAddditionalCharges.ChargeID3,
+        event.genericAddditionalCharges.ChargeAmt3,
+        event.genericAddditionalCharges.ChargeID4,
+        event.genericAddditionalCharges.ChargeAmt4,
+        event.genericAddditionalCharges.ChargeID5,
+        event.genericAddditionalCharges.ChargeAmt5,
+        event.genericAddditionalCharges.ChargeName1,
+        event.genericAddditionalCharges.ChargeName2,
+        event.genericAddditionalCharges.ChargeName3,
+        event.genericAddditionalCharges.ChargeName4,
+        event.genericAddditionalCharges.ChargeName5,
+      ));
+
+      yield AddGenericAddditionalChargesState("Added SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapDeleteGenericAddditionalChargesEventToState(
+      DeleteGenericAddditionalChargesEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteALLGenericAddditionalCharges();
+      yield DeleteAllGenericAddditionalChargesState("Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
   //SalesOrderProductDeleteRequestEvent
+
+  Stream<SalesOrderStates> _mapGetQuotationSpecificationTableEventState(
+      GetQuotationSpecificationTableEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      List<QuotationSpecificationTable> response =
+          await OfflineDbHelper.getInstance()
+              .getQuotationSpecificationTableList();
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield GetQuotationSpecificationTableState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSpecificationListCallEventToState(
+      QuotationSpecificationCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SpecificationListResponse
+          response; /*=
+          await userRepository.getProductSpecificationList(event.request,"");
+*/
+      for (int i = 0; i < response.details.length; i++) {
+        await OfflineDbHelper.getInstance().insertQuotationSpecificationTable(
+            QuotationSpecificationTable(
+                response.details[i].itemOrder.toString(),
+                response.details[i].groupHead,
+                response.details[i].materialHead,
+                response.details[i].materialSpec,
+                response.details[i].MaterialRemarks,
+                response.details[i].OrderNo,
+                response.details[i].finishProductID.toString()));
+      }
+
+      yield SpecificationListResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapGenericOtherChargeCallEventToState(
+      GenericOtherChargeCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield GenericOtherCharge1ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSalesOrderDeleteRequestEventToState(
+      SalesOrderDeleteRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SalesOrderDeleteResponse inquiryDeleteResponse =
+          await userRepository.deleteSalesOrder(event.pkID, event.request);
+      yield SalesOrderDeleteResponseState(inquiryDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOCurrencyListRequestEventToState(
+      SOCurrencyListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SOCurrencyListResponse inquiryDeleteResponse =
+          await userRepository.SOCurrencyListAPI(event.request);
+      yield SOCurrencyListResponseState(inquiryDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSaveEmailContentRequestEventState(
+      SaveEmailContentRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SaveEmailContentResponse response =
+          await userRepository.getSaveEmailContentAPI(event.request);
+      yield SaveEmailContentResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapQuotationOneProductDeleteEventState(
+      SOProductOneDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance()
+          .deleteSalesOrderProduct(event.tableId);
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield SOProductOneDeleteState("Product Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOAssemblyTableListEventState(
+      SOAssemblyTableListEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      List<SOAssemblyTable> response = await OfflineDbHelper.getInstance()
+          .getSOAssemblyItems(event.finishProductID);
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield SOAssemblyTableListState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> mapSOAssemblyTableInsertEventState(
+      SOAssemblyTableInsertEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().insertSOAssemblyItems(SOAssemblyTable(
+        event.soAssemblyTable.FinishProductID,
+        event.soAssemblyTable.ProductID,
+        event.soAssemblyTable.ProductName,
+        event.soAssemblyTable.Quantity,
+        event.soAssemblyTable.Unit,
+        event.soAssemblyTable.OrderNo,
+      ));
+
+      yield SOAssemblyTableInsertState(
+          event.context, "Sales Order Assembly Added SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> mapSOAssemblyTableUpdateEventState(
+      SOAssemblyTableUpdateEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().updateSOAssemblyItems(SOAssemblyTable(
+          event.soAssemblyTable.FinishProductID,
+          event.soAssemblyTable.ProductID,
+          event.soAssemblyTable.ProductName,
+          event.soAssemblyTable.Quantity,
+          event.soAssemblyTable.Unit,
+          event.soAssemblyTable.OrderNo,
+          id: event.soAssemblyTable.id));
+
+      yield SOAssemblyTableUpdateState(
+          event.context, "Sales Order Assembly Updated SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOAssemblyTableOneItemDeleteEventToState(
+      SOAssemblyTableOneItemDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteSOAssemblyItem(event.tableid);
+      yield SOAssemblyTableOneItemDeleteState(
+          "SalesOrder Assembly Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOAssemblyTableALLDeleteEventToState(
+      SOAssemblyTableALLDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteAllSOAssemblyItems();
+      yield SOAssemblyTableDeleteALLState(
+          "SalesOrder Assembly All Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
 }

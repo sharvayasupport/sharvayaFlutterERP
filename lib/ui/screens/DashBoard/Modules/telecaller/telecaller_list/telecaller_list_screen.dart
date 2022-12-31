@@ -1,11 +1,8 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:lottie/lottie.dart';
-import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:soleoserp/blocs/other/bloc_modules/expense/expense_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/telecaller/telecaller_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
@@ -14,23 +11,24 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/telecaller_followup_history_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/FollowUpDialog/telecaller_followup_ADD_EDIT_Screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_add_edit/telecaller_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/broadcast_msg/make_call.dart';
+import 'package:soleoserp/utils/broadcast_msg/share_msg.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 ///import 'package:whatsapp_share/whatsapp_share.dart';
 
@@ -39,17 +37,6 @@ class TeleCallerListScreen extends BaseStatefulWidget {
 
   @override
   _TeleCallerListScreenState createState() => _TeleCallerListScreenState();
-}
-
-enum Share {
-  facebook,
-  twitter,
-  whatsapp,
-  whatsapp_personal,
-  whatsapp_business,
-  share_system,
-  share_instagram,
-  share_telegram
 }
 
 class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
@@ -91,6 +78,12 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_LeadStatus = [];
 
+  MenuRightsResponse _menuRightsResponse;
+
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   @override
   void initState() {
     super.initState();
@@ -99,6 +92,9 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
+
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     LeadStatus();
     // _offlineExpenseType = SharedPrefHelper.instance.getExpenseType();
     CompanyID = _offlineCompanyData.details[0].pkId;
@@ -109,10 +105,13 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
     edt_FollowupStatus.text = "Account";
     edt_LeadStatus.text = "ALL Leads";
     _expenseBloc = TeleCallerBloc(baseBloc);
+
+    getUserRights(_menuRightsResponse);
+
     // _expenseBloc..add(ExpenseEmployeeListCallEvent(AttendanceEmployeeListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID)));
     //_expenseBloc..add(ExpenseEventsListCallEvent(1,ExpenseListAPIRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID)));
-    edt_LeadStatus.addListener(followerEmployeeList);
-    edt_FollowupEmployeeList.addListener(followerEmployeeList);
+    // edt_LeadStatus.addListener(followerEmployeeList);
+    //edt_FollowupEmployeeList.addListener(followerEmployeeList);
     _expenseBloc
       ..add(TeleCallerListCallEvent(
           1,
@@ -161,11 +160,16 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
             _onInquirySearchCallSuccess(state);
           }
 
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
+
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is TeleCallerListCallResponseState ||
-              currentState is TeleCallerSearchByIDResponseState) {
+              currentState is TeleCallerSearchByIDResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -183,9 +187,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
-          if (currentState is ExpenseDeleteCallResponseState ||
-              currentState is ExpenseTypeCallResponseState ||
-              currentState is TeleCallerDeleteCallResponseState) {
+          if (currentState is TeleCallerDeleteCallResponseState) {
             return true;
           }
           return false;
@@ -201,8 +203,11 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('TeleCaller List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -233,17 +238,17 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                 : edt_LeadStatus.text,
                             LoginUserID: LoginUserID,
                             CompanyId: CompanyID.toString())));
+
+                    getUserRights(_menuRightsResponse);
+
                     // _expenseBloc.add(TeleCallerSearchByIDCallEvent(TeleCallerSearchRequest(CompanyId: CompanyID.toString(),word: "",needALL: "0",LoginUserID: LoginUserID,LeadStatus: edt_LeadStatus.text=="ALL Leads"?"":edt_LeadStatus.text.toString())));
                   },
                   child: Container(
-                    padding: EdgeInsets.only(
-                      left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      top: 25,
-                    ),
+                    margin: EdgeInsets.only(
+                        left: 10, right: 10, top: 20, bottom: 20),
                     child: Column(
                       children: [
-                        Row(children: [
+                        /* Row(children: [
                           Expanded(
                             flex: 2,
                             child: _buildEmplyeeListView(),
@@ -252,7 +257,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                             flex: 1,
                             child: _buildSearchView(),
                           ),
-                        ]),
+                        ]),*/
                         Expanded(child: _buildInquiryList())
                       ],
                     ),
@@ -262,15 +267,145 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
+        floatingActionButton: IsAddRights == true
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  FloatingActionButton(
+                    onPressed: () async {
+                      /* edt_FollowupEmployeeList.text = "";
+                _onTapOfSearchView();*/
+                      return showModalBottomSheet(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        backgroundColor: Colors.white,
+                        isScrollControlled: true,
+                        context: context,
+                        builder: (context) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom),
+                            child: Wrap(
+                              children: [
+                                ListTile(
+                                  // leading: Icon(Icons.share),
+                                  title: Center(
+                                    child: Text(
+                                      "~~~Filter~~~",
+                                      style: TextStyle(color: colorPrimary),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 2,
+                                  color: colorLightGray,
+                                ),
+                                Container(
+                                  height: 5,
+                                ),
+                                ListTile(
+                                  // leading: Icon(Icons.share),
+                                  title: _buildEmplyeeListView(),
+                                ),
+                                ListTile(
+                                  // leading: Icon(Icons.copy),
+                                  title: _buildSearchView(),
+                                ),
+                                Container(
+                                  height: 10,
+                                ),
+                                ListTile(
+                                  //leading: Icon(Icons.edit),
+                                  title: Center(
+                                      child: Row(
+                                    children: [
+                                      Flexible(
+                                        child: getCommonButton(baseTheme, () {
+                                          Navigator.pop(context);
 
-            navigateTo(context, TeleCallerAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+                                          _expenseBloc.add(TeleCallerListCallEvent(
+                                              1,
+                                              TeleCallerListRequest(
+                                                  pkID: "",
+                                                  acid: "",
+                                                  LeadStatus:
+                                                      edt_LeadStatus.text ==
+                                                              "ALL Leads"
+                                                          ? ""
+                                                          : edt_LeadStatus.text,
+                                                  LoginUserID: LoginUserID,
+                                                  CompanyId:
+                                                      CompanyID.toString(),
+                                                  SearchKey:
+                                                      edt_FollowupEmployeeList
+                                                                  .text.length >
+                                                              2
+                                                          ? edt_FollowupEmployeeList
+                                                              .text
+                                                          : "")));
+                                          edt_FollowupEmployeeList.text = "";
+                                        }, "Submit", radius: 15),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: getCommonButton(baseTheme, () {
+                                          Navigator.pop(context);
+
+                                          edt_FollowupEmployeeList.text = "";
+                                          _expenseBloc.add(
+                                              TeleCallerListCallEvent(
+                                                  1,
+                                                  TeleCallerListRequest(
+                                                      pkID: "",
+                                                      acid: "",
+                                                      LeadStatus: edt_LeadStatus
+                                                                  .text ==
+                                                              "ALL Leads"
+                                                          ? ""
+                                                          : edt_LeadStatus.text,
+                                                      LoginUserID: LoginUserID,
+                                                      CompanyId: CompanyID
+                                                          .toString())));
+                                        }, "Close", radius: 15),
+                                      ),
+                                    ],
+                                  )),
+                                ),
+                                Container(
+                                  height: 10,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Image.asset(
+                      CUSTOM_SETTING,
+                      width: 32,
+                      height: 32,
+                    ),
+                    backgroundColor: colorPrimary,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  FloatingActionButton(
+                    onPressed: () async {
+                      // Add your onPressed code here!
+
+                      navigateTo(context, TeleCallerAddEditScreen.routeName);
+                    },
+                    child: const Icon(Icons.add),
+                    backgroundColor: colorPrimary,
+                  ),
+                ],
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -382,753 +517,697 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
   }
 
   ExpantionCustomer(BuildContext context, int index) {
-    // Details model = _leaveRequestListResponse.details[index];
-
     return _expenseListResponse.details[index].leadSource == "TeleCaller"
         ? Container(
             padding: EdgeInsets.all(15),
             child: ExpansionTileCard(
-              // key:Key(index.toString()),
               initialElevation: 5.0,
-              elevation: 5.0,
-              /* elevationCurve: Curves.easeInOut,
-          initiallyExpanded : index==selected,*/
-
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              elevation: 1,
+              elevationCurve: Curves.easeInOut,
               shadowColor: Color(0xFF504F4F),
               baseColor: Color(0xFFFCFCFC),
-              expandedColor: Color(0xFFC1E0FA),
-              //Colors.deepOrange[50],ADD8E6
-              leading: CircleAvatar(
-                  backgroundColor: Color(0xFF504F4F),
-                  child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
-                      Image.network(
-                    "http://demo.sharvayainfotech.in/images/profile.png",
-                    height: 35,
-                    fit: BoxFit.fill,
-                    width: 35,
-                  )),
-              title: Text(
-                _expenseListResponse.details[index].companyName == ""
-                    ? _expenseListResponse.details[index].senderName
-                    : _expenseListResponse.details[index].companyName +
-                        "\n" +
-                        _expenseListResponse.details[index].senderName,
-                style: TextStyle(color: Colors.black),
+              expandedColor: colorTileBG,
+              title: Column(
+                children: [
+                  _expenseListResponse.details[index].companyName.toString() ==
+                          ""
+                      ? Container()
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.home_work,
+                                  color: Color(0xff0066b3),
+                                  size: 24,
+                                ),
+                                Text("Company",
+                                    style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Color(0xff0066b3),
+                                      fontSize: 7,
+                                    ))
+                              ],
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Container(
+                              child: Icon(
+                                Icons.keyboard_arrow_right,
+                                color: Color(0xff0066b3),
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: Text(
+                                _expenseListResponse.details[index].companyName,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                  _expenseListResponse.details[index].companyName.toString() ==
+                          ""
+                      ? Container()
+                      : Container(
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          height: 2,
+                        ),
+                  _expenseListResponse.details[index].senderName.toString() ==
+                          ""
+                      ? Container()
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.assignment_ind,
+                                  color: Color(0xff0066b3),
+                                  size: 24,
+                                ),
+                                Text("Sender",
+                                    style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: Color(0xff0066b3),
+                                      fontSize: 7,
+                                    ))
+                              ],
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              child: Icon(
+                                Icons.keyboard_arrow_right,
+                                color: Color(0xff0066b3),
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Flexible(
+                              child: Text(
+                                _expenseListResponse.details[index].senderName,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                ],
               ),
-              subtitle: Text(
-                _expenseListResponse.details[index].primaryMobileNo,
-                style: TextStyle(
-                  color: Color(0xFF504F4F),
-                  fontSize: _fontSize_Title,
+              subtitle: Card(
+                color: colorBackGroundGray,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.mobile_friendly,
+                            color: Color(0xff108dcf),
+                            size: 24,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            _expenseListResponse.details[index].primaryMobileNo,
+                            style: TextStyle(
+                              color: colorPrimary,
+                              fontSize: _fontSize_Title,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                GestureDetector(
+                                  onTap: () async {
+                                    MakeCall.callto(_expenseListResponse
+                                        .details[index].primaryMobileNo);
+                                  },
+                                  child: Container(
+                                    child: Image.asset(
+                                      PHONE_CALL_IMAGE,
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    ShareMsg.msg(
+                                        context,
+                                        _expenseListResponse
+                                            .details[index].primaryMobileNo);
+                                  },
+                                  child: Container(
+                                    child: Image.asset(WHATSAPP_IMAGE,
+                                        width: 29, height: 29),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                              ])
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
               children: <Widget>[
                 Divider(
                   thickness: 1.0,
                   height: 1.0,
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
+                Container(
+                    margin: EdgeInsets.only(
+                        left: 20, right: 20, top: 10, bottom: 10),
                     child: Container(
-                        margin: EdgeInsets.all(20),
-                        child: Container(
-                            margin: EdgeInsets.only(left: 10),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Container(
-                                        child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  await _makePhoneCall(
-                                                      _expenseListResponse
-                                                          .details[index]
-                                                          .primaryMobileNo);
-                                                },
-                                                child: Container(
-                                                    child: Column(
-                                                  children: [
-                                                    /* Text(
-                                                      "Call",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Colors.blueAccent,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 5,
-                                                    ),*/
-                                                    Image.asset(
-                                                      PHONE_CALL_IMAGE,
-                                                      width: 30,
-                                                      height: 30,
-                                                    ),
-                                                  ],
-                                                )),
-                                              ),
-                                              SizedBox(
-                                                width: 20,
-                                              ),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  //await _makePhoneCall(model.contactNo1);
-                                                  //await _makeSms(model.contactNo1);
-                                                  showCommonDialogWithTwoOptions(
-                                                      context,
-                                                      "Do you have Two Accounts of WhatsApp ?" +
-                                                          "\n" +
-                                                          "Select one From below Option !",
-                                                      positiveButtonTitle:
-                                                          "WhatsApp",
-                                                      onTapOfPositiveButton:
-                                                          () {
-                                                        Navigator.pop(context);
-                                                        onButtonTap(
-                                                            Share
-                                                                .whatsapp_personal,
-                                                            _expenseListResponse
-                                                                .details[index]
-                                                                .primaryMobileNo);
-                                                      },
-                                                      negativeButtonTitle:
-                                                          "Business",
-                                                      onTapOfNegativeButton:
-                                                          () {
-                                                        Navigator.pop(context);
-
-                                                        _launchWhatsAppBuz(
-                                                            _expenseListResponse
-                                                                .details[index]
-                                                                .primaryMobileNo);
-                                                      });
-                                                },
-                                                child: Container(
-                                                  child: /*Image.asset(
-                                                    WHATSAPP_IMAGE,
-                                                    width: 30,
-                                                    height: 30,
-                                                  ),*/
-                                                      Column(
-                                                    children: [
-                                                      /* Text(
-                                                        "Share",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.green,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 5,
-                                                      ),*/
-                                                      Image.asset(
-                                                        WHATSAPP_IMAGE,
-                                                        width: 30,
-                                                        height: 30,
-                                                      ),
-                                                    ],
+                        child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Flexible(
+                                          child: Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Icon(
+                                                    Icons.confirmation_num,
+                                                    color: colorCardBG,
                                                   ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 20,
-                                              ),
-                                              GestureDetector(
-                                                onTap: () async {
-                                                  if (_expenseListResponse
-                                                              .details[index]
-                                                              .Latitude !=
-                                                          "" ||
-                                                      _expenseListResponse
-                                                              .details[index]
-                                                              .Longitude !=
-                                                          "") {
-                                                    MapsLauncher.launchCoordinates(
-                                                        double.parse(
-                                                            _expenseListResponse
-                                                                .details[index]
-                                                                .Latitude),
-                                                        double.parse(
-                                                            _expenseListResponse
-                                                                .details[index]
-                                                                .Longitude),
-                                                        ' Customer Current Location');
-                                                  } else {
-                                                    showCommonDialogWithSingleOption(
-                                                        context,
-                                                        "Location Not Valid !",
-                                                        positiveButtonTitle:
-                                                            "OK",
-                                                        onTapOfPositiveButton:
-                                                            () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    });
-                                                  }
-                                                },
-                                                child: Container(
-                                                    child: Column(
-                                                  children: [
-                                                    /* Text(
-                                                      "Location",
+                                                  Text("LeadNo",
                                                       style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Colors.deepOrange,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 5,
-                                                    ),*/
-                                                    Image.asset(
-                                                      LOCATION_ICON,
-                                                      width: 30,
-                                                      height: 30,
-                                                    ),
-                                                  ],
-                                                )),
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color: colorCardBG,
+                                                        fontSize: 7,
+                                                      ))
+                                                ],
                                               ),
                                               SizedBox(
-                                                width: 20,
+                                                width: 10,
                                               ),
-                                              _expenseListResponse
-                                                          .details[index]
-                                                          .leadStatus ==
-                                                      "InProcess"
-                                                  ? GestureDetector(
-                                                      onTap: () {
-                                                        navigateTo(
-                                                                context,
-                                                                FollowUpFromTeleCallerddEditScreen
-                                                                    .routeName,
-                                                                arguments: AddUpdateFollowupFromTeleCallerScreenArguments(
-                                                                    _expenseListResponse
-                                                                        .details[
-                                                                            index]
-                                                                        .pkId
-                                                                        .toString()))
-                                                            .then((value) {
-                                                          _expenseBloc.add(TeleCallerListCallEvent(
-                                                              _pageNo,
-                                                              TeleCallerListRequest(
-                                                                  pkID: "",
-                                                                  acid: "",
-                                                                  LeadStatus: edt_LeadStatus
-                                                                              .text ==
-                                                                          "ALL Leads"
-                                                                      ? ""
-                                                                      : edt_LeadStatus
-                                                                          .text,
-                                                                  LoginUserID:
-                                                                      LoginUserID,
-                                                                  CompanyId:
-                                                                      CompanyID
-                                                                          .toString())));
-                                                        });
-                                                      },
-                                                      child: Container(
-                                                        child: Column(
-                                                          children: [
-                                                            /* Text(
-                                                              "FollowUp",
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      colorPrimary,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 5,
-                                                            ),*/
-                                                            Container(
-                                                              width: 30,
-                                                              height: 30,
-                                                              decoration: const BoxDecoration(
-                                                                  color:
-                                                                      colorPrimary,
-                                                                  shape: BoxShape
-                                                                      .circle),
-                                                              child: Center(
-                                                                  child: Icon(
-                                                                Icons.add,
-                                                                size: 24,
-                                                                color:
-                                                                    colorWhite,
-                                                              )),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : Container(),
+                                              Flexible(
+                                                child: Text(
+                                                    _expenseListResponse
+                                                        .details[index].pkId
+                                                        .toString(), //put your own long text here.
+                                                    maxLines: 3,
+                                                    overflow: TextOverflow.clip,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            _fontSize_Title)),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Flexible(
+                                          child: Row(
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  Icon(
+                                                    Icons
+                                                        .calendar_today_outlined,
+                                                    color: colorCardBG,
+                                                  ),
+                                                  Text("Query",
+                                                      style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color: colorCardBG,
+                                                        fontSize: 7,
+                                                      ))
+                                                ],
+                                              ),
                                               SizedBox(
-                                                width: 20,
+                                                width: 10,
                                               ),
-                                              _expenseListResponse
-                                                          .details[index]
-                                                          .leadStatus ==
-                                                      "InProcess"
-                                                  ? GestureDetector(
-                                                      onTap: () {
-                                                        MoveToTeleCallerfollowupHistoryPage(
-                                                            _expenseListResponse
+                                              Flexible(
+                                                child: Text(
+                                                    _expenseListResponse
                                                                 .details[index]
-                                                                .pkId
-                                                                .toString(),
-                                                            "Followup");
-                                                      },
-                                                      child: Container(
-                                                        width: 32,
-                                                        height: 32,
-                                                        decoration:
-                                                            const BoxDecoration(
-                                                                color:
-                                                                    colorWhite,
-                                                                shape: BoxShape
-                                                                    .circle),
-                                                        child: Center(
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8),
-                                                            child: Image.asset(
-                                                              HISTORY_ICON,
-                                                              width: 24,
-                                                              height: 24,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : Container(),
-                                            ]),
-                                      ),
-                                      SizedBox(
-                                        height: sizeboxsize,
-                                      ),
-                                      Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Lead No.",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                            .details[index].pkId
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Lead Status",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .leadStatus ==
-                                                                ""
-                                                            ? "N/A"
-                                                            : _expenseListResponse
+                                                                .queryDatetime
+                                                                .toString() ==
+                                                            ""
+                                                        ? "N/A"
+                                                        : _expenseListResponse
                                                                 .details[index]
-                                                                .leadStatus,
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                          ]),
-                                      SizedBox(
-                                        height: sizeboxsize,
-                                      ),
-                                      Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Query Date",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .queryDatetime
-                                                                    .toString() ==
-                                                                ""
-                                                            ? "N/A"
-                                                            : _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .queryDatetime
-                                                                    .getFormattedDate(
-                                                                        fromFormat:
-                                                                            "yyyy-MM-ddTHH:mm:ss",
-                                                                        toFormat:
-                                                                            "dd-MM-yyyy") ??
-                                                                "-",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Assign To",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                            .details[index]
-                                                            .employeeName
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                          ]),
-                                      SizedBox(
-                                        height: sizeboxsize,
-                                      ),
-                                      Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Sender Name",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                            .details[index]
-                                                            .senderName
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                          ]),
-                                      SizedBox(
-                                        height: sizeboxsize,
-                                      ),
-                                      Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Sender Email",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .senderMail
-                                                                    .toString() ==
-                                                                ""
-                                                            ? "N/A"
-                                                            : _expenseListResponse
-                                                                .details[index]
-                                                                .senderMail
-                                                                .toString(),
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                ))
-                                          ]),
-                                      SizedBox(
-                                        height: sizeboxsize,
-                                      ),
-                                      Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("For Product",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .forProduct ==
-                                                                ""
-                                                            ? "N/A"
-                                                            : _expenseListResponse
-                                                                .details[index]
-                                                                .forProduct,
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                          ]),
-                                      SizedBox(
-                                        height: sizeboxsize,
+                                                                .queryDatetime
+                                                                .getFormattedDate(
+                                                                    fromFormat:
+                                                                        "yyyy-MM-ddTHH:mm:ss",
+                                                                    toFormat:
+                                                                        "dd-MM-yyyy") ??
+                                                            "-", //put your own long text here.
+                                                    maxLines: 3,
+                                                    overflow: TextOverflow.clip,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            _fontSize_Title)),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ]),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.category,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("Status",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                  letterSpacing: .3))
+                                        ],
                                       ),
                                       SizedBox(
-                                        height: sizeboxsize,
+                                        width: 10,
                                       ),
-                                      Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Expanded(
-                                                flex: 1,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: <Widget>[
-                                                    Text("Created Date  ",
-                                                        style: TextStyle(
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            color: Color(
-                                                                label_color),
-                                                            fontSize:
-                                                                _fontSize_Label,
-                                                            letterSpacing: .3)),
-                                                    SizedBox(
-                                                      width: 5,
-                                                    ),
-                                                    Text(
-                                                        _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .createdDate ==
-                                                                ""
-                                                            ? "N/A"
-                                                            : _expenseListResponse
-                                                                    .details[
-                                                                        index]
-                                                                    .createdDate
-                                                                    .getFormattedDate(
-                                                                        fromFormat:
-                                                                            "yyyy-MM-ddTHH:mm:ss",
-                                                                        toFormat:
-                                                                            "dd-MM-yyyy HH:mm") ??
-                                                                "-",
-                                                        style: TextStyle(
-                                                            color: Color(
-                                                                title_color),
-                                                            fontSize:
-                                                                _fontSize_Title,
-                                                            letterSpacing: .3)),
-                                                  ],
-                                                )),
-                                          ]),
-                                      SizedBox(
-                                        height: sizeboxsize,
-                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            _expenseListResponse.details[index]
+                                                        .leadStatus ==
+                                                    ""
+                                                ? "N/A"
+                                                : _expenseListResponse
+                                                    .details[index]
+                                                    .leadStatus, //put your own long text here.
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      )
                                     ],
                                   ),
                                 ),
-                              ],
-                            ))),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.assignment_ind,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("Assign",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                  letterSpacing: .3))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            _expenseListResponse
+                                                .details[index].employeeName
+                                                .toString(), //put your own long text here.
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.assignment_ind,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("Sender",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                  letterSpacing: .3))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            _expenseListResponse.details[index]
+                                                        .senderName
+                                                        .toString() ==
+                                                    ""
+                                                ? "N/A"
+                                                : _expenseListResponse
+                                                    .details[index].senderName
+                                                    .toString(), //put your own long text here.
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.email,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("Email",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                  letterSpacing: .3))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            _expenseListResponse.details[index]
+                                                        .senderMail
+                                                        .toString() ==
+                                                    ""
+                                                ? "N/A"
+                                                : _expenseListResponse
+                                                    .details[index].senderMail
+                                                    .toString(),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.production_quantity_limits,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("Product",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                  letterSpacing: .3))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            _expenseListResponse.details[index]
+                                                        .forProduct ==
+                                                    ""
+                                                ? "N/A"
+                                                : _expenseListResponse
+                                                    .details[index].forProduct,
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 3,
+                              ),
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: 10, right: 10, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.date_range,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("Created",
+                                              style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                  letterSpacing: .3))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            _expenseListResponse.details[index]
+                                                        .createdDate ==
+                                                    ""
+                                                ? "N/A"
+                                                : _expenseListResponse
+                                                        .details[index]
+                                                        .createdDate
+                                                        .getFormattedDate(
+                                                            fromFormat:
+                                                                "yyyy-MM-ddTHH:mm:ss",
+                                                            toFormat:
+                                                                "dd-MM-yyyy HH:mm") ??
+                                                    "-",
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ))),
+                Divider(
+                  thickness: 1.0,
+                  height: 1.0,
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Card(
+                  color: colorCardBG,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    width: 300,
+                    height: 50,
+                    child: ButtonBar(
+                        // alignment: MainAxisAlignment.spaceAround,
+                        alignment: MainAxisAlignment.center,
+                        buttonHeight: 40.0,
+                        buttonMinWidth: 90.0,
+                        children: <Widget>[
+                          IsEditRights == true
+                              ? GestureDetector(
+                                  onTap: () {
+                                    _onTapOfEditCustomer(
+                                        _expenseListResponse.details[index]);
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Image.asset(
+                                        CUSTOM_UPDATE,
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                      ),
+                                      Text(
+                                        'Update',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: colorWhite),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          /* isDeleteVisible == true ? FlatButton(
+
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0)),
+                    onPressed: () {
+                      _onTapOfDeleteCustomer(
+                          _expenseListResponse.details[index].pkId);
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        Icon(Icons.delete, color: colorPrimary,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                        ),
+                        Text(
+                          'Delete', style: TextStyle(color: colorPrimary),),
+                      ],
+                    ),
+                  ):Container(),*/
+                        ]),
                   ),
                 ),
-                ButtonBar(
-                    // alignment: MainAxisAlignment.spaceAround,
-                    alignment: MainAxisAlignment.center,
-                    buttonHeight: 52.0,
-                    buttonMinWidth: 90.0,
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () {
-                          _onTapOfEditCustomer(
-                              _expenseListResponse.details[index]);
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            Icon(
-                              Icons.edit,
-                              color: colorPrimary,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2.0),
-                            ),
-                            Text(
-                              'Edit',
-                              style: TextStyle(color: colorPrimary),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      isDeleteVisible == true
-                          ? GestureDetector(
-                              onTap: () {
-                                _onTapOfDeleteCustomer(
-                                    _expenseListResponse.details[index].pkId);
-                              },
-                              child: Column(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.delete,
-                                    color: colorPrimary,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 2.0),
-                                  ),
-                                  Text(
-                                    'Delete',
-                                    style: TextStyle(color: colorPrimary),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Container(),
-                    ]),
+                SizedBox(
+                  height: 10,
+                )
               ],
             ))
         : Container();
@@ -1383,25 +1462,6 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
     }
   }
 
-  void _onLeaveRequestTypeSuccessResponse(ExpenseTypeCallResponseState state) {
-    if (state.expenseTypeResponse.details.length != 0) {
-      arr_ALL_Name_ID_For_Folowup_Status.clear();
-      for (var i = 0; i < state.expenseTypeResponse.details.length; i++) {
-        print("description : " +
-            state.expenseTypeResponse.details[i].expenseTypeName);
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = state.expenseTypeResponse.details[i].expenseTypeName;
-        all_name_id.pkID = state.expenseTypeResponse.details[i].pkID;
-        arr_ALL_Name_ID_For_Folowup_Status.add(all_name_id);
-      }
-      showcustomdialog(
-          values: arr_ALL_Name_ID_For_Folowup_Status,
-          context1: context,
-          controller: edt_FollowupStatus,
-          lable: "Select Status");
-    }
-  }
-
   Future<void> _onTapOfSearchView() async {
     navigateTo(context, SearchTeleCallerScreen.routeName,
             arguments: AddUpdateTeleCallerSearchScreenArguments(
@@ -1458,70 +1518,54 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
     //_expenseBloc.add(TeleCallerSearchByIDCallEvent(TeleCallerSearchRequest(CompanyId: CompanyID.toString(),word: "",needALL: "0",LoginUserID: LoginUserID,LeadStatus: edt_LeadStatus.text=="ALL Leads"?"":edt_LeadStatus.text.toString())));
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> onButtonTap(Share share, String MobileNo) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + MobileNo);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
-  }
-
-  Future<void> share(String contactNo1) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    /* await WhatsappShare.share(
-        text: msg,
-        //linkUrl: 'https://flutter.dev/',
-        phone: "91" + contactNo1,
-        package: Package.businessWhatsapp);*/
-  }
-
   Future<void> MoveToTeleCallerfollowupHistoryPage(
       String inquiryNo, String CustomerID) {
     navigateTo(context, TeleCallerFollowupHistoryScreen.routeName,
             arguments:
                 TeleCallerFollowupHistoryScreenArguments(inquiryNo, CustomerID))
         .then((value) {});
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgTeleCaller") {
+        _expenseBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

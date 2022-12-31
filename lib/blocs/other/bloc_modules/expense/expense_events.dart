@@ -68,3 +68,9 @@ class ExpenseTypeByNameCallEvent extends ExpenseEvents {
 }
 
 
+class UserMenuRightsRequestEvent extends ExpenseEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}

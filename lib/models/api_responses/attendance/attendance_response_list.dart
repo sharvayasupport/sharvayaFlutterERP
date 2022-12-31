@@ -36,6 +36,16 @@ class AttendanceList {
   String notes;
   int workingHrs;
 
+  String LunchIMageURL_Out;
+  String LunchIMageURL_in;
+  String ImageURL_In;
+  String ImageURL_OUT;
+
+  /* "LunchIMageURL_Out": null,
+                "LunchIMageURL_in": null,
+                "ImageURL_In": "47_18_11_2022_1668745318864.jpg",
+                "ImageURL_OUT": null,*/
+
   AttendanceList(
       {this.pkID,
       this.employeeID,
@@ -46,7 +56,11 @@ class AttendanceList {
       this.LunchIn,
       this.LunchOut,
       this.workingHrs,
-      this.notes});
+      this.notes,
+      this.LunchIMageURL_Out,
+      this.LunchIMageURL_in,
+      this.ImageURL_In,
+      this.ImageURL_OUT});
 
   AttendanceList.fromJson(Map<String, dynamic> json) {
     pkID = json['pkID'];
@@ -57,8 +71,14 @@ class AttendanceList {
     timeOut = json['TimeOut'];
     workingHrs = json['WorkingHrs'];
     notes = json['Notes'] == null ? "" : json['Notes'];
-    LunchIn = json['LunchIn'];
-    LunchOut = json['LunchOut'];
+    LunchIn = json['LunchIn'] == null ? "" : json['LunchIn'];
+    LunchOut = json['LunchOut'] == null ? "" : json['LunchOut'];
+    LunchIMageURL_Out =
+        json['LunchIMageURL_Out'] == null ? "" : json['LunchIMageURL_Out'];
+    LunchIMageURL_in =
+        json['LunchIMageURL_in'] == null ? "" : json['LunchIMageURL_in'];
+    ImageURL_In = json['ImageURL_In'] == null ? "" : json['ImageURL_In'];
+    ImageURL_OUT = json['ImageURL_OUT'] == null ? "" : json['ImageURL_OUT'];
   }
 
   Map<String, dynamic> toJson() {
@@ -73,6 +93,10 @@ class AttendanceList {
     data['Notes'] = this.notes;
     data['LunchIn'] = this.LunchIn;
     data['LunchOut'] = this.LunchOut;
+    data['LunchIMageURL_Out'] = this.LunchIMageURL_Out;
+    data['LunchIMageURL_in'] = this.LunchIMageURL_in;
+    data['ImageURL_In'] = this.ImageURL_In;
+    data['ImageURL_OUT'] = this.ImageURL_OUT;
 
     return data;
   }

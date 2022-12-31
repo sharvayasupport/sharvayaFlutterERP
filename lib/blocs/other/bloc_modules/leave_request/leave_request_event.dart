@@ -54,3 +54,10 @@ class GetReportToTokenRequestEvent extends LeaveRequestEvents {
 
   GetReportToTokenRequestEvent(this.request);
 }
+
+class UserMenuRightsRequestEvent extends LeaveRequestEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}

@@ -13,7 +13,6 @@ import 'package:soleoserp/models/api_responses/other/all_employee_List_response.
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
-import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
@@ -459,7 +458,11 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         appBar: NewGradientAppBar(
           title: Text('To-Do Details'),
           gradient:
-          LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -615,6 +618,12 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                           height: 30,
                         ),
                         _buildDueTime(),
+                        SizedBox(
+                          width: 20,
+                          height: 30,
+                        ),
+                       _buildSearchView(),
+
 
                         /*IsForClient==true? Container(
                             margin: EdgeInsets.only(top: 30),
@@ -1036,7 +1045,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                   onTapOfPositiveButton: () {
                                                                     Navigator.of(context).pop();
 
-                                                                    _toDoBloc.add(ToDoSaveHeaderEvent(pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
+                                                                    _toDoBloc.add(ToDoSaveHeaderEvent(context,pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
                                                                         TaskDescription: edt_TaskDetails.text,Location: edt_Location.text,TaskCategoryID: edt_CategoryID.text,
                                                                         StartDate: edt_StartDateReverse.text + " "+ edt_StartTimewith24Hours.text ,DueDate: edt_DueDateReverse.text +" " +edt_DueTimeDatewith24Hours.text,
                                                                         CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
@@ -1058,7 +1067,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                     onTapOfPositiveButton: () {
                                                                       Navigator.of(context).pop();
 
-                                                                      _toDoBloc.add(ToDoSaveHeaderEvent(pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
+                                                                      _toDoBloc.add(ToDoSaveHeaderEvent(context,pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
                                                                           TaskDescription: edt_TaskDetails.text,Location: edt_Location.text,TaskCategoryID: edt_CategoryID.text,
                                                                           StartDate: edt_StartDateReverse.text + " "+ edt_StartTimewith24Hours.text ,DueDate: edt_DueDateReverse.text +" " +edt_DueTimeDatewith24Hours.text,
                                                                           CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
@@ -1086,7 +1095,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                 onTapOfPositiveButton: () {
                                                                   Navigator.of(context).pop();
 
-                                                                  _toDoBloc.add(ToDoSaveHeaderEvent(pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
+                                                                  _toDoBloc.add(ToDoSaveHeaderEvent(context,pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
                                                                       TaskDescription: edt_TaskDetails.text,Location: edt_Location.text,TaskCategoryID: edt_CategoryID.text,
                                                                       StartDate: edt_StartDateReverse.text + " "+ edt_StartTimewith24Hours.text ,DueDate: edt_DueDateReverse.text +" " +edt_DueTimeDatewith24Hours.text,
                                                                       CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
@@ -1111,7 +1120,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                                                 onTapOfPositiveButton: () {
                                                                   Navigator.of(context).pop();
 
-                                                                  _toDoBloc.add(ToDoSaveHeaderEvent(pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
+                                                                  _toDoBloc.add(ToDoSaveHeaderEvent(context,pkID, ToDoHeaderSaveRequest(Priority: edt_Priority.text,
                                                                       TaskDescription: edt_TaskDetails.text,Location: edt_Location.text,TaskCategoryID: edt_CategoryID.text,
                                                                       StartDate: edt_StartDateReverse.text + " "+ edt_StartTimewith24Hours.text ,DueDate: edt_DueDateReverse.text +" " +edt_DueTimeDatewith24Hours.text,
                                                                       CompletionDate: edt_CompletionDateReverse.text==null?"":edt_CompletionDateReverse.text,
@@ -2547,7 +2556,11 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
     };
 
     print("Notificationdf" + request123.toString());
-    _toDoBloc.add(FCMNotificationRequestEvent(request123));
+    if(ReportToToken!="")
+      {
+        _toDoBloc.add(FCMNotificationRequestEvent(request123));
+
+      }
 
     for(var i=0;i<state.toDoSaveHeaderResponse.details.length;i++)
       {
@@ -2583,20 +2596,33 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
           ActionDescription= "Task Activity Added";
           EmpID = edt_EmployeeID.text;
         }
-        _toDoBloc.add(ToDoSaveSubDetailsEvent(pk,ToDoSaveSubDetailsRequest(ActionTaken: ActionTaken,ActionDescription: ActionDescription,EmployeeID: EmpID,Remarks: edt_CloserDetails.text==null?"":edt_CloserDetails.text,LoginUserID: LoginUserID,CompanyId: CompanyID.toString())));
+        _toDoBloc.add(ToDoSaveSubDetailsEvent(state.context,pk,ToDoSaveSubDetailsRequest(ActionTaken: ActionTaken,ActionDescription: ActionDescription,EmployeeID: EmpID,Remarks: edt_CloserDetails.text==null?"":edt_CloserDetails.text,LoginUserID: LoginUserID,CompanyId: CompanyID.toString())));
       }
 
   }
 
-  void _OnSaveToDoSubResponse(ToDoSaveSubDetailsState state) async {
+  void _OnSaveToDoSubResponse(ToDoSaveSubDetailsState state)  {
     String Msg = _isForUpdate == true
         ? "Task Updated Successfully !"
         : "Task Added Successfully !";
 
-    await showCommonDialogWithSingleOption(Globals.context,Msg,
+    /* showCommonDialogWithSingleOption(state.context,Msg,
         positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-      navigateTo(context, ToDoListScreen.routeName,clearAllStack: true);
-        });
+     //navigateTo(context, ToDoListScreen.routeName,clearAllStack: true);
+
+          Navigator.pop(state.context);
+        });*/
+
+
+    showCommonDialogWithSingleOption(
+        state.context, Msg,
+        positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+      Navigator.pop(context);
+
+      Navigator.of(state.context).pop("");
+      //navigateTo(context, routeName)
+
+    });
 
   }
 
@@ -2861,6 +2887,9 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
       }
     }
   }
+
+
+
 
 
 }

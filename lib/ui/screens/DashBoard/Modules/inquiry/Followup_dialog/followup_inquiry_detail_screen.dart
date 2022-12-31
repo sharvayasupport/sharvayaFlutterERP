@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -124,8 +122,7 @@ class _FollowUpInquiryAddEditScreenState
   String GetImageNamefromEditMode = "";
   FocusNode NotesFocusNode;
 
-  String Latitude = "";
-  String Longitude = "";
+
   Location location = new Location();
 
   bool _serviceEnabled;
@@ -263,19 +260,6 @@ class _FollowUpInquiryAddEditScreenState
 */
   }
 
-  _getCurrentLocation() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
 
   @override
   void dispose() {
@@ -360,7 +344,11 @@ class _FollowUpInquiryAddEditScreenState
         appBar: NewGradientAppBar(
           title: Text('Followup Details'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -643,8 +631,8 @@ class _FollowUpInquiryAddEditScreenState
                                                             ? ""
                                                             : edt_FollowupInquiryStatusTypepkID
                                                                 .text,
-                                                    Latitude: Latitude,
-                                                    Longitude: Longitude,
+                                                    Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                    Longitude: SharedPrefHelper.instance.getLongitude(),
                                                     PreferredTime:
                                                         edt_PreferedTime.text,
                                                     ClosureReasonId:

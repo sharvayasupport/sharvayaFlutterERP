@@ -9,7 +9,6 @@ import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
-import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 
 checkPermissionStatusFromUtils() async {
@@ -90,7 +89,7 @@ getCurrentLocationFromUtils() async {
     GeoData data = await Geocoder2.getDataFromCoordinates(
         latitude: position.latitude,
         longitude: position.longitude,
-        googleMapApiKey: GOOGLEMAPAPIKEY);
+        googleMapApiKey: "");
 
     Address = data
         .address; /*await getAddressFromLatLngMapMyIndia(
@@ -110,7 +109,7 @@ getCurrentLocationFromUtils() async {
     GeoData data = await Geocoder2.getDataFromCoordinates(
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude,
-        googleMapApiKey: GOOGLEMAPAPIKEY);
+        googleMapApiKey: "");
 
     Address = data
         .address; /*await getAddressFromLatLngMapMyIndia(

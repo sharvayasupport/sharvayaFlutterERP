@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -115,8 +113,6 @@ class _FollowUpFromTeleCallerddEditScreenState
   String GetImageNamefromEditMode = "";
   FocusNode NotesFocusNode;
 
-  String Latitude = "";
-  String Longitude = "";
   Location location = new Location();
 
   bool _serviceEnabled;
@@ -143,7 +139,6 @@ class _FollowUpFromTeleCallerddEditScreenState
         SharedPrefHelper.instance.getALLEmployeeList();
     _onALLEmplyeeList(_offlineALLEmployeeListData);
 
-    _getCurrentLocation();
     LeadStatus();
     edt_LeadStatus.addListener(() {
       setState(() {});
@@ -274,55 +269,6 @@ class _FollowUpFromTeleCallerddEditScreenState
     }
   }
 
-  _LocationServiceEnable() async {
-    /* geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best).then((Position position) {
-      setState(() {
-        _currentPosition = position;
-
-        //  CreateMarkers(_currentPosition);
-      });
-      //_getAddressFromLatLng();
-    }).catchError((e) {
-      print(e);
-    });*/
-    /*  _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }*/
-
-    /* _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-
-        return;
-      }
-    }
-
-    if(_permissionGranted==PermissionStatus.granted)
-      {
-        _getCurrentLocation();
-      }
-*/
-  }
-
-  _getCurrentLocation() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
-
   @override
   void dispose() {
     // Clean up the focus node when the Form is disposed.
@@ -423,8 +369,11 @@ class _FollowUpFromTeleCallerddEditScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Followup Details'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -1708,17 +1657,6 @@ class _FollowUpFromTeleCallerddEditScreenState
 
       await Permission.storage.request();
 
-/*      showCommonDialogWithSingleOption(
-          context, "Location permission is required , You have to click on OK button to Allow the location access !",
-          positiveButtonTitle: "OK",
-      onTapOfPositiveButton: () async {
-         await openAppSettings();
-         Navigator.of(context).pop();
-
-      }
-
-      );*/
-
       // await Permission.location.request();
       // We didn't ask for permission yet or the permission has been denied before but not permanently.
     }
@@ -1739,22 +1677,6 @@ class _FollowUpFromTeleCallerddEditScreenState
     if (granted == true) {
       // The OS restricts access, for example because of parental controls.
       is_Storage_Service_Permission = true;
-
-      /*if (serviceLocation == true) {
-        // Use location.
-        _serviceEnabled=false;
-
-         location.requestService();
-
-
-      }
-      else{
-        _serviceEnabled=true;
-        _getCurrentLocation();
-
-
-
-      }*/
     }
   }
 

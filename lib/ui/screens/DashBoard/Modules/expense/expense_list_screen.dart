@@ -11,7 +11,9 @@ import 'package:soleoserp/models/api_responses/expense/expense_list_response.dar
 import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -54,6 +56,11 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
   FollowerEmployeeListResponse _offlineFollowerEmployeeListData;
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   // ExpenseTypeResponse _offlineExpenseType;
   int CompanyID = 0;
   String LoginUserID = "";
@@ -74,6 +81,8 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     // _offlineExpenseType = SharedPrefHelper.instance.getExpenseType();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
@@ -102,6 +111,8 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
+
+    getUserRights(_menuRightsResponse);
   }
 
   /* followupStatusListener(){
@@ -137,10 +148,14 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
             _onInquiryListCallSuccess(state);
           }
 
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is ExpenseListCallResponseState) {
+          if (currentState is ExpenseListCallResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -172,8 +187,11 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Expense List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -202,6 +220,8 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
                               LoginUserID: edt_FollowupEmployeeUserID.text,
                               word: edt_FollowupStatus.text,
                               needALL: "0")));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -211,7 +231,7 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
                     ),
                     child: Column(
                       children: [
-                        Row(children: [
+                        /* Row(children: [
                           Expanded(
                             flex: 2,
                             child: _buildEmplyeeListView(),
@@ -220,7 +240,13 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
                             flex: 1,
                             child: _buildSearchView(),
                           ),
-                        ]),
+                        ]),*/
+                        Column(
+                          children: [
+                            _buildEmplyeeListView(),
+                            _buildSearchView(),
+                          ],
+                        ),
                         Expanded(child: _buildInquiryList())
                       ],
                     ),
@@ -230,14 +256,16 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Add your onPressed code here!
-            navigateTo(context, ExpenseAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () {
+                  // Add your onPressed code here!
+                  navigateTo(context, ExpenseAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -296,6 +324,10 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
       isListExist = true;
     } else {
       isListExist = false;
+    }
+
+    for (int i = 0; i < _expenseListResponse.details.length; i++) {
+      print("djhdfh" + _expenseListResponse.details[i].employeeName);
     }
   }
 
@@ -673,31 +705,34 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
                   buttonHeight: 52.0,
                   buttonMinWidth: 90.0,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        _onTapOfEditCustomer(
-                            _expenseListResponse.details[index]);
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Icon(
-                            Icons.edit,
-                            color: colorPrimary,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2.0),
-                          ),
-                          Text(
-                            'Edit',
-                            style: TextStyle(color: colorPrimary),
-                          ),
-                        ],
-                      ),
-                    ),
+                    IsEditRights == true
+                        ? GestureDetector(
+                            onTap: () {
+                              _onTapOfEditCustomer(
+                                  _expenseListResponse.details[index]);
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.edit,
+                                  color: colorPrimary,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Edit',
+                                  style: TextStyle(color: colorPrimary),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
                     SizedBox(
                       width: 10,
                     ),
-                    isDeleteVisible == true
+                    IsDeleteRights == true
                         ? GestureDetector(
                             onTap: () {
                               _onTapOfDeleteCustomer(
@@ -1072,51 +1107,57 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
                   buttonHeight: 52.0,
                   buttonMinWidth: 90.0,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        _onTapOfEditCustomer(
-                            _expenseListResponse.details[index]);
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Icon(
-                            Icons.edit,
-                            color: colorPrimary,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2.0),
-                          ),
-                          Text(
-                            'Edit',
-                            style: TextStyle(color: colorPrimary),
-                          ),
-                        ],
-                      ),
-                    ),
+                    IsEditRights == true
+                        ? GestureDetector(
+                            onTap: () {
+                              _onTapOfEditCustomer(
+                                  _expenseListResponse.details[index]);
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.edit,
+                                  color: colorPrimary,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Edit',
+                                  style: TextStyle(color: colorPrimary),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
                     SizedBox(
                       width: 10,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        _onTapOfDeleteCustomer(
-                            _expenseListResponse.details[index].pkID);
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Icon(
-                            Icons.delete,
-                            color: colorPrimary,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2.0),
-                          ),
-                          Text(
-                            'Delete',
-                            style: TextStyle(color: colorPrimary),
-                          ),
-                        ],
-                      ),
-                    ),
+                    IsDeleteRights == true
+                        ? GestureDetector(
+                            onTap: () {
+                              _onTapOfDeleteCustomer(
+                                  _expenseListResponse.details[index].pkID);
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.delete,
+                                  color: colorPrimary,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(color: colorPrimary),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Container(),
                   ]),
             ],
           ));
@@ -1197,11 +1238,11 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
     return InkWell(
       onTap: () {
         // _onTapOfSearchView(context);
-        showcustomdialogWithID(
+        showcustomdialogWithTWOName(
             values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
             context1: context,
             controller: edt_FollowupEmployeeList,
-            controllerID: edt_FollowupEmployeeUserID,
+            controller1: edt_FollowupEmployeeUserID,
             lable: "Select Employee");
       },
       child: Column(
@@ -1319,7 +1360,7 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
               width: double.maxFinite,
               child: Row(
                 children: [
-                  Expanded(
+                  Flexible(
                     child: /* Text(
                         SelectedStatus =="" ?
                         "Tap to select Status" : SelectedStatus.Name,
@@ -1415,11 +1456,55 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
         all_name_id.pkID = state.expenseTypeResponse.details[i].pkID;
         arr_ALL_Name_ID_For_Folowup_Status.add(all_name_id);
       }
-      showcustomdialog(
+
+      showcustomdialogWithOnlyName(
           values: arr_ALL_Name_ID_For_Folowup_Status,
           context1: context,
           controller: edt_FollowupStatus,
           lable: "Select Status");
+    }
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgExpense") {
+        _expenseBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
     }
   }
 }

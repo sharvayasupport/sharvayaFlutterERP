@@ -70,8 +70,11 @@ class _SearchCustomerScreenState extends BaseState<SearchCustomerScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
         ),
         Expanded(
           child: Container(
@@ -172,12 +175,89 @@ class _SearchCustomerScreenState extends BaseState<SearchCustomerScreen>
           Navigator.of(context).pop(model);
         },
         child: Card(
-          elevation: 4,
+          elevation: 5,
+          color: colorBackGroundGray,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Container(
-            padding: EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
-            child: Text(
-              model.label + "\n" + model.ContactNo1,
-              style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+            padding: EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    /* Text(
+                      model.label + "\n" + model.ContactNo1,
+                      style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                    ),*/
+                    Container(
+                      margin: EdgeInsets.only(top: 2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.assignment_ind,
+                            color: Color(0xff108dcf),
+                            size: 24,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Flexible(
+                      child: Text(
+                        model.label,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.black,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.only(left: 10),
+                  child: Row(
+                    children: [
+                      /* Text(
+                        model.label + "\n" + model.ContactNo1,
+                        style: baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                      ),*/
+                      Container(
+                        margin: EdgeInsets.only(top: 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.mobile_friendly,
+                              color: Color(0xff108dcf),
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Flexible(
+                        child: Text(
+                          model.ContactNo1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           margin: EdgeInsets.only(top: 10),

@@ -33,6 +33,8 @@ import 'package:soleoserp/models/api_responses/telecaller/tele_caller_delete_ima
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/telecaller_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -107,6 +109,9 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
 
     if (event is CloserReasonTypeListByNameCallEvent) {
       yield* _mapCloserReasonStatusListCallEventToState(event);
+    }
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -375,6 +380,22 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
       CloserReasonListResponse response = await userRepository
           .getCloserReasonStatusList(event.closerReasonTypeListRequest);
       yield CloserReasonListCallResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<TeleCallerStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

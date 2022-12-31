@@ -75,4 +75,10 @@ class QuickComplaintSaveRequestCallEvent extends AttendVisitEvents {
   QuickComplaintSaveRequestCallEvent(this.pkID, this.quickComplaintSaveRequest);
 }
 
+class UserMenuRightsRequestEvent extends AttendVisitEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}
 //

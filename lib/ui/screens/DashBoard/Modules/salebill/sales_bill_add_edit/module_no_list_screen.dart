@@ -15,7 +15,8 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddModuleNoScreenArguments {
   List<ALL_Name_ID> arr_inquiry_share_emp_list;
-  AddModuleNoScreenArguments(this.arr_inquiry_share_emp_list);
+  String ModuleName;
+  AddModuleNoScreenArguments(this.arr_inquiry_share_emp_list, this.ModuleName);
 }
 
 class ModuleNoListScreen extends BaseStatefulWidget {
@@ -33,6 +34,7 @@ class _ModuleNoListScreenState extends BaseState<ModuleNoListScreen>
   InquiryBloc _inquiryBloc;
   InquiryShareModel inquiryShareModel;
   List<ALL_Name_ID> arrinquiryShareModel = [];
+  String _ModuleName = "";
 
   //CustomerSourceResponse _offlineCustomerSource;
   CompanyDetailsResponse _offlineCompanyData;
@@ -55,6 +57,7 @@ class _ModuleNoListScreenState extends BaseState<ModuleNoListScreen>
   void initState() {
     super.initState();
     if (widget.arguments != null) {
+      _ModuleName = widget.arguments.ModuleName;
       _arr_inquiry_share_emp_list.clear();
       _arr_inquiry_share_emp_list = widget.arguments.arr_inquiry_share_emp_list;
       arrinquiryShareModel = _arr_inquiry_share_emp_list;
@@ -75,24 +78,56 @@ class _ModuleNoListScreenState extends BaseState<ModuleNoListScreen>
 
   @override
   Widget buildBody(BuildContext context) {
-    return Column(
-      children: [
-        getCommonAppBar(context, baseTheme, "Inquiry Share"),
-        Expanded(
-            child: Container(
-                padding: EdgeInsets.only(
-                  left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                  right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                  top: 25,
-                ),
-                child: Column(
-                  children: [
-                    Expanded(child: _buildProductList()),
-                    _buildSearchView(),
-                  ],
-                ))),
-      ],
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Column(
+        children: [
+          getCommonAppBar(context, baseTheme, _ModuleName, showBack: false),
+          Expanded(
+              child: Container(
+                  padding: EdgeInsets.only(
+                    left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
+                    right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
+                    top: 25,
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(child: _buildProductList()),
+                      _buildSearchView(),
+                    ],
+                  ))),
+        ],
+      ),
     );
+  }
+
+  Future<bool> _onBackPressed() {
+    // navigateTo(context, SalesBillListScreen.routeName, clearAllStack: true);
+
+    var value =
+        arrinquiryShareModel.where((item) => item.isChecked == false).length;
+
+    if (value == arrinquiryShareModel.length) {
+      showCommonDialogWithSingleOption(
+          context, "Select Any One " + _ModuleName + " No. !",
+          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+        Navigator.pop(context);
+      });
+    } else {
+      // arrinquiryShareModel.removeWhere((item) => item.isChecked == false);
+
+      for (var i = 0; i < arrinquiryShareModel.length; i++) {
+        print("DDFDr" +
+            arrinquiryShareModel[i].Name +
+            "Checked" +
+            arrinquiryShareModel[i].isChecked.toString());
+      }
+      List<ALL_Name_ID> temparray = [];
+      temparray.addAll(arrinquiryShareModel);
+      temparray.removeWhere((item) => item.isChecked == false);
+      Navigator.of(context).pop(temparray);
+      // _inquiryBloc.add(InquiryShareModelCallEvent(arrinquiryShareModel));
+    }
   }
 
   ///builds header and title view
@@ -103,8 +138,10 @@ class _ModuleNoListScreenState extends BaseState<ModuleNoListScreen>
 
       if (value == arrinquiryShareModel.length) {
         showCommonDialogWithSingleOption(
-            context, "Select Any One Employee to Share Inquiry!",
-            positiveButtonTitle: "OK");
+            context, "Select Any One " + _ModuleName + " No. !",
+            positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+          Navigator.pop(context);
+        });
       } else {
         // arrinquiryShareModel.removeWhere((item) => item.isChecked == false);
 
@@ -123,7 +160,7 @@ class _ModuleNoListScreenState extends BaseState<ModuleNoListScreen>
       }
 
       //
-    }, "Share Inquiry");
+    }, "Submit");
   }
 
   ///builds product list

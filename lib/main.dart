@@ -149,15 +149,13 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_foll
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_followup_list/quick_followup_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_inquiry/quick_inquiry_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_inquiry/search_quick_inquiry_customer_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_other_charges_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_add_edit_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/addtional_charges/quotation_summary_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/products/old_quotation_product_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/products/old_quotation_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/qt_assembly/qt_assembly_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/qt_assembly/qt_assembly_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_general_customer_search_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_other_charges_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_add_edit_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_product_list_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_summary_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/specification/specification_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/specification/specification_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
@@ -168,13 +166,15 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sale_bill_list/s
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sale_bill_list/search_sales_bill_sceen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/module_no_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sale_bill_add_edit_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sale_bill_db/sale_bill_other_charges_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sale_bill_db/sale_bill_product_list.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sale_bill_db/sales_bill_product_add_edit_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/saleorder_other_charges_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/saleorder_product_list_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/saleorderdb/salesorder_product_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sales_bill_db_details/sales_bill_summary_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sales_bill_db_details/sb_add_edit_product_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sales_bill_db_details/sb_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sb_assembly/sb_assembly_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/addtional_charges/sales_order_summary_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/products/so_product_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/products/so_product_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/sales_order_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/so_assembly/so_assembly_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/search_salesorder_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/FollowUpDialog/telecaller_followup_ADD_EDIT_Screen.dart';
@@ -184,12 +184,14 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_lis
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_add.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_pagintion.dart';
+import 'package:soleoserp/ui/screens/DashBoard/QuickAttendance/quick_attendance.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/ui/screens/authentication/serial_key_screen.dart';
 import 'package:soleoserp/ui/screens/pagination/pagination_demo_screen.dart';
 import 'package:soleoserp/ui/screens/splash_screen.dart';
 import 'package:soleoserp/utils/general_utils.dart';
+import 'package:soleoserp/utils/local_notification/local_notification_manager.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 import 'ui/screens/contactscrud/add_contact_screen.dart';
@@ -214,6 +216,7 @@ Future<void> main() async {
       );
   await SharedPrefHelper.createInstance();
   await OfflineDbHelper.createInstance();
+  await NotificationController.initializeLocalNotifications();
 
   _appDocsDir = await getApplicationDocumentsDirectory();
   if (Platform.isAndroid) {
@@ -240,6 +243,23 @@ Future<void> main() async {
     enabled: true,
     builder: (context) => MyApp(),
   ));*/
+
+  /*await FlutterLogs.initLogs(
+      logLevelsEnabled: [
+        LogLevel.INFO,
+        LogLevel.WARNING,
+        LogLevel.ERROR,
+        LogLevel.SEVERE
+      ],
+      timeStampFormat: TimeStampFormat.TIME_FORMAT_READABLE,
+      directoryStructure: DirectoryStructure.FOR_DATE,
+      logTypesEnabled: ["device", "network", "errors"],
+      logFileExtension: LogFileExtension.LOG,
+      logsWriteDirectoryName: "MyLogs",
+      logsExportDirectoryName: "MyLogs/Exported",
+      debugFileOperations: true,
+      isDebuggable: true);*/
+
   runApp(MyApp());
 }
 
@@ -345,6 +365,9 @@ File fileFromDocsDir(String filename) {
 }
 
 class MyApp extends StatefulWidget {
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   @override
   _MyAppState createState() => _MyAppState();
 
@@ -494,16 +517,7 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(QuotationAddEditScreen(settings.arguments));
       case SearchQuotationCustomerScreen.routeName:
         return getMaterialPageRoute(SearchQuotationCustomerScreen());
-      case QuotationProductListScreen.routeName:
-        return getMaterialPageRoute(
-            QuotationProductListScreen(settings.arguments));
 
-      case AddQuotationProductScreen.routeName:
-        return getMaterialPageRoute(
-            AddQuotationProductScreen(settings.arguments));
-      case QuotationOtherChargeScreen.routeName:
-        return getMaterialPageRoute(
-            QuotationOtherChargeScreen(settings.arguments));
       case EmployeeListScreen.routeName:
         return getMaterialPageRoute(EmployeeListScreen());
       case SearchEmployeeScreen.routeName:
@@ -646,33 +660,11 @@ class MyApp extends StatefulWidget {
 
       case SalesBillAddEditScreen.routeName:
         return getMaterialPageRoute(SalesBillAddEditScreen(settings.arguments));
-      case SaleBillProductListScreen.routeName:
-        return getMaterialPageRoute(
-            SaleBillProductListScreen(settings.arguments));
-
-      case AddSaleBillProductScreen.routeName:
-        return getMaterialPageRoute(
-            AddSaleBillProductScreen(settings.arguments));
-
-      case SaleBillOtherChargeScreen.routeName:
-        return getMaterialPageRoute(
-            SaleBillOtherChargeScreen(settings.arguments));
-      //
 
       case SaleOrderNewAddEditScreen.routeName:
         return getMaterialPageRoute(
             SaleOrderNewAddEditScreen(settings.arguments));
 
-      case SalesOrderProductListScreen.routeName:
-        return getMaterialPageRoute(
-            SalesOrderProductListScreen(settings.arguments));
-
-      case AddSalesOrderProductScreen.routeName:
-        return getMaterialPageRoute(
-            AddSalesOrderProductScreen(settings.arguments));
-      case SalesOrderOtherChargeScreen.routeName:
-        return getMaterialPageRoute(
-            SalesOrderOtherChargeScreen(settings.arguments));
       case ModuleNoListScreen.routeName:
         return getMaterialPageRoute(ModuleNoListScreen(settings.arguments));
       case CreditNoteAddEditScreen.routeName:
@@ -800,14 +792,41 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(
             OldAddQuotationProductScreen(settings.arguments));
 
-      case OldQuotationOtherChargeScreen.routeName:
-        return getMaterialPageRoute(
-            OldQuotationOtherChargeScreen(settings.arguments));
-
       case NewQuotationOtherChargeScreen.routeName:
         return getMaterialPageRoute(
             NewQuotationOtherChargeScreen(settings.arguments));
-      //NewQuotationOtherChargeScreen
+
+      case QuickAttendanceScreen.routeName:
+        return getMaterialPageRoute(QuickAttendanceScreen());
+
+      case NewSalesOrderOtherChargeScreen.routeName:
+        return getMaterialPageRoute(
+            NewSalesOrderOtherChargeScreen(settings.arguments));
+      case SOProductListScreen.routeName:
+        return getMaterialPageRoute(SOProductListScreen(settings.arguments));
+      case SOAddEditScreen.routeName:
+        return getMaterialPageRoute(SOAddEditScreen(settings.arguments));
+
+      case SBProductListScreen.routeName:
+        return getMaterialPageRoute(SBProductListScreen(settings.arguments));
+
+      case SBAddEditScreen.routeName:
+        return getMaterialPageRoute(SBAddEditScreen(settings.arguments));
+      case NewSalesBillOtherChargeScreen.routeName:
+        return getMaterialPageRoute(
+            NewSalesBillOtherChargeScreen(settings.arguments));
+      case QTAssemblyScreen.routeName:
+        return getMaterialPageRoute(QTAssemblyScreen(settings.arguments));
+
+      case QTAssemblyAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            QTAssemblyAddEditScreen(settings.arguments));
+      case SOAssemblyScreen.routeName:
+        return getMaterialPageRoute(SOAssemblyScreen(settings.arguments));
+      case SBAssemblyScreen.routeName:
+        return getMaterialPageRoute(SBAssemblyScreen(settings.arguments));
+      //
+
       default:
         return null;
     }

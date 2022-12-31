@@ -1185,257 +1185,245 @@ Widget buildRegisterbTitle(BuildContext context) {
 makeDashboardItem(
     String title, IconData icon, BuildContext context, String ImageURL) {
   return Container(
-      // padding: EdgeInsets.all(5),
-      child: Container(
-    decoration: BoxDecoration(
-      color: colorWhite, //colorCombination(title),
-      borderRadius: BorderRadius.circular(5),
-      border: Border.all(
-        color: colorPrimary, //                   <--- border color
-        width: 1.0,
-      ),
-    ),
-    child: new InkWell(
-      onTap: () {
-        if (title == "Customer") {
-          //Navigator.pushReplacementNamed(context, "/Customer");
-          //Get.to(Customer());
-          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
-              ? navigateTo(context, DCustomerListScreen.routeName)
-              : navigateTo(context, CustomerListScreen.routeName);
-        } else if (title == "Inquiry") {
-          // navigateTo(context, CustomerPaginationListScreen .routeName);
-          navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+      child: new InkWell(
+    onTap: () {
+      if (title == "Customer") {
+        //Navigator.pushReplacementNamed(context, "/Customer");
+        //Get.to(Customer());
+        SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+            ? navigateTo(context, DCustomerListScreen.routeName)
+            : navigateTo(context, CustomerListScreen.routeName);
+      } else if (title == "Inquiry") {
+        // navigateTo(context, CustomerPaginationListScreen .routeName);
+        navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
 
-          //Navigator.pushReplacementNamed(context, "/Inquiry");
-        } else if (title == "Quick Inquiry") {
-          navigateTo(context, QuickInquiryScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Follow-up") {
-          navigateTo(context, FollowupListScreen.routeName,
-              clearAllStack: true);
+        //Navigator.pushReplacementNamed(context, "/Inquiry");
+      } else if (title == "Quick Inquiry") {
+        navigateTo(context, QuickInquiryScreen.routeName, clearAllStack: true);
+      } else if (title == "Follow-up") {
+        navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
 
-          //  Navigator.pushReplacementNamed(context, "/Followup");
-        } else if (title == "Quick Follow-up") {
-          navigateTo(context, QuickFollowupListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Leave Request") {
-          navigateTo(context, LeaveRequestListScreen.routeName,
-              clearAllStack: true);
+        //  Navigator.pushReplacementNamed(context, "/Followup");
+      } else if (title == "Quick Follow-up") {
+        navigateTo(context, QuickFollowupListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Leave Request") {
+        navigateTo(context, LeaveRequestListScreen.routeName,
+            clearAllStack: true);
 
-          // Navigator.pushReplacementNamed(context, "/SalesOrder");
-        } else if (title == "Leave Approval") {
-          navigateTo(context, LeaveRequestApprovalListScreen.routeName,
-              clearAllStack: true);
+        // Navigator.pushReplacementNamed(context, "/SalesOrder");
+      } else if (title == "Leave Approval") {
+        navigateTo(context, LeaveRequestApprovalListScreen.routeName,
+            clearAllStack: true);
 
-          // Navigator.pushReplacementNamed(context, "/Financial");
-        } else if (title == "Attendance") {
-          //Navigator.pushReplacementNamed(context, "/Complaint");
-          getcurrentTimeInfo(context);
-        } else if (title == "Expense") {
-          // Navigator.pushReplacementNamed(context, "/ToDo");
+        // Navigator.pushReplacementNamed(context, "/Financial");
+      } else if (title == "Attendance") {
+        //Navigator.pushReplacementNamed(context, "/Complaint");
+        getcurrentTimeInfo(context);
+      } else if (title == "Expense") {
+        // Navigator.pushReplacementNamed(context, "/ToDo");
 
-          navigateTo(context, ExpenseListScreen.routeName, clearAllStack: true);
-        } else if (title == "Daily Activities") {
-          navigateTo(context, DailyActivityListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "To-Do") {
-          navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
-        } else if (title == "Office Task") {
-          navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
-        } else if (title == "Quotation") {
-          navigateTo(context, QuotationListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "SalesOrder") {
-          navigateTo(context, SalesOrderListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "SalesBill") {
-          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
-              ? navigateTo(context, DSaleBillListScreen.routeName,
-                  clearAllStack: true)
-              : navigateTo(context, SalesBillListScreen.routeName,
-                  clearAllStack: true);
-        } else if (title == "BankVoucher") {
-          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
-              ? navigateTo(context, DBankVoucherListScreen.routeName,
-                  clearAllStack: true)
-              : navigateTo(context, BankVoucherListScreen.routeName,
-                  clearAllStack: true);
-        } else if (title == "Complaint") {
-          if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "DHSI-09RY-BATH-ACCU") {
-            navigateTo(context, AccurabathComplaintListScreen.routeName,
+        navigateTo(context, ExpenseListScreen.routeName, clearAllStack: true);
+      } else if (title == "Daily Activities") {
+        navigateTo(context, DailyActivityListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "To-Do") {
+        navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
+      } else if (title == "Office Task") {
+        navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
+      } else if (title == "Quotation") {
+        navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
+      } else if (title == "SalesOrder") {
+        navigateTo(context, SalesOrderListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "SalesBill") {
+        SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+            ? navigateTo(context, DSaleBillListScreen.routeName,
+                clearAllStack: true)
+            : navigateTo(context, SalesBillListScreen.routeName,
                 clearAllStack: true);
-          } else {
-            navigateTo(context, ComplaintPaginationListScreen.routeName,
+      } else if (title == "BankVoucher") {
+        SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+            ? navigateTo(context, DBankVoucherListScreen.routeName,
+                clearAllStack: true)
+            : navigateTo(context, BankVoucherListScreen.routeName,
                 clearAllStack: true);
-          }
-        } else if (title == "Attend Visit") {
-          if (SharedPrefHelper.instance
-                  .getLoginUserData()
-                  .details[0]
-                  .serialKey
-                  .toLowerCase() ==
-              "dol2-6uh7-ph03-in5h") {
-            /* navigateTo(context, DolphinComplaintVisitListScreen.routeName,
-                      clearAllStack: true);*/
-
-            navigateTo(context, AttendVisitListScreen.routeName,
-                clearAllStack: true);
-          } else if (SharedPrefHelper.instance
-                      .getLoginUserData()
-                      .details[0]
-                      .serialKey
-                      .toUpperCase() ==
-                  "HEMA-AUTO-SI08-NVRL" ||
-              SharedPrefHelper.instance
-                      .getLoginUserData()
-                      .details[0]
-                      .serialKey
-                      .toUpperCase() ==
-                  "TEST-0000-SI0F-0208") {
-            navigateTo(context, HemaAttendVisitListScreen.routeName,
-                clearAllStack: true);
-          } else {
-            navigateTo(context, AttendVisitListScreen.routeName,
-                clearAllStack: true);
-          }
-          //
-        } else if (title == "Employee") {
-          navigateTo(context, EmployeeListScreen.routeName,
+      } else if (title == "Complaint") {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "DHSI-09RY-BATH-ACCU") {
+          navigateTo(context, AccurabathComplaintListScreen.routeName,
               clearAllStack: true);
-        } else if (title == "Loan Installments") {
-          navigateTo(context, LoanListScreen.routeName, clearAllStack: true);
-        } else if (title == "Loan Approval") {
-          navigateTo(context, LoanApprovalListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Missed Punch") {
-          navigateTo(context, MissedPunchListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Missed Punch Approval") {
-          navigateTo(context, MissedPunchApprovalListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Salary Adv/Upad") {
-          navigateTo(context, SalaryUpadListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Maintenance Contract") {
-          navigateTo(context, MaintenanceListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Portal Leads") {
-          navigateTo(context, ExternalLeadListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Packing Checklist") {
-          navigateTo(context, PackingChecklistScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Final Checking") {
-          navigateTo(context, FinalCheckingListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Installation") {
-          navigateTo(context, InstallationListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Production Activity") {
-          navigateTo(context, ProductionActivityListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "TeleCaller") {
-          navigateTo(context, TeleCallerListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Tele Caller") {
-          navigateTo(context, TeleCallerNewListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Purchase Order") {
-          showCommonDialogWithSingleOption(context, "Coming Soon !",
-              positiveButtonTitle: "OK");
-        } else if (title == "Purchase Order Approval") {
-          showCommonDialogWithSingleOption(context, "Coming Soon !",
-              positiveButtonTitle: "OK");
-        } else if (title == "Purchase Bill") {
-          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
-              ? navigateTo(context, DPurchaseListScreen.routeName,
-                  clearAllStack: true)
-              : showCommonDialogWithSingleOption(context, "Coming Soon !",
-                  positiveButtonTitle: "OK");
-        } else if (title == "CashVoucher") {
-          SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
-              ? navigateTo(context, DCashVoucherListScreen.routeName,
-                  clearAllStack: true)
-              : navigateTo(context, CashVoucherAddEditScreen.routeName,
-                  clearAllStack: true);
-        } else if (title == "Credit Note") {
-          navigateTo(context, CreditNoteAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Debit Note") {
-          navigateTo(context, DebitNoteAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Petty Cash") {
-          navigateTo(context, PettyCashVoucherAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Exp.Voucher") {
-          navigateTo(context, ExpenseVoucherAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Journal Voucher") {
-          navigateTo(context, JournalVoucherAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Material Inward") {
-          navigateTo(context, MaterialInwardListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Material Outward") {
-          navigateTo(context, MaterialOutwardListScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Store Inward") {
-          navigateTo(context, StoreInwardAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Store Outward") {
-          navigateTo(context, StoreOutwardAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Material Consumption") {
-          navigateTo(context, MaterialConsumptionAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Inspection Check List") {
-          navigateTo(context, InspectionCheckListAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Job Card Inward") {
-          navigateTo(context, JobCardInwardAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Job Card Outward") {
-          navigateTo(context, JobCardOutwardAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Material Indent") {
-          navigateTo(context, MaterialIndentAddEditScreen.routeName,
-              clearAllStack: true);
-        } else if (title == "Site Survey") {
-          navigateTo(context, SiteSurveyAddEditScreen.routeName,
+        } else {
+          navigateTo(context, ComplaintPaginationListScreen.routeName,
               clearAllStack: true);
         }
+      } else if (title == "Attend Visit") {
+        if (SharedPrefHelper.instance
+                .getLoginUserData()
+                .details[0]
+                .serialKey
+                .toLowerCase() ==
+            "dol2-6uh7-ph03-in5h") {
+          /* navigateTo(context, DolphinComplaintVisitListScreen.routeName,
+                    clearAllStack: true);*/
 
+          navigateTo(context, AttendVisitListScreen.routeName,
+              clearAllStack: true);
+        } else if (SharedPrefHelper.instance
+                    .getLoginUserData()
+                    .details[0]
+                    .serialKey
+                    .toUpperCase() ==
+                "HEMA-AUTO-SI08-NVRL" ||
+            SharedPrefHelper.instance
+                    .getLoginUserData()
+                    .details[0]
+                    .serialKey
+                    .toUpperCase() ==
+                "TEST-0000-SI0F-0208") {
+          navigateTo(context, HemaAttendVisitListScreen.routeName,
+              clearAllStack: true);
+        } else {
+          navigateTo(context, AttendVisitListScreen.routeName,
+              clearAllStack: true);
+        }
         //
-      },
-      child: Center(
-        child: Container(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            verticalDirection: VerticalDirection.down,
-            children: <Widget>[
-              Center(
-                  child: Image.network(ImageURL, height: 48, fit: BoxFit.fill)
-                  /*
-                       Icon(
-                    icon,
-                    size: 24.0,
-                    color: Colors.black,
-                  )*/
+      } else if (title == "Employee") {
+        navigateTo(context, EmployeeListScreen.routeName, clearAllStack: true);
+      } else if (title == "Loan Installments") {
+        navigateTo(context, LoanListScreen.routeName, clearAllStack: true);
+      } else if (title == "Loan Approval") {
+        navigateTo(context, LoanApprovalListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Missed Punch") {
+        navigateTo(context, MissedPunchListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Missed Punch Approval") {
+        navigateTo(context, MissedPunchApprovalListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Salary Adv/Upad") {
+        navigateTo(context, SalaryUpadListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Maintenance Contract") {
+        navigateTo(context, MaintenanceListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Portal Leads") {
+        navigateTo(context, ExternalLeadListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Packing Checklist") {
+        navigateTo(context, PackingChecklistScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Final Checking") {
+        navigateTo(context, FinalCheckingListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Installation") {
+        navigateTo(context, InstallationListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Production Activity") {
+        navigateTo(context, ProductionActivityListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "TeleCaller") {
+        navigateTo(context, TeleCallerListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Tele Caller") {
+        navigateTo(context, TeleCallerNewListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Purchase Order") {
+        showCommonDialogWithSingleOption(context, "Coming Soon !",
+            positiveButtonTitle: "OK");
+      } else if (title == "Purchase Order Approval") {
+        showCommonDialogWithSingleOption(context, "Coming Soon !",
+            positiveButtonTitle: "OK");
+      } else if (title == "Purchase Bill") {
+        SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+            ? navigateTo(context, DPurchaseListScreen.routeName,
+                clearAllStack: true)
+            : showCommonDialogWithSingleOption(context, "Coming Soon !",
+                positiveButtonTitle: "OK");
+      } else if (title == "CashVoucher") {
+        SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
+            ? navigateTo(context, DCashVoucherListScreen.routeName,
+                clearAllStack: true)
+            : navigateTo(context, CashVoucherAddEditScreen.routeName,
+                clearAllStack: true);
+      } else if (title == "Credit Note") {
+        navigateTo(context, CreditNoteAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Debit Note") {
+        navigateTo(context, DebitNoteAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Petty Cash") {
+        navigateTo(context, PettyCashVoucherAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Exp.Voucher") {
+        navigateTo(context, ExpenseVoucherAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Journal Voucher") {
+        navigateTo(context, JournalVoucherAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Material Inward") {
+        navigateTo(context, MaterialInwardListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Material Outward") {
+        navigateTo(context, MaterialOutwardListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Store Inward") {
+        navigateTo(context, StoreInwardAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Store Outward") {
+        navigateTo(context, StoreOutwardAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Material Consumption") {
+        navigateTo(context, MaterialConsumptionAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Inspection Check List") {
+        navigateTo(context, InspectionCheckListAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Job Card Inward") {
+        navigateTo(context, JobCardInwardAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Job Card Outward") {
+        navigateTo(context, JobCardOutwardAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Material Indent") {
+        navigateTo(context, MaterialIndentAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Site Survey") {
+        navigateTo(context, SiteSurveyAddEditScreen.routeName,
+            clearAllStack: true);
+      }
 
-                  ),
-              SizedBox(height: 10.0),
-              Container(
-                alignment: Alignment.center,
-                child: Text(title,
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12.0, color: colorPrimary)),
-              )
-            ],
-          ),
+      //
+    },
+    child: Center(
+      child: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          verticalDirection: VerticalDirection.down,
+          children: <Widget>[
+            Center(child: Image.network(ImageURL, height: 30, fit: BoxFit.fill)
+                /*
+                     Icon(
+                  icon,
+                  size: 24.0,
+                  color: Colors.black,
+                )*/
+
+                ),
+            SizedBox(height: 10.0),
+            Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 3),
+              child: Text(title,
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  style: TextStyle(
+                      fontSize: title.length > 10 ? 9 : 10.0,
+                      color: colorPrimary)),
+            )
+          ],
         ),
       ),
     ),
@@ -1471,7 +1459,7 @@ void getcurrentTimeInfo(BuildContext context) async {
       "-" +
       startDate.day.toString();*/
   var now = startDate;
-  var formatter = new DateFormat('yyyy-MM-ddTHH:mm');
+  var formatter = new DateFormat('yyyy-MM-ddTHH');
   String currentday = formatter.format(now);
   String PresentDate1 = formatter.format(DateTime.now());
   print(
@@ -1622,7 +1610,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_LEAD,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Leads",
                           softWrap: true,
                           style: new TextStyle(
@@ -1664,7 +1656,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_SALES,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Sales",
                           softWrap: true,
                           style: new TextStyle(
@@ -1685,7 +1681,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_PRODUCTION,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Production",
                           softWrap: true,
                           style: new TextStyle(
@@ -1706,7 +1706,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_ACCOUNT,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Account",
                           softWrap: true,
                           style: new TextStyle(
@@ -1727,7 +1731,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_HR,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("HR",
                           softWrap: true,
                           style: new TextStyle(
@@ -1746,7 +1754,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_PURCHASE,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Purchase",
                           softWrap: true,
                           style: new TextStyle(
@@ -1767,7 +1779,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_OFFICE,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Office",
                           softWrap: true,
                           style: new TextStyle(
@@ -1788,7 +1804,11 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                   ? ExpansionTile(
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       expandedAlignment: Alignment.center,
-                      leading: Icon(Icons.dashboard, color: colorPrimary),
+                      leading: Image.asset(
+                        DASHBOARD_SUPPORT,
+                        width: 24,
+                        height: 24,
+                      ),
                       title: Text("Support",
                           softWrap: true,
                           style: new TextStyle(
@@ -3066,7 +3086,9 @@ showcustomdialog(
                                     ),
                                     Text(
                                       values[index].Name,
-                                      style: TextStyle(color: colorPrimary),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: colorPrimary, fontSize: 10),
                                     ),
                                   ],
                                 ),
@@ -3180,7 +3202,127 @@ showcustomdialogWithOnlyName(
                                     ),
                                     Text(
                                       values[index].Name,
-                                      style: TextStyle(color: colorPrimary),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: colorPrimary, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+
+                            /* return SimpleDialogOption(
+                              onPressed: () => {
+                                controller.text = values[index].Name,
+                                controller2.text = values[index].Name1,
+                              Navigator.of(context1).pop(),
+
+
+                            },
+                              child: Text(values[index].Name),
+                            );*/
+                          },
+                          itemCount: values.length,
+                        ),
+                      ])),
+                ],
+              )),
+          /*Center(
+            child: Container(
+              padding: EdgeInsets.all(3.0),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF27442),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                      5.0) //                 <--- border radius here
+                  ),
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Color(0xFFF27442))),
+              //color: Color(0xFFF27442),
+              child: GestureDetector(
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Color(0xFFFFFFFF)),
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+          ),*/
+        ],
+      );
+    },
+  );
+}
+
+showcustomdialogWithTWOName(
+    {List<ALL_Name_ID> values,
+    BuildContext context1,
+    TextEditingController controller,
+    TextEditingController controller1,
+    String lable}) async {
+  await showDialog(
+    barrierDismissible: false,
+    context: context1,
+    builder: (BuildContext context123) {
+      return SimpleDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(32.0))),
+        title: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: colorPrimary, //                   <--- border color
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(
+                      15.0) //                 <--- border radius here
+                  ),
+            ),
+            child: Container(
+                padding: EdgeInsets.all(10),
+                child: Text(
+                  lable,
+                  style: TextStyle(
+                      color: colorPrimary, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ))),
+        children: [
+          SizedBox(
+              width: MediaQuery.of(context123).size.width,
+              child: Column(
+                children: [
+                  SingleChildScrollView(
+                      physics: ScrollPhysics(),
+                      child: Column(children: <Widget>[
+                        ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (ctx, index) {
+                            return InkWell(
+                              onTap: () {
+                                Navigator.of(context1).pop();
+                                controller.text = values[index].Name;
+                                controller1.text = values[index].Name1;
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    left: 25, top: 10, bottom: 10, right: 10),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: colorPrimary), //Change color
+                                      width: 10.0,
+                                      height: 10.0,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 1.5),
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    Text(
+                                      values[index].Name,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: colorPrimary, fontSize: 10),
                                     ),
                                   ],
                                 ),
@@ -3898,7 +4040,11 @@ class CustomAnimatedPadding extends StatelessWidget {
 
 Widget customAppBar(context, String title) {
   return NewGradientAppBar(
-    gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+    gradient: LinearGradient(colors: [
+      Color(0xff108dcf),
+      Color(0xff0066b3),
+      Color(0xff62bb47),
+    ]),
     leading: IconButton(
       icon: Icon(
         Icons.arrow_back_ios,

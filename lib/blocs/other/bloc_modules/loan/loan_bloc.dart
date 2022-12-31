@@ -9,6 +9,8 @@ import 'package:soleoserp/models/api_requests/loan/loan_search_request.dart';
 import 'package:soleoserp/models/api_responses/Loan/loan_approval_save_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
 import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'loan_event.dart';
@@ -37,6 +39,10 @@ class LoanScreenBloc extends Bloc<LoanScreenEvents, LoanScreenStates> {
 
     if (event is LoanApprovalSaveRequestCallEvent) {
       yield* _mapLoanApprovalSaveCallEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -119,6 +125,22 @@ class LoanScreenBloc extends Bloc<LoanScreenEvents, LoanScreenStates> {
       print(stacktrace);
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<LoanScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

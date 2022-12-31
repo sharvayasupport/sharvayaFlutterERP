@@ -99,9 +99,22 @@ class QuotationHeaderSaveResponseState extends QuotationStates {
 class QuotationProductSaveResponseState extends QuotationStates {
   final QuotationProductSaveResponse quotationProductSaveResponse;
   BuildContext context;
+  final List<QuotationTable> quotationProductModel;
+
+  String RetrunQtNo;
   QuotationProductSaveResponseState(
-      this.context, this.quotationProductSaveResponse);
+      this.context,
+      this.quotationProductSaveResponse,
+      this.quotationProductModel,
+      this.RetrunQtNo);
 }
+
+class QTSpecSaveResponseState extends QuotationStates {
+  final QTSpecSaveResponse qTSpecSaveResponse;
+
+  QTSpecSaveResponseState(this.qTSpecSaveResponse);
+}
+//QTSpecSaveResponse
 
 class QuotationProductDeleteResponseState extends QuotationStates {
   final QuotationProductDeleteResponse response;
@@ -214,15 +227,23 @@ class InsertQuotationSpecificationTableState extends QuotationStates {
 }
 
 class UpdateQuotationSpecificationTableState extends QuotationStates {
+  BuildContext context;
   final String response;
 
-  UpdateQuotationSpecificationTableState(this.response);
+  UpdateQuotationSpecificationTableState(this.context, this.response);
 }
 
 class GetQuotationSpecificationTableState extends QuotationStates {
   final List<QuotationSpecificationTable> response;
 
   GetQuotationSpecificationTableState(this.response);
+}
+
+class GetQuotationSpecificationQTnoTableState extends QuotationStates {
+  final List<QuotationSpecificationTable> response;
+
+  String QtNo;
+  GetQuotationSpecificationQTnoTableState(this.response, this.QtNo);
 }
 
 class DeleteQuotationSpecificationTableState extends QuotationStates {
@@ -242,3 +263,100 @@ class GetQuotationProductListState extends QuotationStates {
 
   GetQuotationProductListState(this.response);
 }
+
+class QuotationOneProductDeleteState extends QuotationStates {
+  final String response;
+
+  QuotationOneProductDeleteState(this.response);
+}
+
+class InsertProductSucessResponseState extends QuotationStates {
+  final String response;
+
+  InsertProductSucessResponseState(this.response);
+}
+
+class DeleteALLQuotationProductTableState extends QuotationStates {
+  final String response;
+
+  DeleteALLQuotationProductTableState(this.response);
+}
+
+class UserMenuRightsResponseState extends QuotationStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}
+
+class GenericOtherCharge1ListResponseState extends QuotationStates {
+  final QuotationOtherChargesListResponse quotationOtherChargesListResponse;
+
+  GenericOtherCharge1ListResponseState(this.quotationOtherChargesListResponse);
+}
+
+class GetGenericAddditionalChargesState extends QuotationStates {
+  final GenericAddditionalCharges quotationOtherChargesListResponse;
+
+  GetGenericAddditionalChargesState(this.quotationOtherChargesListResponse);
+}
+
+class AddGenericAddditionalChargesState extends QuotationStates {
+  String response;
+  AddGenericAddditionalChargesState(this.response);
+}
+
+class DeleteAllGenericAddditionalChargesState extends QuotationStates {
+  String response;
+  DeleteAllGenericAddditionalChargesState(this.response);
+}
+
+class SOCurrencyListResponseState extends QuotationStates {
+  final SOCurrencyListResponse response;
+
+  SOCurrencyListResponseState(this.response);
+}
+
+class FollowupTypeListCallResponseState extends QuotationStates {
+  final FollowupTypeListResponse followupTypeListResponse;
+
+  FollowupTypeListCallResponseState(this.followupTypeListResponse);
+}
+
+class QTAssemblyTableListState extends QuotationStates {
+  final List<QTAssemblyTable> response;
+
+  QTAssemblyTableListState(this.response);
+}
+
+class QTAssemblyTableInsertState extends QuotationStates {
+  BuildContext context;
+  String response;
+  QTAssemblyTableInsertState(this.context, this.response);
+}
+
+class QTAssemblyTableUpdateState extends QuotationStates {
+  BuildContext context;
+  String response;
+  QTAssemblyTableUpdateState(this.context, this.response);
+}
+
+class QTAssemblyTableOneItemDeleteState extends QuotationStates {
+  String response;
+  QTAssemblyTableOneItemDeleteState(this.response);
+}
+
+class QTAssemblyTableDeleteALLState extends QuotationStates {
+  String response;
+  QTAssemblyTableDeleteALLState(this.response);
+}
+
+class InquiryProductSearchResponseState extends QuotationStates {
+  final InquiryProductSearchResponse inquiryProductSearchResponse;
+  InquiryProductSearchResponseState(this.inquiryProductSearchResponse);
+}
+
+class DeleteQuotationSpecificationByFinishProductIDState
+    extends QuotationStates {
+  String response;
+  DeleteQuotationSpecificationByFinishProductIDState(this.response);
+}
+//

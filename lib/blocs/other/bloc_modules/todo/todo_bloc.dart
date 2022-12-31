@@ -15,6 +15,8 @@ import 'package:soleoserp/models/api_responses/to_do/to_do_header_save_response.
 import 'package:soleoserp/models/api_responses/to_do/to_do_save_sub_details_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/to_do_worklog_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -73,6 +75,10 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
     }
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -162,7 +168,7 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       ToDoSaveHeaderResponse customerDeleteResponse = await userRepository
           .todo_save_method(event.pkID, event.toDoHeaderSaveRequest);
-      yield ToDoSaveHeaderState(customerDeleteResponse);
+      yield ToDoSaveHeaderState(event.context, customerDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -177,7 +183,7 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       ToDoSaveSubDetailsResponse customerDeleteResponse = await userRepository
           .todo_save_sub_method(event.pkID, event.toDoSaveSubDetailsRequest);
-      yield ToDoSaveSubDetailsState(customerDeleteResponse);
+      yield ToDoSaveSubDetailsState(event.context, customerDeleteResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -262,6 +268,22 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
 
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

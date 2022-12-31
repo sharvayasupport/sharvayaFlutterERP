@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-const colorPrimary = const Color(0xff362d8b);
+const colorPrimary = const Color(0xff0066b3);
 //const colorPrimary = const Color(0xff0969da);//0969DA
-const colorPrimaryDark = const Color(0xff362d8b);
-const colorPrimaryLight = const Color(/*0xFFF89269*/ 0xff362d8b);
+const colorPrimaryDark = const Color(0xff0066b3);
+const colorPrimaryLight = const Color(/*0xFFF89269*/ 0xff0066b3);
 const colorAccent = const Color(0xff000000);
 
 const colorAppBar = const Color(0xff000000);
@@ -15,6 +15,9 @@ const colorWhite = const Color(0xffffffff);
 const colorGray = const Color(0xffC4C4C4);
 const colorLightGray = const Color(0xffE0E0E0);
 const colorVeryLightGray = const Color(0xffffffff);
+const colorBackGroundGray = const Color(0xfff9f9f9);
+
+//F9F9F9
 const colorGrayDark = const Color(0xff6C777C);
 const colorGrayVeryDark2 = const Color(0xff4f4f4f);
 const colorGrayVeryDark = const Color(0xff707070);
@@ -47,6 +50,14 @@ const colorfullDay = const Color(0xff26d9b6);
 const colorgreenforicon = const Color(0xffafd034);
 const colorPink = const Color(0xFFE7C6FF);
 const colorRED = const Color(0xFFE02C2C);
+
+/// For Listing Tiles
+
+const colorTileBG = const Color(0xFFD6E7E5);
+const colorCardBG = const Color(0xFFABC48D); //
+const colorVeryLightCardBG = const Color(0xFFE9EDFA); //
+
+//D9E6E5
 
 const Map<int, Color> materialColorAccentCodes = {
   50: Color.fromRGBO(255, 255, 255, 1),

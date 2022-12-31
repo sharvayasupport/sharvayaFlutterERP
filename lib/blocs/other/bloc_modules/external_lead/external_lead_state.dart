@@ -72,3 +72,17 @@ class RegionCodeResponseState extends ExternalLeadStates {
 
   RegionCodeResponseState(this.response, this.expenseDetails1);
 }
+
+class AssignToNotificationResponseState extends ExternalLeadStates {
+  String ColumnMsg;
+  final AssignToNotificationResponse response;
+
+  AssignToNotificationResponseState(this.ColumnMsg, this.response);
+}
+class UserMenuRightsResponseState extends ExternalLeadStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}
+
+
+//AssignToNotificationResponse

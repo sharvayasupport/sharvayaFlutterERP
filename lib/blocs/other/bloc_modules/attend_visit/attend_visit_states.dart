@@ -71,3 +71,8 @@ class QuickComplaintSaveResponseState extends AttendVisitStates {
 
   QuickComplaintSaveResponseState(this.response);
 }
+
+class UserMenuRightsResponseState extends AttendVisitStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

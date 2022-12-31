@@ -47,6 +47,8 @@ class ToDoDetails {
   bool reminder;
   int reminderMonth;
   String closingRemarks;
+  String CustomerName;
+  int CustomerID;
 
   ToDoDetails(
       {this.rowNum,
@@ -70,7 +72,9 @@ class ToDoDetails {
       this.totalSubTask,
       this.reminder,
       this.reminderMonth,
-      this.closingRemarks});
+      this.closingRemarks,
+      this.CustomerName,
+      this.CustomerID});
 
   ToDoDetails.fromJson(Map<String, dynamic> json) {
     rowNum = json['RowNum'] == null ? 0 : json['RowNum'];
@@ -104,6 +108,9 @@ class ToDoDetails {
     reminderMonth = json['ReminderMonth'] == null ? 0 : json['ReminderMonth'];
     closingRemarks =
         json['ClosingRemarks'] == null ? "" : json['ClosingRemarks'];
+
+    CustomerName = json['CustomerName'] == null ? "" : json['CustomerName'];
+    CustomerID = json['CustomerID'] == null ? 0 : json['CustomerID'];
   }
 
   Map<String, dynamic> toJson() {
@@ -130,6 +137,8 @@ class ToDoDetails {
     data['Reminder'] = this.reminder;
     data['ReminderMonth'] = this.reminderMonth;
     data['ClosingRemarks'] = this.closingRemarks;
+    data['CustomerName'] = this.CustomerName;
+    data['CustomerID'] = this.CustomerID;
     return data;
   }
 }

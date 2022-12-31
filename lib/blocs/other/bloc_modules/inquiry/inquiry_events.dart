@@ -155,9 +155,16 @@ class FCMNotificationRequestEvent extends InquiryEvents {
   var request123;
   FCMNotificationRequestEvent(this.request123);
 }
+
 class GetReportToTokenRequestEvent extends InquiryEvents {
   final GetReportToTokenRequest request;
 
   GetReportToTokenRequestEvent(this.request);
 }
 
+class UserMenuRightsRequestEvent extends InquiryEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}

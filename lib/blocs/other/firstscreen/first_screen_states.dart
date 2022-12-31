@@ -21,3 +21,8 @@ class ComapnyDetailsEventResponseState extends FirstScreenStates{
   ComapnyDetailsEventResponseState(this.companyDetailsResponse);
 
 }
+class ConstantResponseState extends FirstScreenStates {
+  final ConstantResponse response;
+
+  ConstantResponseState(this.response);
+}

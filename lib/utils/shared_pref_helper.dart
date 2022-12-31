@@ -13,6 +13,7 @@ import 'package:soleoserp/models/api_responses/other/all_employee_List_response.
 import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/designation_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 
 class SharedPrefHelper {
   final SharedPreferences prefs;
@@ -48,6 +49,12 @@ class SharedPrefHelper {
   static const String IS_LOGGED_IN_USER_DATA = "logged_User_in_data";
   static const String GEN_LATITUDE = "Latitude";
   static const String GEN_LONGITUDE = "Longitude";
+  static const String GENRIC_OTHER_CHARGE = "genricothercharge";
+
+  static const String GENERICTAXTYPE = "generictaxtype";
+
+  static const String MENU_RIGHTS = "menurights";
+  static const String GEN_ADDRESS = "Address";
 
   SharedPrefHelper(this.prefs);
 
@@ -106,6 +113,14 @@ class SharedPrefHelper {
   getLatitude() {
     return getString(GEN_LATITUDE);
   }
+
+/*  setAddress(String Address) async {
+    await putString(GEN_ADDRESS, Address);
+  }
+
+  getAddress() {
+    return getString(GEN_ADDRESS);
+  }*/
 
   setLongitude(String longitude) async {
     await putString(GEN_LONGITUDE, longitude);
@@ -167,6 +182,14 @@ class SharedPrefHelper {
   CompanyDetailsResponse getCompanyData() {
     return CompanyDetailsResponse.fromJson(
         json.decode(getString(IS_COMPANY_LOGGED_IN_DATA)));
+  }
+
+  setMenuRightsData(MenuRightsResponse data) async {
+    await putString(MENU_RIGHTS, json.encode(data));
+  }
+
+  MenuRightsResponse getMenuRights() {
+    return MenuRightsResponse.fromJson(json.decode(getString(MENU_RIGHTS)));
   }
 
   LoginUserDetialsResponse getLoginUserData() {
@@ -236,6 +259,13 @@ class SharedPrefHelper {
     return getBool(IS_LOGGED_IN_DATA) ?? false;
   }
 
+  setGenricTaxtype(String gen_tax_type) async {
+    await putString(GENERICTAXTYPE, gen_tax_type);
+  }
+
+  getGenricTaxtype() {
+    return getString(GENERICTAXTYPE);
+  }
   /* setSalesListData(String key, List<ALL_Name_ID> value) async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
     myPrefs.setStringList(key, json.encode(value));

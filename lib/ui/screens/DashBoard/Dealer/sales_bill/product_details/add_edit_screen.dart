@@ -1089,11 +1089,7 @@ class _DSaleBillProductAddEditScreenState
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
+
               ],
             ),
           ),

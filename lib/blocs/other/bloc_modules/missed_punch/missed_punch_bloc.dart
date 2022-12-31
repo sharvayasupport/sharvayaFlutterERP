@@ -4,14 +4,18 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/MissedPunch/missed_punch_approval_add_edit_request.dart';
 import 'package:soleoserp/models/api_requests/MissedPunch/missed_punch_approval_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
+import 'package:soleoserp/models/api_requests/loan/loan_search_request.dart';
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_list_request.dart';
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/missedPunch/missed_punch_search_by_name_request.dart';
 import 'package:soleoserp/models/api_responses/MissedPunch/missed_punch_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
+import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
 import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_approval_list_response.dart';
 import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_list_response.dart';
 import 'package:soleoserp/models/api_responses/missed_punch/missed_punch_search_by_name_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'missed_punch_event.dart';
@@ -46,6 +50,10 @@ class MissedPunchScreenBloc
 
     if (event is MissedPunchApprovalSaveRequestCallEvent) {
       yield* _mapMissedPunchApprovalSaveCallEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -149,6 +157,22 @@ class MissedPunchScreenBloc
       print(stacktrace);
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<MissedPunchScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

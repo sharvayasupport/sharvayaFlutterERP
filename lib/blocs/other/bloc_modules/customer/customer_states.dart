@@ -51,8 +51,10 @@ class CityListEventResponseState extends CustomerStates {
 }
 
 class CustomerAddEditEventResponseState extends CustomerStates {
+  BuildContext context;
   final CustomerAddEditApiResponse customerAddEditApiResponse;
-  CustomerAddEditEventResponseState(this.customerAddEditApiResponse);
+  CustomerAddEditEventResponseState(
+      this.context, this.customerAddEditApiResponse);
 }
 
 class CustomerDeleteCallResponseState extends CustomerStates {
@@ -112,3 +114,9 @@ class CustomerDeleteDocumentResponseState extends CustomerStates {
   final CustomerDeleteDocumentResponse customerDeleteDocumentResponse;
   CustomerDeleteDocumentResponseState(this.customerDeleteDocumentResponse);
 }
+
+class UserMenuRightsResponseState extends CustomerStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}
+//UserMenuRightsResponse

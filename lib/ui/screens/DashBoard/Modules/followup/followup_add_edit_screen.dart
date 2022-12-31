@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:geocoder2/geocoder2.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -19,13 +18,13 @@ import 'package:soleoserp/models/api_requests/followup/followup_type_list_reques
 import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/closer_reason_list_request.dart';
+import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_status_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
-import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
@@ -41,8 +40,9 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateFollowupScreenArguments {
   FilterDetails editModel;
+  String FollowupStatus;
 
-  AddUpdateFollowupScreenArguments(this.editModel);
+  AddUpdateFollowupScreenArguments(this.editModel,this.FollowupStatus);
 }
 
 class FollowUpAddEditScreen extends BaseStatefulWidget {
@@ -124,8 +124,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   String GetImageNamefromEditMode = "";
   FocusNode NotesFocusNode;
 
-  String Latitude = "";
-  String Longitude = "";
+
   Location location = new Location();
 
   bool _serviceEnabled;
@@ -136,12 +135,18 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   bool SaveSucess;
   bool is_Storage_Service_Permission;
   String ReportToToken = "";
+
+
+  String _FollowupStatus = "Todays";
+
+  String MapAPIKey = "";
+
+  String Address="";
   @override
   void initState() {
     super.initState();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
-    _getCurrentLocation();
 
     // permission();
     // checkPhotoPermissionStatus();
@@ -152,7 +157,8 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
-
+    MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
+    getLocationAddressFromAPI();
     SaveSucess = false;
     _FollowupBloc = FollowupBloc(baseBloc);
     NotesFocusNode = FocusNode();
@@ -178,6 +184,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
+      _FollowupStatus = widget.arguments.FollowupStatus;
       fillData();
     } else {
       _rating = 4.0;
@@ -235,54 +242,8 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     }
   }
 
-  _LocationServiceEnable() async {
-    /* geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best).then((Position position) {
-      setState(() {
-        _currentPosition = position;
 
-        //  CreateMarkers(_currentPosition);
-      });
-      //_getAddressFromLatLng();
-    }).catchError((e) {
-      print(e);
-    });*/
-    /*  _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return;
-      }
-    }*/
 
-    /* _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-
-        return;
-      }
-    }
-
-    if(_permissionGranted==PermissionStatus.granted)
-      {
-        _getCurrentLocation();
-      }
-*/
-  }
-
-  _getCurrentLocation() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-        Longitude = position.longitude.toString();
-        Latitude = position.latitude.toString();
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
 
   @override
   void dispose() {
@@ -331,7 +292,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           if (state is FollowupImageDeleteCallResponseState) {
             _OnDeleteFollowupImageResponseSucess(state);
           }
-          if (state is FollowupUploadImageCallResponseState) {
+          if (state is FollowupUploadImageFromMainFollowupCallResponseState) {
             _OnFollowupImageUploadSucessResponse(state);
           }
 
@@ -349,17 +310,24 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
             _onRecevedNotification(state);
           }
 
+          if (state is TeleCallerFollowupSaveResponseState) {
+            _OnTeleCallerFollowupSaveResponse(state);
+          }
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
           if (currentState is FollowupInquiryByCustomerIdCallResponseState ||
               currentState is FollowupSaveCallResponseState ||
               currentState is FollowupImageDeleteCallResponseState ||
-              currentState is FollowupUploadImageCallResponseState ||
+              currentState is FollowupUploadImageFromMainFollowupCallResponseState ||
               currentState is FollowupTypeListCallResponseState ||
               currentState is InquiryLeadStatusListCallResponseState ||
               currentState is CloserReasonListCallResponseState ||
-              currentState is FCMNotificationResponseState) {
+              currentState is FCMNotificationResponseState ||
+              currentState is TeleCallerFollowupSaveResponseState
+
+          ) {
             return true;
           }
           return false;
@@ -376,7 +344,11 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
         appBar: NewGradientAppBar(
           title: Text('Followup List'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -511,24 +483,29 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                         ),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
-                        RatingStar(),
-                        SizedBox(
+                        Visibility(
+                            visible: false,
+                            child: RatingStar()),
+                        /*SizedBox(
                           width: 20,
                           height: 30,
-                        ),
+                        ),*/
                         SwitchNoFollowup(),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
                         uploadImage(context),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
                         getCommonButton(baseTheme, () async {
+
+
+                          getLocationAddressFromAPI();
                           print("RatingValue " +
                               "Rate : " +
                               _rating.toInt().toString());
@@ -569,8 +546,11 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
                                     if (_offlineLoggedInData
                                             .details[0].serialKey
-                                            .toLowerCase() ==
-                                        "dol2-6uh7-ph03-in5h") {
+                                            .toUpperCase() ==
+                                        "DOL2-6UH7-PH03-IN5H"||_offlineLoggedInData
+                                        .details[0].serialKey
+                                        .toUpperCase() ==
+                                        "TEST-0000-SI0F-0208" ) {
                                       if (edt_Priority.text == "Hot") {
                                         FollowupPriorityDetails = "1";
                                       } else if (edt_Priority.text == "Cold") {
@@ -619,52 +599,191 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                           String Msg = _isForUpdate == true
                                               ? "Followup Information. Updated Successfully"
                                               : "Followup Information. Added Successfully";
-                                          _FollowupBloc.add(FollowupSaveByNameCallEvent(
-                                              Msg,
-                                              context,
-                                              savepkID,
-                                              FollowupSaveApiRequest(
-                                                  pkID: savepkID.toString(),
-                                                  FollowupDate: edt_ReverseFollowUpDate
-                                                      .text,
-                                                  CustomerID:
-                                                      edt_CustomerpkID.text,
-                                                  InquiryNo:
-                                                      edt_InqNo.text == "null"
-                                                          ? ""
-                                                          : edt_InqNo.text,
-                                                  MeetingNotes:
-                                                      edt_FollowupNotes.text,
-                                                  NextFollowupDate:
-                                                      edt_ReverseNextFollowupDate
-                                                          .text,
-                                                  Rating: _rating
-                                                      .toInt()
-                                                      .toString(),
-                                                  FollowupTypeId:
-                                                      edt_FollowupTypepkID.text == "null"
-                                                          ? ""
-                                                          : edt_FollowupTypepkID
+
+
+                                          if(_offlineLoggedInData.details[0].serialKey.toUpperCase()=="DOL2-6UH7-PH03-IN5H" || _offlineLoggedInData
+                                              .details[0].serialKey
+                                              .toUpperCase() ==
+                                              "TEST-0000-SI0F-0208" )
+                                            {
+                                              if(_isForUpdate==true)
+                                              {
+
+                                                if(_editModel.extpkID.toString()!="0")
+                                                {
+
+
+                                                  _FollowupBloc.add(TeleCallerFollowupSaveRequestEvent(context,_editModel.pkID,TeleCallerFollowupSaveRequest(
+                                                    pkID: "0",
+                                                    ExtpkID: _editModel.extpkID.toString(),
+                                                    FollowupDate: edt_ReverseFollowUpDate.text,
+                                                    FollowupSource: edt_FollowupType.text,
+                                                    InquiryStatusID: "0",
+                                                    MeetingNotes: edt_FollowupNotes.text,
+                                                    NextFollowupDate: edt_ReverseNextFollowupDate.text,
+                                                    PreferredTime: edt_PreferedTime.text,
+                                                    LeadStatus: "InProcess",
+                                                    NoFollClosureID: edt_CloserReasonStatusTypepkID.text,
+                                                    AssignToEmployee: _offlineLoggedInData
+                                                        .details[0].employeeID
+                                                        .toString(),
+                                                    LoginUserID: LoginUserID,
+                                                    CompanyId: CompanyID.toString(),
+
+                                                  )));
+                                                }
+                                                else
+                                                  {
+                                                    _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                        Msg,
+                                                        context,
+                                                        savepkID,
+                                                        FollowupSaveApiRequest(
+                                                            pkID: savepkID.toString(),
+                                                            FollowupDate: edt_ReverseFollowUpDate
+                                                                .text,
+                                                            CustomerID:
+                                                            edt_CustomerpkID.text,
+                                                            InquiryNo:
+                                                            edt_InqNo.text == "null"
+                                                                ? ""
+                                                                : edt_InqNo.text,
+                                                            MeetingNotes:
+                                                            edt_FollowupNotes.text,
+                                                            NextFollowupDate:
+                                                            edt_ReverseNextFollowupDate
+                                                                .text,
+                                                            Rating: _rating
+                                                                .toInt()
+                                                                .toString(),
+                                                            FollowupTypeId:
+                                                            edt_FollowupTypepkID.text == "null"
+                                                                ? ""
+                                                                : edt_FollowupTypepkID
+                                                                .text,
+                                                            LoginUserID: LoginUserID,
+                                                            Address: Address,
+                                                            NoFollowup: nofollowupvalue
+                                                                .toString(),
+                                                            InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                                ? ""
+                                                                : edt_FollowupInquiryStatusTypepkID
+                                                                .text,
+                                                            Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                            Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                            PreferredTime:
+                                                            edt_PreferedTime.text,
+                                                            ClosureReasonId:
+                                                            edt_CloserReasonStatusTypepkID.text == "null"
+                                                                ? ""
+                                                                : edt_CloserReasonStatusTypepkID.text,
+                                                            CompanyId: CompanyID.toString(),
+                                                            FollowupPriority: FollowupPriorityDetails,
+                                                            FollowUpImage: fileName)));
+                                                  }
+
+                                              }
+                                              else
+                                                {
+                                                  _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                      Msg,
+                                                      context,
+                                                      savepkID,
+                                                      FollowupSaveApiRequest(
+                                                          pkID: savepkID.toString(),
+                                                          FollowupDate: edt_ReverseFollowUpDate
                                                               .text,
-                                                  LoginUserID: LoginUserID,
-                                                  Address: "",
-                                                  NoFollowup: nofollowupvalue
-                                                      .toString(),
-                                                  InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
-                                                      ? ""
-                                                      : edt_FollowupInquiryStatusTypepkID
-                                                          .text,
-                                                  Latitude: Latitude,
-                                                  Longitude: Longitude,
-                                                  PreferredTime:
-                                                      edt_PreferedTime.text,
-                                                  ClosureReasonId:
-                                                      edt_CloserReasonStatusTypepkID.text == "null"
-                                                          ? ""
-                                                          : edt_CloserReasonStatusTypepkID.text,
-                                                  CompanyId: CompanyID.toString(),
-                                                  FollowupPriority: FollowupPriorityDetails,
-                                                  FollowUpImage: fileName)));
+                                                          CustomerID:
+                                                          edt_CustomerpkID.text,
+                                                          InquiryNo:
+                                                          edt_InqNo.text == "null"
+                                                              ? ""
+                                                              : edt_InqNo.text,
+                                                          MeetingNotes:
+                                                          edt_FollowupNotes.text,
+                                                          NextFollowupDate:
+                                                          edt_ReverseNextFollowupDate
+                                                              .text,
+                                                          Rating: _rating
+                                                              .toInt()
+                                                              .toString(),
+                                                          FollowupTypeId:
+                                                          edt_FollowupTypepkID.text == "null"
+                                                              ? ""
+                                                              : edt_FollowupTypepkID
+                                                              .text,
+                                                          LoginUserID: LoginUserID,
+                                                          Address: Address,
+                                                          NoFollowup: nofollowupvalue
+                                                              .toString(),
+                                                          InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                              ? ""
+                                                              : edt_FollowupInquiryStatusTypepkID
+                                                              .text,
+                                                          Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                          Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                          PreferredTime:
+                                                          edt_PreferedTime.text,
+                                                          ClosureReasonId:
+                                                          edt_CloserReasonStatusTypepkID.text == "null"
+                                                              ? ""
+                                                              : edt_CloserReasonStatusTypepkID.text,
+                                                          CompanyId: CompanyID.toString(),
+                                                          FollowupPriority: FollowupPriorityDetails,
+                                                          FollowUpImage: fileName)));
+                                                }
+
+                                            }
+                                          else{
+                                            _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                Msg,
+                                                context,
+                                                savepkID,
+                                                FollowupSaveApiRequest(
+                                                    pkID: savepkID.toString(),
+                                                    FollowupDate: edt_ReverseFollowUpDate
+                                                        .text,
+                                                    CustomerID:
+                                                    edt_CustomerpkID.text,
+                                                    InquiryNo:
+                                                    edt_InqNo.text == "null"
+                                                        ? ""
+                                                        : edt_InqNo.text,
+                                                    MeetingNotes:
+                                                    edt_FollowupNotes.text,
+                                                    NextFollowupDate:
+                                                    edt_ReverseNextFollowupDate
+                                                        .text,
+                                                    Rating: _rating
+                                                        .toInt()
+                                                        .toString(),
+                                                    FollowupTypeId:
+                                                    edt_FollowupTypepkID.text == "null"
+                                                        ? ""
+                                                        : edt_FollowupTypepkID
+                                                        .text,
+                                                    LoginUserID: LoginUserID,
+                                                    Address: Address,
+                                                    NoFollowup: nofollowupvalue
+                                                        .toString(),
+                                                    InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                        ? ""
+                                                        : edt_FollowupInquiryStatusTypepkID
+                                                        .text,
+                                                    Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                    Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                    PreferredTime:
+                                                    edt_PreferedTime.text,
+                                                    ClosureReasonId:
+                                                    edt_CloserReasonStatusTypepkID.text == "null"
+                                                        ? ""
+                                                        : edt_CloserReasonStatusTypepkID.text,
+                                                    CompanyId: CompanyID.toString(),
+                                                    FollowupPriority: FollowupPriorityDetails,
+                                                    FollowUpImage: fileName)));
+                                          }
+
+
                                         });
                                       } else {
                                         if (FbrazilianDate.isAtSameMomentAs(
@@ -679,54 +798,198 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                             String Msg = _isForUpdate == true
                                                 ? "Followup Information. Updated Successfully"
                                                 : "Followup Information. Added Successfully";
-                                            _FollowupBloc.add(FollowupSaveByNameCallEvent(
-                                                Msg,
-                                                context,
-                                                savepkID,
-                                                FollowupSaveApiRequest(
-                                                    pkID: savepkID.toString(),
-                                                    FollowupDate:
-                                                        edt_ReverseFollowUpDate
-                                                            .text,
-                                                    CustomerID:
-                                                        edt_CustomerpkID.text,
-                                                    InquiryNo:
-                                                        edt_InqNo.text == "null"
-                                                            ? ""
-                                                            : edt_InqNo.text,
-                                                    MeetingNotes:
-                                                        edt_FollowupNotes.text,
-                                                    NextFollowupDate:
-                                                        edt_ReverseNextFollowupDate
-                                                            .text,
-                                                    Rating: _rating
-                                                        .toInt()
-                                                        .toString(),
-                                                    FollowupTypeId:
-                                                        edt_FollowupTypepkID.text == "null"
-                                                            ? ""
-                                                            : edt_FollowupTypepkID
+
+                                            if(_offlineLoggedInData.details[0].serialKey.toUpperCase()=="DOL2-6UH7-PH03-IN5H" || _offlineLoggedInData
+                                                .details[0].serialKey
+                                                .toUpperCase() ==
+                                                "TEST-0000-SI0F-0208" )
+                                              {
+                                                if(_isForUpdate==true)
+                                                  {
+                                                    if(_editModel.extpkID.toString()!="0")
+                                                      {
+                                                        _FollowupBloc.add(TeleCallerFollowupSaveRequestEvent(context,_editModel.pkID,TeleCallerFollowupSaveRequest(
+                                                          pkID: "0",
+                                                          ExtpkID: _editModel.extpkID.toString(),
+                                                          FollowupDate: edt_ReverseFollowUpDate.text,
+                                                          FollowupSource: edt_FollowupType.text,
+                                                          InquiryStatusID: "0",
+                                                          MeetingNotes: edt_FollowupNotes.text,
+                                                          NextFollowupDate: edt_ReverseNextFollowupDate.text,
+                                                          PreferredTime: edt_PreferedTime.text,
+                                                          LeadStatus: "InProcess",
+                                                          NoFollClosureID: edt_CloserReasonStatusTypepkID.text,
+                                                          AssignToEmployee: _offlineLoggedInData
+                                                              .details[0].employeeID
+                                                              .toString(),
+                                                          LoginUserID: LoginUserID,
+                                                          CompanyId: CompanyID.toString(),
+
+                                                        )));
+                                                      }
+                                                    else
+                                                      {
+                                                        _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                            Msg,
+                                                            context,
+                                                            savepkID,
+                                                            FollowupSaveApiRequest(
+                                                                pkID: savepkID.toString(),
+                                                                FollowupDate:
+                                                                edt_ReverseFollowUpDate
+                                                                    .text,
+                                                                CustomerID:
+                                                                edt_CustomerpkID.text,
+                                                                InquiryNo:
+                                                                edt_InqNo.text == "null"
+                                                                    ? ""
+                                                                    : edt_InqNo.text,
+                                                                MeetingNotes:
+                                                                edt_FollowupNotes.text,
+                                                                NextFollowupDate:
+                                                                edt_ReverseNextFollowupDate
+                                                                    .text,
+                                                                Rating: _rating
+                                                                    .toInt()
+                                                                    .toString(),
+                                                                FollowupTypeId:
+                                                                edt_FollowupTypepkID.text == "null"
+                                                                    ? ""
+                                                                    : edt_FollowupTypepkID
+                                                                    .text,
+                                                                LoginUserID: LoginUserID,
+                                                                Address: Address,
+                                                                NoFollowup: nofollowupvalue
+                                                                    .toString(),
+                                                                InquiryStatusId:
+                                                                edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                                    ? ""
+                                                                    : edt_FollowupInquiryStatusTypepkID
+                                                                    .text,
+                                                                Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                                Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                                PreferredTime:
+                                                                edt_PreferedTime.text,
+                                                                ClosureReasonId:
+                                                                edt_CloserReasonStatusTypepkID.text == "null"
+                                                                    ? ""
+                                                                    : edt_CloserReasonStatusTypepkID.text,
+                                                                CompanyId: CompanyID.toString(),
+                                                                FollowupPriority: FollowupPriorityDetails,
+                                                                FollowUpImage: fileName)));
+
+                                                      }
+                                                  }
+                                                else
+                                                  {
+                                                    _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                        Msg,
+                                                        context,
+                                                        savepkID,
+                                                        FollowupSaveApiRequest(
+                                                            pkID: savepkID.toString(),
+                                                            FollowupDate:
+                                                            edt_ReverseFollowUpDate
                                                                 .text,
-                                                    LoginUserID: LoginUserID,
-                                                    Address: "",
-                                                    NoFollowup: nofollowupvalue
-                                                        .toString(),
-                                                    InquiryStatusId:
-                                                        edt_FollowupInquiryStatusTypepkID.text == "null"
-                                                            ? ""
-                                                            : edt_FollowupInquiryStatusTypepkID
+                                                            CustomerID:
+                                                            edt_CustomerpkID.text,
+                                                            InquiryNo:
+                                                            edt_InqNo.text == "null"
+                                                                ? ""
+                                                                : edt_InqNo.text,
+                                                            MeetingNotes:
+                                                            edt_FollowupNotes.text,
+                                                            NextFollowupDate:
+                                                            edt_ReverseNextFollowupDate
                                                                 .text,
-                                                    Latitude: Latitude,
-                                                    Longitude: Longitude,
-                                                    PreferredTime:
-                                                        edt_PreferedTime.text,
-                                                    ClosureReasonId:
-                                                        edt_CloserReasonStatusTypepkID.text == "null"
-                                                            ? ""
-                                                            : edt_CloserReasonStatusTypepkID.text,
-                                                    CompanyId: CompanyID.toString(),
-                                                    FollowupPriority: FollowupPriorityDetails,
-                                                    FollowUpImage: fileName)));
+                                                            Rating: _rating
+                                                                .toInt()
+                                                                .toString(),
+                                                            FollowupTypeId:
+                                                            edt_FollowupTypepkID.text == "null"
+                                                                ? ""
+                                                                : edt_FollowupTypepkID
+                                                                .text,
+                                                            LoginUserID: LoginUserID,
+                                                            Address:Address,
+                                                            NoFollowup: nofollowupvalue
+                                                                .toString(),
+                                                            InquiryStatusId:
+                                                            edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                                ? ""
+                                                                : edt_FollowupInquiryStatusTypepkID
+                                                                .text,
+                                                            Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                            Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                            PreferredTime:
+                                                            edt_PreferedTime.text,
+                                                            ClosureReasonId:
+                                                            edt_CloserReasonStatusTypepkID.text == "null"
+                                                                ? ""
+                                                                : edt_CloserReasonStatusTypepkID.text,
+                                                            CompanyId: CompanyID.toString(),
+                                                            FollowupPriority: FollowupPriorityDetails,
+                                                            FollowUpImage: fileName)));
+
+                                                  }
+
+                                              }
+                                            else{
+                                              _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                  Msg,
+                                                  context,
+                                                  savepkID,
+                                                  FollowupSaveApiRequest(
+                                                      pkID: savepkID.toString(),
+                                                      FollowupDate:
+                                                      edt_ReverseFollowUpDate
+                                                          .text,
+                                                      CustomerID:
+                                                      edt_CustomerpkID.text,
+                                                      InquiryNo:
+                                                      edt_InqNo.text == "null"
+                                                          ? ""
+                                                          : edt_InqNo.text,
+                                                      MeetingNotes:
+                                                      edt_FollowupNotes.text,
+                                                      NextFollowupDate:
+                                                      edt_ReverseNextFollowupDate
+                                                          .text,
+                                                      Rating: _rating
+                                                          .toInt()
+                                                          .toString(),
+                                                      FollowupTypeId:
+                                                      edt_FollowupTypepkID.text == "null"
+                                                          ? ""
+                                                          : edt_FollowupTypepkID
+                                                          .text,
+                                                      LoginUserID: LoginUserID,
+                                                      Address: Address,
+                                                      NoFollowup: nofollowupvalue
+                                                          .toString(),
+                                                      InquiryStatusId:
+                                                      edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                          ? ""
+                                                          : edt_FollowupInquiryStatusTypepkID
+                                                          .text,
+                                                      Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                      Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                      PreferredTime:
+                                                      edt_PreferedTime.text,
+                                                      ClosureReasonId:
+                                                      edt_CloserReasonStatusTypepkID.text == "null"
+                                                          ? ""
+                                                          : edt_CloserReasonStatusTypepkID.text,
+                                                      CompanyId: CompanyID.toString(),
+                                                      FollowupPriority: FollowupPriorityDetails,
+                                                      FollowUpImage: fileName)));
+
+                                            }
+
+
+
+
+
                                           });
                                         } else {
                                           showCommonDialogWithSingleOption(
@@ -1232,10 +1495,17 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     };
 
     print("Notificationdf" + request123.toString());
-    _FollowupBloc.add(FCMNotificationRequestEvent(request123));
+
+    if(ReportToToken!="")
+      {
+        _FollowupBloc.add(FCMNotificationRequestEvent(request123));
+
+      }
+
 
     if (_selectedImageFile != null) {
-      _FollowupBloc.add(FollowupUploadImageNameCallEvent(
+      _FollowupBloc.add(FollowupUploadImageNameFromMainFollowupCallEvent(
+          state.context,
           _selectedImageFile,
           FollowUpUploadImageAPIRequest(
               CompanyId: CompanyID.toString(),
@@ -1254,16 +1524,32 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           ? "Followup Information. Updated Successfully"
           : "Followup Information. Added Successfully";
 
-      /* showCommonDialogWithSingleOption(state.context, Msg,
-            positiveButtonTitle: "OK", onTapOfPositiveButton: () async {
-             // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
-          });*/
 
-      await showCommonDialogWithSingleOption(Globals.context, Msg,
+     // bool isTaptoEvent = false;
+       showCommonDialogWithSingleOption(context, Msg,
+            positiveButtonTitle: "OK", onTapOfPositiveButton: ()  {
+             // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+             //isTaptoEvent = true;
+             Navigator.pop(context);
+             Navigator.of(state.context).pop(_FollowupStatus);
+
+           });
+
+
+     /*  if(isTaptoEvent==true)
+         {
+           Navigator.of(state.context).pop(_FollowupStatus);
+
+         }*/
+
+     /* await showCommonDialogWithSingleOption(state.context, Msg,
           positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-        navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
-      });
-      //Navigator.of(context).pop();
+        //navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+
+            Navigator.of(state.context).pop(_FollowupStatus);
+      });*/
+
+
     }
   }
 
@@ -1362,7 +1648,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
       TextEditingController controllerForLeft,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 15, bottom: 15),
+      margin: EdgeInsets.only(bottom: 15),
       child: Column(
         children: [
           InkWell(
@@ -2015,7 +2301,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   }
 
   _OnFollowupImageUploadSucessResponse(
-      FollowupUploadImageCallResponseState state) async {
+      FollowupUploadImageFromMainFollowupCallResponseState state) async {
     //print("ImageUploadSucess"+ state.followupImageUploadResponse.details[0].column1);
     /* showCommonDialogWithSingleOption(context, Msg,
          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
@@ -2024,13 +2310,31 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
            Navigator.of(context).pop();
 
          });*/
-    String Msg = _isForUpdate == true
+   /* String Msg = _isForUpdate == true
         ? "Followup Information. Updated Successfully"
         : "Followup Information. Added Successfully";
     await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
       navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
-    });
+    });*/
+
+
+    String Msg = _isForUpdate == true
+        ? "Followup Information. Updated Successfully"
+        : "Followup Information. Added Successfully";
+
+
+    // bool isTaptoEvent = false;
+    showCommonDialogWithSingleOption(context, Msg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: ()  {
+          // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+          //isTaptoEvent = true;
+          Navigator.pop(context);
+          Navigator.of(state.context).pop(_FollowupStatus);
+
+        });
+
+
     // Navigator.of(context).pop();
   }
 
@@ -2201,4 +2505,46 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
       checkPhotoPermissionStatus();
     }
   }
+
+  void _OnTeleCallerFollowupSaveResponse(TeleCallerFollowupSaveResponseState state) {
+
+    String Msg = _isForUpdate == true
+        ? "Followup Information. Updated Successfully"
+        : "Followup Information. Added Successfully";
+
+
+    // bool isTaptoEvent = false;
+    showCommonDialogWithSingleOption(context, Msg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: ()  {
+          // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+          //isTaptoEvent = true;
+          Navigator.pop(context);
+          Navigator.of(state.context).pop(_FollowupStatus);
+
+        });
+
+
+  }
+
+
+  getLocationAddressFromAPI() async {
+    if (MapAPIKey != "") {
+      print("fromdashboardlatlong" +
+          "LatitudeHome : " +
+          SharedPrefHelper.instance.getLatitude() +
+          " LongitudeHome : " +
+          SharedPrefHelper.instance.getLatitude());
+      GeoData data = await Geocoder2.getDataFromCoordinates(
+          latitude: double.parse(SharedPrefHelper.instance.getLatitude()),
+          longitude: double.parse(SharedPrefHelper.instance.getLongitude()),
+          googleMapApiKey: MapAPIKey);
+
+
+      Address = data.address;
+      print("GogleAddress" + Address);
+    } else {
+      Address = "";
+    }
+  }
+
 }

@@ -3,16 +3,14 @@ import 'dart:convert';
 import 'dart:io' show Directory, File, Platform, exit;
 import 'dart:math';
 
-import 'package:app_settings/app_settings.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_shine/flutter_shine.dart';
-import 'package:geocoder2/geocoder2.dart';
 import 'package:geolocator/geolocator.dart'
     as geolocator; // or whatever name you want
 import 'package:geolocator/geolocator.dart';
@@ -23,10 +21,10 @@ import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dashboard/dashboard_user_rights_screen_bloc.dart';
-import 'package:soleoserp/firebase_options.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
@@ -48,6 +46,7 @@ import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/external_lead/external_lead_list/external_lead_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
@@ -55,12 +54,13 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sale_bill_list/sales_bill_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/QuickAttendance/quick_attendance.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
+import 'package:soleoserp/utils/image_full_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -108,6 +108,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Account = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Dealer = [];
+
+  List<ALL_Name_ID> arr_UserRightsWithMenuName = [];
+
   List<String> SplitSTr = [];
 
   final TextEditingController PuchInTime = TextEditingController();
@@ -115,6 +118,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
   final TextEditingController LunchInTime = TextEditingController();
   final TextEditingController LunchOutTime = TextEditingController();
   final TextEditingController ImgFromTextFiled = TextEditingController();
+
+  final TextEditingController PuchInboolcontroller = TextEditingController();
+  final TextEditingController PuchOutboolcontroller = TextEditingController();
+  final TextEditingController LunchInboolcontroller = TextEditingController();
+  final TextEditingController LunchOutboolcontroller = TextEditingController();
+
   final urlController = TextEditingController();
   TextEditingController EmailTO = TextEditingController();
   TextEditingController EmailBCC = TextEditingController();
@@ -156,10 +165,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
   TimeOfDay selectedTime = TimeOfDay.now();
   var delay = const Duration(seconds: 3);
   FirebaseMessaging _messaging;
+
   //final FirebaseMessaging _firebaseMessaging;//= FirebaseMessaging();
   PushNotificationService pushNotificationService = PushNotificationService();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
   AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('app_icon');
@@ -169,9 +180,30 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
   String ConstantMAster = "";
 
+  String LatitudeHome = "23.0115394";
+  String LongitudeHome = "72.5235199";
+
+  bool islead = false;
+  bool isSale = false;
+  bool isAccount = false;
+  bool isProduction = false;
+  bool isHR = false;
+  bool isPurchase = false;
+  bool isOffice = false;
+  bool isSupport = false;
+
+  final double runSpacing = 4;
+  final double spacing = 4;
+  final columns = 4;
+
   @override
   void initState() {
     super.initState();
+
+    PuchInboolcontroller.text = "";
+    PuchOutboolcontroller.text = "";
+    LunchInboolcontroller.text = "";
+    LunchOutboolcontroller.text = "";
 
     imageCache.clear();
     initPlatformState();
@@ -240,6 +272,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
+
+    print("MapAPIKey" + MapAPIKey);
     IOSAPPStatus = _offlineCompanyData.details[0].IOSApp;
     AndroidAppStatus = _offlineCompanyData.details[0].AndroidApp;
     SiteURL = _offlineCompanyData.details[0].siteURL;
@@ -254,7 +288,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
     ImgFromTextFiled.text = "https://img.icons8.com/color/2x/no-image.png";
     _dashBoardScreenBloc = DashBoardScreenBloc(baseBloc);
     checkPermissionStatus();
-
     FirebaseMessaging.instance.getToken().then((token) {
       final tokenStr = token.toString();
       // do whatever you want with the token here
@@ -266,9 +299,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
             TokenNo: tokenStr)));
     });
 
-    _dashBoardScreenBloc
-      ..add(MenuRightsCallEvent(MenuRightsRequest(
-          CompanyID: CompanyID.toString(), LoginUserID: LoginUserID)));
     _dashBoardScreenBloc
       ..add(FollowerEmployeeListCallEvent(FollowerEmployeeListRequest(
           CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
@@ -312,6 +342,11 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
     getDetailsOfImage(
         "https://img.icons8.com/color/2x/no-image.png", "demo.png");
+
+    PuchInboolcontroller.addListener(timeChangesEvent);
+    PuchOutboolcontroller.addListener(timeChangesEvent);
+    LunchInboolcontroller.addListener(timeChangesEvent);
+    LunchOutboolcontroller.addListener(timeChangesEvent);
   }
 
   @override
@@ -413,6 +448,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
   @override
   Widget buildBody(BuildContext context123) {
     //getcurrentTimeInfoFromMain(context123);
+    final w = (MediaQuery.of(context).size.width - runSpacing * (4 - 1)) / 4;
 
     print("FromScreen" + ConstantMAster.toString());
     if (Platform.isAndroid) {
@@ -438,6 +474,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
     return IsExistInIOS == true
         ? Scaffold(
+            backgroundColor: colorGray,
             appBar: AppBar(
               leading: Builder(
                 builder: (context) => Container(
@@ -479,6 +516,94 @@ class _HomeScreenState extends BaseState<HomeScreen>
               actions: <Widget>[
                 GestureDetector(
                   onTap: () {
+                    UserProfileDialog(context1: context123);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.only(top: 20, right: 20),
+                    child: Icon(
+                      Icons.person_pin_rounded,
+                      size: 30,
+                      color: colorPrimary,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    return showDialog(
+                        context: context,
+                        builder: (context) {
+                          bool isChecked = false;
+                          // timeChangesEvent();
+
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(30.0))),
+                            title: Column(
+                              children: [
+                                Text(
+                                  "Daily Operations",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold,
+                                      color: colorPrimary),
+                                ),
+                                Divider(
+                                  thickness: 2,
+                                ),
+                              ],
+                            ),
+                            content: Container(
+                                height: 450,
+                                width: double.infinity,
+                                child: QuickAttendanceScreen()),
+                            actions: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  width: double.infinity,
+                                  alignment: Alignment.center,
+                                  margin: EdgeInsets.all(5),
+                                  child: /*getCommonButton(baseTheme, () {
+                                    Navigator.pop(context);
+                                  }, "Close"),*/
+                                      Column(
+                                    children: [
+                                      Divider(
+                                        thickness: 2,
+                                      ),
+                                      getCommonButton(baseTheme, () {
+                                        Navigator.pop(context);
+                                      }, "Close", radius: 25.0),
+                                      /*Text(
+                                        "Close",
+                                        style: TextStyle(
+                                            color: colorPrimary,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),*/
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          );
+                        });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.only(top: 20, right: 20),
+                    child: Icon(
+                      Icons.watch_later,
+                      size: 30,
+                      color: colorPrimary,
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
                     SharedPrefHelper.instance.prefs.setString("Is_Dealer", "");
                     _onTapOfLogOut();
                   },
@@ -496,8 +621,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
             body: RefreshIndicator(
               onRefresh: () async {
                 checkPermissionStatus();
-                checkPhotoPermissionStatus();
 
+                checkPhotoPermissionStatus();
+                getcurrentTimeInfoFromMaindfd();
                 /* _dashBoardScreenBloc..add(EmployeeListCallEvent(
               1,
               EmployeeListRequest(
@@ -523,7 +649,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
                     LoginUserID: LoginUserID)));
               },
               child: Container(
-                color: colorVeryLightGray,
+                color: colorWhite,
                 padding: EdgeInsets.only(
                   left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                   right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
@@ -561,773 +687,212 @@ class _HomeScreenState extends BaseState<HomeScreen>
                         ],
                       )
                     :*/
-                    Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                    ListView(
                   children: [
-                    _offlineLoggedInData.details[0].serialKey.toLowerCase() !=
-                            "dol2-6uh7-ph03-in5h"
-                        ? ISDelaer != "Dealer"
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                    left: 15, right: 15, top: 10),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 1,
-                                          child: InkWell(
-                                            onTap: () async {
-                                              TimeOfDay selectedTime =
-                                                  TimeOfDay.now();
+                    ///___________________Leads____________________________
+                    arr_ALL_Name_ID_For_Lead.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                islead = !islead;
 
-                                              if (isCurrentTime == true) {
-                                                if (isPunchIn == true) {
-                                                  showCommonDialogWithSingleOption(
-                                                      context,
-                                                      _offlineLoggedInData
-                                                              .details[0]
-                                                              .employeeName +
-                                                          " \n Punch In : " +
-                                                          PuchInTime.text,
-                                                      positiveButtonTitle:
-                                                          "OK");
-                                                } else {
-                                                  if (await Permission
-                                                      .storage.isDenied) {
-                                                    //await Permission.storage.request();
-
-                                                    checkPhotoPermissionStatus();
-                                                  } else {
-                                                    if (ConstantMAster
-                                                                .toString() ==
-                                                            "" ||
-                                                        ConstantMAster
-                                                                    .toString()
-                                                                .toLowerCase() ==
-                                                            "no") {
-                                                      _dashBoardScreenBloc.add(PunchWithoutImageAttendanceSaveRequestEvent(PunchWithoutImageAttendanceSaveRequest(
-                                                          Mode: "punchin",
-                                                          pkID: "0",
-                                                          EmployeeID:
-                                                              _offlineLoggedInData
-                                                                  .details[0]
-                                                                  .employeeID
-                                                                  .toString(),
-                                                          PresenceDate: selectedDate
-                                                                  .year
-                                                                  .toString() +
-                                                              "-" +
-                                                              selectedDate.month
-                                                                  .toString() +
-                                                              "-" +
-                                                              selectedDate.day
-                                                                  .toString(),
-                                                          TimeIn: selectedTime
-                                                                  .hour
-                                                                  .toString() +
-                                                              ":" +
-                                                              selectedTime
-                                                                  .minute
-                                                                  .toString(),
-                                                          TimeOut: "",
-                                                          LunchIn: "",
-                                                          LunchOut: "",
-                                                          LoginUserID:
-                                                              LoginUserID,
-                                                          Notes: "",
-                                                          Latitude: Latitude,
-                                                          Longitude: Longitude,
-                                                          LocationAddress:
-                                                              Address,
-                                                          CompanyId: CompanyID
-                                                              .toString())));
-                                                    } else {
-                                                      final imagepicker =
-                                                          ImagePicker();
-
-                                                      XFile file =
-                                                          await imagepicker
-                                                              .pickImage(
-                                                        source:
-                                                            ImageSource.camera,
-                                                        imageQuality: 85,
-                                                      );
-
-                                                      if (file != null) {
-                                                        File file1 =
-                                                            File(file.path);
-
-                                                        final extension =
-                                                            p.extension(
-                                                                file1.path);
-
-                                                        int timestamp1 = DateTime
-                                                                .now()
-                                                            .millisecondsSinceEpoch;
-
-                                                        String filenamepunchin =
-                                                            _offlineLoggedInData
-                                                                    .details[0]
-                                                                    .employeeID
-                                                                    .toString() +
-                                                                "_" +
-                                                                DateTime.now()
-                                                                    .day
-                                                                    .toString() +
-                                                                "_" +
-                                                                DateTime.now()
-                                                                    .month
-                                                                    .toString() +
-                                                                "_" +
-                                                                DateTime.now()
-                                                                    .year
-                                                                    .toString() +
-                                                                "_" +
-                                                                timestamp1
-                                                                    .toString() +
-                                                                extension;
-
-                                                        _dashBoardScreenBloc.add(
-                                                            PunchAttendanceSaveRequestEvent(
-                                                                file1,
-                                                                PunchAttendanceSaveRequest(
-                                                                  pkID: "0",
-                                                                  CompanyId:
-                                                                      CompanyID
-                                                                          .toString(),
-                                                                  Mode:
-                                                                      "punchIN",
-                                                                  EmployeeID: _offlineLoggedInData
-                                                                      .details[
-                                                                          0]
-                                                                      .employeeID
-                                                                      .toString(),
-                                                                  FileName:
-                                                                      filenamepunchin,
-                                                                  PresenceDate: selectedDate
-                                                                          .year
-                                                                          .toString() +
-                                                                      "-" +
-                                                                      selectedDate
-                                                                          .month
-                                                                          .toString() +
-                                                                      "-" +
-                                                                      selectedDate
-                                                                          .day
-                                                                          .toString(),
-                                                                  Time: selectedTime
-                                                                          .hour
-                                                                          .toString() +
-                                                                      ":" +
-                                                                      selectedTime
-                                                                          .minute
-                                                                          .toString(),
-                                                                  Notes: "",
-                                                                  Latitude:
-                                                                      Latitude,
-                                                                  Longitude:
-                                                                      Longitude,
-                                                                  LocationAddress:
-                                                                      Address,
-                                                                  LoginUserId:
-                                                                      LoginUserID,
-                                                                )));
-                                                      } /*else {
-                                                        showCommonDialogWithSingleOption(
-                                                            context,
-                                                            "Something Went Wrong File Not Found Exception!",
-                                                            positiveButtonTitle:
-                                                                "OK");
-                                                      }*/
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            },
-                                            child: Card(
-                                              elevation: 5,
-                                              color: PuchInTime.text == ""
-                                                  ? colorAbsentfDay
-                                                  : colorPresentDay,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                              child: Container(
-                                                height: 35,
-                                                width: 100,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          "Punch In",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              // <-- Change this
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              //https://drive.google.com/file/d/1hZHStrGY718yD59ZY4MCOwJe6v1e-EtE/view?usp=sharing
-                                              /*  lkjdjds
-                                              ;sdfksd*/
-
-                                              OpenDriveLink(
-                                                  "https://drive.google.com/file/d/1hZHStrGY718yD59ZY4MCOwJe6v1e-EtE/view?usp=sharing");
-                                            },
-                                            child: Container(
-                                              child: Column(
-                                                children: [
-                                                  Image.network(
-                                                    ImgFromTextFiled.text,
-                                                    key: ValueKey(new Random()
-                                                        .nextInt(100)),
-                                                    height: 48,
-                                                    width: 48,
-                                                    errorBuilder: (BuildContext
-                                                            context,
-                                                        Object exception,
-                                                        StackTrace stackTrace) {
-                                                      return Image.network(
-                                                          "https://img.icons8.com/color/2x/no-image.png",
-                                                          height: 48,
-                                                          width: 48);
-                                                    },
-                                                  ),
-                                                  // Image.network(ImgFromTextFiled.text,height: 48, width: 48, ),
-                                                  Text(
-                                                    _offlineLoggedInData
-                                                        .details[0]
-                                                        .employeeName,
-                                                    style: TextStyle(
-                                                        fontSize: 10,
-                                                        color: colorDarkBlue),
-                                                  ),
-                                                  Text(
-                                                    _offlineLoggedInData
-                                                        .details[0].roleName,
-                                                    style: TextStyle(
-                                                        fontSize: 10,
-                                                        color: colorDarkBlue),
-                                                  )
-                                                ],
-                                              ),
-                                              width: double.infinity,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: InkWell(
-                                            onTap: () => isCurrentTime == true
-                                                ? punchoutLogic()
-                                                : showCommonDialogWithSingleOption(
-                                                    context,
-                                                    "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
-                                                    positiveButtonTitle: "OK",
-                                                    onTapOfPositiveButton: () {
-                                                    navigateTo(context,
-                                                        HomeScreen.routeName,
-                                                        clearAllStack: true);
-                                                  }),
-                                            child: Card(
-                                              elevation: 5,
-                                              color: PuchOutTime.text == ""
-                                                  ? colorAbsentfDay
-                                                  : colorPresentDay,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                              child: Container(
-                                                height: 35,
-                                                width: 100,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          "Punch Out",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-
-                                                              // <-- Change this
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                isSale = false;
+                                isAccount = false;
+                                isProduction = false;
+                                isHR = false;
+                                isPurchase = false;
+                                isOffice = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
                                       ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                    Row(
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        SizedBox(
-                                          width: 50,
+                                        Image.asset(
+                                          DASHBOARD_LEAD,
+                                          width: 42,
+                                          height: 42,
                                         ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: InkWell(
-                                              onTap: () {
-                                                TimeOfDay selectedTime =
-                                                    TimeOfDay.now();
-
-                                                if (isCurrentTime == true) {
-                                                  if (isPunchIn == true) {
-                                                    if (isPunchOut == false) {
-                                                      if (isLunchIn == true) {
-                                                        showCommonDialogWithSingleOption(
-                                                            context,
-                                                            _offlineLoggedInData
-                                                                    .details[0]
-                                                                    .employeeName +
-                                                                " \n Lunch In : " +
-                                                                LunchInTime
-                                                                    .text,
-                                                            positiveButtonTitle:
-                                                                "OK");
-                                                      } else {
-                                                        if (ConstantMAster
-                                                                    .toString() ==
-                                                                "" ||
-                                                            ConstantMAster
-                                                                        .toString()
-                                                                    .toLowerCase() ==
-                                                                "no") {
-                                                          _dashBoardScreenBloc.add(PunchWithoutImageAttendanceSaveRequestEvent(PunchWithoutImageAttendanceSaveRequest(
-                                                              Mode: "lunchin",
-                                                              pkID: "0",
-                                                              EmployeeID: _offlineLoggedInData
-                                                                  .details[0]
-                                                                  .employeeID
-                                                                  .toString(),
-                                                              PresenceDate: selectedDate
-                                                                      .year
-                                                                      .toString() +
-                                                                  "-" +
-                                                                  selectedDate
-                                                                      .month
-                                                                      .toString() +
-                                                                  "-" +
-                                                                  selectedDate.day
-                                                                      .toString(),
-                                                              TimeIn: "",
-                                                              TimeOut: "",
-                                                              LunchIn: selectedTime
-                                                                      .hour
-                                                                      .toString() +
-                                                                  ":" +
-                                                                  selectedTime
-                                                                      .minute
-                                                                      .toString(),
-                                                              LunchOut: "",
-                                                              LoginUserID:
-                                                                  LoginUserID,
-                                                              Notes: "",
-                                                              Latitude:
-                                                                  Latitude,
-                                                              Longitude:
-                                                                  Longitude,
-                                                              LocationAddress:
-                                                                  Address,
-                                                              CompanyId: CompanyID
-                                                                  .toString())));
-                                                        } else {
-                                                          _dashBoardScreenBloc.add(
-                                                              PunchAttendanceSaveRequestEvent(
-                                                                  Lunch_In_OUT_File,
-                                                                  PunchAttendanceSaveRequest(
-                                                                    pkID: "0",
-                                                                    CompanyId:
-                                                                        CompanyID
-                                                                            .toString(),
-                                                                    Mode:
-                                                                        "lunchin",
-                                                                    EmployeeID: _offlineLoggedInData
-                                                                        .details[
-                                                                            0]
-                                                                        .employeeID
-                                                                        .toString(),
-                                                                    FileName:
-                                                                        "demo.png",
-                                                                    PresenceDate: selectedDate.year.toString() +
-                                                                        "-" +
-                                                                        selectedDate
-                                                                            .month
-                                                                            .toString() +
-                                                                        "-" +
-                                                                        selectedDate
-                                                                            .day
-                                                                            .toString(),
-                                                                    Time: selectedTime
-                                                                            .hour
-                                                                            .toString() +
-                                                                        ":" +
-                                                                        selectedTime
-                                                                            .minute
-                                                                            .toString(),
-                                                                    Notes: "",
-                                                                    Latitude:
-                                                                        Latitude,
-                                                                    Longitude:
-                                                                        Longitude,
-                                                                    LocationAddress:
-                                                                        Address,
-                                                                    LoginUserId:
-                                                                        LoginUserID,
-                                                                  )));
-                                                        }
-                                                      }
-                                                    } else {
-                                                      if (isLunchIn == false) {
-                                                        showCommonDialogWithSingleOption(
-                                                            context,
-                                                            "After Punch Out, You can't be able to do Lunch In!!",
-                                                            positiveButtonTitle:
-                                                                "OK");
-                                                      }
-                                                    }
-                                                  } else {
-                                                    showCommonDialogWithSingleOption(
-                                                        context,
-                                                        "Punch in Is Required !",
-                                                        positiveButtonTitle:
-                                                            "OK");
-                                                  }
-                                                } else {
-                                                  showCommonDialogWithSingleOption(
-                                                      context,
-                                                      "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
-                                                      positiveButtonTitle: "OK",
-                                                      onTapOfPositiveButton:
-                                                          () {
-                                                    navigateTo(context,
-                                                        HomeScreen.routeName,
-                                                        clearAllStack: true);
-                                                  });
-                                                }
-                                              },
-                                              child: Card(
-                                                elevation: 5,
-                                                color: LunchInTime.text == ""
-                                                    ? colorAbsentfDay
-                                                    : colorPresentDay,
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15)),
-                                                child: Container(
-                                                  height: 35,
-                                                  width: 100,
-                                                  child: Row(
+                                        Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "Leads",
+                                                style: TextStyle(
+                                                    color: colorWhite,
+                                                    fontSize: 20,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              /*  Container(
+                                                width: 200,
+                                                height: 1,
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 5),
+                                                color: colorWhite,
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Column(
                                                     children: [
-                                                      Expanded(
-                                                        child: Align(
-                                                          alignment:
-                                                              Alignment.center,
-                                                          child: Text(
-                                                            "Lunch In",
-                                                            style: TextStyle(
-                                                                color:
-                                                                    colorWhite,
-
-                                                                // <-- Change this
-                                                                fontSize: 10,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ),
-                                                      ),
+                                                      Text("0",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      Text("Contacts",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
                                                     ],
                                                   ),
-                                                ),
-                                              )),
-
-                                          /*child: InkWell(
-                                            onTap: () =>
-                                            isCurrentTime == true
-                                                ? isPunchIn == true
-                                                    ? isPunchOut == false
-                                                        ? isLunchIn == true
-                                                            ? showCommonDialogWithSingleOption(
-                                                                context,
-                                                                _offlineLoggedInData
-                                                                        .details[
-                                                                            0]
-                                                                        .employeeName +
-                                                                    " \n Lunch In : " +
-                                                                    LunchInTime
-                                                                        .text,
-                                                                positiveButtonTitle:
-                                                                    "OK")
-                                                            :
-
-                                                            _dashBoardScreenBloc.add(
-                                                                PunchAttendanceSaveRequestEvent(
-                                                                    Lunch_In_OUT_File,
-                                                                    PunchAttendanceSaveRequest(
-                                                                      pkID: "0",
-                                                                      CompanyId:
-                                                                          CompanyID
-                                                                              .toString(),
-                                                                      Mode:
-                                                                          "lunchin",
-                                                                      EmployeeID: _offlineLoggedInData
-                                                                          .details[
-                                                                              0]
-                                                                          .employeeID
-                                                                          .toString(),
-                                                                      FileName:
-                                                                          "demo.png",
-                                                                      PresenceDate: selectedDate.year.toString() +
-                                                                          "-" +
-                                                                          selectedDate
-                                                                              .month
-                                                                              .toString() +
-                                                                          "-" +
-                                                                          selectedDate
-                                                                              .day
-                                                                              .toString(),
-                                                                      Time: selectedTime
-                                                                              .hour
-                                                                              .toString() +
-                                                                          ":" +
-                                                                          selectedTime
-                                                                              .minute
-                                                                              .toString(),
-                                                                      Notes: "",
-                                                                      Latitude:
-                                                                          Latitude,
-                                                                      Longitude:
-                                                                          Longitude,
-                                                                      LocationAddress:
-                                                                          Address,
-                                                                      LoginUserId:
-                                                                          LoginUserID,
-                                                                    )))
-                                                        : isLunchIn == false
-                                                            ? showCommonDialogWithSingleOption(
-                                                                context,
-                                                                "After Punch Out, You can't be able to do Lunch In!!",
-                                                                positiveButtonTitle:
-                                                                    "OK")
-                                                            : Container()
-                                                    : showCommonDialogWithSingleOption(
-                                                        context,
-                                                        "Punch in Is Required !",
-                                                        positiveButtonTitle:
-                                                            "OK")
-                                                : showCommonDialogWithSingleOption(
-                                                    context,
-                                                    "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
-                                                    positiveButtonTitle: "OK",
-                                                    onTapOfPositiveButton: () {
-                                                    navigateTo(context,
-                                                        HomeScreen.routeName,
-                                                        clearAllStack: true);
-                                                  }),
-                                            child: Card(
-                                              elevation: 5,
-                                              color: LunchInTime.text == ""
-                                                  ? colorAbsentfDay
-                                                  : colorPresentDay,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                              child: Container(
-                                                height: 35,
-                                                width: 100,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          "Lunch In",
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Column(
+                                                    children: [
+                                                      Text("0",
                                                           style: TextStyle(
                                                               color: colorWhite,
-
-                                                              // <-- Change this
                                                               fontSize: 10,
                                                               fontWeight:
                                                                   FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),*/
-                                        ),
-                                        SizedBox(
-                                          width: 70,
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: InkWell(
-                                            onTap: () => isCurrentTime == true
-                                                ? lunchoutLogic()
-                                                : showCommonDialogWithSingleOption(
-                                                    context,
-                                                    "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
-                                                    positiveButtonTitle: "OK",
-                                                    onTapOfPositiveButton: () {
-                                                    navigateTo(context,
-                                                        HomeScreen.routeName,
-                                                        clearAllStack: true);
-                                                  }),
-                                            child: Card(
-                                              elevation: 5,
-                                              color: LunchOutTime.text == ""
-                                                  ? colorAbsentfDay
-                                                  : colorPresentDay,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          15)),
-                                              child: Container(
-                                                height: 35,
-                                                width: 100,
-                                                child: Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: Text(
-                                                          "Lunch Out",
+                                                                      .bold)),
+                                                      Text("Followup",
                                                           style: TextStyle(
                                                               color: colorWhite,
-
-                                                              // <-- Change this
                                                               fontSize: 10,
                                                               fontWeight:
                                                                   FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
+                                                                      .bold)),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Column(
+                                                    children: [
+                                                      Text("0",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      Text("Inquiry",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Column(
+                                                    children: [
+                                                      Text("0",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      Text("Quotation",
+                                                          style: TextStyle(
+                                                              color: colorWhite,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )*/
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: 50,
+                                        Icon(
+                                          islead == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              )
-                            : Container()
+                              ),
+                            ),
+                          )
                         : Container(),
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          ///___________________Leads____________________________
-                          arr_ALL_Name_ID_For_Lead.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 20, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
+                    arr_ALL_Name_ID_For_Lead.length != 0
+                        ? Visibility(
+                            visible: islead,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Lead.length, (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Leads",
-                                              style: TextStyle(
-                                                  color: colorWhite,
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Lead.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Lead.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (200 / 200),
-
-                                      ///200,300
-                                    ),
-                                    itemCount: arr_ALL_Name_ID_For_Lead.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Lead[index]
                                                 .Name,
@@ -1335,82 +900,177 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             context123,
                                             arr_ALL_Name_ID_For_Lead[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///___________________Sales______________________________
-                          arr_ALL_Name_ID_For_Sales.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 20, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Sales",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+
+                    ///___________________Sales______________________________
+
+                    arr_ALL_Name_ID_For_Sales.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isSale = !isSale;
+
+                                islead = false;
+                                isAccount = false;
+                                isProduction = false;
+                                isHR = false;
+                                isPurchase = false;
+                                isOffice = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_SALES,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Sales",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            /*  Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("SalesOrder",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("SalesBill",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )*/
+                                          ],
+                                        ),
+                                        Icon(
+                                          isSale == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Sales.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Sales.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (200 / 200),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
 
-                                      ///200,300
-                                    ),
-                                    itemCount: arr_ALL_Name_ID_For_Sales.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                    arr_ALL_Name_ID_For_Sales.length != 0
+                        ? Visibility(
+                            visible: isSale,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Sales.length,
+                                      (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Sales[index]
                                                 .Name,
@@ -1418,83 +1078,171 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             context123,
                                             arr_ALL_Name_ID_For_Sales[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///____________________Production_______________________
-                          arr_ALL_Name_ID_For_Production.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 20, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Production",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ))
+                        : Container(),
+
+                    ///____________________Production_______________________
+
+                    arr_ALL_Name_ID_For_Production.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isProduction = !isProduction;
+                                islead = false;
+                                isSale = false;
+                                isAccount = false;
+                                isHR = false;
+                                isPurchase = false;
+                                isOffice = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_PRODUCTION,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Production",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Inward",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("OutWord",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        Icon(
+                                          isProduction == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Production.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Production.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (200 / 200),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
 
-                                      ///200,300
-                                    ),
-                                    itemCount:
-                                        arr_ALL_Name_ID_For_Production.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                    arr_ALL_Name_ID_For_Production.length != 0
+                        ? Visibility(
+                            visible: isProduction,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Production.length,
+                                      (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Production[
                                                     index]
@@ -1504,83 +1252,175 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             arr_ALL_Name_ID_For_Production[
                                                     index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///____________________Account_________________________
-                          arr_ALL_Name_ID_For_Account.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 20, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Account",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ))
+                        : Container(),
+
+                    ///____________________Account_________________________
+
+                    arr_ALL_Name_ID_For_Account.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isAccount = !isAccount;
+                                islead = false;
+                                isSale = false;
+                                isProduction = false;
+                                isHR = false;
+                                isPurchase = false;
+                                isOffice = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_ACCOUNT,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Account",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            /*  Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("voucher",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("journal",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )*/
+                                          ],
+                                        ),
+                                        Icon(
+                                          isAccount == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Account.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Account.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (200 / 200),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
 
-                                      ///200,300
-                                    ),
-                                    itemCount:
-                                        arr_ALL_Name_ID_For_Account.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                    arr_ALL_Name_ID_For_Account.length != 0
+                        ? Visibility(
+                            visible: isAccount,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Account.length,
+                                      (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Account[index]
                                                 .Name,
@@ -1588,161 +1428,350 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             context123,
                                             arr_ALL_Name_ID_For_Account[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///___________________HR_______________________________
-                          arr_ALL_Name_ID_For_HR.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 15, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  HR",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+
+                    ///___________________HR_______________________________
+
+                    arr_ALL_Name_ID_For_HR.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isHR = !isHR;
+                                islead = false;
+                                isSale = false;
+                                isAccount = false;
+                                isProduction = false;
+                                isPurchase = false;
+                                isOffice = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_HR,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "HR",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            /*Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Leave",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("MissedPunch",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )*/
+                                          ],
+                                        ),
+                                        Icon(
+                                          isHR == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_HR.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_HR.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (150 / 150),
-                                    ),
-                                    itemCount: arr_ALL_Name_ID_For_HR.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+
+                    arr_ALL_Name_ID_For_HR.length != 0
+                        ? Visibility(
+                            visible: isHR,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_HR.length, (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_HR[index].Name,
                                             Icons.person,
                                             context123,
                                             arr_ALL_Name_ID_For_HR[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///__________________Purchase__________________________
-                          arr_ALL_Name_ID_For_Purchase.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 15, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Purchase",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ))
+                        : Container(),
+
+                    ///__________________Purchase__________________________
+
+                    arr_ALL_Name_ID_For_Purchase.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isPurchase = !isPurchase;
+                                islead = false;
+                                isSale = false;
+                                isAccount = false;
+                                isProduction = false;
+                                isHR = false;
+                                isOffice = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_PURCHASE,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Purchase",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            /* Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("PurchaseOrder",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("PurchaseBill",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )*/
+                                          ],
+                                        ),
+                                        Icon(
+                                          isPurchase == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Purchase.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Purchase.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (150 / 150),
-                                    ),
-                                    itemCount:
-                                        arr_ALL_Name_ID_For_Purchase.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+
+                    arr_ALL_Name_ID_For_Purchase.length != 0
+                        ? Visibility(
+                            visible: isPurchase,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Purchase.length,
+                                      (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Purchase[index]
                                                 .Name,
@@ -1750,81 +1779,175 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             context123,
                                             arr_ALL_Name_ID_For_Purchase[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///___________________Office____________________________
-                          arr_ALL_Name_ID_For_Office.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 15, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Office",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+
+                    ///___________________Office____________________________
+
+                    arr_ALL_Name_ID_For_Office.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isOffice = !isOffice;
+                                islead = false;
+                                isSale = false;
+                                isAccount = false;
+                                isProduction = false;
+                                isHR = false;
+                                isPurchase = false;
+                                isSupport = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_OFFICE,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Office",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            /* Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("PendingTask",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Activity",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )*/
+                                          ],
+                                        ),
+                                        Icon(
+                                          isOffice == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Office.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Office.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (150 / 150),
-                                    ),
-                                    itemCount:
-                                        arr_ALL_Name_ID_For_Office.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                    arr_ALL_Name_ID_For_Office.length != 0
+                        ? Visibility(
+                            visible: isOffice,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Office.length,
+                                      (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Office[index]
                                                 .Name,
@@ -1832,81 +1955,171 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             context123,
                                             arr_ALL_Name_ID_For_Office[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-
-                          ///___________________Support____________________________
-                          arr_ALL_Name_ID_For_Support.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      left: 10, top: 15, right: 10),
-                                  child: Card(
-                                    elevation: 5,
-                                    color: colorLightGray,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(25)),
-                                    child: Container(
-                                      height: 40,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(25),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.indigo,
-                                            Colors.blue,
-                                            Colors.blue,
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
                                       ),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.ac_unit,
-                                            color: colorWhite,
-                                          ),
-                                          Expanded(
-                                            child: Text(
-                                              "  Support",
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+
+                    ///___________________Support____________________________
+
+                    arr_ALL_Name_ID_For_Support.length != 0
+                        ? InkWell(
+                            onTap: () {
+                              setState(() {
+                                isSupport = !isSupport;
+                                islead = false;
+                                isSale = false;
+                                isAccount = false;
+                                isProduction = false;
+                                isHR = false;
+                                isPurchase = false;
+                                isOffice = false;
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 20),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 100,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Image.asset(
+                                          DASHBOARD_SUPPORT,
+                                          width: 42,
+                                          height: 42,
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              "Support",
                                               style: TextStyle(
                                                   color: colorWhite,
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                          ),
-                                        ],
-                                      ),
+                                            Container(
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Open",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Closed",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        Icon(
+                                          isSupport == false
+                                              ? Icons.keyboard_arrow_down
+                                              : Icons
+                                                  .keyboard_arrow_up_outlined,
+                                          color: colorWhite,
+                                          size: 38,
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Support.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Support.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5.0,
-                                      mainAxisSpacing: 5.0,
-                                      childAspectRatio: (150 / 150),
-                                    ),
-                                    itemCount:
-                                        arr_ALL_Name_ID_For_Support.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
+                    arr_ALL_Name_ID_For_Support.length != 0
+                        ? Visibility(
+                            visible: isSupport,
+                            child: Card(
+                              elevation: 5,
+                              color: colorGreenVeryLight,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                padding: EdgeInsets.only(
+                                    top: 10, left: 10, right: 10, bottom: 10),
+                                child: Wrap(
+                                  runSpacing: 8,
+                                  spacing: 5,
+                                  alignment: WrapAlignment.center,
+                                  children: List.generate(
+                                      arr_ALL_Name_ID_For_Support.length,
+                                      (index) {
+                                    return Container(
+                                      width: w,
+                                      height: w,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color:
+                                              colorWhite, //colorCombination(title),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                         child: makeDashboardItem(
                                             arr_ALL_Name_ID_For_Support[index]
                                                 .Name,
@@ -1914,51 +2127,130 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                             context123,
                                             arr_ALL_Name_ID_For_Support[index]
                                                 .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
 
-                          //  arr_ALL_Name_ID_For_Dealer
-                          ///___________________Dealer___________________________
-
-                          arr_ALL_Name_ID_For_Dealer.length != 0
-                              ? SizedBox(
-                                  height: 20,
-                                )
-                              : Container(),
-                          arr_ALL_Name_ID_For_Dealer.length != 0
-                              ? Container(
-                                  margin: EdgeInsets.only(
-                                      top: 5.0, left: 10, right: 10, bottom: 5),
-                                  child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 20.0,
-                                      mainAxisSpacing: 20.0,
-                                      childAspectRatio: (100 / 100),
+                    /*   arr_ALL_Name_ID_For_Support.length != 0
+                            ? Container(
+                                margin: EdgeInsets.only(
+                                    left: 10, top: 15, right: 10),
+                                child: Card(
+                                  elevation: 5,
+                                  color: colorLightGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(25)),
+                                  child: Container(
+                                    height: 40,
+                                    padding: EdgeInsets.only(left: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.indigo,
+                                          Colors.blue,
+                                          Colors.blue,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
                                     ),
-                                    itemCount:
-                                        arr_ALL_Name_ID_For_Dealer.length,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        child: makeDashboardItem(
-                                            arr_ALL_Name_ID_For_Dealer[index]
-                                                .Name,
-                                            Icons.person,
-                                            context123,
-                                            arr_ALL_Name_ID_For_Dealer[index]
-                                                .Name1),
-                                      );
-                                    },
-                                  ))
-                              : Container(),
-                        ],
-                      ),
-                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.ac_unit,
+                                          color: colorWhite,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            "  Support",
+                                            style: TextStyle(
+                                                color: colorWhite,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                        arr_ALL_Name_ID_For_Support.length != 0
+                            ? SizedBox(
+                                height: 20,
+                              )
+                            : Container(),
+                        arr_ALL_Name_ID_For_Support.length != 0
+                            ? Container(
+                                margin: EdgeInsets.only(
+                                    top: 5.0, left: 10, right: 10, bottom: 5),
+                                child: GridView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 5.0,
+                                    mainAxisSpacing: 5.0,
+                                    childAspectRatio: (150 / 150),
+                                  ),
+                                  itemCount:
+                                      arr_ALL_Name_ID_For_Support.length,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      child: makeDashboardItem(
+                                          arr_ALL_Name_ID_For_Support[index]
+                                              .Name,
+                                          Icons.person,
+                                          context123,
+                                          arr_ALL_Name_ID_For_Support[index]
+                                              .Name1),
+                                    );
+                                  },
+                                ))
+                            : Container(),*/
+
+                    //  arr_ALL_Name_ID_For_Dealer
+                    ///___________________Dealer___________________________
+
+                    arr_ALL_Name_ID_For_Dealer.length != 0
+                        ? SizedBox(
+                            height: 20,
+                          )
+                        : Container(),
+                    arr_ALL_Name_ID_For_Dealer.length != 0
+                        ? Container(
+                            margin: EdgeInsets.only(
+                                top: 5.0, left: 10, right: 10, bottom: 5),
+                            child: GridView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 20.0,
+                                mainAxisSpacing: 20.0,
+                                childAspectRatio: (100 / 100),
+                              ),
+                              itemCount: arr_ALL_Name_ID_For_Dealer.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  child: makeDashboardItem(
+                                      arr_ALL_Name_ID_For_Dealer[index].Name,
+                                      Icons.person,
+                                      context123,
+                                      arr_ALL_Name_ID_For_Dealer[index].Name1),
+                                );
+                              },
+                            ))
+                        : Container(),
                   ],
                 ),
               ),
@@ -2042,7 +2334,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
   void _onDashBoardCallSuccess(
       MenuRightsEventResponseState response, BuildContext context123) {
+    checkPermissionStatus();
+
     // array_MenuRightsList.clear();
+    arr_UserRightsWithMenuName.clear();
+    SharedPrefHelper.instance.setMenuRightsData(response.menuRightsResponse);
+
     EmailTO.text = "";
     arr_ALL_Name_ID_For_HR.clear();
     arr_ALL_Name_ID_For_Lead.clear();
@@ -2080,10 +2377,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
         arr_ALL_Name_ID_For_Lead.add(all_name_id);*/
 
         if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SW0T-GLA5-IND7-AS71" /*||
+                "SW0T-GLA5-IND7-AS71" ||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "TEST-0000-SI0F-0208"*/
-            ) {
+                "SI08-SB94-MY45-RY15") {
           ALL_Name_ID all_name_id1 = ALL_Name_ID();
           all_name_id1.Name = "Quick Follow-up";
           all_name_id1.Name1 =
@@ -2170,21 +2466,23 @@ class _HomeScreenState extends BaseState<HomeScreen>
       }
 
       ///__________________________________Production____________________________________________________
-      /*else if (response.menuRightsResponse.details[i].menuName ==
+      /*  else if (response.menuRightsResponse.details[i].menuName ==
           "pgPackingChecklist") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = "Packing Checklist";
         all_name_id.Name1 =
             "http://dolphin.sharvayainfotech.in/images/inspection.png";
         arr_ALL_Name_ID_For_Production.add(all_name_id);
-      } else if (response.menuRightsResponse.details[i].menuName ==
+      }
+      else if (response.menuRightsResponse.details[i].menuName ==
           "pgChecking") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = "Final Checking";
         all_name_id.Name1 =
             "http://dolphin.sharvayainfotech.in/images/Packing.png";
         arr_ALL_Name_ID_For_Production.add(all_name_id);
-      } else if (response.menuRightsResponse.details[i].menuName ==
+      }
+      else if (response.menuRightsResponse.details[i].menuName ==
           "pgInstallation") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = "Installation";
@@ -2267,8 +2565,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id2.Name1 =
             "http://demo.sharvayainfotech.in/images/survey.png";
         arr_ALL_Name_ID_For_Production.add(all_name_id2);
-      }*/
-
+      }
+*/
       ///-------------------------------------Account---------------------------------------------------------
 
       else if (response.menuRightsResponse.details[i].menuName ==
@@ -2318,6 +2616,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         arr_ALL_Name_ID_For_Account.add(all_name_id);
       }
 */
+
       ///-------------------------------------HR---------------------------------------------------------
       else if (response.menuRightsResponse.details[i].menuName ==
           "pgLeaveRequest") {
@@ -2533,8 +2832,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         .sort((a, b) => a.Name.toLowerCase().compareTo(b.Name.toLowerCase()));
     arr_ALL_Name_ID_For_HR
         .sort((a, b) => a.Name.toLowerCase().compareTo(b.Name.toLowerCase()));
-    arr_ALL_Name_ID_For_Lead
-        .sort((a, b) => a.Name.toLowerCase().compareTo(b.Name.toLowerCase()));
+    /* arr_ALL_Name_ID_For_Lead
+        .sort((a, b) => a.Name.toLowerCase().compareTo(b.Name.toLowerCase()));*/
     arr_ALL_Name_ID_For_Office
         .sort((a, b) => a.Name.toLowerCase().compareTo(b.Name.toLowerCase()));
 
@@ -2656,6 +2955,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
             state.response.details[i].employeeName +
             " InTime : " +
             state.response.details[i].timeIn.toString());
+        // timeChangesEvent();
       }
     } else {
       isPunchIn = false;
@@ -2663,30 +2963,22 @@ class _HomeScreenState extends BaseState<HomeScreen>
     }
   }
 
-  _getCurrentLocation() async {
+  _getCurrentLocation() {
     geolocator123
         .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
         .then((Position position) async {
       Longitude = position.longitude.toString();
       Latitude = position.latitude.toString();
 
+      LatitudeHome = Latitude;
+      LongitudeHome = Longitude;
+      SharedPrefHelper.instance.setLatitude(Latitude);
+      SharedPrefHelper.instance.setLongitude(Longitude);
       /*if (MapAPIKey != "") {
         Address = await getAddressFromLatLng(Latitude, Longitude, MapAPIKey);
       } else {
         Address = "";
       }*/
-      if (MapAPIKey != "") {
-        GeoData data = await Geocoder2.getDataFromCoordinates(
-            latitude: position.latitude,
-            longitude: position.longitude,
-            googleMapApiKey: GOOGLEMAPAPIKEY);
-
-        Address = data.address;
-      } else {
-        Address = "";
-      }
-
-      print("GogleAddress" + Address);
     }).catchError((e) {
       print(e);
     });
@@ -2699,17 +2991,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
           currentLocation.latitude.toString());
       Latitude = currentLocation.latitude.toString();
       Longitude = currentLocation.longitude.toString();
-      if (MapAPIKey != "") {
-        GeoData data = await Geocoder2.getDataFromCoordinates(
-            latitude: currentLocation.latitude,
-            longitude: currentLocation.longitude,
-            googleMapApiKey: GOOGLEMAPAPIKEY);
-
-        Address = data.address;
-      } else {
-        Address = "";
-      }
-      print("GogleAddress" + Address);
+      LatitudeHome = Latitude;
+      LongitudeHome = Longitude;
+      SharedPrefHelper.instance.setLatitude(Latitude);
+      SharedPrefHelper.instance.setLongitude(Longitude);
     });
   }
 
@@ -2718,12 +3003,13 @@ class _HomeScreenState extends BaseState<HomeScreen>
       // location.requestService();
 
       if (Platform.isAndroid) {
-        showCommonDialogWithSingleOption(Globals.context,
+        location.requestService();
+        /*showCommonDialogWithSingleOption(Globals.context,
             "Can't get current location, Please make sure you enable GPS and try again !",
             positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-          AppSettings.openLocationSettings(asAnotherTask: true);
+          AppSettings.openLocationSettings();
           Navigator.pop(context);
-        });
+        });*/
       }
     }
     bool granted = await Permission.location.isGranted;
@@ -3326,18 +3612,20 @@ class _HomeScreenState extends BaseState<HomeScreen>
       );
 
       if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "SW0T-GLA5-IND7-AS71" ||
+              "SW0T-GLA5-IND7-AS71" /*||
           _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "SI08-SB94-MY45-RY15") {
+              "SI08-SB94-MY45-RY15"*/
+          ) {
         showcustomdialogSendEmail(
             context1: context, att: punchAttendanceSaveRequest);
       }
 
       if (isPunchOut == true) {
         if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SW0T-GLA5-IND7-AS71" ||
+                "SW0T-GLA5-IND7-AS71" /*||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SI08-SB94-MY45-RY15") {
+                "SI08-SB94-MY45-RY15"*/
+            ) {
           showcustomdialogSendEmail(
               context1: context, att: punchAttendanceSaveRequest);
         } else {
@@ -3392,7 +3680,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
             int timestamp1 = DateTime.now().millisecondsSinceEpoch;
 
-            String filenamepunchout =
+            /*String filenamepunchout =
                 _offlineLoggedInData.details[0].employeeID.toString() +
                     "_" +
                     DateTime.now().day.toString() +
@@ -3403,10 +3691,48 @@ class _HomeScreenState extends BaseState<HomeScreen>
                     "_" +
                     timestamp1.toString() +
                     extension;
+            */
 
             if (file != null) {
+              File file1 = File(file.path);
+
+              final dir = await path_provider.getTemporaryDirectory();
+
+              final extension = p.extension(file1.path);
+
+              int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+
+              String filenamepunchout =
+                  _offlineLoggedInData.details[0].employeeID.toString() +
+                      "_" +
+                      DateTime.now().day.toString() +
+                      "_" +
+                      DateTime.now().month.toString() +
+                      "_" +
+                      DateTime.now().year.toString() +
+                      "_" +
+                      timestamp1.toString() +
+                      extension;
+
+              final targetPath = dir.absolute.path + "/" + filenamepunchout;
+              File file1231 = await testCompressAndGetFile(file1, targetPath);
+              final bytes = file1.readAsBytesSync().lengthInBytes;
+              final kb = bytes / 1024;
+              final mb = kb / 1024;
+
+              print("Image File Is Largre" +
+                  " KB : " +
+                  kb.toString() +
+                  " MB : " +
+                  mb.toString());
+              final snackBar = SnackBar(
+                content:
+                    Text(" KB : " + kb.toString() + " MB : " + mb.toString()),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
               _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                  filerty,
+                  file1231,
                   PunchAttendanceSaveRequest(
                     pkID: "0",
                     CompanyId: CompanyID.toString(),
@@ -3442,7 +3768,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
     }
   }
 
-  lunchoutLogic() {
+  lunchoutLogic() async {
     if (isLunchIn == true) {
       //EmailTO.text = model.emailAddress;
       TimeOfDay selectedTime = TimeOfDay.now();
@@ -3496,19 +3822,19 @@ class _HomeScreenState extends BaseState<HomeScreen>
           CompanyId: CompanyID.toString(),
         );*/
 
-        _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+        /*_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
                     "SW0T-GLA5-IND7-AS71" ||
                 _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                    "SI08-SB94-MY45-RY15" /* ||
+                    "SI08-SB94-MY45-RY15" */ /* ||
               _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "TEST-0000-SI0F-0208"*/
+                  "TEST-0000-SI0F-0208"*/ /*
             ? showcustomdialogSendEmail(
                 context1: context, att: punchAttendanceSaveRequest)
-            : Container();
+            : Container();*/
         // _showMyDialog();
 
         if (isLunchOut == true) {
-          if (_offlineLoggedInData
+          /*if (_offlineLoggedInData
                       .details[0].serialKey
                       .toUpperCase() ==
                   "SW0T-GLA5-IND7-AS71" ||
@@ -3525,7 +3851,14 @@ class _HomeScreenState extends BaseState<HomeScreen>
                     " \n Punch Out : " +
                     PuchOutTime.text,
                 positiveButtonTitle: "OK");
-          }
+          }*/
+
+          showCommonDialogWithSingleOption(
+              context,
+              _offlineLoggedInData.details[0].employeeName +
+                  " \n Lunch Out : " +
+                  LunchOutTime.text,
+              positiveButtonTitle: "OK");
         } else {
           if (ConstantMAster.toString() == "" ||
               ConstantMAster.toString().toLowerCase() == "no") {
@@ -3554,8 +3887,75 @@ class _HomeScreenState extends BaseState<HomeScreen>
                         LocationAddress: Address,
                         CompanyId: CompanyID.toString())));
           } else {
-            _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                Lunch_In_OUT_File, punchAttendanceSaveRequest));
+            final imagepicker = ImagePicker();
+
+            XFile file = await imagepicker.pickImage(
+              source: ImageSource.camera,
+              imageQuality: 85,
+            );
+
+            if (file != null) {
+              File file1 = File(file.path);
+
+              final dir = await path_provider.getTemporaryDirectory();
+
+              final extension = p.extension(file1.path);
+
+              int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+
+              String filenameLunchOut =
+                  _offlineLoggedInData.details[0].employeeID.toString() +
+                      "_" +
+                      DateTime.now().day.toString() +
+                      "_" +
+                      DateTime.now().month.toString() +
+                      "_" +
+                      DateTime.now().year.toString() +
+                      "_" +
+                      timestamp1.toString() +
+                      extension;
+
+              final targetPath = dir.absolute.path + "/" + filenameLunchOut;
+              File file1231 = await testCompressAndGetFile(file1, targetPath);
+              final bytes = file1.readAsBytesSync().lengthInBytes;
+              final kb = bytes / 1024;
+              final mb = kb / 1024;
+
+              print("Image File Is Largre" +
+                  " KB : " +
+                  kb.toString() +
+                  " MB : " +
+                  mb.toString());
+              final snackBar = SnackBar(
+                content:
+                    Text(" KB : " + kb.toString() + " MB : " + mb.toString()),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+              _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
+                  file1231,
+                  PunchAttendanceSaveRequest(
+                    pkID: "0",
+                    CompanyId: CompanyID.toString(),
+                    Mode: "lunchout",
+                    EmployeeID:
+                        _offlineLoggedInData.details[0].employeeID.toString(),
+                    FileName: filenameLunchOut,
+                    PresenceDate: selectedDate.year.toString() +
+                        "-" +
+                        selectedDate.month.toString() +
+                        "-" +
+                        selectedDate.day.toString(),
+                    Time: selectedTime.hour.toString() +
+                        ":" +
+                        selectedTime.minute.toString(),
+                    Notes: "",
+                    Latitude: Latitude,
+                    Longitude: Longitude,
+                    LocationAddress: Address,
+                    LoginUserId: LoginUserID,
+                  )));
+            }
           }
         }
         /*isLunchOut == true
@@ -3610,7 +4010,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
     print('NTP DateTime: ${startDate} ${DateTime.now()}');
 
     var now = startDate;
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm');
+    var formatter = new DateFormat('yyyy-MM-ddTHH');
     String currentday = formatter.format(now);
     String PresentDate1 = formatter.format(DateTime.now());
     print(
@@ -3618,12 +4018,14 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
     if (DateTime.parse(currentday) != DateTime.parse(PresentDate1)) {
       //  navigateTo(context, AttendanceListScreen.routeName, clearAllStack: true);
-      /*return showCommonDialogWithSingleOption(context,
+      isCurrentTime = false;
+
+      return showCommonDialogWithSingleOption(Globals.context,
           "Your Device DateTime is not correct as per current DateTime , Kindly Update Your Device Time !",
           positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-            navigateTo(context, HomeScreen.routeName, clearAllStack: true);
-          });*/
-      isCurrentTime = false;
+        //navigateTo(context, HomeScreen.routeName, clearAllStack: true);
+        Navigator.pop(Globals.context);
+      });
     } else {
       isCurrentTime = true;
     }
@@ -3662,9 +4064,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
   }
 
   void registerNotification() async {
-    await Firebase.initializeApp(
+    /* await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
-    );
+    );*/
     _messaging = FirebaseMessaging.instance;
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
@@ -3714,6 +4116,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
             clearAllStack: true);
       } else if (message.data['title'] == "Quick Inquiry") {
         navigateTo(Globals.context, InquiryListScreen.routeName,
+            clearAllStack: true);
+      } else if (message.data['title'] == "Portal Lead") {
+        navigateTo(Globals.context, ExternalLeadListScreen.routeName,
             clearAllStack: true);
       }
     });
@@ -3773,6 +4178,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
             clearAllStack: true);
       } else if (intialMessage.data['title'] == "Quick Inquiry") {
         navigateTo(Globals.context, InquiryListScreen.routeName,
+            clearAllStack: true);
+      } else if (intialMessage.data['title'] == "Portal Lead") {
+        navigateTo(Globals.context, ExternalLeadListScreen.routeName,
             clearAllStack: true);
       }
 
@@ -3870,5 +4278,755 @@ class _HomeScreenState extends BaseState<HomeScreen>
     // platforms.
     final Uri launchUri = Uri.parse(phoneNumber);
     await launch(launchUri.toString());
+  }
+
+  Future<File> testCompressAndGetFile(File file, String targetPath) async {
+    print('testCompressAndGetFile');
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 90,
+      minWidth: 1024,
+      minHeight: 1024,
+    );
+    print(file.lengthSync());
+    print(result?.lengthSync());
+    return result;
+  }
+
+  UserProfileDialog({BuildContext context1}) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context1,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(8), // Border width
+                      decoration: BoxDecoration(
+                          color: colorLightGray, shape: BoxShape.circle),
+                      child: ClipOval(
+                        child: SizedBox.fromSize(
+                          size: Size.fromRadius(80), // Image radius
+                          child: ImageFullScreenWrapperWidget(
+                            child: Image.network(ImgFromTextFiled.text,
+                                fit: BoxFit.cover),
+                          ),
+                        ),
+                      ),
+                    ),
+                    /*Center(
+                      child: Image.network(
+                        ImgFromTextFiled.text,
+                        key: ValueKey(new Random().nextInt(100)),
+                        height: 200,
+                        width: 200,
+                        errorBuilder: (BuildContext context, Object exception,
+                            StackTrace stackTrace) {
+                          return Image.network(
+                              "https://img.icons8.com/color/2x/no-image.png",
+                              height: 48,
+                              width: 48);
+                        },
+                      ),
+                    ),*/
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 25),
+                      child: Row(
+                        children: [
+                          Container(
+                            child: Text(
+                              "User : ",
+                              style: TextStyle(
+                                  color: colorPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                          Container(
+                              child: Text(
+                                  _offlineLoggedInData.details[0].employeeName,
+                                  style: TextStyle(
+                                    color: colorBlack,
+                                  ))),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 25),
+                      child: Row(
+                        children: [
+                          Container(
+                            child: Text(
+                              "Role : ",
+                              style: TextStyle(
+                                  color: colorPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                          Container(
+                            child:
+                                Text(_offlineLoggedInData.details[0].roleName,
+                                    style: TextStyle(
+                                      color: colorBlack,
+                                    )),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 25),
+                      child: Row(
+                        children: [
+                          Container(
+                            child: Text(
+                              "State : ",
+                              style: TextStyle(
+                                  color: colorPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                          Container(
+                            child:
+                                Text(_offlineLoggedInData.details[0].StateName,
+                                    style: TextStyle(
+                                      color: colorBlack,
+                                    )),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 10, right: 10),
+                      child: getCommonButton(baseTheme, () {
+                        Navigator.pop(context123);
+                      }, "Close", backGroundColor: colorPrimary, radius: 25.0),
+                    ),
+                  ],
+                )),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> showInformationDialog(BuildContext context) async {
+    return await showDialog(
+        context: context,
+        builder: (context) {
+          bool isChecked = false;
+          // timeChangesEvent();
+
+          return StatefulBuilder(builder: (context, setState) {
+            isPunchIn = PuchInboolcontroller.text == "" ||
+                    PuchInboolcontroller.text == "false"
+                ? false
+                : true;
+            isPunchOut = PuchOutboolcontroller.text == "" ||
+                    PuchOutboolcontroller.text == "false"
+                ? false
+                : true;
+            isLunchIn = LunchInboolcontroller.text == "" ||
+                    LunchInboolcontroller.text == "false"
+                ? false
+                : true;
+            isLunchOut = LunchOutboolcontroller.text == "" ||
+                    LunchOutboolcontroller.text == "false"
+                ? false
+                : true;
+            return AlertDialog(
+              content: Column(
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      TimeOfDay selectedTime = TimeOfDay.now();
+
+                      if (isCurrentTime == true) {
+                        if (isPunchIn == true) {
+                          showCommonDialogWithSingleOption(
+                              context,
+                              _offlineLoggedInData.details[0].employeeName +
+                                  " \n Punch In : " +
+                                  PuchInTime.text,
+                              positiveButtonTitle: "OK");
+                        } else {
+                          if (await Permission.storage.isDenied) {
+                            //await Permission.storage.request();
+
+                            checkPhotoPermissionStatus();
+                          } else {
+                            if (ConstantMAster.toString() == "" ||
+                                ConstantMAster.toString().toLowerCase() ==
+                                    "no") {
+                              _dashBoardScreenBloc.add(
+                                  PunchWithoutImageAttendanceSaveRequestEvent(
+                                      PunchWithoutImageAttendanceSaveRequest(
+                                          Mode: "punchin",
+                                          pkID: "0",
+                                          EmployeeID: _offlineLoggedInData
+                                              .details[0].employeeID
+                                              .toString(),
+                                          PresenceDate: selectedDate.year
+                                                  .toString() +
+                                              "-" +
+                                              selectedDate.month.toString() +
+                                              "-" +
+                                              selectedDate.day.toString(),
+                                          TimeIn: selectedTime.hour.toString() +
+                                              ":" +
+                                              selectedTime.minute.toString(),
+                                          TimeOut: "",
+                                          LunchIn: "",
+                                          LunchOut: "",
+                                          LoginUserID: LoginUserID,
+                                          Notes: "",
+                                          Latitude: Latitude,
+                                          Longitude: Longitude,
+                                          LocationAddress: Address,
+                                          CompanyId: CompanyID.toString())));
+                            } else {
+                              final imagepicker = ImagePicker();
+
+                              XFile file = await imagepicker.pickImage(
+                                source: ImageSource.camera,
+                                imageQuality: 85,
+                              );
+
+                              if (file != null) {
+                                File file1 = File(file.path);
+
+                                final dir =
+                                    await path_provider.getTemporaryDirectory();
+
+                                final extension = p.extension(file1.path);
+
+                                int timestamp1 =
+                                    DateTime.now().millisecondsSinceEpoch;
+
+                                String filenamepunchin = _offlineLoggedInData
+                                        .details[0].employeeID
+                                        .toString() +
+                                    "_" +
+                                    DateTime.now().day.toString() +
+                                    "_" +
+                                    DateTime.now().month.toString() +
+                                    "_" +
+                                    DateTime.now().year.toString() +
+                                    "_" +
+                                    timestamp1.toString() +
+                                    extension;
+
+                                final targetPath =
+                                    dir.absolute.path + "/" + filenamepunchin;
+                                File file1231 = await testCompressAndGetFile(
+                                    file1, targetPath);
+                                final bytes =
+                                    file1.readAsBytesSync().lengthInBytes;
+                                final kb = bytes / 1024;
+                                final mb = kb / 1024;
+
+                                print("Image File Is Largre" +
+                                    " KB : " +
+                                    kb.toString() +
+                                    " MB : " +
+                                    mb.toString());
+                                final snackBar = SnackBar(
+                                  content: Text(" KB : " +
+                                      kb.toString() +
+                                      " MB : " +
+                                      mb.toString()),
+                                );
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(snackBar);
+
+                                _dashBoardScreenBloc
+                                    .add(PunchAttendanceSaveRequestEvent(
+                                        file1231,
+                                        PunchAttendanceSaveRequest(
+                                          pkID: "0",
+                                          CompanyId: CompanyID.toString(),
+                                          Mode: "punchIN",
+                                          EmployeeID: _offlineLoggedInData
+                                              .details[0].employeeID
+                                              .toString(),
+                                          FileName: filenamepunchin,
+                                          PresenceDate: selectedDate.year
+                                                  .toString() +
+                                              "-" +
+                                              selectedDate.month.toString() +
+                                              "-" +
+                                              selectedDate.day.toString(),
+                                          Time: selectedTime.hour.toString() +
+                                              ":" +
+                                              selectedTime.minute.toString(),
+                                          Notes: "",
+                                          Latitude: Latitude,
+                                          Longitude: Longitude,
+                                          LocationAddress: Address,
+                                          LoginUserId: LoginUserID,
+                                        )));
+                              } /*else {
+                                            showCommonDialogWithSingleOption(
+                                                context,
+                                                "Something Went Wrong File Not Found Exception!",
+                                                positiveButtonTitle:
+                                                    "OK");
+                                          }*/
+                            }
+                          }
+                        }
+                      } else {
+                        getcurrentTimeInfoFromMaindfd();
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 20, bottom: 20),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isPunchIn == true
+                                ? Icons.file_download_done
+                                : Icons.ac_unit,
+                            color: isPunchIn == true
+                                ? colorPresentDay
+                                : colorAbsentfDay,
+                            size: 42,
+                          ),
+                          Card(
+                            elevation: 5,
+                            color: PuchInTime.text == ""
+                                ? colorAbsentfDay
+                                : colorPresentDay,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: 50,
+                              width: 200,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Punch In",
+                                        style: TextStyle(
+                                            color: colorWhite,
+                                            // <-- Change this
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          isPunchIn == true
+                              ? Icon(
+                                  Icons.access_alarm,
+                                  color: colorPrimary,
+                                )
+                              : Container(),
+                          isPunchIn == true
+                              ? Text(
+                                  PuchInTime.text,
+                                  style: TextStyle(
+                                      fontSize: 15, color: colorPrimary),
+                                )
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      TimeOfDay selectedTime = TimeOfDay.now();
+
+                      if (isCurrentTime == true) {
+                        if (isPunchIn == true) {
+                          if (isPunchOut == false) {
+                            if (isLunchIn == true) {
+                              showCommonDialogWithSingleOption(
+                                  context,
+                                  _offlineLoggedInData.details[0].employeeName +
+                                      " \n Lunch In : " +
+                                      LunchInTime.text,
+                                  positiveButtonTitle: "OK");
+                            } else {
+                              if (ConstantMAster.toString() == "" ||
+                                  ConstantMAster.toString().toLowerCase() ==
+                                      "no") {
+                                _dashBoardScreenBloc.add(
+                                    PunchWithoutImageAttendanceSaveRequestEvent(
+                                        PunchWithoutImageAttendanceSaveRequest(
+                                            Mode: "lunchin",
+                                            pkID: "0",
+                                            EmployeeID: _offlineLoggedInData
+                                                .details[0].employeeID
+                                                .toString(),
+                                            PresenceDate: selectedDate.year
+                                                    .toString() +
+                                                "-" +
+                                                selectedDate.month.toString() +
+                                                "-" +
+                                                selectedDate.day.toString(),
+                                            TimeIn: "",
+                                            TimeOut: "",
+                                            LunchIn: selectedTime.hour
+                                                    .toString() +
+                                                ":" +
+                                                selectedTime.minute.toString(),
+                                            LunchOut: "",
+                                            LoginUserID: LoginUserID,
+                                            Notes: "",
+                                            Latitude: "",
+                                            Longitude: "",
+                                            LocationAddress: "",
+                                            CompanyId: CompanyID.toString())));
+                              } else {
+                                final imagepicker = ImagePicker();
+
+                                XFile file = await imagepicker.pickImage(
+                                  source: ImageSource.camera,
+                                  imageQuality: 85,
+                                );
+
+                                if (file != null) {
+                                  File file1 = File(file.path);
+
+                                  final dir = await path_provider
+                                      .getTemporaryDirectory();
+
+                                  final extension = p.extension(file1.path);
+
+                                  int timestamp1 =
+                                      DateTime.now().millisecondsSinceEpoch;
+
+                                  String filenameLunchIn = _offlineLoggedInData
+                                          .details[0].employeeID
+                                          .toString() +
+                                      "_" +
+                                      DateTime.now().day.toString() +
+                                      "_" +
+                                      DateTime.now().month.toString() +
+                                      "_" +
+                                      DateTime.now().year.toString() +
+                                      "_" +
+                                      timestamp1.toString() +
+                                      extension;
+
+                                  final targetPath =
+                                      dir.absolute.path + "/" + filenameLunchIn;
+                                  File file1231 = await testCompressAndGetFile(
+                                      file1, targetPath);
+                                  final bytes =
+                                      file1.readAsBytesSync().lengthInBytes;
+                                  final kb = bytes / 1024;
+                                  final mb = kb / 1024;
+
+                                  print("Image File Is Largre" +
+                                      " KB : " +
+                                      kb.toString() +
+                                      " MB : " +
+                                      mb.toString());
+                                  final snackBar = SnackBar(
+                                    content: Text(" KB : " +
+                                        kb.toString() +
+                                        " MB : " +
+                                        mb.toString()),
+                                  );
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
+
+                                  _dashBoardScreenBloc
+                                      .add(PunchAttendanceSaveRequestEvent(
+                                          file1231,
+                                          PunchAttendanceSaveRequest(
+                                            pkID: "0",
+                                            CompanyId: CompanyID.toString(),
+                                            Mode: "lunchin",
+                                            EmployeeID: _offlineLoggedInData
+                                                .details[0].employeeID
+                                                .toString(),
+                                            FileName: filenameLunchIn,
+                                            PresenceDate: selectedDate.year
+                                                    .toString() +
+                                                "-" +
+                                                selectedDate.month.toString() +
+                                                "-" +
+                                                selectedDate.day.toString(),
+                                            Time: selectedTime.hour.toString() +
+                                                ":" +
+                                                selectedTime.minute.toString(),
+                                            Notes: "",
+                                            Latitude: Latitude,
+                                            Longitude: Longitude,
+                                            LocationAddress: Address,
+                                            LoginUserId: LoginUserID,
+                                          )));
+                                }
+                              }
+                            }
+                          } else {
+                            if (isLunchIn == false) {
+                              showCommonDialogWithSingleOption(context,
+                                  "After Punch Out, You can't be able to do Lunch In!!",
+                                  positiveButtonTitle: "OK");
+                            }
+                          }
+                        } else {
+                          showCommonDialogWithSingleOption(
+                              context, "Punch in Is Required !",
+                              positiveButtonTitle: "OK");
+                        }
+                      } else {
+                        getcurrentTimeInfoFromMaindfd();
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 20, bottom: 20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isLunchIn == true
+                                ? Icons.file_download_done
+                                : Icons.ac_unit,
+                            color: isLunchIn == true
+                                ? colorPresentDay
+                                : colorAbsentfDay,
+                            size: 42,
+                          ),
+                          Card(
+                            elevation: 5,
+                            color: LunchInTime.text == ""
+                                ? colorAbsentfDay
+                                : colorPresentDay,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: 50,
+                              width: 200,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Lunch In",
+                                        style: TextStyle(
+                                            color: colorWhite,
+                                            // <-- Change this
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          isLunchIn == true
+                              ? Icon(
+                                  Icons.access_alarm,
+                                  color: colorPrimary,
+                                )
+                              : Container(),
+                          isLunchIn == true
+                              ? Text(
+                                  LunchInTime.text,
+                                  style: TextStyle(
+                                      fontSize: 15, color: colorPrimary),
+                                )
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if (isCurrentTime == true) {
+                        lunchoutLogic();
+                      } else {
+                        getcurrentTimeInfoFromMaindfd();
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 20, bottom: 20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isLunchOut == true
+                                ? Icons.file_download_done
+                                : Icons.ac_unit,
+                            color: isLunchOut == true
+                                ? colorPresentDay
+                                : colorAbsentfDay,
+                            size: 42,
+                          ),
+                          Card(
+                            elevation: 5,
+                            color: LunchOutTime.text == ""
+                                ? colorAbsentfDay
+                                : colorPresentDay,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: 50,
+                              width: 100,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Lunch Out",
+                                        style: TextStyle(
+                                            color: colorWhite,
+                                            // <-- Change this
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          isLunchOut == true
+                              ? Icon(
+                                  Icons.access_alarm,
+                                  color: colorPrimary,
+                                )
+                              : Container(),
+                          isLunchOut == true
+                              ? Text(
+                                  LunchOutTime.text,
+                                  style: TextStyle(
+                                      fontSize: 15, color: colorPrimary),
+                                )
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      if (isCurrentTime == true) {
+                        punchoutLogic();
+                      } else {
+                        getcurrentTimeInfoFromMaindfd();
+                      }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 20, bottom: 20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            isPunchOut == true
+                                ? Icons.file_download_done
+                                : Icons.ac_unit,
+                            color: isPunchOut == true
+                                ? colorPresentDay
+                                : colorAbsentfDay,
+                            size: 42,
+                          ),
+                          Card(
+                            elevation: 5,
+                            color: PuchOutTime.text == ""
+                                ? colorAbsentfDay
+                                : colorPresentDay,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: 50,
+                              width: 100,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Punch Out",
+                                        style: TextStyle(
+                                            color: colorWhite,
+                                            // <-- Change this
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          isPunchOut == true
+                              ? Icon(
+                                  Icons.access_alarm,
+                                  color: colorPrimary,
+                                )
+                              : Container(),
+                          isPunchOut == true
+                              ? Text(
+                                  PuchOutTime.text,
+                                  style: TextStyle(
+                                      fontSize: 15, color: colorPrimary),
+                                )
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              title: Text('Stateful Dialog'),
+              actions: <Widget>[
+                InkWell(
+                  child: Text('OK   '),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
+        });
+  }
+
+  timeChangesEvent() {
+    setState(() {
+      PuchInboolcontroller.text = isPunchIn.toString();
+      PuchOutboolcontroller.text = isPunchOut.toString();
+      LunchInboolcontroller.text = isLunchIn.toString();
+      LunchOutboolcontroller.text = isLunchOut.toString();
+    });
   }
 }

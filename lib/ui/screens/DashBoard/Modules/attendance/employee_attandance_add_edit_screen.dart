@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoder2/geocoder2.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
@@ -18,7 +17,6 @@ import 'package:soleoserp/models/api_responses/login/login_user_details_api_resp
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
-import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
@@ -70,10 +68,6 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
     });
   }
 
-  String Address;
-  String Latitude;
-  String Longitude;
-
   DateTime selectedDate = DateTime.now();
   Location location = new Location();
   bool _serviceEnabled;
@@ -81,6 +75,10 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
   bool is_LocationService_Permission;
   Position _currentPosition;
   final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
+
+  String MapAPIKey = "";
+
+  String Address = "";
 
   @override
   void initState() {
@@ -92,6 +90,10 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
 
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+
+    MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
+
+    getLocationAddressFromAPI();
     _FollowupBloc = AttendanceBloc(baseBloc);
     _eventControllerIn_Time = TextEditingController();
     _eventControllerNotes = TextEditingController();
@@ -188,61 +190,6 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
     }
   }
 
-  _getCurrentLocation() {
-    geolocator123
-        .getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) async {
-      _currentPosition = position;
-      Longitude = position.longitude.toString();
-      Latitude = position.latitude.toString();
-
-      Address = await getAddressFromLatLngMapMyIndia(
-          Latitude, Longitude, MAPMYINDIAKEY);
-
-    }).catchError((e) {
-      print(e);
-    });
-
-
-
-    location.onLocationChanged.listen((LocationData currentLocation) async {
-      // Use current location
-      print("OnLocationChange" +
-          " Location : " +
-          currentLocation.latitude.toString());
-      //  placemarks = await placemarkFromCoordinates(currentLocation.latitude,currentLocation.longitude);
-      // final coordinates = new Coordinates(currentLocation.latitude,currentLocation.longitude);
-      // var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      // var first = addresses.first;
-      //  print("${first.featureName} : ${first.addressLine}");
-      Latitude = currentLocation.latitude.toString();
-      Longitude = currentLocation.longitude.toString();
-      Address = await getAddressFromLatLngMapMyIndia(
-          Latitude, Longitude, MAPMYINDIAKEY);
-
-      //  Address = "${first.featureName} : ${first.addressLine}";
-    });
-
-    // _FollowupBloc.add(LocationAddressCallEvent(LocationAddressRequest(key:"AIzaSyCVs8h5lia6ktiHnj2yzLYJOGtn0CQG48k",latlng:Latitude+","+Longitude)));
-  }
-
- /* Future<String> getAddressFromLatLng(
-      String lat, String lng, String skey) async {
-    String _host = 'https://maps.google.com/maps/api/geocode/json';
-    final url = '$_host?key=$skey&latlng=$lat,$lng';
-    if (lat != "" && lng != "null") {
-      var response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        Map data = jsonDecode(response.body);
-        String _formattedAddress = data["results"][0]["formatted_address"];
-        //Address = _formattedAddress;
-        print("response ==== $_formattedAddress");
-        return _formattedAddress;
-      } else
-        return null;
-    } else
-      return null;
-  }*/
   Future<String> getAddressFromLatLngMapMyIndia(
       String lat, String lng, String skey) async {
     String _host =
@@ -530,6 +477,8 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                         ),
                         InkWell(
                           onTap: () async {
+                            getLocationAddressFromAPI();
+
                             bool IsValidDateTime123 = false;
 
                             if (_eventControllerIn_Time.text !=
@@ -583,8 +532,6 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                         .isDisabled;
 
                                     if (serviceLocation == false) {
-                                      _getCurrentLocation();
-
                                       baseBloc.emit(
                                           ShowProgressIndicatorState(false));
 
@@ -606,9 +553,13 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                                     TimeOut:
                                                         _eventControllerOut_Time
                                                             .text,
-                                                    Latitude: Latitude,
+                                                    Latitude: SharedPrefHelper
+                                                        .instance
+                                                        .getLatitude(),
+                                                    Longitude: SharedPrefHelper
+                                                        .instance
+                                                        .getLongitude(),
                                                     LocationAddress: Address,
-                                                    Longitude: Longitude,
                                                     Notes: _eventControllerNotes
                                                         .text,
                                                     LoginUserID: LoginUserID,
@@ -642,7 +593,6 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                       .isDisabled;
 
                                   if (serviceLocation == false) {
-                                    _getCurrentLocation();
                                     baseBloc.emit(
                                         ShowProgressIndicatorState(false));
 
@@ -661,9 +611,13 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                                   _eventControllerIn_Time.text,
                                               TimeOut:
                                                   _eventControllerOut_Time.text,
-                                              Latitude: Latitude,
+                                              Latitude: SharedPrefHelper
+                                                  .instance
+                                                  .getLatitude(),
+                                              Longitude: SharedPrefHelper
+                                                  .instance
+                                                  .getLongitude(),
                                               LocationAddress: Address,
-                                              Longitude: Longitude,
                                               Notes: _eventControllerNotes.text,
                                               LoginUserID: LoginUserID,
                                               CompanyId:
@@ -976,16 +930,30 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
   void _onLocationAddressSucessResponse(LocationAddressResponseState state) {
     if (state.locationAddressResponse.results.length != 0) {
       for (var i = 0; i < state.locationAddressResponse.results.length; i++) {
-        Address = state.locationAddressResponse.results[i].formattedAddress;
-        Latitude = state
-            .locationAddressResponse.results[i].geometry.location.lat
-            .toString();
-        Longitude = state
-            .locationAddressResponse.results[i].geometry.location.lng
-            .toString();
+        print("djsfdjf" +
+            state.locationAddressResponse.results[i].formattedAddress);
       }
     }
 
     setState(() {});
+  }
+
+  getLocationAddressFromAPI() async {
+    if (MapAPIKey != "") {
+      print("fromdashboardlatlong" +
+          "LatitudeHome : " +
+          SharedPrefHelper.instance.getLatitude() +
+          " LongitudeHome : " +
+          SharedPrefHelper.instance.getLongitude());
+      GeoData data = await Geocoder2.getDataFromCoordinates(
+          latitude: double.parse(SharedPrefHelper.instance.getLatitude()),
+          longitude: double.parse(SharedPrefHelper.instance.getLongitude()),
+          googleMapApiKey: MapAPIKey);
+
+      Address = data.address;
+      print("GogleAddress" + Address);
+    } else {
+      Address = "";
+    }
   }
 }

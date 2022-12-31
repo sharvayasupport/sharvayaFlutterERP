@@ -71,7 +71,11 @@ class _SearchTODOCustomerScreenState extends BaseState<SearchTODOCustomerScreen>
         NewGradientAppBar(
           title: Text('Search Customer'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
         ),
         Expanded(
           child: Container(

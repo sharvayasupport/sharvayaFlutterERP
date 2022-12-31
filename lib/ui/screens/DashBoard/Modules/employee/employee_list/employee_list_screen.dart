@@ -13,7 +13,9 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/bank_voucher/bank_voucher_add_edit/bank_voucher_add_edit.dart';
@@ -67,6 +69,9 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
 
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+
+  MenuRightsResponse _menuRightsResponse;
+
   int CompanyID = 0;
   String LoginUserID = "";
   List<ContactModel> _contactsList = [];
@@ -77,6 +82,10 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
   //var _url = "https://api.whatsapp.com/send?phone=91";
   var _url = "https://wa.me/91";
   bool isDeleteVisible = true;
+
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
 /*
   bool _hasPermission;
 */
@@ -91,6 +100,8 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
     screenStatusBarColor = colorDarkYellow;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
@@ -106,30 +117,8 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
-  }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> _makeSms(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'smsto',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
+    getUserRights(_menuRightsResponse);
   }
 
   @override
@@ -154,11 +143,16 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
           if (state is EmployeeSearchResponseState) {
             _onSearchInquiryListCallSuccess(state);
           }
+
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is EmployeeListResponseState ||
-              currentState is EmployeeSearchResponseState) {
+              currentState is EmployeeSearchResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -189,8 +183,11 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Employee List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -230,6 +227,8 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
                           OrgCode: "",
                           LoginUserID: LoginUserID,
                         )));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -636,7 +635,7 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
                     ),
                   ),*/
 
-                  isDeleteVisible == true
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
@@ -788,5 +787,48 @@ class _EmployeeListScreenState extends BaseState<EmployeeListScreen>
 
   void _onSearchInquiryListCallSuccess(EmployeeSearchResponseState state) {
     _inquiryListResponse = state.employeeListResponse;
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgEmployee") {
+        _CustomerBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

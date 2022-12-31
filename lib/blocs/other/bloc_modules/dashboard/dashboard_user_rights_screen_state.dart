@@ -122,3 +122,9 @@ class ConstantResponseState extends DashBoardScreenStates {
 
   ConstantResponseState(this.response);
 }
+
+class UserMenuRightsResponseState extends DashBoardScreenStates {
+  String MenuName;
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.MenuName, this.userMenuRightsResponse);
+}

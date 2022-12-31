@@ -90,4 +90,16 @@ class RegionCodeRequestEvent extends ExternalLeadEvents {
   RegionCodeRequestEvent(this.expenseDetails, this.request);
 }
 
+class AssignToNotificationRequestEvent extends ExternalLeadEvents {
+  String Msg;
+  final AssignToNotificationRequest request;
 
+  AssignToNotificationRequestEvent(this.Msg, this.request);
+}
+
+class UserMenuRightsRequestEvent extends ExternalLeadEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}

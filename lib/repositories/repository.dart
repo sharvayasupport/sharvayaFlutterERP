@@ -81,6 +81,7 @@ import 'package:soleoserp/models/api_requests/expense/expense_save_request.dart'
 import 'package:soleoserp/models/api_requests/expense/expense_type_request.dart';
 import 'package:soleoserp/models/api_requests/expense/expense_upload_image_request.dart';
 import 'package:soleoserp/models/api_requests/expense/fetc_image_list_by_expense_pk_id_request.dart';
+import 'package:soleoserp/models/api_requests/external_leads/assign_to_notification_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_list_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_save_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_search_request.dart';
@@ -162,6 +163,7 @@ import 'package:soleoserp/models/api_requests/product_activity_request/productio
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_packing_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/typeofwork_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/qt_spec_save_api_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
@@ -179,14 +181,21 @@ import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by
 import 'package:soleoserp/models/api_requests/salary_upad/salary_upad_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_delete_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_export_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_export_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_product_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/search_sale_bill_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/new_telecaller_save_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/telecaller_new_pagination_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
@@ -272,6 +281,7 @@ import 'package:soleoserp/models/api_responses/expense/expense_list_response.dar
 import 'package:soleoserp/models/api_responses/expense/expense_save_response.dart';
 import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
 import 'package:soleoserp/models/api_responses/expense/expense_upload_image_response.dart';
+import 'package:soleoserp/models/api_responses/external_leads/assign_to_notification_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_lead_list_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_lead_save_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_leadsearch_response_by_name.dart';
@@ -356,6 +366,7 @@ import 'package:soleoserp/models/api_responses/production_activity_response/prod
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_delete_reponse.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_list_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_packingno_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/qt_spec_save_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_delete_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_header_save_response.dart';
@@ -372,13 +383,20 @@ import 'package:soleoserp/models/api_responses/quotation/save_email_content_resp
 import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sales_bill_generate_pdf_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sb_delete_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sb_export_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sb_export_save_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sb_header_save_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/sb_product_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/search_sales_bill_search_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesOrder_Product_Save_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/sales_order_delete_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_header_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_pdf_generate_pdf_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_delete_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
 import 'package:soleoserp/models/api_responses/swastik_telecaller_response/telecaller_new_pagination_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_delete_image_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
@@ -394,6 +412,8 @@ import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_respo
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/hema_automation/api_request/quick_complaint/quick_complaint_list_request.dart';
@@ -1768,10 +1788,13 @@ class Repository {
   }
 
   Future<SpecificationListResponse> getProductSpecificationList(
-      SpecificationListRequest request) async {
+      String ModuleName, SpecificationListRequest request) async {
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          ApiClient.END_POINT_QUOTATION_SPEC_LIST, request.toJson());
+          ApiClient.END_POINT_QUOTATION_SPEC_LIST +
+              ModuleName +
+              "/Specifications",
+          request.toJson());
       SpecificationListResponse response =
           SpecificationListResponse.fromJson(json);
 
@@ -2301,6 +2324,21 @@ class Repository {
     }
   }
 
+  Future<QTSpecSaveResponse> quotationProductSpecificationSaveDetails(
+      List<QTSpecSaveRequest> quotationProductModel) async {
+    try {
+      Map<String, dynamic> json =
+          await apiClient.apiCallPostforMultipleJSONArray(
+              "${ApiClient.END_POINT_QT_SPECIFICATION_SAVE}",
+              quotationProductModel);
+      QTSpecSaveResponse inquiryProductSaveResponse =
+          QTSpecSaveResponse.fromJson(json);
+      return inquiryProductSaveResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<InquiryShareResponse> inquiryShareSaveDetails(
       List<InquiryShareModel> inquiryShareModel) async {
     try {
@@ -2424,6 +2462,7 @@ class Repository {
   Future<FollowupSaveSuccessResponse> getFollowupSaveStatus(
       int pkID, FollowupSaveApiRequest request) async {
     try {
+      ///Followup/{pkID}/Save
       Map<String, dynamic> json = await apiClient.apiCallPost(
           ApiClient.END_POINT_FOLLOWUP_SAVE + pkID.toString() + "/Save",
           request.toJson());
@@ -3878,6 +3917,20 @@ class Repository {
     }
   }
 
+  Future<MultiNoToProductDetailsResponse> getProductDetailsFrom_No1(
+      MultiNoToProductDetailsRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_INQ_QT_SO_NO_PRODUCT_LIST_API, request.toJson());
+      MultiNoToProductDetailsResponse response =
+          MultiNoToProductDetailsResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   /****************************************Manage Accounts*****************************************/
   Future<MaterialInwardListResponse> materialInwardListAPI(
       int pageNo, MaterialInwardListRequest materialInwardListRequest) async {
@@ -4288,6 +4341,21 @@ class Repository {
     }
   }
 
+  Future<TeleCallerFollowupSaveResponse>
+      teleCallerFollowupFromFollowupSaveDetails(int followuppkID,
+          TeleCallerFollowupSaveRequest teleCallerFollowupSaveRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_TELE_CALLER_FOLLOWUP_FROM_FOLLOWUP_SAVE + followuppkID.toString() + "/Save"}",
+          teleCallerFollowupSaveRequest.toJson());
+      TeleCallerFollowupSaveResponse cityApiRespose =
+          TeleCallerFollowupSaveResponse.fromJson(json);
+      return cityApiRespose;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<TeleCallerFollowupHestoryResponse> getTeleCallerFollowupHistoryList(
       TeleCallerFollowupHistoryRequest request) async {
     try {
@@ -4322,6 +4390,131 @@ class Repository {
       Map<String, dynamic> json = await apiClient.apiCallPost(
           ApiClient.END_POINT_CONSTANT_MASTER + CompanyID, request.toJson());
       ConstantResponse response = ConstantResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserMenuRightsResponse> user_menurightsapi(
+      String pkID, UserMenuRightsRequest userMenuRightsRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_USER_MENU_RIGHTS + pkID + "/List",
+          userMenuRightsRequest.toJson());
+      UserMenuRightsResponse designationApiResponse =
+          UserMenuRightsResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AssignToNotificationResponse> assignToNotificationAPI(
+      AssignToNotificationRequest userMenuRightsRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_ASSIGN_TO_NOTIFICATION,
+          userMenuRightsRequest.toJson());
+      AssignToNotificationResponse designationApiResponse =
+          AssignToNotificationResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SBHeaderSaveResponse> getSaleBillHeaderSaveCallAPI(
+      int pkID, SBHeaderSaveRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SB_HEADER_SAVE + pkID.toString() + "/Save",
+          request.toJson());
+      SBHeaderSaveResponse response = SBHeaderSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SBProductSaveResponse> salesBillProductSaveDetails(
+      String InvoiceNo, List<SBProductSaveRequest> arrSBProductList) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPostforMultipleJSONArray(
+          "${ApiClient.END_POINT_SALES_BILL_PRODUCT_SAVE + InvoiceNo + "/ProductSaveByProdId"}",
+          arrSBProductList);
+      SBProductSaveResponse inquiryProductSaveResponse =
+          SBProductSaveResponse.fromJson(json);
+      return inquiryProductSaveResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SalesOrderDeleteResponse> deleteSalesOrder(
+      String id, SalesOrderDeleteRequest quotationDeleteRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_DELETE_SALES_ORDER}/${id}/delete",
+          quotationDeleteRequest.toJson(),
+          showSuccessDialog: false);
+      SalesOrderDeleteResponse response =
+          SalesOrderDeleteResponse.fromJson(json);
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SOCurrencyListResponse> SOCurrencyListAPI(
+      SOCurrencyListRequest quotationDeleteRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SO_CURRENCY_LIST}",
+          quotationDeleteRequest.toJson(),
+          showSuccessDialog: false);
+      SOCurrencyListResponse response = SOCurrencyListResponse.fromJson(json);
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SBExportListResponse> getSBExportListAPI(
+      SBExportListRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SB_EXPORT_LIST, request.toJson());
+      SBExportListResponse response = SBExportListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SBExportSaveResponse> sb_ExportSaveAPI(
+      SBExportSaveRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SB_EXPORT_SAVE, request.toJson());
+      SBExportSaveResponse response = SBExportSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SBDeleteResponse> getSBHeaderDeleteAPI(
+      String pkID, SBDeleteRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SB_HEADER_DELETE + pkID.toString() + "/delete",
+          request.toJson());
+      SBDeleteResponse response = SBDeleteResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {

@@ -70,6 +70,15 @@ class FollowupUploadImageCallResponseState extends FollowupStates {
   FollowupUploadImageCallResponseState(this.followupImageUploadResponse);
 }
 
+class FollowupUploadImageFromMainFollowupCallResponseState
+    extends FollowupStates {
+  final FollowupImageUploadResponse followupImageUploadResponse;
+  BuildContext context;
+
+  FollowupUploadImageFromMainFollowupCallResponseState(
+      this.context, this.followupImageUploadResponse);
+}
+
 class FollowupImageDeleteCallResponseState extends FollowupStates {
   final FollowupDeleteImageResponse followupDeleteImageResponse;
 
@@ -139,4 +148,23 @@ class TeleCallerFollowupHestoryResponseState extends FollowupStates {
   final TeleCallerFollowupHestoryResponse response;
 
   TeleCallerFollowupHestoryResponseState(this.response);
+}
+
+class InquiryShareEmpListResponseState extends FollowupStates {
+  final InquiryShareEmpListResponse response;
+  String InquiryNo;
+  InquiryShareEmpListResponseState(this.InquiryNo, this.response);
+}
+
+class UserMenuRightsResponseState extends FollowupStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}
+
+class TeleCallerFollowupSaveResponseState extends FollowupStates {
+
+   BuildContext context;
+  final TeleCallerFollowupSaveResponse response;
+
+  TeleCallerFollowupSaveResponseState(this.context,this.response);
 }

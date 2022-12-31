@@ -32,15 +32,22 @@ class SearchInquiryDetails {
   String createdBy;
   int createdEmployeeID;
 
-  SearchInquiryDetails({this.customerName, this.label, this.value, this.pkID,this.createdBy,this.createdEmployeeID});
+  SearchInquiryDetails(
+      {this.customerName,
+      this.label,
+      this.value,
+      this.pkID,
+      this.createdBy,
+      this.createdEmployeeID});
 
   SearchInquiryDetails.fromJson(Map<String, dynamic> json) {
-    customerName = json['CustomerName'];
-    label = json['Label'];
-    value = json['value'];
-    pkID = json['pkID'];
-    createdBy = json['CreatedBy'];
-    createdEmployeeID  = json['CreatedEmployeeID'];
+    customerName = json['CustomerName'] == null ? "" : json['CustomerName'];
+    label = json['Label'] == null ? "" : json['Label'];
+    value = json['value'] == null ? 0 : json['value'];
+    pkID = json['pkID'] == null ? 0 : json['pkID'];
+    createdBy = json['CreatedBy'] == null ? "" : json['CreatedBy'];
+    createdEmployeeID =
+        json['CreatedEmployeeID'] == null ? 0 : json['CreatedEmployeeID'];
   }
 
   Map<String, dynamic> toJson() {

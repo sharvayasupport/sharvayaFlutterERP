@@ -38,15 +38,17 @@ class TaskCategoryCallResponseState extends ToDoStates {
 }
 
 class ToDoSaveHeaderState extends ToDoStates {
+  BuildContext context;
   final ToDoSaveHeaderResponse toDoSaveHeaderResponse;
 
-  ToDoSaveHeaderState(this.toDoSaveHeaderResponse);
+  ToDoSaveHeaderState(this.context, this.toDoSaveHeaderResponse);
 }
 
 class ToDoSaveSubDetailsState extends ToDoStates {
+  BuildContext context;
   final ToDoSaveSubDetailsResponse toDoSaveSubDetailsResponse;
 
-  ToDoSaveSubDetailsState(this.toDoSaveSubDetailsResponse);
+  ToDoSaveSubDetailsState(this.context, this.toDoSaveSubDetailsResponse);
 }
 
 class ToDoWorkLogListState extends ToDoStates {
@@ -72,8 +74,14 @@ class FCMNotificationResponseState extends ToDoStates {
 
   FCMNotificationResponseState(this.response);
 }
+
 class GetReportToTokenResponseState extends ToDoStates {
   final GetReportToTokenResponse response;
 
   GetReportToTokenResponseState(this.response);
+}
+
+class UserMenuRightsResponseState extends ToDoStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
 }

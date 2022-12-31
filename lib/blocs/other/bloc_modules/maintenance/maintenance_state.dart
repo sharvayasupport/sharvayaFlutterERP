@@ -1,7 +1,5 @@
 part of 'maintenance_bloc.dart';
 
-
-
 abstract class MaintenanceScreenStates extends BaseStates {
   const MaintenanceScreenStates();
 }
@@ -11,15 +9,13 @@ abstract class MaintenanceScreenStates extends BaseStates {
 class MaintenanceScreenInitialState extends MaintenanceScreenStates {}
 
 class MaintenanceListResponseState extends MaintenanceScreenStates {
-
   final MaintenanceListResponse maintenanceListResponse;
   final int newPage;
 
-  MaintenanceListResponseState(this.newPage,this.maintenanceListResponse);
+  MaintenanceListResponseState(this.newPage, this.maintenanceListResponse);
 }
 
 class MaintenanceSearchResponseState extends MaintenanceScreenStates {
-
   final MaintenanceListResponse maintenanceListResponse;
 
   MaintenanceSearchResponseState(this.maintenanceListResponse);
@@ -29,4 +25,9 @@ class MaintenanceDeleteResponseState extends MaintenanceScreenStates {
   final BankVoucherDeleteResponse bankVoucherDeleteResponse;
 
   MaintenanceDeleteResponseState(this.bankVoucherDeleteResponse);
+}
+
+class UserMenuRightsResponseState extends MaintenanceScreenStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
 }

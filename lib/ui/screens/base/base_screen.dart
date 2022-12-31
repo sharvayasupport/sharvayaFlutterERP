@@ -142,10 +142,17 @@ mixin BasicScreen<Screen extends BaseStatefulWidget> on BaseState<Screen> {
                     elevation: 0,
                   );
                 } else {
+                  /* return AppBar(
+                    backgroundColor: colorPrimary,
+                    elevation: 0,
+                  );*/
                   return NewGradientAppBar(
                       title: Text('Flutter'),
-                      gradient: LinearGradient(
-                          colors: [Colors.blue, Colors.purple, Colors.red]));
+                      gradient: LinearGradient(colors: [
+                        Color(0xff108dcf),
+                        Color(0xff0066b3),
+                        Color(0xff62bb47),
+                      ]));
                 }
               },
             ),

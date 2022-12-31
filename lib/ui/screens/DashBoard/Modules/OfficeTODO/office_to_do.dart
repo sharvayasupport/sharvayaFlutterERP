@@ -929,7 +929,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
                         String TimeHour =
                             beforZeroHour + ":" + beforZerominute + " " + AM_PM;
-                        _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(
+                        _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(context,
                             _FollowupTodayListResponse.details[index].pkID,
                             ToDoHeaderSaveRequest(
                                 Priority: "Medium",
@@ -1120,7 +1120,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                   DateTime selectedDate = DateTime.now();
 
 
-                  _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(
+                  _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(context,
                       _FollowupListOverDueResponse.details[index].pkID,
                       ToDoHeaderSaveRequest(
                           Priority: "Medium",
@@ -1322,7 +1322,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
                   String TimeHour =
                       beforZeroHour + ":" + beforZerominute + " " + AM_PM;
-                  _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(
+                  _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(context,
                       _FollowupListCompletedResponse.details[index].pkID,
                       ToDoHeaderSaveRequest(
                           Priority: "Medium",
@@ -1589,7 +1589,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
                         String TimeHour =
                             beforZeroHour + ":" + beforZerominute + " " + AM_PM;
-                        _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(
+                        _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(context,
                             finalCheckingItems.pkID,
                             ToDoHeaderSaveRequest(
                                 Priority: "Medium",

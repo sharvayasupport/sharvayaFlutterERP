@@ -2,7 +2,6 @@ import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
@@ -14,18 +13,18 @@ import 'package:soleoserp/models/api_requests/inquiry/inquiry_search_by_pk_id_re
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_share_emp_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
-import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_list_reponse.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_no_to_product_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_share_emp_list_response.dart';
-import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/search_inquiry_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerList/customer_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_history_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_add_edit.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_fillter/FollowupFromInquiry.dart';
@@ -34,11 +33,12 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_share_scr
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/search_inquiry_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/broadcast_msg/make_call.dart';
+import 'package:soleoserp/utils/broadcast_msg/share_msg.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 ///import 'package:whatsapp_share/whatsapp_share.dart';ge:whatsapp_share/whatsapp_share.dart';
 import '../../home_screen.dart';
@@ -76,11 +76,13 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
   double sizeboxsize = 12;
   double _fontSize_Label = 9;
   double _fontSize_Title = 11;
-  int label_color = 0xFF504F4F; //0x66666666;
-  int title_color = 0xFF000000;
+  int label_color = 0xff0066b3; //0x66666666;
+  int title_color = 0xff0066b3;
   SearchInquiryDetails _searchDetails;
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+  MenuRightsResponse _menuRightsResponse;
+
   int CompanyID = 0;
   String LoginUserID = "";
   var _url = "https://api.whatsapp.com/send?phone=91";
@@ -91,17 +93,24 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
   FollowerEmployeeListResponse _offlineFollowerEmployeeListData;
 
   List<InquirySharedEmpDetails> arr_Inquiry_Share_Emp_List = [];
+  List<InquirySharedEmpDetails> temparr_inquiry_share_emp_list = [];
 
-  double DEFAULT_HEIGHT_BETWEEN_WIDGET = 10.0;
+  double DEFAULT_HEIGHT_BETWEEN_WIDGET = 3;
 
   String INQ = "";
   CustomerDetails customerDetails = CustomerDetails();
+
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   @override
   void initState() {
     super.initState();
     screenStatusBarColor = colorPrimary;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
 
@@ -111,6 +120,9 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     _inquiryBloc = InquiryBloc(baseBloc);
+
+    getUserRights(_menuRightsResponse);
+
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
@@ -135,11 +147,16 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             _onInquiryListByNumberCallSuccess(state);
           }
 
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
+
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is InquiryListCallResponseState ||
-              currentState is InquirySearchByPkIDResponseState) {
+              currentState is InquirySearchByPkIDResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -190,11 +207,29 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
         return new Future(() => false);
       },
       child: Scaffold(
+        backgroundColor: colorVeryLightCardBG,
         appBar: NewGradientAppBar(
           title: Text('Inquiry List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
+            GestureDetector(
+              onTap: () {
+                // _buildSearchView();
+                _onTaptoSearchInquiryView();
+              },
+              child: Image.asset(
+                CUSTOM_SEARCH,
+                width: 30,
+                height: 30,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
             IconButton(
                 icon: Icon(
                   Icons.water_damage_sharp,
@@ -219,18 +254,23 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                             CompanyId: CompanyID.toString(),
                             LoginUserID: LoginUserID.toString(),
                             PkId: "")));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
-                    padding: EdgeInsets.only(
+                    /* padding: EdgeInsets.only(
                       left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                       right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                       top: 25,
+                    ),*/
+                    padding: EdgeInsets.only(
+                      left: 5,
+                      right: 5,
+                      top: 10,
                     ),
+                    margin: EdgeInsets.only(bottom: 10),
                     child: Column(
-                      children: [
-                        _buildSearchView(),
-                        Expanded(child: _buildInquiryList())
-                      ],
+                      children: [Expanded(child: _buildInquiryList())],
                     ),
                   ),
                 ),
@@ -238,16 +278,18 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            await _onTapOfDeleteALLProduct();
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  await _onTapOfDeleteALLProduct();
 
-            navigateTo(context, InquiryAddEditScreen.routeName);
-          },
-          child: Icon(Icons.add),
-          heroTag: "fab2",
-          backgroundColor: colorPrimary,
-        ),
+                  navigateTo(context, InquiryAddEditScreen.routeName);
+                },
+                child: Icon(Icons.add),
+                heroTag: "fab2",
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context,
             UserName: "KISHAN",
@@ -477,7 +519,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
       child: ExpansionTileCard(
         initialElevation: 5.0,
 
-        elevation: 5.0,
+        /* elevation: 5.0,
         elevationCurve: Curves.easeInOut,
         shadowColor: Color(0xFF504F4F),
         baseColor: model.InquirySourceName.trim().toString() == "IndiaMart"
@@ -485,27 +527,95 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             : Color(0xFFFCFCFC),
         expandedColor: model.InquirySourceName.trim().toString() == "IndiaMart"
             ? Color(0xFFFAF6C3)
-            : Color(0xFFC1E0FA),
+            : Color(0xFFC1E0FA),*/
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        elevation: 1,
+        elevationCurve: Curves.easeInOut,
+        shadowColor: Color(0xFF504F4F),
+        baseColor: model.InquirySourceName.replaceAll(" ", "")
+                    .toLowerCase()
+                    .toString()
+                    .trim() ==
+                "indiamart"
+            ? Color(0xFFFAF6C3)
+            : Color(0xFFFCFCFC),
+        expandedColor: model.InquirySourceName.replaceAll(" ", "")
+                    .toLowerCase()
+                    .toString()
+                    .trim() ==
+                "indiamart"
+            ? Color(0xFFFAF6C3)
+            : colorTileBG,
 
         //Colors.deepOrange[50],ADD8E6
-        leading: CircleAvatar(
+        /* leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+            child: */ /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ /*
                 Image.network(
               "http://demo.sharvayainfotech.in/images/profile.png",
               height: 35,
               fit: BoxFit.fill,
               width: 35,
-            )),
+            )),*/
 
-        title: Text(
+        title: /*Text(
           model.customerName,
           style: TextStyle(
               color: model.InquirySourceName == "India Mart"
                   ? Color(0xFF8A2CE2)
                   : Color(0xFF8A2CE2)), //8A2CE2)),
+        ),*/
+            Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.assignment_ind,
+                    color: Color(0xff108dcf),
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.keyboard_arrow_right,
+                color: Color(0xff108dcf),
+                size: 24,
+              ),
+            ),
+            SizedBox(
+              width: 3,
+            ),
+            Flexible(
+              child: Text(
+                model.customerName,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: model.InquirySourceName.replaceAll(" ", "")
+                              .toLowerCase()
+                              .toString()
+                              .trim() ==
+                          "indiamart"
+                      ? Color(0xFF8A2CE2)
+                      : Colors.black,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ],
         ),
-        subtitle: Text(
+        subtitle: /*Text(
           model.inquiryNo,
           style: TextStyle(
             color: model.InquirySourceName == "India Mart"
@@ -513,424 +623,726 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                 : Color(0xFF8A2CE2),
             fontSize: _fontSize_Title,
           ),
+        ),*/
+            Container(
+          padding: EdgeInsets.only(left: 10, right: 10, top: 2, bottom: 2),
+          child: Row(
+            children: [
+              Icon(
+                Icons.confirmation_num,
+                color: Color(0xff108dcf),
+                size: 18,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text(
+                model.inquiryNo,
+                style: TextStyle(
+                  color: Color(0xFF504F4F),
+                  fontSize: _fontSize_Title,
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () async {
+                        MakeCall.callto(model.ContactNo);
+                      },
+                      child: Container(
+                        child: Image.asset(
+                          PHONE_CALL_IMAGE,
+                          width: 18,
+                          height: 18,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        ShareMsg.msg(context, model.ContactNo);
+                      },
+                      child: Container(
+                        child: Image.asset(
+                          WHATSAPP_IMAGE,
+                          width: 20,
+                          height: 20,
+                        ),
+                      ),
+                    ),
+                  ])
+            ],
+          ),
         ),
         children: <Widget>[
           Divider(
             thickness: 1.0,
             height: 1.0,
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Container(
-                padding:
-                    EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                await _makePhoneCall(model.ContactNo);
-                              },
-                              child: Container(
-                                /* decoration: BoxDecoration(
-                                                              shape: BoxShape.rectangle,
-                                                              color: colorPrimary,
-                                                              borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                            ),*/
-                                child: /*Icon(
-
-                                                              Icons.call,
-                                                              color: colorWhite,
-                                                              size: 24,
-                                                            )*/
-                                    Image.asset(
-                                  PHONE_CALL_IMAGE,
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                //await _makeSms(model.contactNo1);
-                                showCommonDialogWithTwoOptions(
-                                    context,
-                                    "Do you have Two Accounts of WhatsApp ?" +
-                                        "\n" +
-                                        "Select one From below Option !",
-                                    positiveButtonTitle: "WhatsApp",
-                                    onTapOfPositiveButton: () {
-                                      // _url = "https://api.whatsapp.com/send?phone=91";
-                                      /* _url = "https://wa.me/";
-                                                        _launchURL(model.contactNo1,_url);*/
-                                      Navigator.pop(context);
-                                      onButtonTap(
-                                          Share.whatsapp_personal, model);
-                                    },
-                                    negativeButtonTitle: "Business",
-                                    onTapOfNegativeButton: () {
-                                      Navigator.pop(context);
-
-                                      _launchWhatsAppBuz(model.ContactNo);
-                                    });
-                              },
-                              child: Container(
-                                /*decoration: BoxDecoration(
-                                                              shape: BoxShape.rectangle,
-                                                              color: colorPrimary,
-                                                              borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                            ),*/
-                                child: /*Icon(
-
-                                                              Icons.message_sharp,
-                                                              color: colorWhite,
-                                                              size: 20,
-                                                            )*/
-                                    Image.asset(
-                                  WHATSAPP_IMAGE,
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            /*  model.inquiryNo==""?Container() :*/ SizedBox(
-                              width: 15,
-                            ),
-                            Visibility(
-                              visible: /* model.inquiryNo==""?false:*/ true,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  //await _makePhoneCall(model.contactNo1);
-                                  //await _makeSms(model.contactNo1);
-                                  //  _launchURL(model.contactNo1);
-                                  MoveTofollowupHistoryPage(model.inquiryNo,
-                                      model.customerID.toString());
-                                },
-                                child: /*Container(
-                                            width:40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                                                shape: BoxShape.circle,
-                                                                color: colorPrimary,
-
-
-                                                              ),
-                                            child:
-                                            Image.asset(
-                                              HISTORY_ICON,
-                                              width: 24,
-                                              height: 24,
-                                            ),
-                                          ),*/
-                                    Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: const BoxDecoration(
-                                      color: colorWhite,
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Image.asset(
-                                        HISTORY_ICON,
-                                        width: 24,
-                                        height: 24,
+          Container(
+            margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Visibility(
+                          visible: true,
+                          child: GestureDetector(
+                            onTap: () async {
+                              MoveTofollowupHistoryPage(
+                                  model.inquiryNo, model.customerID.toString());
+                            },
+                            child: Column(
+                              children: [
+                                Card(
+                                  color: colorBackGroundGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.history,
+                                        size: 24,
+                                        color: colorPrimary,
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
+                                Text("History",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: colorPrimary,
+                                        fontSize: 7,
+                                        fontWeight: FontWeight.bold))
+                              ],
                             ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                _inquiryBloc.add(
-                                    InquiryShareEmpListRequestEvent(
-                                        InquiryShareEmpListRequest(
-                                            InquiryNo: model.inquiryNo,
-                                            CompanyId: CompanyID.toString())));
-                                // _inquiryBloc..add(InquiryNoToFollowupDetailsRequestCallEvent(model,InquiryNoToFollowupDetailsRequest(InquiryNo:model.inquiryNo,CompanyId: CompanyID.toString(),CustomerID: model.customerID.toString())));
-                              },
-                              child: /*Container(
-                                          width:40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                                              shape: BoxShape.circle,
-                                                              color: colorPrimary,
-
-
-                                                            ),
-                                          child:
-                                          Image.asset(
-                                            HISTORY_ICON,
-                                            width: 24,
-                                            height: 24,
-                                          ),
-                                        ),*/
-                                  Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                    color: colorPrimary,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: Icon(
-                                  Icons.share,
-                                  size: 24,
-                                  color: colorWhite,
-                                )),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                _inquiryBloc
-                                  ..add(
-                                      InquiryNoToFollowupDetailsRequestCallEvent(
-                                          model,
-                                          InquiryNoToFollowupDetailsRequest(
-                                              InquiryNo: model.inquiryNo,
-                                              CompanyId: CompanyID.toString(),
-                                              CustomerID: model.customerID
-                                                  .toString())));
-                              },
-                              child: /*Container(
-                                          width:40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                                              shape: BoxShape.circle,
-                                                              color: colorPrimary,
-
-
-                                                            ),
-                                          child:
-                                          Image.asset(
-                                            HISTORY_ICON,
-                                            width: 24,
-                                            height: 24,
-                                          ),
-                                        ),*/
-                                  Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                    color: colorPrimary,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: Icon(
-                                  Icons.add,
-                                  size: 24,
-                                  color: colorWhite,
-                                )),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                FetchCustomerDetails(model.customerID);
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                    color: colorPrimary,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: Icon(
-                                  Icons.account_box,
-                                  size: 24,
-                                  color: colorWhite,
-                                )),
-                              ),
-                            ),
-                          ]),
-                    ),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Lead #",
-                                model.inquiryNo ?? "-",
-                                model.inquiryStatus,
-                                model),
                           ),
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Lead Date",
-                                model.LeadDate.getFormattedDate(
-                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                        toFormat: "dd-MM-yyyy") ??
-                                    "-",
-                                model.LeadDate,
-                                model),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            _inquiryBloc.add(InquiryShareEmpListRequestEvent(
+                                InquiryShareEmpListRequest(
+                                    InquiryNo: model.inquiryNo,
+                                    CompanyId: CompanyID.toString())));
+                          },
+                          child: Column(
+                            children: [
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.share,
+                                    size: 24,
+                                    color: colorPrimary,
+                                  )),
+                                ),
+                              ),
+                              Text("Share",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: colorPrimary,
+                                      fontSize: 7,
+                                      fontWeight: FontWeight.bold))
+                            ],
                           ),
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Inquiry Date",
-                                model.inquiryDate.getFormattedDate(
-                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                        toFormat: "dd-MM-yyyy") ??
-                                    "-",
-                                model.inquiryDate,
-                                model),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            _inquiryBloc
+                              ..add(InquiryNoToFollowupDetailsRequestCallEvent(
+                                  model,
+                                  InquiryNoToFollowupDetailsRequest(
+                                      InquiryNo: model.inquiryNo,
+                                      CompanyId: CompanyID.toString(),
+                                      CustomerID:
+                                          model.customerID.toString())));
+                          },
+                          child: Column(
+                            children: [
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  /*decoration: const BoxDecoration(
+                                      color: colorPrimary,
+                                      shape: BoxShape.circle),*/
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.add,
+                                    size: 24,
+                                    color: colorPrimary,
+                                  )),
+                                ),
+                              ),
+                              Text("Followup",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: colorPrimary,
+                                      fontSize: 7,
+                                      fontWeight: FontWeight.bold))
+                            ],
                           ),
-                        ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    Row(children: [
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Source",
-                            model.InquirySourceName ?? "-",
-                            model.inquiryStatus,
-                            model),
-                      ),
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Status",
-                            model.inquiryStatus ?? "-",
-                            model.inquiryStatus,
-                            model),
-                      ),
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Reference Name",
-                        /*model.referenceName ?? "-" */
-                        model.referenceName == "" || model.referenceName == null
-                            ? '-'
-                            : model.referenceName,
-                        model.inquiryStatus,
-                        model),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    Row(children: [
-                      _inquiryListResponse.details[index].followupDate == ''
-                          ? Expanded(
-                              child: _buildTitleWithValueView(
-                                  "Next Followup Date",
-                                  model.followupDate.getFormattedDate(
-                                          fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                          toFormat: "dd-MM-yyyy") ??
-                                      "-",
-                                  model.inquiryStatus,
-                                  model))
-                          : Container(),
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Created Date",
-                            model.createdDate.getFormattedDate(
-                                fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                toFormat: "dd-MM-yyyy"),
-                            model.inquiryStatus,
-                            model),
-                      ),
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView("Created by", model.createdBy,
-                        model.inquiryStatus, model),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    getCommonButton(baseTheme, () {
-                      MoveToProductHistoryPage(
-                          model.inquiryNo, model.customerID.toString());
-                    }, "View Product", width: 600),
-                  ],
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            FetchCustomerDetails(model.customerID);
+                          },
+                          child: Column(
+                            children: [
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.account_box,
+                                    size: 24,
+                                    color: colorPrimary,
+                                  )),
+                                ),
+                              ),
+                              Text("Info.",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: colorPrimary,
+                                      fontSize: 7,
+                                      fontWeight: FontWeight.bold))
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            MoveToProductHistoryPage(
+                                model.inquiryNo, model.customerID.toString());
+                          },
+                          child: Column(
+                            children: [
+                              Card(
+                                color: colorBackGroundGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                                child: Container(
+                                  width: 35,
+                                  height: 35,
+                                  /*decoration: const BoxDecoration(
+                                      color: colorPrimary,
+                                      shape: BoxShape.circle),*/
+                                  child: Center(
+                                      child: Icon(
+                                    Icons.shopping_cart,
+                                    size: 24,
+                                    color: colorPrimary,
+                                  )),
+                                ),
+                              ),
+                              Text("Product.",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: colorPrimary,
+                                      fontSize: 7,
+                                      fontWeight: FontWeight.bold))
+                            ],
+                          ),
+                        ),
+                      ]),
                 ),
-              ),
-            ),
-          ),
-          ButtonBar(
-              alignment: MainAxisAlignment.center,
-              buttonHeight: 52.0,
-              // buttonMinWidth: 90.0,
-              children: <Widget>[
-                /*_inquiryBloc.add(InquiryNotoProductCallEvent(
-          InquiryNoToProductListRequest(
-              InquiryNo: InquiryNo, CompanyId: CompanyID.toString())));*/
-
-                GestureDetector(
-                  onTap: () {
-                    _onTapOfEditInquiry(model);
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.edit,
-                        color: colorPrimary,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
+                SizedBox(
+                  height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                ),
+                Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Flexible(
+                            child: Row(
+                              children: [
+                                Column(
+                                  children: [
+                                    Icon(
+                                      Icons.confirmation_num,
+                                      color: colorCardBG,
+                                    ),
+                                    Text("Lead",
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorCardBG,
+                                          fontSize: 7,
+                                        ))
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: Text(
+                                      model
+                                          .inquiryNo, //put your own long text here.
+                                      maxLines: 3,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                          color: Color(title_color),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: _fontSize_Title)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_outlined,
+                                      color: colorCardBG,
+                                    ),
+                                    Text("Inquiry",
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorCardBG,
+                                          fontSize: 7,
+                                        ))
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: Text(
+                                      model.inquiryDate.getFormattedDate(
+                                              fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                              toFormat: "dd-MM-yyyy") ??
+                                          "-",
+                                      maxLines: 3,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                          color: Color(title_color),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: _fontSize_Title)),
+                                ),
+                              ],
+                            ),
+                          )
+                        ]),
                   ),
                 ),
                 SizedBox(
-                  width: 10,
+                  height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                 ),
-                isDeleteVisible == true
-                    ? GestureDetector(
-                        onTap: () {
-                          //  cardA.currentState?.collapse();
-                          //new ExpansionTileCardState().collapse();
-                          _onTapOfDeleteInquiry(model.pkID);
-                        },
-                        child: Column(
-                          children: <Widget>[
+                Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Flexible(
+                            child: Row(
+                              children: [
+                                Column(
+                                  children: [
+                                    Icon(
+                                      Icons.source,
+                                      color: colorCardBG,
+                                    ),
+                                    Text("Source",
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorCardBG,
+                                          fontSize: 7,
+                                        ))
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: Text(
+                                      model.InquirySourceName.replaceAll(
+                                              " ", "") ??
+                                          "-", //put your own long text here.
+                                      maxLines: 3,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                          color: Color(title_color),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: _fontSize_Title)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Icon(
+                                      Icons.category,
+                                      color: colorCardBG,
+                                    ),
+                                    Text("Status",
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorCardBG,
+                                          fontSize: 7,
+                                        ))
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: Text(model.inquiryStatus ?? "-",
+                                      maxLines: 3,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                          color: Color(title_color),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: _fontSize_Title)),
+                                ),
+                              ],
+                            ),
+                          )
+                        ]),
+                  ),
+                ),
+                SizedBox(
+                  height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                ),
+                Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Column(
+                          children: [
                             Icon(
-                              Icons.delete,
-                              color: colorPrimary,
+                              Icons.assignment_ind,
+                              color: colorCardBG,
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2.0),
-                            ),
-                            Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.black),
-                            ),
+                            Text("Ref.",
+                                style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: colorCardBG,
+                                    fontSize: 7,
+                                    letterSpacing: .3))
                           ],
                         ),
-                      )
-                    : Container(),
-              ]),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          child: Text(
+                              model.referenceName == "" ||
+                                      model.referenceName == null
+                                  ? '-'
+                                  : model
+                                      .referenceName, //put your own long text here.
+                              maxLines: 3,
+                              overflow: TextOverflow.clip,
+                              style: TextStyle(
+                                  color: Color(title_color),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: _fontSize_Title)),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                ),
+                Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          _inquiryListResponse.details[index].followupDate == ''
+                              ? Flexible(
+                                  child: Row(
+                                    children: [
+                                      Column(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_today_outlined,
+                                            color: colorCardBG,
+                                          ),
+                                          Text("FollowUp",
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: colorCardBG,
+                                                fontSize: 7,
+                                              ))
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      Flexible(
+                                        child: Text(
+                                            model.followupDate.getFormattedDate(
+                                                    fromFormat:
+                                                        "yyyy-MM-ddTHH:mm:ss",
+                                                    toFormat: "dd-MM-yyyy") ??
+                                                "-", //put your own long text here.
+                                            maxLines: 3,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(
+                                                color: Color(title_color),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: _fontSize_Title)),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          Flexible(
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_outlined,
+                                      color: colorCardBG,
+                                    ),
+                                    Text("Create",
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorCardBG,
+                                          fontSize: 7,
+                                        ))
+                                  ],
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: Text(
+                                      model.createdDate.getFormattedDate(
+                                          fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                          toFormat: "dd-MM-yyyy"),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.clip,
+                                      style: TextStyle(
+                                          color: Color(title_color),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: _fontSize_Title)),
+                                ),
+                              ],
+                            ),
+                          )
+                        ]),
+                  ),
+                ),
+                SizedBox(
+                  height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                ),
+                Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Column(
+                          children: [
+                            Icon(
+                              Icons.perm_contact_cal_rounded,
+                              color: colorCardBG,
+                            ),
+                            Text("By",
+                                style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    color: colorCardBG,
+                                    fontSize: 7,
+                                    letterSpacing: .3))
+                          ],
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Flexible(
+                          child: Text(
+                              model.createdBy, //put your own long text here.
+                              maxLines: 3,
+                              overflow: TextOverflow.clip,
+                              style: TextStyle(
+                                  color: Color(title_color),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: _fontSize_Title)),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                ),
+              ],
+            ),
+          ),
+          Divider(
+            thickness: 1.0,
+            height: 1.0,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          IsEditRights == false && IsDeleteRights == false
+              ? Container()
+              : Card(
+                  color: colorCardBG,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    width: 300,
+                    height: 50,
+                    child: ButtonBar(
+                        alignment: MainAxisAlignment.center,
+                        buttonHeight: 52.0,
+                        buttonMinWidth: 90.0,
+                        children: <Widget>[
+                          IsEditRights == true
+                              ? Container(
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // _onTapOfEditCustomer(model);
+
+                                          _onTapOfEditInquiry(model);
+                                        },
+                                        child: Row(
+                                          children: <Widget>[
+                                            Image.asset(
+                                              CUSTOM_UPDATE,
+                                              height: 24,
+                                              width: 24,
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2.0),
+                                            ),
+                                            Text(
+                                              'Update',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: colorWhite),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          IsDeleteRights == true
+                              ? GestureDetector(
+                                  onTap: () {
+                                    _onTapOfDeleteInquiry(model.pkID);
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Image.asset(
+                                        CUSTOM_DELETE,
+                                        height: 29,
+                                        width: 29,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                      ),
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: colorWhite),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          SizedBox(
+                            width: 10,
+                          ),
+                        ]),
+                  ),
+                ),
+          SizedBox(
+            height: 10,
+          )
         ],
       ),
     );
@@ -1044,22 +1456,6 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
     }
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  void _launchURL(txt) async => await canLaunch(_url + txt)
-      ? await launch(_url + txt)
-      : throw 'Could not Launch $_url';
-
   Future<void> MoveTofollowupHistoryPage(String inquiryNo, String CustomerID) {
     navigateTo(context, FollowupHistoryScreen.routeName,
             arguments: FollowupHistoryScreenArguments(inquiryNo, CustomerID))
@@ -1159,88 +1555,6 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
 
       // navigateTo(context, FollowUpAddEditScreen.routeName,clearAllStack: true);
     }
-  }
-
-  Future<void> onButtonTap(Share share, InquiryDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.ContactNo);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
-  }
-
-  Future<void> onButtonTapCustomer(
-      Share share, CustomerDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  Future<void> share(String contactNo1) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    /* await WhatsappShare.share(
-        text: msg,
-       //linkUrl: 'https://flutter.dev/',
-        phone: "91"+contactNo1,
-        package: Package.businessWhatsapp
-    );*/
   }
 
   void _OnInquiryShareResponseSucess(InquiryShareResponseState state) {
@@ -1715,7 +2029,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                                                     children: <Widget>[
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          await _makePhoneCall(
+                                                          MakeCall.callto(
                                                               customerDetails123
                                                                   .contactNo1);
                                                         },
@@ -1732,34 +2046,10 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                                                       ),
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          showCommonDialogWithTwoOptions(
+                                                          ShareMsg.msg(
                                                               context,
-                                                              "Do you have Two Accounts of WhatsApp ?" +
-                                                                  "\n" +
-                                                                  "Select one From below Option !",
-                                                              positiveButtonTitle:
-                                                                  "WhatsApp",
-                                                              onTapOfPositiveButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                onButtonTapCustomer(
-                                                                    Share
-                                                                        .whatsapp_personal,
-                                                                    customerDetails123);
-                                                              },
-                                                              negativeButtonTitle:
-                                                                  "Business",
-                                                              onTapOfNegativeButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                _launchWhatsAppBuz(
-                                                                    customerDetails123
-                                                                        .contactNo1);
-
-                                                                //onButtonTap(Share.whatsapp_business,model);
-                                                              });
+                                                              customerDetails123
+                                                                  .contactNo1);
                                                         },
                                                         child: Container(
                                                           child: Image.asset(
@@ -2215,5 +2505,48 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
         );
       },
     );
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgInquiry") {
+        _inquiryBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

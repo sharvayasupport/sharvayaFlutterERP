@@ -87,7 +87,11 @@ class _SearchInquiryProductScreenState extends BaseState<SearchInquiryProductScr
       children: [
         NewGradientAppBar(
           title: Text('Search Product'),
-          gradient: LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
         ),
         Expanded(
           child: Container(
@@ -217,6 +221,7 @@ class _SearchInquiryProductScreenState extends BaseState<SearchInquiryProductScr
 import 'package:checkbox_grouped/checkbox_grouped.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
 import 'package:soleoserp/models/api_requests/inquiry/InquiryShareModel.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
@@ -326,7 +331,15 @@ class _InquiryShareScreenState extends BaseState<InquiryShareScreen>
   Widget buildBody(BuildContext context) {
     return Column(
       children: [
-        getCommonAppBar(context, baseTheme, "Inquiry Share"),
+        //getCommonAppBar(context, baseTheme, "Inquiry Share"),
+        NewGradientAppBar(
+          title: Text('Lead Share'),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
+        ),
         Expanded(
             child: Container(
                 padding: EdgeInsets.only(

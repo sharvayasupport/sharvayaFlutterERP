@@ -156,3 +156,8 @@ class GetReportToTokenResponseState extends InquiryStates {
 
   GetReportToTokenResponseState(this.response);
 }
+
+class UserMenuRightsResponseState extends InquiryStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

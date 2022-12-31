@@ -123,3 +123,10 @@ class CityCallEvent extends ComplaintScreenEvents {
   final CityApiRequest cityApiRequest;
   CityCallEvent(this.cityApiRequest);
 }
+
+class UserMenuRightsRequestEvent extends ComplaintScreenEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}

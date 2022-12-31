@@ -1,6 +1,5 @@
 part of 'bank_voucher_bloc.dart';
 
-
 abstract class BankVoucherScreenStates extends BaseStates {
   const BankVoucherScreenStates();
 }
@@ -13,8 +12,9 @@ class BankvoucherListResponseState extends BankVoucherScreenStates {
   final BankVoucherListResponse bankVoucherListResponse;
   final int newPage;
 
-  BankvoucherListResponseState(this.newPage,this.bankVoucherListResponse);
+  BankvoucherListResponseState(this.newPage, this.bankVoucherListResponse);
 }
+
 class BankVoucherSearchByNameCallResponseState extends BankVoucherScreenStates {
   final BankVoucherSearchByNameResponse response;
 
@@ -33,19 +33,19 @@ class BankVoucherDeleteResponseState extends BankVoucherScreenStates {
   BankVoucherDeleteResponseState(this.bankVoucherDeleteResponse);
 }
 
-
 class TransectionModeResponseState extends BankVoucherScreenStates {
   final TransectionModeListResponse transectionModeListResponse;
 
   TransectionModeResponseState(this.transectionModeListResponse);
 }
 
-
-class BankVoucherCustomerListByNameCallResponseState extends BankVoucherScreenStates {
+class BankVoucherCustomerListByNameCallResponseState
+    extends BankVoucherScreenStates {
   final CustomerLabelvalueRsponse response;
 
   BankVoucherCustomerListByNameCallResponseState(this.response);
 }
+
 class BankDropDownResponseState extends BankVoucherScreenStates {
   final BankDorpDownResponse response;
 
@@ -56,7 +56,12 @@ class BankVoucherSaveResponseState extends BankVoucherScreenStates {
   final BankVoucherSaveResponse bankVoucherSaveResponse;
   final BuildContext context;
 
-  BankVoucherSaveResponseState(this.context,this.bankVoucherSaveResponse);
+  BankVoucherSaveResponseState(this.context, this.bankVoucherSaveResponse);
+}
+
+class UserMenuRightsResponseState1 extends BankVoucherScreenStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState1(this.userMenuRightsResponse);
 }
 
 /*

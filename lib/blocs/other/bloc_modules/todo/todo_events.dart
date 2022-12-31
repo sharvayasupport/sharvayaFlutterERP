@@ -31,17 +31,19 @@ class TaskCategoryListCallEvent extends ToDoEvents {
 }
 
 class ToDoSaveHeaderEvent extends ToDoEvents {
+  BuildContext context;
   final ToDoHeaderSaveRequest toDoHeaderSaveRequest;
   final int pkID;
 
-  ToDoSaveHeaderEvent(this.pkID, this.toDoHeaderSaveRequest);
+  ToDoSaveHeaderEvent(this.context,this.pkID, this.toDoHeaderSaveRequest);
 }
 
 class ToDoSaveSubDetailsEvent extends ToDoEvents {
+  BuildContext context;
   final ToDoSaveSubDetailsRequest toDoSaveSubDetailsRequest;
   final int pkID;
 
-  ToDoSaveSubDetailsEvent(this.pkID, this.toDoSaveSubDetailsRequest);
+  ToDoSaveSubDetailsEvent(this.context,this.pkID, this.toDoSaveSubDetailsRequest);
 }
 
 class ToDoWorkLogListEvent extends ToDoEvents {
@@ -72,4 +74,10 @@ class GetReportToTokenRequestEvent extends ToDoEvents {
   final GetReportToTokenRequest request;
 
   GetReportToTokenRequestEvent(this.request);
+}
+class UserMenuRightsRequestEvent extends ToDoEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
 }

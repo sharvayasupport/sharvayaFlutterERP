@@ -4,8 +4,8 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
 import 'package:soleoserp/models/api_requests/inquiry/search_inquiry_list_by_name_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/search_inquiry_list_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -70,8 +70,11 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
       children: [
         NewGradientAppBar(
           title: Text('Search Customer'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
         ),
         Expanded(
           child: Container(

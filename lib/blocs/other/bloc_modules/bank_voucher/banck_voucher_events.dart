@@ -1,18 +1,17 @@
 part of 'bank_voucher_bloc.dart';
 
-
 @immutable
 abstract class BankVoucherScreenEvents {}
 
 ///all events of AuthenticationEvents
 
 class BankVoucherListCallEvent extends BankVoucherScreenEvents {
-
   final int pageNo;
   final BankVoucherListRequest bankVoucherListRequest;
 
-  BankVoucherListCallEvent(this.pageNo,this.bankVoucherListRequest);
+  BankVoucherListCallEvent(this.pageNo, this.bankVoucherListRequest);
 }
+
 class BankVoucherSearchByNameCallEvent extends BankVoucherScreenEvents {
   final BankVoucherSearchByNameRequest request;
 
@@ -23,19 +22,16 @@ class BankVoucherSearchByIDCallEvent extends BankVoucherScreenEvents {
   int id;
   final BankVoucherSearchByIDRequest request;
 
-  BankVoucherSearchByIDCallEvent(this.id,this.request);
+  BankVoucherSearchByIDCallEvent(this.id, this.request);
 }
-
 
 class BankVoucherDeleteCallEvent extends BankVoucherScreenEvents {
   final int pkID;
 
   final BankVoucherDeleteRequest bankVoucherDeleteRequest;
 
-  BankVoucherDeleteCallEvent(this.pkID,this.bankVoucherDeleteRequest);
+  BankVoucherDeleteCallEvent(this.pkID, this.bankVoucherDeleteRequest);
 }
-
-
 
 class TransectionModeCallEvent extends BankVoucherScreenEvents {
   final TransectionModeListRequest request;
@@ -43,8 +39,8 @@ class TransectionModeCallEvent extends BankVoucherScreenEvents {
   TransectionModeCallEvent(this.request);
 }
 
-
-class SearchBankVoucherCustomerListByNameCallEvent extends BankVoucherScreenEvents {
+class SearchBankVoucherCustomerListByNameCallEvent
+    extends BankVoucherScreenEvents {
   final CustomerLabelValueRequest request;
 
   SearchBankVoucherCustomerListByNameCallEvent(this.request);
@@ -56,14 +52,24 @@ class BankDropDownCallEvent extends BankVoucherScreenEvents {
   BankDropDownCallEvent(this.request);
 }
 
-
 class BankVoucherSaveCallEvent extends BankVoucherScreenEvents {
   final int pkID;
 
   final BankVoucherSaveRequest bankVoucherSaveRequest;
   final BuildContext context;
 
-  BankVoucherSaveCallEvent(this.context,this.pkID,this.bankVoucherSaveRequest,);
+  BankVoucherSaveCallEvent(
+    this.context,
+    this.pkID,
+    this.bankVoucherSaveRequest,
+  );
+}
+
+class UserMenuRightsRequestEvent1 extends BankVoucherScreenEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent1(this.MenuID, this.userMenuRightsRequest);
 }
 
 /*

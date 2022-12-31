@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
+import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
@@ -47,6 +48,10 @@ class _FirstScreenState extends BaseState<FirstScreen>
   bool is_dealer = false;
   int _selectedIndex = 0;
 
+  int CompanyID = 0;
+
+  String ConstantMAster = "";
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -60,10 +65,15 @@ class _FirstScreenState extends BaseState<FirstScreen>
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     _selectedIndex = 0;
     SiteUrl = _offlineCompanyData.details[0].siteURL;
-
+    CompanyID = _offlineCompanyData.details[0].pkId;
     _firstScreenBloc = FirstScreenBloc(baseBloc);
 
     print("URLLLL:" + SiteUrl + "/images/companylogo/CompanyLogo.png");
+
+    _firstScreenBloc.add(ConstantRequestEvent(
+        CompanyID.toString(),
+        ConstantRequest(
+            ConstantHead: "DMSSystem", CompanyId: CompanyID.toString())));
   }
 
   ///listener to multiple states of bloc to handles api responses
@@ -88,16 +98,26 @@ class _FirstScreenState extends BaseState<FirstScreen>
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => _firstScreenBloc,
+      create: (BuildContext context) => _firstScreenBloc
+        ..add(ConstantRequestEvent(
+            CompanyID.toString(),
+            ConstantRequest(
+                ConstantHead: "DMSSystem", CompanyId: CompanyID.toString()))),
       child: BlocConsumer<FirstScreenBloc, FirstScreenStates>(
         builder: (BuildContext context, FirstScreenStates state) {
           //handle states
 
+          if (state is ConstantResponseState) {
+            _onGetDMSConstant(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           //return true for state for which builder method should be called
 
+          if (currentState is ConstantResponseState) {
+            return true;
+          }
           return false;
         },
         listener: (BuildContext context, FirstScreenStates state) {
@@ -125,20 +145,30 @@ class _FirstScreenState extends BaseState<FirstScreen>
     edt_User_Password.text = "admin!@#";*/
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.only(
-              left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
-              right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
-              top: 50,
-              bottom: 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildDealerTopView(),
-              SizedBox(height: 20),
-              _buildDelaerLoginForm(),
-            ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _firstScreenBloc.add(ConstantRequestEvent(
+              CompanyID.toString(),
+              ConstantRequest(
+                  ConstantHead: "DMSSystem", CompanyId: CompanyID.toString())));
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(
+                left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+                right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+                top: 50,
+                bottom: 50),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ConstantMAster == "yes"
+                    ? _buildDealerTopView()
+                    : _buildTopView(),
+                SizedBox(height: 20),
+                _buildDelaerLoginForm(),
+              ],
+            ),
           ),
         ),
       ),
@@ -288,7 +318,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
         Text(
           "Login",
           style: TextStyle(
-            color: Color(0xff3a3285),
+            color: colorPrimary,
             fontSize: 48,
             fontFamily: "Poppins",
             fontWeight: FontWeight.w700,
@@ -507,8 +537,8 @@ class _FirstScreenState extends BaseState<FirstScreen>
                   _onTapOfLogin();
                 }, "Login",
                     radius: 15,
-                    backGroundColor: Color(
-                        0xff3a3285) /*_selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown*/),
+                    backGroundColor:
+                        colorPrimary /*_selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown*/),
               ),
               SizedBox(
                 width: 5,
@@ -518,8 +548,8 @@ class _FirstScreenState extends BaseState<FirstScreen>
                   _onTapOfRegister();
                 }, "LogOut",
                     radius: 15,
-                    backGroundColor: Color(
-                        0xff3a3285) /*_selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown*/),
+                    backGroundColor:
+                        colorPrimary /*_selectedIndex == 0 ? Color(0xff3a3285) : Colors.brown*/),
               ),
             ],
           )
@@ -667,5 +697,11 @@ class _FirstScreenState extends BaseState<FirstScreen>
     SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, false);
     navigateTo(context, SerialKeyScreen.routeName, clearAllStack: true);
     // navigateTo(context, RegisterScreen.routeName, clearAllStack: true);
+  }
+
+  void _onGetDMSConstant(ConstantResponseState state) {
+    print("ConstantValue" + state.response.details[0].value.toString());
+
+    ConstantMAster = state.response.details[0].value.toString();
   }
 }

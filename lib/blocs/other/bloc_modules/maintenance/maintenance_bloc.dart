@@ -6,6 +6,8 @@ import 'package:soleoserp/models/api_requests/maintenance/maintenance_list_reque
 import 'package:soleoserp/models/api_requests/maintenance/maintenance_search_request.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_delete_response.dart';
 import 'package:soleoserp/models/api_responses/maintenance/maintenance_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'maintenance_event.dart';
@@ -31,6 +33,10 @@ class MaintenanceScreenBloc
 
     if (event is MaintenanceDeleteCallEvent) {
       yield* _mapDeletedMaintenanceCallEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
 
     /* if (event is LoanSearchCallEvent) {
@@ -85,6 +91,22 @@ class MaintenanceScreenBloc
       BankVoucherDeleteResponse bankVoucherDeleteResponse = await userRepository
           .getMaintenanceDelete(event.pkID, event.bankVoucherDeleteRequest);
       yield MaintenanceDeleteResponseState(bankVoucherDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<MaintenanceScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

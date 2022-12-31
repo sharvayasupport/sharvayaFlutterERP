@@ -10,7 +10,9 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/leave_request/leave_request_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -64,6 +66,11 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
       TextEditingController();
   bool isDeleteVisible = true;
 
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +79,9 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
+
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     _onFollowerEmployeeListByStatusCallSuccess(
@@ -93,6 +103,8 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
+
+    getUserRights(_menuRightsResponse);
   }
 
   followupStatusListener() {
@@ -144,11 +156,15 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
             _onFollowerEmployeeListByStatusCallSuccess(state);
           }
 */
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState
-              is LeaveRequestStatesResponseState /*|| currentState is LeaveRequestEmployeeListResponseState*/) {
+                  is LeaveRequestStatesResponseState || /*|| currentState is LeaveRequestEmployeeListResponseState*/
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -176,8 +192,11 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Leave Request List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -205,6 +224,8 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
                             Month: "",
                             Year: "",
                             CompanyId: CompanyID)));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -233,14 +254,16 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Add your onPressed code here!
-            navigateTo(context, LeaveRequestAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () {
+                  // Add your onPressed code here!
+                  navigateTo(context, LeaveRequestAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -658,31 +681,34 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      _onTapOfEditCustomer(
-                          _leaveRequestListResponse.details[index]);
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Icon(
-                          Icons.edit,
-                          color: colorPrimary,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        ),
-                        Text(
-                          'Edit',
-                          style: TextStyle(color: colorPrimary),
-                        ),
-                      ],
-                    ),
-                  ),
+                  IsEditRights == true
+                      ? GestureDetector(
+                          onTap: () {
+                            _onTapOfEditCustomer(
+                                _leaveRequestListResponse.details[index]);
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.edit,
+                                color: colorPrimary,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
+                              Text(
+                                'Edit',
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
                   SizedBox(
                     width: 10,
                   ),
-                  isDeleteVisible == true
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             _onTapOfDeleteCustomer(
@@ -969,5 +995,48 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
       _leaveRequestScreenBloc.add(LeaveRequestDeleteByNameCallEvent(
           id, FollowupDeleteRequest(CompanyId: CompanyID.toString())));
     });
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgLeaveRequest") {
+        _leaveRequestScreenBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

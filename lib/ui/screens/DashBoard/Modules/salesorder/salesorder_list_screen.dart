@@ -6,19 +6,22 @@ import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
+import 'package:lottie/lottie.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesorder/salesorder_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/sales_order_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -26,6 +29,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_mana
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/search_salesorder_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/broadcast_msg/make_call.dart';
+import 'package:soleoserp/utils/broadcast_msg/share_msg.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
@@ -68,6 +73,12 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   String LoginUserID = "";
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+  MenuRightsResponse _menuRightsResponse;
+
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   String SiteURL = "";
   String Password = "";
   InAppWebViewController webViewController;
@@ -91,6 +102,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   int prgresss = 0;
   double progress = 0;
   CustomerDetails customerDetails = CustomerDetails();
+  bool onWebLoadingStop = true;
 
   @override
   void initState() {
@@ -142,6 +154,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     screenStatusBarColor = colorPrimary;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
 
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
@@ -150,8 +163,10 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     _SalesOrderBloc = SalesOrderBloc(baseBloc);
 
     _SalesOrderBloc.add(PaymentScheduleDeleteAllItemEvent());
+    getUserRights(_menuRightsResponse);
 
     baseBloc.emit(ShowProgressIndicatorState(true));
+    _SalesOrderBloc.add(DeleteGenericAddditionalChargesEvent());
   }
 
   @override
@@ -173,12 +188,21 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
           if (state is PaymentScheduleDeleteAllResponseState) {
             _OnDeleteAllPaymentScheduleTable(state);
           }
+
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
+          if (state is DeleteAllGenericAddditionalChargesState) {
+            _OnDeleteAllGenericCharges(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is SalesOrderListCallResponseState ||
               currentState is SearchSalesOrderListByNumberCallResponseState ||
-              currentState is PaymentScheduleDeleteAllResponseState) {
+              currentState is PaymentScheduleDeleteAllResponseState ||
+              currentState is UserMenuRightsResponseState ||
+              currentState is DeleteAllGenericAddditionalChargesState) {
             return true;
           }
           return false;
@@ -190,10 +214,15 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
           if (state is SearchCustomerListByNumberCallResponseState) {
             _ONOnlyCustomerDetails(state);
           }
+
+          if (state is SalesOrderDeleteResponseState) {
+            _onDeleteSalesOrderResponse(state);
+          }
         },
         listenWhen: (oldState, currentState) {
           if (currentState is SalesOrderPDFGenerateResponseState ||
-              currentState is SearchCustomerListByNumberCallResponseState) {
+              currentState is SearchCustomerListByNumberCallResponseState ||
+              currentState is SalesOrderDeleteResponseState) {
             return true;
           }
 
@@ -210,8 +239,11 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('SalesOrder List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -236,6 +268,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                         SalesOrderListApiRequest(
                             CompanyId: CompanyID.toString(),
                             LoginUserID: LoginUserID)));
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -255,15 +288,17 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Add your onPressed code here!
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () {
+                  // Add your onPressed code here!
 
-            navigateTo(context, SaleOrderNewAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+                  navigateTo(context, SaleOrderNewAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: LoginUserID),
       ),
@@ -342,12 +377,22 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
           return false;
         }
       },
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return _buildInquiryListItem(index);
-        },
-        shrinkWrap: true,
-        itemCount: _SalesOrderListResponse.details.length,
+      child: Column(
+        children: [
+          _SalesOrderListResponse.details.length != 0
+              ? OneTimeGenerateSO(
+                  _SalesOrderListResponse.details[0], context, "new")
+              : Container(),
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return _buildInquiryListItem(index);
+              },
+              shrinkWrap: true,
+              itemCount: _SalesOrderListResponse.details.length,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -422,13 +467,10 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   ///checks if already all records are arrive or not
   ///calls api with new page
   void _onInquiryListPagination() {
-    if (_SalesOrderListResponse.details.length <
-        _SalesOrderListResponse.totalCount) {
-      _SalesOrderBloc.add(SalesOrderListCallEvent(
-          _pageNo + 1,
-          SalesOrderListApiRequest(
-              CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
-    }
+    _SalesOrderBloc.add(SalesOrderListCallEvent(
+        _pageNo + 1,
+        SalesOrderListApiRequest(
+            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
   }
 
   ExpantionCustomer(BuildContext context, int index) {
@@ -452,20 +494,6 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
               fit: BoxFit.fill,
               width: 35,
             )),
-        /* title: Text("Customer",style:TextStyle(fontSize: 12,color: Color(0xFF504F4F),fontWeight: FontWeight.bold)// baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-      ),*/
-        /*  title: Row(
-            children:<Widget>[
-              Expanded(
-                child: Text(model.customerName,style: TextStyle(
-                    color: Colors.black
-                ),),
-              ),
-              Expanded(child:  Text(model.orderNo,style: TextStyle(
-                  color: Colors.black
-              ),),)
-            ]
-        ),*/
         title: Text(
           model.customerName,
           style: TextStyle(color: Colors.black),
@@ -502,7 +530,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                             GestureDetector(
                               onTap: () async {
                                 //await _makePhoneCall(model.contactNo1);
-                                await _makePhoneCall(model.contactNo1);
+                                MakeCall.callto(model.contactNo1);
                               },
                               child: Container(
                                 child: Image.asset(
@@ -513,46 +541,14 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                               ),
                             ),
                             SizedBox(
-                              width: 15,
+                              width: 20,
                             ),
                             GestureDetector(
                               onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                //await _makeSms(model.contactNo1);
-                                showCommonDialogWithTwoOptions(
-                                    context,
-                                    "Do you have Two Accounts of WhatsApp ?" +
-                                        "\n" +
-                                        "Select one From below Option !",
-                                    positiveButtonTitle: "WhatsApp",
-                                    onTapOfPositiveButton: () {
-                                      // _url = "https://api.whatsapp.com/send?phone=91";
-                                      /* _url = "https://wa.me/";
-                                                        _launchURL(model.contactNo1,_url);*/
-                                      Navigator.pop(context);
-                                      onButtonTap(Share.whatsapp_personal,
-                                          model.contactNo1);
-                                    },
-                                    negativeButtonTitle: "Business",
-                                    onTapOfNegativeButton: () {
-                                      Navigator.pop(context);
-                                      _launchWhatsAppBuz(model.contactNo1);
-                                    });
+                                ShareMsg.msg(context, model.contactNo1);
                               },
                               child: Container(
-                                /*decoration: BoxDecoration(
-                                                              shape: BoxShape.rectangle,
-                                                              color: colorPrimary,
-                                                              borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                            ),*/
-                                child: /*Icon(
-
-                                                              Icons.message_sharp,
-                                                              color: colorWhite,
-                                                              size: 20,
-                                                            )*/
-                                    Image.asset(
+                                child: Image.asset(
                                   WHATSAPP_IMAGE,
                                   width: 30,
                                   height: 30,
@@ -560,7 +556,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                               ),
                             ),
                             SizedBox(
-                              width: 15,
+                              width: 20,
                             ),
                             GestureDetector(
                               onTap: () async {
@@ -581,155 +577,199 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                               ),
                             ),
                             SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                print("jdlfdjf" +
-                                    SiteURL +
-                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                    LoginUserID +
-                                    "&password=" +
-                                    Password +
-                                    "&pQuotID=" +
-                                    model.pkID.toString());
-
-                                String URLPDFF = SiteURL +
-                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                    LoginUserID +
-                                    "&password=" +
-                                    Password +
-                                    "&pQuotID=" +
-                                    model.pkID.toString();
-
-                                /*  http.Response response =
-                                    await http.get(Uri.parse(URLPDFF));
-
-                                if (response.statusCode == 200) {
-                                  // await _showMyDialog(model);
-
-                                  showCommonDialogWithSingleOption(
-                                      context, "PDF RUN Sucess !",
-                                      positiveButtonTitle: "OK");
-                                } else {
-                                  showCommonDialogWithSingleOption(
-                                      context, "Something Went Wrong !",
-                                      positiveButtonTitle: "OK");
-                                }*/
-                                await _showMyDialog(model);
-
-                                /* var progesCount23;
-                               webViewController.getProgress().whenComplete(() async =>  {
-                                 progesCount23 = await webViewController.getProgress(),
-                                 print("PAgeLoaded" + progesCount23.toString())
-                               });*/
-
-                                /*  await _makePhoneCall(
-                                        model.contactNo1);*/
-
-                                // baseBloc.emit(ShowProgressIndicatorState(true));
-                                /* setState(() {
-                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
-
-
-                                });*/
-
-                                // await Future.delayed(const Duration(milliseconds: 500), (){});
-                                // baseBloc.emit(ShowProgressIndicatorState(false));
-                                //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-                              },
-                              child: Container(
-                                child: Image.asset(
-                                  PDF_ICON,
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Visibility(
-                              visible: true,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  String sendemailreq = SiteURL +
-                                      "Quotation.aspx?MobilePdf=yes&userid=" +
-                                      LoginUserID +
-                                      "&password=" +
-                                      Password +
-                                      "&pQuotID=" +
-                                      model.pkID.toString() +
-                                      "&CustomerID=" +
-                                      model.customerID.toString();
-
-                                  print("webreqj" + sendemailreq);
-                                  _showEmailSOMyDialog(model);
-                                  /*
-                                  EmailTO.text = model.emailAddress;
-                                  showcustomdialogSendEmail(
-                                      context1: context,
-                                      Email: model.emailAddress)*/
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: const BoxDecoration(
-                                      color: colorPrimary,
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.email,
-                                    size: 24,
-                                    color: colorWhite,
-                                  )),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Visibility(
-                              visible: true,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  String sendemailreq = SiteURL +
-                                      "Quotation.aspx?MobilePdf=yes&userid=" +
-                                      LoginUserID +
-                                      "&password=" +
-                                      Password +
-                                      "&pQuotID=" +
-                                      model.pkID.toString() +
-                                      "&CustomerID=" +
-                                      model.customerID.toString();
-
-                                  print("webreqj" + sendemailreq);
-                                  _showEmailPIMyDialog(model);
-                                  /*
-                                  EmailTO.text = model.emailAddress;
-                                  showcustomdialogSendEmail(
-                                      context1: context,
-                                      Email: model.emailAddress)*/
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: const BoxDecoration(
-                                      color: colorPrimary,
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.email,
-                                    size: 24,
-                                    color: colorWhite,
-                                  )),
-                                ),
-                              ),
+                              width: 20,
                             ),
                           ]),
                     ),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                    ),
+                    Container(
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              print("jdlfdjf" +
+                                  SiteURL +
+                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString());
+
+                              String URLPDFF = SiteURL +
+                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString();
+
+                              await _showMyDialog(model);
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  child: Image.asset(
+                                    PDF_ICON,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                ),
+                                Container(
+                                  child: Text(
+                                    "SO",
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              print("jdlfdjf" +
+                                  SiteURL +
+                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString());
+
+                              String URLPDFF = SiteURL +
+                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString();
+
+                              await _showMyDialogForPI(model);
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  child: Image.asset(
+                                    PDF_ICON,
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                ),
+                                Container(
+                                  child: Text(
+                                    "PI",
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Visibility(
+                            visible: true,
+                            child: GestureDetector(
+                              onTap: () async {
+                                String sendemailreq = SiteURL +
+                                    "Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString() +
+                                    "&CustomerID=" +
+                                    model.customerID.toString();
+
+                                print("webreqj" + sendemailreq);
+                                _showEmailSOMyDialog(model);
+                                /*
+                                  EmailTO.text = model.emailAddress;
+                                  showcustomdialogSendEmail(
+                                      context1: context,
+                                      Email: model.emailAddress)*/
+                              },
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: const BoxDecoration(
+                                        color: colorPrimary,
+                                        shape: BoxShape.circle),
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.email,
+                                      size: 24,
+                                      color: colorWhite,
+                                    )),
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "SO",
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Visibility(
+                            visible: true,
+                            child: GestureDetector(
+                              onTap: () async {
+                                String sendemailreq = SiteURL +
+                                    "Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString() +
+                                    "&CustomerID=" +
+                                    model.customerID.toString();
+
+                                print("webreqj" + sendemailreq);
+                                _showEmailPIMyDialog(model);
+                                /*
+                                  EmailTO.text = model.emailAddress;
+                                  showcustomdialogSendEmail(
+                                      context1: context,
+                                      Email: model.emailAddress)*/
+                              },
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: const BoxDecoration(
+                                        color: colorPrimary,
+                                        shape: BoxShape.circle),
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.email,
+                                      size: 24,
+                                      color: colorWhite,
+                                    )),
+                                  ),
+                                  Container(
+                                    child: Text(
+                                      "PI",
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
@@ -861,116 +901,98 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    navigateTo(context, SaleOrderNewAddEditScreen.routeName,
-                            arguments:
-                                AddUpdateSalesOrderNewScreenArguments(model))
-                        .then((value) {
-                      _SalesOrderBloc.add(SalesOrderListCallEvent(
-                          1,
-                          SalesOrderListApiRequest(
-                              CompanyId: CompanyID.toString(),
-                              LoginUserID: LoginUserID)));
-                    });
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                IsEditRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          /*_SalesOrderBloc.add(
+                              SearchCustomerListByNumberCallEvent(
+                                  "0",
+                                  CustomerSearchByIdRequest(
+                                      companyId: CompanyID,
+                                      loginUserID: LoginUserID,
+                                      CustomerID:
+                                          model.customerID.toString())));*/
+
+                          navigateTo(
+                                  context, SaleOrderNewAddEditScreen.routeName,
+                                  arguments:
+                                      AddUpdateSalesOrderNewScreenArguments(
+                                          model))
+                              .then((value) {
+                            _SalesOrderBloc.add(SalesOrderListCallEvent(
+                                1,
+                                SalesOrderListApiRequest(
+                                    CompanyId: CompanyID.toString(),
+                                    LoginUserID: LoginUserID)));
+                          });
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.edit,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   width: 10,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    //  cardA.currentState?.collapse();
-                    //new ExpansionTileCardState().collapse();
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.delete,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                IsDeleteRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          //  cardA.currentState?.collapse();
+                          //new ExpansionTileCardState().collapse();
+
+                          showCommonDialogWithTwoOptions(context,
+                              "Are you sure you want to delete this SalesOrder ?",
+                              negativeButtonTitle: "No",
+                              positiveButtonTitle: "Yes",
+                              onTapOfPositiveButton: () {
+                            Navigator.of(context).pop();
+                            //_collapse();
+                            _SalesOrderBloc.add(SalesOrderDeleteRequestEvent(
+                                model.pkID.toString(),
+                                SalesOrderDeleteRequest(
+                                    CompanyID: CompanyID.toString())));
+                          });
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.delete,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
               ]),
         ],
       ),
     );
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> onButtonTap(Share share, String customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
-  }
-
   void FetchCustomerDetails(int customerID321) {
     _SalesOrderBloc.add(SearchCustomerListByNumberCallEvent(
+        "fromDialog",
         CustomerSearchByIdRequest(
             companyId: CompanyID,
             loginUserID: LoginUserID,
@@ -986,6 +1008,8 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     navigateTo(context, SearchSalesOrderScreen.routeName).then((value) {
       if (value != null) {
         _searchDetails = value;
+
+        print("sjdsfj" + _searchDetails.salesOrderNo.toString());
         _SalesOrderBloc.add(SearchSalesOrderListByNumberCallEvent(
             _searchDetails.value,
             SearchSalesOrderListByNumberRequest(
@@ -1009,7 +1033,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Do You want to Generate SaleOrder ? '),
+          title: Text('Please wait..!'),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -1021,39 +1045,183 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
               ],
             ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(90, 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24.0),
-                    ),
-                  ),
-                ),
-                onPressed: () => Navigator.of(context)
-                    .pop(), //  We can return any object from here
-                child: Text('NO')),
-            /* prgresss!=100 ? CircularProgressIndicator() :*/ ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: Size(90, 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(24.0),
-                    ),
-                  ),
-                ),
-                onPressed: () => {
-                      Navigator.of(context).pop(),
-                      _SalesOrderBloc.add(SalesOrderPDFGenerateCallEvent(
-                          SalesOrderPDFGenerateRequest(
-                              CompanyId: CompanyID.toString(),
-                              OrderNo: model.orderNo)))
-                    }, //  We can return any object from here
-                child: Text('YES'))
-          ],
         );
       },
+    );
+  }
+
+  Future<void> _showMyDialogForPI(SalesOrderDetails model) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Please wait..!'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: GeneratePI(model, context123),
+                )
+                //GetCircular123(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  GeneratePI(SalesOrderDetails model, BuildContext context123) {
+    print("PerformaLink" +
+        SiteURL +
+        "/SalesOrder.aspx?MobilePdf=yes&userid=" +
+        LoginUserID +
+        "&password=" +
+        Password +
+        "&pQuotID=" +
+        model.pkID.toString() +
+        "&pageType=pro");
+    return Center(
+      child: Stack(
+        children: [
+          Container(
+            height: 20,
+            width: 20,
+            child: Visibility(
+              visible: true,
+              child: InAppWebView(
+                //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                initialUrlRequest: URLRequest(
+                    url: Uri.parse(SiteURL +
+                        "/SalesOrder.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString() +
+                        "&pageType=pro")),
+
+                // initialFile: "assets/index.html",
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialOptions: options,
+                pullToRefreshController: pullToRefreshController,
+
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                },
+
+                onLoadStart: (controller, url) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                androidOnPermissionRequest:
+                    (controller, origin, resources) async {
+                  return PermissionRequestResponse(
+                      resources: resources,
+                      action: PermissionRequestResponseAction.GRANT);
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  var uri = navigationAction.request.url;
+
+                  if (![
+                    "http",
+                    "https",
+                    "file",
+                    "chrome",
+                    "data",
+                    "javascript",
+                    "about"
+                  ].contains(uri.scheme)) {
+                    if (await canLaunch(url)) {
+                      // Launch the App
+                      await launch(
+                        url,
+                      );
+
+                      // and cancel the request
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                  }
+
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  pullToRefreshController.endRefreshing();
+
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+
+                  String pageTitle = "";
+
+                  controller.getTitle().then((value) {
+                    setState(() {
+                      pageTitle = value;
+
+                      print("sdf567" + pageTitle);
+                    });
+                  });
+
+                  showCommonDialogWithSingleOption(
+                      context, "Perfoma Invoice Generated Successfully ",
+                      onTapOfPositiveButton: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context123).pop();
+                    _SalesOrderBloc.add(SalesOrderPDFGenerateCallEvent(
+                        SalesOrderPDFGenerateRequest(
+                            CompanyId: CompanyID.toString(),
+                            OrderNo: model.orderNo)));
+                    //Navigator.pop(context);
+                  });
+                },
+                onLoadError: (controller, url, code, message) {
+                  pullToRefreshController.endRefreshing();
+                  isLoading = false;
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController.endRefreshing();
+                    this.prgresss = progress;
+                    // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                  }
+
+                  //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                  setState(() {
+                    this.progress = progress / 100;
+                    this.prgresss = progress;
+
+                    urlController.text = this.url;
+                  });
+                },
+                onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  print("LoadWeb" + consoleMessage.message.toString());
+                },
+              ),
+            ),
+          ),
+          Card(
+            elevation: 5,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            color: Colors.white,
+            child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                width: 100, height: 100),
+          )
+        ],
+      ),
     );
   }
 
@@ -1066,104 +1234,142 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
         Password +
         "&pQuotID=" +
         model.pkID.toString());
-    return Container(
-      height: 200,
-      child: Visibility(
-        visible: true,
-        child: InAppWebView(
-          //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
-          // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(SiteURL +
-                  "/SalesOrder.aspx?MobilePdf=yes&userid=" +
-                  LoginUserID +
-                  "&password=" +
-                  Password +
-                  "&pQuotID=" +
-                  model.pkID.toString())),
-          // initialFile: "assets/index.html",
-          initialUserScripts: UnmodifiableListView<UserScript>([]),
-          initialOptions: options,
-          pullToRefreshController: pullToRefreshController,
+    return Center(
+      child: Stack(
+        children: [
+          Container(
+            height: 20,
+            width: 20,
+            child: Visibility(
+              visible: true,
+              child: InAppWebView(
+                //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                initialUrlRequest: URLRequest(
+                    url: Uri.parse(SiteURL +
+                        "/SalesOrder.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString())),
+                // initialFile: "assets/index.html",
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialOptions: options,
+                pullToRefreshController: pullToRefreshController,
 
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                },
 
-          onLoadStart: (controller, url) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          androidOnPermissionRequest: (controller, origin, resources) async {
-            return PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT);
-          },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url;
+                onLoadStart: (controller, url) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                androidOnPermissionRequest:
+                    (controller, origin, resources) async {
+                  return PermissionRequestResponse(
+                      resources: resources,
+                      action: PermissionRequestResponseAction.GRANT);
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  var uri = navigationAction.request.url;
 
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(url)) {
-                // Launch the App
-                await launch(
-                  url,
-                );
+                  if (![
+                    "http",
+                    "https",
+                    "file",
+                    "chrome",
+                    "data",
+                    "javascript",
+                    "about"
+                  ].contains(uri.scheme)) {
+                    if (await canLaunch(url)) {
+                      // Launch the App
+                      await launch(
+                        url,
+                      );
 
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
+                      // and cancel the request
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                  }
 
-            return NavigationActionPolicy.ALLOW;
-          },
-          onLoadStop: (controller, url) async {
-            pullToRefreshController.endRefreshing();
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  pullToRefreshController.endRefreshing();
 
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onLoadError: (controller, url, code, message) {
-            pullToRefreshController.endRefreshing();
-            isLoading = false;
-          },
-          onProgressChanged: (controller, progress) {
-            if (progress == 100) {
-              pullToRefreshController.endRefreshing();
-              this.prgresss = progress;
-              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-            }
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
 
-            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+                  String pageTitle = "";
 
-            setState(() {
-              this.progress = progress / 100;
-              this.prgresss = progress;
+                  controller.getTitle().then((value) {
+                    setState(() {
+                      pageTitle = value;
 
-              urlController.text = this.url;
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("LoadWeb" + consoleMessage.message.toString());
-          },
-        ),
+                      print("sdf567" + pageTitle);
+                    });
+                  });
+
+                  showCommonDialogWithSingleOption(
+                      context, "Invoice Generated Successfully ",
+                      onTapOfPositiveButton: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context123).pop();
+                    _SalesOrderBloc.add(SalesOrderPDFGenerateCallEvent(
+                        SalesOrderPDFGenerateRequest(
+                            CompanyId: CompanyID.toString(),
+                            OrderNo: model.orderNo)));
+                    //Navigator.pop(context);
+                  });
+                },
+                onLoadError: (controller, url, code, message) {
+                  pullToRefreshController.endRefreshing();
+                  isLoading = false;
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController.endRefreshing();
+                    this.prgresss = progress;
+                    // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                  }
+
+                  //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                  setState(() {
+                    this.progress = progress / 100;
+                    this.prgresss = progress;
+
+                    urlController.text = this.url;
+                  });
+                },
+                onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  print("LoadWeb" + consoleMessage.message.toString());
+                },
+              ),
+            ),
+          ),
+          Card(
+            elevation: 5,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            color: Colors.white,
+            child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                width: 100, height: 100),
+          )
+        ],
       ),
     );
   }
@@ -1207,10 +1413,12 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     customerDetails.cityName = state.response.details[0].cityName;
     customerDetails.cityName = state.response.details[0].cityName;
 
-    showcustomdialog(
-      context1: context,
-      customerDetails123: customerDetails,
-    );
+    if (state.IsFromDialog == "fromDialog") {
+      showcustomdialog(
+        context1: context,
+        customerDetails123: customerDetails,
+      );
+    }
   }
 
   showcustomdialog({
@@ -1389,7 +1597,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                                     children: <Widget>[
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          await _makePhoneCall(
+                                                          MakeCall.callto(
                                                               customerDetails123
                                                                   .contactNo1);
                                                         },
@@ -1406,34 +1614,10 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                                       ),
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          showCommonDialogWithTwoOptions(
+                                                          ShareMsg.msg(
                                                               context,
-                                                              "Do you have Two Accounts of WhatsApp ?" +
-                                                                  "\n" +
-                                                                  "Select one From below Option !",
-                                                              positiveButtonTitle:
-                                                                  "WhatsApp",
-                                                              onTapOfPositiveButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                onButtonTapCustomer(
-                                                                    Share
-                                                                        .whatsapp_personal,
-                                                                    customerDetails123);
-                                                              },
-                                                              negativeButtonTitle:
-                                                                  "Business",
-                                                              onTapOfNegativeButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                _launchWhatsAppBuz(
-                                                                    customerDetails123
-                                                                        .contactNo1);
-
-                                                                //onButtonTap(Share.whatsapp_business,model);
-                                                              });
+                                                              customerDetails123
+                                                                  .contactNo1);
                                                         },
                                                         child: Container(
                                                           child: Image.asset(
@@ -1740,47 +1924,13 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     );
   }
 
-  Future<void> onButtonTapCustomer(
-      Share share, CustomerDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
   Future<void> _showEmailSOMyDialog(SalesOrderDetails model) async {
     return showDialog<int>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Send Email '),
+          title: Text('SO Send Email '),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -1792,7 +1942,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
               ],
             ),
           ),
-          actions: <Widget>[
+          /* actions: <Widget>[
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   fixedSize: Size(90, 15),
@@ -1805,7 +1955,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                 onPressed: () => Navigator.of(context)
                     .pop(), //  We can return any object from here
                 child: Text('Close')),
-          ],
+          ],*/
         );
       },
     );
@@ -1814,113 +1964,137 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   GenerateQTSendEmailSO(SalesOrderDetails model, BuildContext context123) {
     return Container(
       height: 50,
-      child: Visibility(
-        visible: true,
-        child: InAppWebView(
-          /*
-            Uri.parse(SiteURL +
-                "/Quotation.aspx?MobilePdf=yes&userid=" +
-                LoginUserID +
-                "&password=" +
-                Password +
-                "&pQuotID=" +
-                model.pkID.toString()))*/
-          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(SiteURL +
-                  "SalesOrder.aspx?MobilePdf=yes&userid=" +
-                  LoginUserID +
-                  "&password=" +
-                  Password +
-                  "&pQuotID=" +
-                  model.pkID.toString() +
-                  "&CustomerID=" +
-                  model.customerID.toString() +
-                  "&pageType=so")),
+      child: Stack(
+        children: [
+          Container(
+            height: 20,
+            width: 20,
+            child: Visibility(
+              visible: true,
+              child: InAppWebView(
+                /*
+                  Uri.parse(SiteURL +
+                      "/Quotation.aspx?MobilePdf=yes&userid=" +
+                      LoginUserID +
+                      "&password=" +
+                      Password +
+                      "&pQuotID=" +
+                      model.pkID.toString()))*/
+                //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
+                initialUrlRequest: URLRequest(
+                    url: Uri.parse(SiteURL +
+                        "SalesOrder.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString() +
+                        "&CustomerID=" +
+                        model.customerID.toString() +
+                        "&pageType=so")),
 
-          // initialFile: "assets/index.html",
-          initialUserScripts: UnmodifiableListView<UserScript>([]),
-          initialOptions: options,
-          pullToRefreshController: pullToRefreshController,
+                // initialFile: "assets/index.html",
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialOptions: options,
+                pullToRefreshController: pullToRefreshController,
 
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                },
 
-          onLoadStart: (controller, url) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          androidOnPermissionRequest: (controller, origin, resources) async {
-            return PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT);
-          },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url;
+                onLoadStart: (controller, url) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                androidOnPermissionRequest:
+                    (controller, origin, resources) async {
+                  return PermissionRequestResponse(
+                      resources: resources,
+                      action: PermissionRequestResponseAction.GRANT);
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  var uri = navigationAction.request.url;
 
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(url)) {
-                // Launch the App
-                await launch(
-                  url,
-                );
+                  if (![
+                    "http",
+                    "https",
+                    "file",
+                    "chrome",
+                    "data",
+                    "javascript",
+                    "about"
+                  ].contains(uri.scheme)) {
+                    if (await canLaunch(url)) {
+                      // Launch the App
+                      await launch(
+                        url,
+                      );
 
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
+                      // and cancel the request
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                  }
 
-            return NavigationActionPolicy.ALLOW;
-          },
-          onLoadStop: (controller, url) async {
-            pullToRefreshController.endRefreshing();
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  pullToRefreshController.endRefreshing();
 
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onLoadError: (controller, url, code, message) {
-            pullToRefreshController.endRefreshing();
-            isLoading = false;
-          },
-          onProgressChanged: (controller, progress) {
-            if (progress == 100) {
-              pullToRefreshController.endRefreshing();
-              this.prgresss = progress;
-              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-            }
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
 
-            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+                  showCommonDialogWithSingleOption(
+                      context, "Sales Order Sent Email Successfully ",
+                      onTapOfPositiveButton: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context123).pop();
+                  });
+                },
+                onLoadError: (controller, url, code, message) {
+                  pullToRefreshController.endRefreshing();
+                  isLoading = false;
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController.endRefreshing();
+                    this.prgresss = progress;
+                    // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                  }
 
-            setState(() {
-              this.progress = progress / 100;
-              this.prgresss = progress;
+                  //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
 
-              urlController.text = this.url;
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("LoadWeb" + consoleMessage.message.toString());
-          },
-        ),
+                  setState(() {
+                    this.progress = progress / 100;
+                    this.prgresss = progress;
+
+                    urlController.text = this.url;
+                  });
+                },
+                onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  print("LoadWeb" + consoleMessage.message.toString());
+                },
+              ),
+            ),
+          ),
+          Card(
+            elevation: 5,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            color: Colors.white,
+            child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                width: 100, height: 100),
+          )
+        ],
       ),
     );
   }
@@ -1931,7 +2105,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context123) {
         return AlertDialog(
-          title: Text('Send Email '),
+          title: Text('PI Send Email '),
           content: SingleChildScrollView(
             child: Column(
               children: <Widget>[
@@ -1943,7 +2117,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
               ],
             ),
           ),
-          actions: <Widget>[
+          /* actions: <Widget>[
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   fixedSize: Size(90, 15),
@@ -1956,7 +2130,7 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                 onPressed: () => Navigator.of(context)
                     .pop(), //  We can return any object from here
                 child: Text('Close')),
-          ],
+          ],*/
         );
       },
     );
@@ -1965,113 +2139,128 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   GenerateQTSendEmailPI(SalesOrderDetails model, BuildContext context123) {
     return Container(
       height: 50,
-      child: Visibility(
-        visible: true,
-        child: InAppWebView(
-          /*
-            Uri.parse(SiteURL +
-                "/Quotation.aspx?MobilePdf=yes&userid=" +
-                LoginUserID +
-                "&password=" +
-                Password +
-                "&pQuotID=" +
-                model.pkID.toString()))*/
-          //SendEmail Web Method : https://eofficedesk.sharvayainfotech.in/Quotation.aspx?MobilePdf=yes&userid=admin&password=sioffice#000&pQuotID=241040&CustomerID=20944
-          initialUrlRequest: URLRequest(
-              url: Uri.parse(SiteURL +
-                  "SalesOrder.aspx?MobilePdf=yes&userid=" +
-                  LoginUserID +
-                  "&password=" +
-                  Password +
-                  "&pQuotID=" +
-                  model.pkID.toString() +
-                  "&CustomerID=" +
-                  model.customerID.toString() +
-                  "&pageType=pro")),
+      child: Stack(
+        children: [
+          Container(
+            height: 20,
+            width: 20,
+            child: Visibility(
+              visible: true,
+              child: InAppWebView(
+                initialUrlRequest: URLRequest(
+                    url: Uri.parse(SiteURL +
+                        "SalesOrder.aspx?MobilePdf=yes&userid=" +
+                        LoginUserID +
+                        "&password=" +
+                        Password +
+                        "&pQuotID=" +
+                        model.pkID.toString() +
+                        "&CustomerID=" +
+                        model.customerID.toString() +
+                        "&pageType=pro")),
 
-          // initialFile: "assets/index.html",
-          initialUserScripts: UnmodifiableListView<UserScript>([]),
-          initialOptions: options,
-          pullToRefreshController: pullToRefreshController,
+                // initialFile: "assets/index.html",
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialOptions: options,
+                pullToRefreshController: pullToRefreshController,
 
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                },
 
-          onLoadStart: (controller, url) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          androidOnPermissionRequest: (controller, origin, resources) async {
-            return PermissionRequestResponse(
-                resources: resources,
-                action: PermissionRequestResponseAction.GRANT);
-          },
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            var uri = navigationAction.request.url;
+                onLoadStart: (controller, url) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                androidOnPermissionRequest:
+                    (controller, origin, resources) async {
+                  return PermissionRequestResponse(
+                      resources: resources,
+                      action: PermissionRequestResponseAction.GRANT);
+                },
+                shouldOverrideUrlLoading: (controller, navigationAction) async {
+                  var uri = navigationAction.request.url;
 
-            if (![
-              "http",
-              "https",
-              "file",
-              "chrome",
-              "data",
-              "javascript",
-              "about"
-            ].contains(uri.scheme)) {
-              if (await canLaunch(url)) {
-                // Launch the App
-                await launch(
-                  url,
-                );
+                  if (![
+                    "http",
+                    "https",
+                    "file",
+                    "chrome",
+                    "data",
+                    "javascript",
+                    "about"
+                  ].contains(uri.scheme)) {
+                    if (await canLaunch(url)) {
+                      // Launch the App
+                      await launch(
+                        url,
+                      );
 
-                // and cancel the request
-                return NavigationActionPolicy.CANCEL;
-              }
-            }
+                      // and cancel the request
+                      return NavigationActionPolicy.CANCEL;
+                    }
+                  }
 
-            return NavigationActionPolicy.ALLOW;
-          },
-          onLoadStop: (controller, url) async {
-            pullToRefreshController.endRefreshing();
+                  return NavigationActionPolicy.ALLOW;
+                },
+                onLoadStop: (controller, url) async {
+                  pullToRefreshController.endRefreshing();
 
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onLoadError: (controller, url, code, message) {
-            pullToRefreshController.endRefreshing();
-            isLoading = false;
-          },
-          onProgressChanged: (controller, progress) {
-            if (progress == 100) {
-              pullToRefreshController.endRefreshing();
-              this.prgresss = progress;
-              // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-            }
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
 
-            //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+                  showCommonDialogWithSingleOption(
+                      context, "Performa Invoice Sent Email Successfully ",
+                      onTapOfPositiveButton: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context123).pop();
+                  });
+                },
+                onLoadError: (controller, url, code, message) {
+                  pullToRefreshController.endRefreshing();
+                  isLoading = false;
+                },
+                onProgressChanged: (controller, progress) {
+                  if (progress == 100) {
+                    pullToRefreshController.endRefreshing();
+                    this.prgresss = progress;
+                    // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                  }
 
-            setState(() {
-              this.progress = progress / 100;
-              this.prgresss = progress;
+                  //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
 
-              urlController.text = this.url;
-            });
-          },
-          onUpdateVisitedHistory: (controller, url, androidIsReload) {
-            setState(() {
-              this.url = url.toString();
-              urlController.text = this.url;
-            });
-          },
-          onConsoleMessage: (controller, consoleMessage) {
-            print("LoadWeb" + consoleMessage.message.toString());
-          },
-        ),
+                  setState(() {
+                    this.progress = progress / 100;
+                    this.prgresss = progress;
+
+                    urlController.text = this.url;
+                  });
+                },
+                onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                },
+                onConsoleMessage: (controller, consoleMessage) {
+                  print("LoadWeb" + consoleMessage.message.toString());
+                },
+              ),
+            ),
+          ),
+          Card(
+            elevation: 5,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            color: Colors.white,
+            child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                width: 100, height: 100),
+          )
+        ],
       ),
     );
   }
@@ -2079,5 +2268,221 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   void _OnDeleteAllPaymentScheduleTable(
       PaymentScheduleDeleteAllResponseState state) {
     print("deleteallpayment" + state.response);
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgSalesOrder") {
+        _SalesOrderBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _onDeleteSalesOrderResponse(SalesOrderDeleteResponseState state) {
+    print(
+        "SODeleteResponse" + state.salesOrderDeleteResponse.details[0].column1);
+    _SalesOrderBloc.add(SalesOrderListCallEvent(
+        1,
+        SalesOrderListApiRequest(
+            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+  }
+
+  OneTimeGenerateSO(
+      SalesOrderDetails model, BuildContext context123, String GenerateMode) {
+    return Center(
+      child: Container(
+        alignment: Alignment.topLeft,
+        child: Stack(
+          children: [
+            Container(
+              height: 5,
+              width: 5,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/SalesOrder.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    baseBloc.emit(ShowProgressIndicatorState(true));
+
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        print("sdf567" + pageTitle);
+                      });
+                    });
+                    baseBloc.emit(ShowProgressIndicatorState(false));
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            /*Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )*/
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _OnDeleteAllGenericCharges(
+      DeleteAllGenericAddditionalChargesState state) {
+    print("_OnDeleteAllGenericCharges" +
+        " DeleteAllGenericFromDBSO : " +
+        state.response);
   }
 }

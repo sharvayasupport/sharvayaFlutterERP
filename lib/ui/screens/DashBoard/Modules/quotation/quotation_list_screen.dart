@@ -6,7 +6,6 @@ import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:http/http.dart' as http;
 import 'package:lottie/lottie.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -21,8 +20,10 @@ import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -30,6 +31,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_e
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/search_quotation_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
+import 'package:soleoserp/utils/broadcast_msg/make_call.dart';
+import 'package:soleoserp/utils/broadcast_msg/share_msg.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
@@ -43,17 +46,6 @@ class QuotationListScreen extends BaseStatefulWidget {
 
   @override
   _QuotationListScreenState createState() => _QuotationListScreenState();
-}
-
-enum Share {
-  facebook,
-  twitter,
-  whatsapp,
-  whatsapp_personal,
-  whatsapp_business,
-  share_system,
-  share_instagram,
-  share_telegram
 }
 
 class _QuotationListScreenState extends BaseState<QuotationListScreen>
@@ -75,6 +67,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   String Password = "";
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+  MenuRightsResponse _menuRightsResponse;
+
   InAppWebViewController webViewController;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
       crossPlatform: InAppWebViewOptions(
@@ -107,6 +101,10 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   TextEditingController EmailTO = TextEditingController();
 
   TextEditingController EmailBCC = TextEditingController();
+
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
 
   @override
   void initState() {
@@ -160,12 +158,18 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     _QuotationBloc = QuotationBloc(baseBloc);
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
 
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
     Password = _offlineLoggedInData.details[0].userPassword;
+
+    getUserRights(_menuRightsResponse);
+
     baseBloc.emit(ShowProgressIndicatorState(true));
+
+    _QuotationBloc.add(DeleteGenericAddditionalChargesEvent());
   }
 
   @override
@@ -186,11 +190,21 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
           if (state is SearchQuotationListByNumberCallResponseState) {
             _onInquiryListByNumberCallSuccess(state);
           }
+
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
+
+          if (state is DeleteAllGenericAddditionalChargesState) {
+            _OnDeleteAllGenericCharges(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is QuotationListCallResponseState ||
-              currentState is SearchQuotationListByNumberCallResponseState) {
+              currentState is SearchQuotationListByNumberCallResponseState ||
+              currentState is UserMenuRightsResponseState ||
+              currentState is DeleteAllGenericAddditionalChargesState) {
             return true;
           }
           return false;
@@ -227,8 +241,11 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Quotation List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -254,6 +271,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                             CompanyId: CompanyID.toString(),
                             LoginUserID: LoginUserID,
                             pkId: "")));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -273,16 +292,18 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            await _onTapOfDeleteALLProduct();
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  await _onTapOfDeleteALLProduct();
 
-            navigateTo(context, QuotationAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+                  navigateTo(context, QuotationAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -385,7 +406,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
       child: Column(
         children: [
           _quotationListResponse.details.length != 0
-              ? OneTimeGenerateQT(_quotationListResponse.details[0], context)
+              ? OneTimeGenerateQT(
+                  _quotationListResponse.details[0], context, "new")
               : Container(),
           Expanded(
             child: ListView.builder(
@@ -455,7 +477,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   }
 
   ///updates data of inquiry list
-  void _onInquiryListCallSuccess(QuotationListCallResponseState state) {
+  void _onInquiryListCallSuccess(QuotationListCallResponseState state) async {
     if (_pageNo != state.newPage || state.newPage == 1) {
       //checking if new data is arrived
       if (state.newPage == 1) {
@@ -561,8 +583,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                           children: <Widget>[
                             GestureDetector(
                               onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                await _makePhoneCall(model.contactNo1);
+                                MakeCall.callto(model.contactNo1);
                               },
                               child: Container(
                                 child: Image.asset(
@@ -577,27 +598,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                             ),
                             GestureDetector(
                               onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                //await _makeSms(model.contactNo1);
-                                showCommonDialogWithTwoOptions(
-                                    context,
-                                    "Do you have Two Accounts of WhatsApp ?" +
-                                        "\n" +
-                                        "Select one From below Option !",
-                                    positiveButtonTitle: "WhatsApp",
-                                    onTapOfPositiveButton: () {
-                                      // _url = "https://api.whatsapp.com/send?phone=91";
-                                      /* _url = "https://wa.me/";
-                                                        _launchURL(model.contactNo1,_url);*/
-                                      Navigator.pop(context);
-                                      onButtonTap(Share.whatsapp_personal,
-                                          model.contactNo1);
-                                    },
-                                    negativeButtonTitle: "Business",
-                                    onTapOfNegativeButton: () {
-                                      Navigator.pop(context);
-                                      _launchWhatsAppBuz(model.contactNo1);
-                                    });
+                                ShareMsg.msg(context, model.contactNo1);
                               },
                               child: Container(
                                 /*decoration: BoxDecoration(
@@ -645,6 +646,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                             ),
                             GestureDetector(
                               onTap: () async {
+                                /*GenerateMode=new*/
                                 print("jdlfdjf" +
                                     SiteURL +
                                     "/Quotation.aspx?MobilePdf=yes&userid=" +
@@ -662,41 +664,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                                     "&pQuotID=" +
                                     model.pkID.toString();
 
-                                /*  http.Response response =
-                                    await http.get(Uri.parse(URLPDFF));
-
-                                if (response.statusCode == 200) {
-                                  // await _showMyDialog(model);
-
-                                  showCommonDialogWithSingleOption(
-                                      context, "PDF RUN Sucess !",
-                                      positiveButtonTitle: "OK");
-                                } else {
-                                  showCommonDialogWithSingleOption(
-                                      context, "Something Went Wrong !",
-                                      positiveButtonTitle: "OK");
-                                }*/
-                                await _showMyDialog(model);
-
-                                /* var progesCount23;
-                               webViewController.getProgress().whenComplete(() async =>  {
-                                 progesCount23 = await webViewController.getProgress(),
-                                 print("PAgeLoaded" + progesCount23.toString())
-                               });*/
-
-                                /*  await _makePhoneCall(
-                                        model.contactNo1);*/
-
-                                // baseBloc.emit(ShowProgressIndicatorState(true));
-                                /* setState(() {
-                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
-
-
-                                });*/
-
-                                // await Future.delayed(const Duration(milliseconds: 500), (){});
-                                // baseBloc.emit(ShowProgressIndicatorState(false));
-                                //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                                await _showMyDialog(model, "new");
                               },
                               child: Container(
                                 child: Image.asset(
@@ -867,105 +835,64 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    _onTaptoEditQuotation(model);
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                IsEditRights == true
+                    ? GestureDetector(
+                        onTap: () async {
+                          /* await OfflineDbHelper.getInstance()
+                              .deleteALLGenericAddditionalCharges();*/
+                          _onTaptoEditQuotation(model);
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.edit,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   width: 10,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    //  cardA.currentState?.collapse();
-                    //new ExpansionTileCardState().collapse();
+                IsDeleteRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          //  cardA.currentState?.collapse();
+                          //new ExpansionTileCardState().collapse();
 
-                    _OnDeleteQuotationRequest(model);
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.delete,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                          _OnDeleteQuotationRequest(model);
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.delete,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
               ]),
         ],
       ),
     );
-  }
-
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> onButtonTap(Share share, String customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
-  void _launchWhatsAppBuz(String MobileNo) async {
-    await launch("https://wa.me/${"+91" + MobileNo}?text=Hello");
   }
 
   void FetchCustomerDetails(int customerID321) {
@@ -1011,10 +938,39 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
 
   void _onGenerateQuotationPDFCallSuccess(
       QuotationPDFGenerateResponseState state) {
-    _launchURL(state.response.details[0].column1.toString());
+    String a = state.response.details[0].column1.toString();
+    var b = state.response.details[0].column1.toString().split("QT");
+
+    var c = [];
+
+    if (b[1].toString().contains("/")) {
+      c = b[1].toString().split("/");
+
+      String FinalURL =
+          b[0].toString() + "QT" + c[0].toString() + "-" + c[1].toString();
+      print("Revisesds" +
+          " URL :" +
+          a.toString() +
+          " QTNO : " +
+          b[0].toString() +
+          "\n" +
+          b[1].toString() +
+          "\n" +
+          c[0].toString() +
+          "\n" +
+          c[1].toString() +
+          "\n" +
+          FinalURL.toString());
+      _launchURL(FinalURL);
+    } else {
+      _launchURL(state.response.details[0].column1.toString());
+    }
+
+    // _launchURL(state.response.details[0].column1.toString());
   }
 
-  Future<void> _showMyDialog(QuotationDetails model) async {
+  Future<void> _showMyDialog(
+      QuotationDetails model, String GenerateMode) async {
     return showDialog<int>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -1026,7 +982,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               children: <Widget>[
                 Visibility(
                   visible: true,
-                  child: GenerateQT(model, context123),
+                  child: GenerateQT(model, context123, GenerateMode),
                 )
                 //GetCircular123(),
               ],
@@ -1120,7 +1076,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     }*/
   }
 
-  GenerateQT(QuotationDetails model, BuildContext context123) {
+  GenerateQT(
+      QuotationDetails model, BuildContext context123, String GenerateMode1) {
     return Center(
       child: Container(
         child: Stack(
@@ -1290,7 +1247,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     );
   }
 
-  OneTimeGenerateQT(QuotationDetails model, BuildContext context123) {
+  OneTimeGenerateQT(
+      QuotationDetails model, BuildContext context123, String GenerateMode) {
     return Center(
       child: Container(
         alignment: Alignment.topLeft,
@@ -1536,7 +1494,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                         context, "Send Email Successfully ",
                         onTapOfPositiveButton: () {
                       Navigator.of(context).pop();
-                      openEmailApp(context);
+                      // openEmailApp(context);
                       //Navigator.pop(context);
                     });
                   },
@@ -1640,6 +1598,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
 
   Future<void> _onTapOfDeleteALLProduct() async {
     await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
+    await OfflineDbHelper.getInstance().deleteALLOldQuotationProduct();
     await OfflineDbHelper.getInstance().deleteALLQuotationOtherCharge();
   }
 
@@ -1868,7 +1827,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                                                     children: <Widget>[
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          await _makePhoneCall(
+                                                          MakeCall.callto(
                                                               customerDetails123
                                                                   .contactNo1);
                                                         },
@@ -1885,34 +1844,10 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                                                       ),
                                                       GestureDetector(
                                                         onTap: () async {
-                                                          showCommonDialogWithTwoOptions(
+                                                          ShareMsg.msg(
                                                               context,
-                                                              "Do you have Two Accounts of WhatsApp ?" +
-                                                                  "\n" +
-                                                                  "Select one From below Option !",
-                                                              positiveButtonTitle:
-                                                                  "WhatsApp",
-                                                              onTapOfPositiveButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                onButtonTapCustomer(
-                                                                    Share
-                                                                        .whatsapp_personal,
-                                                                    customerDetails123);
-                                                              },
-                                                              negativeButtonTitle:
-                                                                  "Business",
-                                                              onTapOfNegativeButton:
-                                                                  () {
-                                                                Navigator.pop(
-                                                                    context);
-                                                                _launchWhatsAppBuz(
-                                                                    customerDetails123
-                                                                        .contactNo1);
-
-                                                                //onButtonTap(Share.whatsapp_business,model);
-                                                              });
+                                                              customerDetails123
+                                                                  .contactNo1);
                                                         },
                                                         child: Container(
                                                           child: Image.asset(
@@ -2219,40 +2154,6 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     );
   }
 
-  Future<void> onButtonTapCustomer(
-      Share share, CustomerDetails customerDetails) async {
-    String msg =
-        "_"; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
-
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
-        break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
-    }
-    debugPrint(response);
-  }
-
   showcustomdialogSendEmail({
     BuildContext context1,
     String Email,
@@ -2447,5 +2348,55 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
         );
       },
     );
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgQuotation") {
+        _QuotationBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
+  }
+
+  void _OnDeleteAllGenericCharges(
+      DeleteAllGenericAddditionalChargesState state) {
+    print("_OnDeleteAllGenericCharges" +
+        " DeleteAllGenericFromDB : " +
+        state.response);
   }
 }

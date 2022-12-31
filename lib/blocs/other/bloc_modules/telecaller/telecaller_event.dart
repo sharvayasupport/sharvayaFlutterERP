@@ -121,3 +121,10 @@ class CloserReasonTypeListByNameCallEvent extends TeleCallerEvents {
 
   CloserReasonTypeListByNameCallEvent(this.closerReasonTypeListRequest);
 }
+
+class UserMenuRightsRequestEvent extends TeleCallerEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}

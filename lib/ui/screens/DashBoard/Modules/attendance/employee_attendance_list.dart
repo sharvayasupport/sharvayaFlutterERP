@@ -14,11 +14,13 @@ import 'package:soleoserp/models/api_responses/login/login_user_details_api_resp
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
+import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/attendance/employee_attandance_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
+import 'package:soleoserp/utils/dialog_utils.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -63,6 +65,8 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
   int CompanyID = 0;
   String LoginUserID = "";
 
+  String NetWorkImageURL = "";
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +74,9 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
     edt_DateFilter.text = DateTime.parse(DateTime.now().toString()).toString();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
+    NetWorkImageURL =
+        _offlineCompanyData.details[0].siteURL.toString() + "/attendenceimage/";
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
@@ -161,7 +168,11 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
         appBar: NewGradientAppBar(
           title: Text('Attendance'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -212,6 +223,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                           endDay: DateTime.now(),
                           weekendDays: [DateTime.sunday],
                           initialCalendarFormat: CalendarFormat.month,
+                          availableCalendarFormats:const {CalendarFormat.month : 'Month'},
                           calendarStyle: CalendarStyle(
                               canEventMarkersOverflow: true,
                               todayColor: colorPrimary,
@@ -373,34 +385,76 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                             ),
                                             child: Row(
                                               children: [
-                                                Container(
-                                                  padding: EdgeInsets.all(5),
-                                                  child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          "In-Time",
-                                                          style: TextStyle(
-                                                            color: colorPrimary,
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                            _selectedEvents
-                                                                    .isNotEmpty
-                                                                ? _selectedEvents[
-                                                                        0]
-                                                                    .toString()
-                                                                : "00:00",
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    String ImageURL = "";
+
+                                                    bool isImageExist = false;
+                                                    if (_selectedEvents[5]
+                                                                .toString() !=
+                                                            "" ||
+                                                        _selectedEvents[5]
+                                                                .toString() !=
+                                                            "null") {
+                                                      ImageURL =
+                                                          NetWorkImageURL +
+                                                              _selectedEvents[5]
+                                                                  .toString();
+                                                      isImageExist = true;
+                                                    } else {
+                                                      ImageURL =
+                                                          NO_ImageNetWorkURL;
+                                                      isImageExist = false;
+                                                    }
+
+                                                    //"http://122.169.111.101:308/attendenceimage/47_18_11_2022_1668745318864.jpg";
+
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (_) => DialogUtils
+                                                            .imageDialog(
+                                                                'Punch-In Image',
+                                                                ImageURL,
+                                                                context,
+                                                                isImageExist));
+                                                  },
+                                                  child: Container(
+                                                    padding: EdgeInsets.all(5),
+                                                    child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            "In-Time",
                                                             style: TextStyle(
-                                                                color:
-                                                                    colorBlack,
-                                                                fontSize: 10)),
-                                                      ]),
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .underline,
+                                                              decorationThickness:
+                                                                  2,
+                                                              color:
+                                                                  colorPrimary,
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                              _selectedEvents
+                                                                      .isNotEmpty
+                                                                  ? _selectedEvents[
+                                                                          0]
+                                                                      .toString()
+                                                                  : "00:00",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      colorBlack,
+                                                                  fontSize:
+                                                                      10)),
+                                                        ]),
+                                                  ),
                                                 ),
                                                 Visibility(
                                                   visible: _selectedEvents
@@ -410,36 +464,77 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                               ""
                                                       ? false
                                                       : true,
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(5),
-                                                    child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Out-Time",
-                                                            style: TextStyle(
-                                                                color:
-                                                                    colorPrimary,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          Text(
-                                                              _selectedEvents
-                                                                      .isNotEmpty
-                                                                  ? _selectedEvents[
-                                                                          1]
-                                                                      .toString()
-                                                                  : "00:00",
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      String ImageURL = "";
+
+                                                      bool isImageExist = false;
+                                                      if (_selectedEvents[6]
+                                                                  .toString() !=
+                                                              "" ||
+                                                          _selectedEvents[6]
+                                                                  .toString() !=
+                                                              "null") {
+                                                        ImageURL =
+                                                            NetWorkImageURL +
+                                                                _selectedEvents[
+                                                                        6]
+                                                                    .toString();
+                                                        isImageExist = true;
+                                                      } else {
+                                                        ImageURL =
+                                                            NO_ImageNetWorkURL;
+                                                        isImageExist = false;
+                                                      }
+
+                                                      //"http://122.169.111.101:308/attendenceimage/47_18_11_2022_1668745318864.jpg";
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (_) => DialogUtils
+                                                              .imageDialog(
+                                                                  'Punch-Out Image',
+                                                                  ImageURL,
+                                                                  context,
+                                                                  isImageExist));
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(5),
+                                                      child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Out-Time",
                                                               style: TextStyle(
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .underline,
+                                                                  decorationThickness:
+                                                                      2,
                                                                   color:
-                                                                      colorBlack,
-                                                                  fontSize:
-                                                                      10)),
-                                                        ]),
+                                                                      colorPrimary,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            Text(
+                                                                _selectedEvents
+                                                                        .isNotEmpty
+                                                                    ? _selectedEvents[
+                                                                            1]
+                                                                        .toString()
+                                                                    : "00:00",
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        colorBlack,
+                                                                    fontSize:
+                                                                        10)),
+                                                          ]),
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -464,36 +559,77 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                               ""
                                                       ? false
                                                       : true,
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(5),
-                                                    child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Lunch-In",
-                                                            style: TextStyle(
-                                                                color:
-                                                                    colorPrimary,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          Text(
-                                                              _selectedEvents
-                                                                      .isNotEmpty
-                                                                  ? _selectedEvents[
-                                                                          3]
-                                                                      .toString()
-                                                                  : "00:00",
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      String ImageURL = "";
+
+                                                      bool isImageExist = false;
+                                                      if (_selectedEvents[7]
+                                                                  .toString() !=
+                                                              "" ||
+                                                          _selectedEvents[7]
+                                                                  .toString() !=
+                                                              "null") {
+                                                        ImageURL =
+                                                            NetWorkImageURL +
+                                                                _selectedEvents[
+                                                                        7]
+                                                                    .toString();
+                                                        isImageExist = true;
+                                                      } else {
+                                                        ImageURL =
+                                                            NO_ImageNetWorkURL;
+                                                        isImageExist = false;
+                                                      }
+
+                                                      //"http://122.169.111.101:308/attendenceimage/47_18_11_2022_1668745318864.jpg";
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (_) => DialogUtils
+                                                              .imageDialog(
+                                                                  'Lunch-In Image',
+                                                                  ImageURL,
+                                                                  context,
+                                                                  isImageExist));
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(5),
+                                                      child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Lunch-In",
                                                               style: TextStyle(
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .underline,
+                                                                  decorationThickness:
+                                                                      2,
                                                                   color:
-                                                                      colorBlack,
-                                                                  fontSize:
-                                                                      10)),
-                                                        ]),
+                                                                      colorPrimary,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            Text(
+                                                                _selectedEvents
+                                                                        .isNotEmpty
+                                                                    ? _selectedEvents[
+                                                                            3]
+                                                                        .toString()
+                                                                    : "00:00",
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        colorBlack,
+                                                                    fontSize:
+                                                                        10)),
+                                                          ]),
+                                                    ),
                                                   ),
                                                 ),
                                                 Visibility(
@@ -504,36 +640,77 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                               ""
                                                       ? false
                                                       : true,
-                                                  child: Container(
-                                                    padding: EdgeInsets.all(5),
-                                                    child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Lunch-Out",
-                                                            style: TextStyle(
-                                                                color:
-                                                                    colorPrimary,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          Text(
-                                                              _selectedEvents
-                                                                      .isNotEmpty
-                                                                  ? _selectedEvents[
-                                                                          4]
-                                                                      .toString()
-                                                                  : "00:00",
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      String ImageURL = "";
+
+                                                      bool isImageExist = false;
+                                                      if (_selectedEvents[8]
+                                                                  .toString() !=
+                                                              "" ||
+                                                          _selectedEvents[8]
+                                                                  .toString() !=
+                                                              "null") {
+                                                        ImageURL =
+                                                            NetWorkImageURL +
+                                                                _selectedEvents[
+                                                                        8]
+                                                                    .toString();
+                                                        isImageExist = true;
+                                                      } else {
+                                                        ImageURL =
+                                                            NO_ImageNetWorkURL;
+                                                        isImageExist = false;
+                                                      }
+
+                                                      //"http://122.169.111.101:308/attendenceimage/47_18_11_2022_1668745318864.jpg";
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (_) => DialogUtils
+                                                              .imageDialog(
+                                                                  'Lunch-Out Image',
+                                                                  ImageURL,
+                                                                  context,
+                                                                  isImageExist));
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(5),
+                                                      child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "Lunch-Out",
                                                               style: TextStyle(
+                                                                  decoration:
+                                                                      TextDecoration
+                                                                          .underline,
+                                                                  decorationThickness:
+                                                                      2,
                                                                   color:
-                                                                      colorBlack,
-                                                                  fontSize:
-                                                                      10)),
-                                                        ]),
+                                                                      colorPrimary,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            Text(
+                                                                _selectedEvents
+                                                                        .isNotEmpty
+                                                                    ? _selectedEvents[
+                                                                            4]
+                                                                        .toString()
+                                                                    : "00:00",
+                                                                style: TextStyle(
+                                                                    color:
+                                                                        colorBlack,
+                                                                    fontSize:
+                                                                        10)),
+                                                          ]),
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -708,11 +885,15 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
             state.response.details[i].timeOut.toString());
       }
       _events[DateTime.parse(state.response.details[i].presenceDate)] = [
-        state.response.details[i].timeIn.toString(),
-        state.response.details[i].timeOut.toString(),
-        state.response.details[i].notes.toString(),
-        state.response.details[i].LunchIn.toString(),
-        state.response.details[i].LunchOut.toString()
+        /*0*/ state.response.details[i].timeIn.toString(),
+        /*1*/ state.response.details[i].timeOut.toString(),
+        /*2*/ state.response.details[i].notes.toString(),
+        /*3*/ state.response.details[i].LunchIn.toString(),
+        /*4*/ state.response.details[i].LunchOut.toString(),
+        /*5*/ state.response.details[i].ImageURL_In.toString(),
+        /*6*/ state.response.details[i].ImageURL_OUT.toString(),
+        /*7*/ state.response.details[i].LunchIMageURL_in.toString(),
+        /*8*/ state.response.details[i].LunchIMageURL_Out.toString(),
       ];
 
       prefs.setString("events", json.encode(encodeMap(_events)));

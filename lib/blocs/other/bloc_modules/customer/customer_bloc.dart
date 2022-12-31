@@ -40,6 +40,8 @@ import 'package:soleoserp/models/api_responses/other/district_api_response.dart'
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/taluka_api_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'customer_events.dart';
@@ -116,6 +118,10 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
     }
     if (event is CustomerDeleteDocumentApiRequestEvent) {
       yield* _mapCustomerDeleteDocumentApiRequestEventState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
     //
   }
@@ -273,7 +279,7 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
 
       CustomerAddEditApiResponse respo = await userRepository
           .customer_add_edit_details(event.customerAddEditApiRequest);
-      yield CustomerAddEditEventResponseState(respo);
+      yield CustomerAddEditEventResponseState(event.context, respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -429,6 +435,22 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
           await userRepository.delete_customer_document_API(
               event.CustomerpkID, event.customerDeleteDocumentApiRequest);
       yield CustomerDeleteDocumentResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<CustomerStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

@@ -1118,11 +1118,7 @@ class _DPurchaseProductAddEdit_screenState
 
                       ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
+
               ],
             ),
           ),

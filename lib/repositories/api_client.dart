@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -18,13 +19,15 @@ import 'error_response_exception.dart';
 class ApiClient {
   ///set apis' base url here
 
-  static const BASE_URL = //'http://208.109.14.134:83/';
-   "http://122.169.111.101:108/"; //
+  static const BASE_URL = 'http://208.109.14.134:83/';
+  // "http://122.169.111.101:108/";
+  //"http://157.119.215.190:150/"; //
 
   /// General Flutter Test SerialKey = TEST-0000-SI0F-0208 / ID : admin / Pwd : Sharvaya / SiteURL : 122.169.11.101:3346
 
-  ///Testing Project Credential
-  /*
+  /// Testing Project Credential
+
+/*
 
 SharvayaNativeTEST  : [BaseURL(API)]:	http://122.169.111.101:107/ [WebURL]:http://122.169.111.101:207/  CompanyID:4131	SerailsKey:TEST-0000-SI0N-0207
 SharvayaFlutterTEST : [BaseURL(API)]:	http://122.169.111.101:108/ [WebURL]:http://122.169.111.101:208/  CompanyID:4132	SerailsKey:TEST-0000-SI0F-0208
@@ -34,8 +37,8 @@ CartFlutterAPITEST  : [BaseURL(API)]:	http://122.169.111.101:106/ [WebURL]:http:
 
  */
 
-  /// Live Project Credential
-  /*
+// Live Project Credential
+/*
 
 SharvayaNativeLive  : [BaseURL(API)]:	http://208.109.14.134:82/ [WebURL]:http://122.169.111.101:207/  CompanyID:4131	SerailsKey:TEST-0000-SI0N-0207
 SharvayaFlutterLive : [BaseURL(API)]:	http://208.109.14.134:83/ [WebURL]:http://122.169.111.101:208/  CompanyID:1007	SerailsKey:6CTR-6KWG-3TQV-3WU0
@@ -43,7 +46,7 @@ SoleosFlutterLive   : [BaseURL(API)]:	http://208.109.14.134:84/ [WebURL]:http://
 DolphinFlutterLive  : [BaseURL(API)]:	http://208.109.14.134:85/ [WebURL]:http://122.169.111.101:205/  CompanyID:4134	SerailsKey:TEST-0000-DOLF-0205
 CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://122.169.111.101:206/  CompanyID:4135	SerailsKey:TEST-0000-CARF-0206
 
- */
+*/
 
   ///add end point of your apis as below
   static const END_POINT_LOGIN = 'Login/SerialKey';
@@ -170,7 +173,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_ATTEND_VISIT_SEARCH_DETAILS = "ComplaintVisit/Search";
 
   static const END_POINT_QTNO_TO_PRODUCT_LIST = 'Quatation/Products';
-  static const END_POINT_QUOTATION_SPEC_LIST = 'Quatation/0/Specifications';
+  static const END_POINT_QUOTATION_SPEC_LIST =
+      'ProSpec/'; //'Quatation/0/Specifications';
   static const END_POINT_QUOTATION_KIND_ATT_LIST = 'Quatation/KindlyAttention';
   static const END_POINT_QUOTATION_PROJECT_LIST = 'Quatation/ProjectList';
   static const END_POINT_QUOTATION_TERMS_CONDITION_LIST = 'Quatation/TNC';
@@ -316,12 +320,34 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_SAVE_EMAIL_CONTENT = "GeneralTemplate/0/Save";
 
   static const END_POINT_TELE_CALLER_FOLLOWUP_SAVE = 'InquiryFollowup/0/Save';
+  static const END_POINT_TELE_CALLER_FOLLOWUP_FROM_FOLLOWUP_SAVE =
+      'InquiryFollowup/';
 
   static const END_POINT_TELE_CALLER_FOLLOWUP_HISTORY =
       'FetchByExtpkID/1-100000';
   static const END_POINT_WITHOUT_IMAGE_SAVE_ATTENDANCE =
       'DailyAttendanceMode/0/Save';
   static const END_POINT_CONSTANT_MASTER = 'ConstantMaster/';
+
+  static const END_POINT_USER_MENU_RIGHTS = 'MenuRights/';
+
+  static const END_POINT_ASSIGN_TO_NOTIFICATION = '/GetToken/ByEmployeeID';
+
+  static const END_POINT_SB_HEADER_SAVE = 'SalesBill/';
+
+  static const END_POINT_SALES_BILL_PRODUCT_SAVE = "SalesBill/";
+
+  static const END_POINT_DELETE_SALES_ORDER = "SalesOrder/";
+
+  static const END_POINT_SO_CURRENCY_LIST = "SalesOrder/Currency";
+
+  static const END_POINT_SB_EXPORT_LIST = 'SalesBill/ExportList';
+  static const END_POINT_SB_EXPORT_SAVE = 'SalesBillExport/0/Save';
+  static const END_POINT_SB_HEADER_DELETE = 'SalesBill/';
+  static const END_POINT_QT_SPECIFICATION_SAVE = 'Quatation/Product/Spec-Save/';
+
+  //Quatation/Product/Spec-Save
+
   //DailyAttendanceMode/0/Save
   final http.Client httpClient;
 
@@ -379,10 +405,15 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
+
+    /*FlutterLogs.logInfo("POST", "Api request url : $baseUrl$url",
+        "\nApi request params : $requestJsonMap");*/
     print("Headers - $headers");
     //String asd = json.encode(jsontemparray);
+
+    log("Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap" /*+ "JSON Array $asd"*/);
+        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {
       final response = await httpClient
           .post(Uri.parse("$baseUrl$url"),
@@ -414,6 +445,9 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     };
     print("Headers - $headers");
     String asd = json.encode(jsontemparray);
+    log("Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $asd" +
+        json.encode(jsontemparray));
+
     print(
         "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $asd" +
             json.encode(jsontemparray));
@@ -854,7 +888,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
   Future<dynamic> _response(http.Response response,
       {bool showSuccessDialog = false}) async {
-    debugPrint("Api response\n${response.body}");
+    log("Api response\n${response.body}");
+    print("Api response\n${response.body}");
     switch (response.statusCode) {
       case 200:
         var responseJson = json.decode(response.body);

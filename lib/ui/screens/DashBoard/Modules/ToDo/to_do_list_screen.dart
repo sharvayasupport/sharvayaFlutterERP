@@ -10,8 +10,10 @@ import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dar
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
@@ -65,6 +67,11 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
   final TextEditingController edt_EmployeeUserName = TextEditingController();
   TextEditingController Remarks = TextEditingController();
 
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +82,8 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
     //_offlineFollowerEmployeeListData = SharedPrefHelper.instance.getALLEmployeeList();
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
+
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
 
     _onFollowerEmployeeListByStatusCallSuccess(
         _offlineFollowerEmployeeListData);
@@ -95,6 +104,8 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
     edt_FollowupEmployeeList.addListener(followupStatusListener);
     edt_FollowupEmployeeUserID.addListener(followupStatusListener);
     edt_EmployeeUserName.addListener(followupStatusListener);
+
+    getUserRights(_menuRightsResponse);
   }
 
   followupStatusListener() {
@@ -124,10 +135,15 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
           if (state is ToDoListCallResponseState) {
             _onFollowupListCallSuccess(state);
           }
+
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is ToDoListCallResponseState) {
+          if (currentState is ToDoListCallResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -162,7 +178,11 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
         appBar: NewGradientAppBar(
           title: Text('To-Do List'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -190,6 +210,8 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
                           EmployeeID: edt_FollowupEmployeeUserID.text,
                           PageNo: 1,
                           PageSize: 10000)));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -316,15 +338,16 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // Add your onPressed code here!
-            navigateTo(context, ToDoAddEditScreen.routeName,
-                clearAllStack: true);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () {
+                  // Add your onPressed code here!
+                  navigateTo(context, ToDoAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -576,7 +599,7 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
             color: Colors.black
         ),),*/
         title: Text(
-          model.taskDescription,
+          model.CustomerName != "" ? model.CustomerName : model.taskDescription,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: Colors.black),
         ),
@@ -737,59 +760,68 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () {
-                    _onTapOfEditCustomer(model);
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Edit',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                IsEditRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          _onTapOfEditCustomer(model);
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.edit,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   width: 10,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    //  cardA.currentState?.collapse();
-                    //new ExpansionTileCardState().collapse();
+                IsDeleteRights == true
+                    ? GestureDetector(
+                        onTap: () {
+                          //  cardA.currentState?.collapse();
+                          //new ExpansionTileCardState().collapse();
 
-                    showCommonDialogWithTwoOptions(context,
-                        "Are you sure you want to Delete This Details ?",
-                        negativeButtonTitle: "No",
-                        positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
-                      Navigator.of(context).pop();
-                      _ToDoBloc.add(ToDoDeleteEvent(model.pkID,
-                          ToDoDeleteRequest(CompanyId: CompanyID.toString())));
-                    });
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.delete,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                      ),
-                      Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
+                          showCommonDialogWithTwoOptions(context,
+                              "Are you sure you want to Delete This Details ?",
+                              negativeButtonTitle: "No",
+                              positiveButtonTitle: "Yes",
+                              onTapOfPositiveButton: () {
+                            Navigator.of(context).pop();
+                            _ToDoBloc.add(ToDoDeleteEvent(
+                                model.pkID,
+                                ToDoDeleteRequest(
+                                    CompanyId: CompanyID.toString())));
+                          });
+                        },
+                        child: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.delete,
+                              color: Colors.black,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
               ]),
         ],
       ),
@@ -930,14 +962,15 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
     navigateTo(context, ToDoAddEditScreen.routeName,
             arguments: AddUpdateTODOScreenArguments(model))
         .then((value) {
-      _ToDoBloc
-        ..add(ToDoListCallEvent(ToDoListApiRequest(
+      setState(() {
+        _ToDoBloc.add(ToDoListCallEvent(ToDoListApiRequest(
             CompanyId: CompanyID.toString(),
             LoginUserID: LoginUserID,
             TaskStatus: edt_FollowupStatus.text,
             EmployeeID: edt_FollowupEmployeeUserID.text,
-            PageNo: _pageNo + 1,
+            PageNo: 1,
             PageSize: 10)));
+      });
     });
   }
 
@@ -1031,6 +1064,7 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
                         String TimeHour =
                             beforZeroHour + ":" + beforZerominute + " " + AM_PM;
                         _ToDoBloc.add(ToDoSaveHeaderEvent(
+                            context,
                             finalCheckingItems.pkID,
                             ToDoHeaderSaveRequest(
                                 Priority: "Medium",
@@ -1189,5 +1223,48 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
         EmployeeID: edt_FollowupEmployeeUserID.text,
         PageNo: 1,
         PageSize: 10000)));
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgToDO") {
+        _ToDoBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

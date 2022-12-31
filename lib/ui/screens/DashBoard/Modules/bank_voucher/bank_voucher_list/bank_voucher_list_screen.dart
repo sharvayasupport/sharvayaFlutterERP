@@ -1,7 +1,6 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_share_me/flutter_share_me.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/bank_voucher/bank_voucher_bloc.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_delete_request.dart';
@@ -10,9 +9,10 @@ import 'package:soleoserp/models/api_requests/bank_voucher/bank_voucher_search_b
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_list_response.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_search_by_name_response.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
-import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/bank_voucher/bank_voucher_add_edit/bank_voucher_add_edit.dart';
@@ -31,17 +31,6 @@ class BankVoucherListScreen extends BaseStatefulWidget {
 
   @override
   _BankVoucherListScreenState createState() => _BankVoucherListScreenState();
-}
-
-enum Share {
-  facebook,
-  twitter,
-  whatsapp,
-  whatsapp_personal,
-  whatsapp_business,
-  share_system,
-  share_instagram,
-  share_telegram
 }
 
 class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
@@ -74,6 +63,11 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
   //var _url = "https://api.whatsapp.com/send?phone=91";
   var _url = "https://wa.me/91";
   bool isDeleteVisible = true;
+
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
 /*
   bool _hasPermission;
 */
@@ -88,6 +82,8 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
     screenStatusBarColor = colorDarkYellow;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
@@ -103,30 +99,8 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
-  }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
-  }
-
-  Future<void> _makeSms(String phoneNumber) async {
-    // Use `Uri` to ensure that `phoneNumber` is properly URL-encoded.
-    // Just using 'tel:$phoneNumber' would create invalid URLs in some cases,
-    // such as spaces in the input, which would cause `launch` to fail on some
-    // platforms.
-    final Uri launchUri = Uri(
-      scheme: 'smsto',
-      path: phoneNumber,
-    );
-    await launch(launchUri.toString());
+    getUserRights(_menuRightsResponse);
   }
 
   @override
@@ -147,12 +121,16 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
           if (state is BankVoucherSearchByIDCallResponseState) {
             _onInquiryListByNumberCallSuccess(state);
           }
+          if (state is UserMenuRightsResponseState1) {
+            _OnMenuRightsSucess(state);
+          }
 
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is BankvoucherListResponseState ||
-              currentState is BankVoucherSearchByIDCallResponseState) {
+              currentState is BankVoucherSearchByIDCallResponseState ||
+              currentState is UserMenuRightsResponseState1) {
             return true;
           }
           return false;
@@ -183,8 +161,11 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('BankVoucher List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -223,6 +204,7 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
                           CompanyID: CompanyID.toString(),
                           LoginUserID: LoginUserID,
                         )));
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -242,15 +224,17 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            await _onTapOfDeleteALLContact();
-            navigateTo(context, BankVoucherAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  await _onTapOfDeleteALLContact();
+                  navigateTo(context, BankVoucherAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -624,30 +608,33 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      _onTapOfEditCustomer(model);
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Icon(
-                          Icons.edit,
-                          color: colorPrimary,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        ),
-                        Text(
-                          'Edit',
-                          style: TextStyle(color: colorPrimary),
-                        ),
-                      ],
-                    ),
-                  ),
+                  IsEditRights == true
+                      ? GestureDetector(
+                          onTap: () {
+                            _onTapOfEditCustomer(model);
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.edit,
+                                color: colorPrimary,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
+                              Text(
+                                'Edit',
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
                   SizedBox(
                     width: 10,
                   ),
-                  isDeleteVisible == true
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
@@ -750,49 +737,47 @@ class _BankVoucherListScreenState extends BaseState<BankVoucherListScreen>
     await OfflineDbHelper.getInstance().deleteContactTable();
   }
 
-  void _launchURL(txt, String urltest) async => await canLaunch(urltest + txt)
-      ? await launch(urltest + txt)
-      : throw 'Could not Launch $urltest';
-  Future<void> onButtonTap(Share share, CustomerDetails customerDetails) async {
-    String msg =
-        ""; //"Thank you for contacting us! We will be in touch shortly";
-    //"Customer Name : "+customerDetails.customerName.toString()+"\n"+"Address : "+customerDetails.address+"\n"+"Mobile No. : " + customerDetails.contactNo1.toString();
-    String url = 'https://pub.dev/packages/flutter_share_me';
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
 
-    String response;
-    final FlutterShareMe flutterShareMe = FlutterShareMe();
-    switch (share) {
-      case Share.facebook:
-        response = await flutterShareMe.shareToFacebook(url: url, msg: msg);
+      if (menuRightsResponse.details[i].menuName == "pgBankVoucher") {
+        _CustomerBloc.add(UserMenuRightsRequestEvent1(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
         break;
-      case Share.twitter:
-        response = await flutterShareMe.shareToTwitter(url: url, msg: msg);
-        break;
-
-      case Share.whatsapp_business:
-        response = await flutterShareMe.shareToWhatsApp4Biz(msg: msg);
-        break;
-      case Share.share_system:
-        response = await flutterShareMe.shareToSystem(msg: msg);
-        break;
-      case Share.whatsapp_personal:
-        response = await flutterShareMe.shareWhatsAppPersonalMessage(
-            message: msg, phoneNumber: '+91' + customerDetails.contactNo1);
-        break;
-      case Share.share_telegram:
-        response = await flutterShareMe.shareToTelegram(msg: msg);
-        break;
+      }
     }
-    debugPrint(response);
   }
 
-  Future<void> share(String contactNo1) async {
-    /* await WhatsappShare.share(
-        text: 'Whatsapp share text',
-        linkUrl: 'https://flutter.dev/',
-        phone: "91"+contactNo1,
-        package: Package.businessWhatsapp
-    );*/
+  void _OnMenuRightsSucess(UserMenuRightsResponseState1 state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 
 /*  Future<void> _askPermissions() async {

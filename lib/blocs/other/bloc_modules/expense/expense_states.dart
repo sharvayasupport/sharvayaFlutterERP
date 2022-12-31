@@ -59,3 +59,8 @@ class ExpenseTypeCallResponseState extends ExpenseStates {
 
   ExpenseTypeCallResponseState(this.expenseTypeResponse);
 }
+
+class UserMenuRightsResponseState extends ExpenseStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

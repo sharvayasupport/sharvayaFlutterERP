@@ -49,8 +49,9 @@ class CityCallEvent extends CustomerEvents {
 }
 
 class CustomerAddEditCallEvent extends CustomerEvents {
+  BuildContext context;
   final CustomerAddEditApiRequest customerAddEditApiRequest;
-  CustomerAddEditCallEvent(this.customerAddEditApiRequest);
+  CustomerAddEditCallEvent(this.context, this.customerAddEditApiRequest);
 }
 
 class CustomerDeleteByNameCallEvent extends CustomerEvents {
@@ -118,4 +119,12 @@ class CustomerDeleteDocumentApiRequestEvent extends CustomerEvents {
   final CustomerDeleteDocumentApiRequest customerDeleteDocumentApiRequest;
   CustomerDeleteDocumentApiRequestEvent(
       this.CustomerpkID, this.customerDeleteDocumentApiRequest);
+}
+//MenuRightsResponseDetails
+
+class UserMenuRightsRequestEvent extends CustomerEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
 }

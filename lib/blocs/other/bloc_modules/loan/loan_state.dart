@@ -38,3 +38,8 @@ class LoanApprovalSaveResponseState extends LoanScreenStates {
 
   LoanApprovalSaveResponseState(this.loanApprovalSaveResponse);
 }
+
+class UserMenuRightsResponseState extends LoanScreenStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
+}

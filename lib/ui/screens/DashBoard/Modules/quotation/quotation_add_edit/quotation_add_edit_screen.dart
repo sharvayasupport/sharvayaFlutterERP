@@ -4,7 +4,10 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
+import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/qt_spec_save_api_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_kind_att_list_request.dart';
@@ -14,27 +17,32 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_product_delete
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
-import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
+import 'package:soleoserp/models/common/generic_other_charge.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
-import 'package:soleoserp/models/common/othercharges/other_charges.dart';
 import 'package:soleoserp/models/common/qt_other_charge_temp.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/old_quotationdb/old_quotation_product_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/addtional_charges/quotation_summary_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/products/old_quotation_product_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotation_general_customer_search_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/quotationdb/quotation_summary_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
+import 'package:soleoserp/utils/calculation/additional_charges_calculation.dart';
+import 'package:soleoserp/utils/calculation/header_discount_calculation.dart';
+import 'package:soleoserp/utils/calculation/model/additonalChargeDetails.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
@@ -74,6 +82,8 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
   final _formKey = GlobalKey<FormState>();
   DateTime selectedDate = DateTime.now();
+  DateTime selectedNextFollowupDate = DateTime.now();
+
   TimeOfDay selectedTime = TimeOfDay.now();
 
   final TextEditingController edt_InquiryDate = TextEditingController();
@@ -154,6 +164,24 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   final TextEditingController edt_ChargeGstPer5 = TextEditingController();
   final TextEditingController edt_ChargeBeforGST5 = TextEditingController();
   final TextEditingController edt_HeaderDisc = TextEditingController();
+
+  final TextEditingController _controller_exchange_rate =
+      TextEditingController();
+  final TextEditingController _controller_credit_days = TextEditingController();
+  TextEditingController _controller_currency = TextEditingController();
+  TextEditingController _controller_currency_Symbol = TextEditingController();
+  TextEditingController _controller_reference_no = TextEditingController();
+  TextEditingController _controller_reference_date = TextEditingController();
+  TextEditingController _controller_rev_reference_date =
+      TextEditingController();
+  DateTime selectedDateRefrence = DateTime.now();
+
+  double dateFontSize = 13;
+
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales_Order_Select_Currency = [];
+
+  //
+
   TextEditingController _controller_select_email_subject =
       TextEditingController();
   TextEditingController _controller_select_email_subject_ID =
@@ -176,6 +204,11 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   SearchDetails _searchInquiryListResponse;
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_BankDropDownList = [];
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_FolowupType = [];
+  final TextEditingController edt_FollowupType = TextEditingController();
+  final TextEditingController edt_FollowupTypepkID = TextEditingController();
+
+  //
   final TextEditingController edt_Portal_details = TextEditingController();
   final TextEditingController edt_Portal_details_ID = TextEditingController();
   String ReportToToken = "";
@@ -278,6 +311,13 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
   final TextEditingController editMode_netamount_controller =
       TextEditingController();
+  AddditionalCharges addditionalCharges = AddditionalCharges();
+
+  GenericOtherChargeDetails genericOtherChargeDetails =
+      GenericOtherChargeDetails();
+  bool isUpdateCalculation = false;
+
+  List<OtherChargeDetails> arrGenericOtheCharge = [];
 
   @override
   void initState() {
@@ -302,9 +342,37 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         CompanyId: CompanyID.toString(),
         EmployeeID: _offlineLoggedInData.details[0].employeeID.toString())));
 
+    _inquiryBloc.add(GenericOtherChargeCallEvent(
+        CompanyID.toString(), QuotationOtherChargesListRequest(pkID: "")));
+    _inquiryBloc.add(DeleteGenericAddditionalChargesEvent());
+    _inquiryBloc.add(DeleteAllQuotationSpecificationTableEvent());
+    _inquiryBloc.add(QTAssemblyTableALLDeleteEvent());
+    _inquiryBloc.add(QuotationBankDropDownCallEvent(BankDropDownRequest(
+        CompanyID: CompanyID.toString(), LoginUserID: LoginUserID, pkID: "")));
+
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
+
+      /*_inquiryBloc.add(AddGenericAddditionalChargesEvent(
+          GenericAddditionalCharges(
+              _editModel.discountAmt.toString(),
+              _editModel.chargeID1.toString(),
+              _editModel.chargeAmt1.toString(),
+              _editModel.chargeID2.toString(),
+              _editModel.chargeAmt2.toString(),
+              _editModel.chargeID3.toString(),
+              _editModel.chargeAmt3.toString(),
+              _editModel.chargeID4.toString(),
+              _editModel.chargeAmt4.toString(),
+              _editModel.chargeID5.toString(),
+              _editModel.chargeAmt5.toString(),
+              _editModel.chargeName1,
+              _editModel.chargeName2,
+              _editModel.chargeName3,
+              _editModel.chargeName4,
+              _editModel.chargeName5)));*/
+
       fillData();
     } else {
       edt_InquiryDate.text = selectedDate.day.toString() +
@@ -317,10 +385,41 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           selectedDate.month.toString() +
           "-" +
           selectedDate.day.toString();
+
+      _controller_reference_date.text = selectedDateRefrence.day.toString() +
+          "-" +
+          selectedDateRefrence.month.toString() +
+          "-" +
+          selectedDateRefrence.year.toString();
+      _controller_rev_reference_date.text =
+          selectedDateRefrence.year.toString() +
+              "-" +
+              selectedDateRefrence.month.toString() +
+              "-" +
+              selectedDateRefrence.day.toString();
+
+      edt_NextFollowupDate.text = selectedNextFollowupDate.day.toString() +
+          "-" +
+          selectedNextFollowupDate.month.toString() +
+          "-" +
+          selectedNextFollowupDate.year.toString();
+      edt_ReverseNextFollowupDate.text =
+          selectedNextFollowupDate.year.toString() +
+              "-" +
+              selectedNextFollowupDate.month.toString() +
+              "-" +
+              selectedNextFollowupDate.day.toString();
+
       edt_StateCode.text = "";
       setState(() {
         edt_InquiryNo.text = "";
       });
+
+      _inquiryBloc.add(DeleteGenericAddditionalChargesEvent());
+
+      _inquiryBloc.add(AddGenericAddditionalChargesEvent(
+          GenericAddditionalCharges("0.00", "0", "0.00", "0", "0.00", "0",
+              "0.00", "0", "0.00", "0", "0.00", "", "", "", "", "")));
     }
 
     edt_InquiryNo.addListener(() {
@@ -343,6 +442,10 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           if (state is GetReportToTokenResponseState) {
             _onGetTokenfromReportopersonResult(state);
           }
+
+          if (state is GenericOtherCharge1ListResponseState) {
+            _OnGenricOtherChargeResponse(state);
+          }
           if (state is QuotationOtherCharge1ListResponseState) {
             _OnChargID1Response(state);
           }
@@ -358,6 +461,32 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           if (state is QuotationOtherCharge5ListResponseState) {
             _OnChargID5Response(state);
           }
+
+          if (state is AddGenericAddditionalChargesState) {
+            _OnGenericIsertCallSucess(state);
+          }
+
+          if (state is DeleteAllGenericAddditionalChargesState) {
+            _onDeleteAllGenericAddtionalAmount(state);
+          }
+
+          if (state is SpecificationListResponseState) {
+            _onGetQuotationSpecificationFromQuotationAPI(state);
+          }
+
+          if (state is InsertQuotationSpecificationTableState) {
+            _onInsertQuotationSpecificationresponse(state);
+          }
+
+          if (state is DeleteALLQuotationSpecificationTableState) {
+            _onDeleteAllSpecificationResponse(state);
+          }
+          if (state is QTAssemblyTableDeleteALLState) {
+            _onDeleteAllQTAssemblyResponse(state);
+          }
+          if (state is QuotationBankDropDownResponseState) {
+            _onBankVoucherSaveResponse(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
@@ -366,7 +495,15 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
               currentState is QuotationOtherCharge2ListResponseState ||
               currentState is QuotationOtherCharge3ListResponseState ||
               currentState is QuotationOtherCharge4ListResponseState ||
-              currentState is QuotationOtherCharge5ListResponseState) {
+              currentState is QuotationOtherCharge5ListResponseState ||
+              currentState is GenericOtherCharge1ListResponseState ||
+              currentState is AddGenericAddditionalChargesState ||
+              currentState is DeleteAllGenericAddditionalChargesState ||
+              currentState is SpecificationListResponseState ||
+              currentState is InsertQuotationSpecificationTableState ||
+              currentState is DeleteALLQuotationSpecificationTableState ||
+              currentState is QTAssemblyTableDeleteALLState ||
+              currentState is QuotationBankDropDownResponseState) {
             return true;
           }
           return false;
@@ -406,10 +543,6 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
             _onOtherChargeListResponse(state);
           }*/
 
-          if (state is QuotationBankDropDownResponseState) {
-            _onBankVoucherSaveResponse(state);
-          }
-
           if (state is FCMNotificationResponseState) {
             _onRecevedNotification(state);
           }
@@ -424,6 +557,21 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           if (state is QT_OtherChargeInsertResponseState) {
             _onInsertAllQT_OtherTable(state);
           }
+
+          if (state is SOCurrencyListResponseState) {
+            _ONCurrencyResponse(state);
+          }
+
+          if (state is FollowupTypeListCallResponseState) {
+            _onFollowupListTypeCallSuccess(state);
+          }
+
+          if (state is GetQuotationSpecificationQTnoTableState) {
+            _onAfterProductSaveSuccess(state);
+          }
+          if (state is QTSpecSaveResponseState) {
+            _onQTSpecificationSaveResponse(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -435,11 +583,14 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   currentState is InqNoToProductListResponseState ||
                   currentState is QuotationHeaderSaveResponseState ||
                   currentState is QuotationProductSaveResponseState ||
-                  currentState is QuotationBankDropDownResponseState ||
                   currentState is FCMNotificationResponseState ||
                   currentState is QuotationEmailContentResponseState ||
                   currentState is SaveEmailContentResponseState ||
-                  currentState is QT_OtherChargeInsertResponseState
+                  currentState is QT_OtherChargeInsertResponseState ||
+                  currentState is SOCurrencyListResponseState ||
+                  currentState is FollowupTypeListCallResponseState ||
+                  currentState is GetQuotationSpecificationQTnoTableState ||
+                  currentState is QTSpecSaveResponseState
 /*
               currentState is QuotationOtherChargeListResponseState
 */
@@ -459,8 +610,11 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Quotation Details'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -486,7 +640,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                         _buildFollowupDate(),
                         SizedBox(
                           width: 20,
-                          height: 15,
+                          height: 5,
                         ),
                         _buildSearchView(),
                         edt_InquiryNoExist.text == "true"
@@ -499,22 +653,10 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                 controllerpkID: edt_InquiryNoID,
                                 Custom_values1: arr_ALL_Name_ID_For_InqNoList)
                             : Container(),
-                        /* KindAttList("Kind Attn.",
-                            enable1: false,
-                            title: "Kind Attn.",
-                            hintTextvalue: "Tap to Select Kind Attn.",
-                            icon: Icon(Icons.arrow_drop_down),
-                            controllerForLeft: edt_KindAtt,
-                            controllerpkID: edt_KindAttID,
-                            Custom_values1: arr_ALL_Name_ID_For_KindAttList),*/
-                        ProjectList("Project",
-                            enable1: false,
-                            title: "Project",
-                            hintTextvalue: "Tap to Select Project",
-                            icon: Icon(Icons.arrow_drop_down),
-                            controllerForLeft: edt_ProjectName,
-                            controllerpkID: edt_ProjectID,
-                            Custom_values1: arr_ALL_Name_ID_For_ProjectList),
+                        SizedBox(
+                          width: 20,
+                          height: 5,
+                        ),
                         BankDropDown("Bank Details *",
                             enable1: false,
                             title: "Bank Details *",
@@ -527,439 +669,19 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                             controllerpkID: edt_Portal_details_ID,
                             Custom_values1:
                                 arr_ALL_Name_ID_For_BankDropDownList),
-                        TermsConditionList("Select Term & Condition",
-                            enable1: false,
-                            title: "Select Term & Condition",
-                            hintTextvalue: "Tap to Select Term & Condition",
-                            icon: Icon(Icons.arrow_drop_down),
-                            controllerForLeft: edt_TermConditionHeader,
-                            controllerpkID: edt_TermConditionHeaderID,
-                            Custom_values1:
-                                arr_ALL_Name_ID_For_TermConditionList),
-                        Container(
-                          margin: EdgeInsets.only(left: 10, right: 10),
-                          child: Text("Term & Condition",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: colorPrimary,
-                                  fontWeight: FontWeight
-                                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                              ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 7, right: 7, top: 10),
-                          child: TextFormField(
-                            controller: edt_TermConditionFooter,
-                            minLines: 2,
-                            maxLines: 15,
-                            keyboardType: TextInputType.multiline,
-                            decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(10.0),
-                                hintText: 'Enter Notes',
-                                hintStyle: TextStyle(color: Colors.grey),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                )),
-                          ),
-                        ),
                         SizedBox(
                           width: 20,
                           height: 15,
                         ),
+                        basicInformation(),
+                        ProductAndAddtionalCharges(),
+                        termsAndCondition(),
                         emailContent(),
+                        Visibility(visible: false, child: FollowupFiled()),
                         AssumptionandOthers(),
-                        Container(
-                          margin: EdgeInsets.all(10),
-                          alignment: Alignment.bottomCenter,
-                          child: getCommonButton(baseTheme, () {
-                            //  _onTapOfDeleteALLContact();
-                            //  navigateTo(context, InquiryProductListScreen.routeName);
-                            //UpdateAfterHeaderDiscount();
-                            if (edt_CustomerName.text != "") {
-                              //UpdateAfterHeaderDiscountToDB();
-
-                              print("INWWWE" + InquiryNo.toString());
-                              navigateTo(context,
-                                  OldQuotationProductListScreen.routeName,
-                                  arguments: OldAddQuotationProductListArgument(
-                                      InquiryNo,
-                                      edt_StateCode.text,
-                                      edt_HeaderDisc.text));
-                            } else {
-                              showCommonDialogWithSingleOption(context,
-                                  "Customer name is required To view Product !",
-                                  positiveButtonTitle: "OK");
-                            }
-                          }, "Add Product + ",
-                              width: 600,
-                              backGroundColor: Color(0xff4d62dc),
-                              radius: 25.0),
-                        ),
-                        Visibility(
-                          visible: true,
-                          child: Container(
-                            margin: EdgeInsets.all(10),
-                            alignment: Alignment.bottomCenter,
-                            child: getCommonButton(baseTheme, () async {
-                              IsWithoutTapOtherCharges = true;
-
-                              //  _onTapOfDeleteALLContact();
-                              //  navigateTo(context, InquiryProductListScreen.routeName);
-                              await getInquiryProductDetails();
-                              if (_inquiryProductList.length != 0) {
-                                print("HeaderDiscll" +
-                                    edt_HeaderDisc.text.toString());
-
-                                AllOtherCharges allOtherCharges =
-                                    AllOtherCharges();
-                                allOtherCharges.HeaderDiscount =
-                                    edt_HeaderDisc.text;
-                                allOtherCharges.OtherChargName1 =
-                                    OtherChargName1;
-                                allOtherCharges.OtherChargeAmount1 =
-                                    OtherChargeAmount1;
-                                allOtherCharges.OtherChargeID1 = OtherChargeID1;
-                                allOtherCharges.OtherChargeTaxType1 =
-                                    OtherChargeTaxType1;
-                                allOtherCharges.OtherChargeGstPer1 =
-                                    OtherChargeGstPer1;
-                                allOtherCharges.OtherChargeBeforGst1 =
-                                    OtherChargeBeforGst1;
-
-                                allOtherCharges.OtherChargName2 =
-                                    OtherChargName2;
-                                allOtherCharges.OtherChargeAmount2 =
-                                    OtherChargeAmount2;
-                                allOtherCharges.OtherChargeID2 = OtherChargeID2;
-                                allOtherCharges.OtherChargeTaxType2 =
-                                    OtherChargeTaxType2;
-                                allOtherCharges.OtherChargeGstPer2 =
-                                    OtherChargeGstPer2;
-                                allOtherCharges.OtherChargeBeforGst2 =
-                                    OtherChargeBeforGst2;
-
-                                allOtherCharges.OtherChargName3 =
-                                    OtherChargName3;
-                                allOtherCharges.OtherChargeAmount3 =
-                                    OtherChargeAmount3;
-                                allOtherCharges.OtherChargeID3 = OtherChargeID3;
-                                allOtherCharges.OtherChargeTaxType3 =
-                                    OtherChargeTaxType3;
-                                allOtherCharges.OtherChargeGstPer3 =
-                                    OtherChargeGstPer3;
-                                allOtherCharges.OtherChargeBeforGst3 =
-                                    OtherChargeBeforGst3;
-
-                                allOtherCharges.OtherChargName4 =
-                                    OtherChargName4;
-                                allOtherCharges.OtherChargeAmount4 =
-                                    OtherChargeAmount4;
-                                allOtherCharges.OtherChargeID4 = OtherChargeID4;
-                                allOtherCharges.OtherChargeTaxType4 =
-                                    OtherChargeTaxType4;
-                                allOtherCharges.OtherChargeGstPer4 =
-                                    OtherChargeGstPer4;
-                                allOtherCharges.OtherChargeBeforGst4 =
-                                    OtherChargeBeforGst4;
-
-                                allOtherCharges.OtherChargName5 =
-                                    OtherChargName5;
-                                allOtherCharges.OtherChargeAmount5 =
-                                    OtherChargeAmount5;
-                                allOtherCharges.OtherChargeID5 = OtherChargeID5;
-                                allOtherCharges.OtherChargeTaxType5 =
-                                    OtherChargeTaxType5;
-                                allOtherCharges.OtherChargeGstPer5 =
-                                    OtherChargeGstPer5;
-                                allOtherCharges.OtherChargeBeforGst5 =
-                                    OtherChargeBeforGst5;
-
-                                navigateTo(context,
-                                    NewQuotationOtherChargeScreen.routeName,
-                                    arguments:
-                                        NewQuotationOtherChargesScreenArguments(
-                                      int.parse(edt_StateCode.text == null
-                                          ? 0
-                                          : edt_StateCode.text),
-                                      _editModel,
-                                      edt_HeaderDisc.text,
-                                      allOtherCharges,
-                                      "OtherCharged",
-                                    )).then((value) {
-                                  AllOtherCharges allOtherCharges = value;
-                                  if (allOtherCharges == null) {
-                                    print(
-                                        "HeaderDiscount From QTOtherCharges 0.00");
-                                  } else {
-                                    print(
-                                        "HeaderDiscount From OtherChargeAmount " +
-                                            allOtherCharges.OtherChargeAmount1 +
-                                            " OtherChargeName1 : " +
-                                            allOtherCharges.OtherChargName1);
-                                    setState(() {
-                                      edt_HeaderDisc.text =
-                                          allOtherCharges.HeaderDiscount;
-                                      OtherChargName1 =
-                                          allOtherCharges.OtherChargName1;
-                                      OtherChargeAmount1 =
-                                          allOtherCharges.OtherChargeAmount1;
-                                      OtherChargeID1 =
-                                          allOtherCharges.OtherChargeID1;
-                                      OtherChargeTaxType1 =
-                                          allOtherCharges.OtherChargeTaxType1;
-                                      OtherChargeGstPer1 =
-                                          allOtherCharges.OtherChargeGstPer1;
-                                      OtherChargeBeforGst1 =
-                                          allOtherCharges.OtherChargeBeforGst1;
-
-                                      OtherChargName2 =
-                                          allOtherCharges.OtherChargName2;
-                                      OtherChargeAmount2 =
-                                          allOtherCharges.OtherChargeAmount2;
-                                      OtherChargeID2 =
-                                          allOtherCharges.OtherChargeID2;
-                                      OtherChargeTaxType2 =
-                                          allOtherCharges.OtherChargeTaxType2;
-                                      OtherChargeGstPer2 =
-                                          allOtherCharges.OtherChargeGstPer2;
-                                      OtherChargeBeforGst2 =
-                                          allOtherCharges.OtherChargeBeforGst2;
-
-                                      OtherChargName3 =
-                                          allOtherCharges.OtherChargName3;
-                                      OtherChargeAmount3 =
-                                          allOtherCharges.OtherChargeAmount3;
-                                      OtherChargeID3 =
-                                          allOtherCharges.OtherChargeID3;
-                                      OtherChargeTaxType3 =
-                                          allOtherCharges.OtherChargeTaxType3;
-                                      OtherChargeGstPer3 =
-                                          allOtherCharges.OtherChargeGstPer3;
-                                      OtherChargeBeforGst3 =
-                                          allOtherCharges.OtherChargeBeforGst3;
-
-                                      OtherChargName4 =
-                                          allOtherCharges.OtherChargName4;
-                                      OtherChargeAmount4 =
-                                          allOtherCharges.OtherChargeAmount4;
-                                      OtherChargeID4 =
-                                          allOtherCharges.OtherChargeID4;
-                                      OtherChargeTaxType4 =
-                                          allOtherCharges.OtherChargeTaxType4;
-                                      OtherChargeGstPer4 =
-                                          allOtherCharges.OtherChargeGstPer4;
-                                      OtherChargeBeforGst4 =
-                                          allOtherCharges.OtherChargeBeforGst4;
-
-                                      OtherChargName5 =
-                                          allOtherCharges.OtherChargName5;
-                                      OtherChargeAmount5 =
-                                          allOtherCharges.OtherChargeAmount5;
-                                      OtherChargeID5 =
-                                          allOtherCharges.OtherChargeID5;
-                                      OtherChargeTaxType5 =
-                                          allOtherCharges.OtherChargeTaxType5;
-                                      OtherChargeGstPer5 =
-                                          allOtherCharges.OtherChargeGstPer5;
-                                      OtherChargeBeforGst5 =
-                                          allOtherCharges.OtherChargeBeforGst5;
-                                    });
-                                  }
-                                });
-                              } else {
-                                showCommonDialogWithSingleOption(context,
-                                    "Atleast one product is required to view other charges !",
-                                    positiveButtonTitle: "OK");
-                              }
-                            }, "Other Charges",
-                                width: 600,
-                                backGroundColor: Color(0xff4d62dc),
-                                radius: 25.0),
-                          ),
-                        ),
-                        Visibility(
-                          visible: true,
-                          child: Container(
-                            margin: EdgeInsets.all(10),
-                            alignment: Alignment.bottomCenter,
-                            child: getCommonButton(baseTheme, () async {
-                              IsWithoutTapOtherCharges = true;
-
-                              //  _onTapOfDeleteALLContact();
-                              //  navigateTo(context, InquiryProductListScreen.routeName);
-                              await getInquiryProductDetails();
-                              if (_inquiryProductList.length != 0) {
-                                print("HeaderDiscll" +
-                                    edt_HeaderDisc.text.toString());
-
-                                AllOtherCharges allOtherCharges =
-                                    AllOtherCharges();
-                                allOtherCharges.HeaderDiscount =
-                                    edt_HeaderDisc.text;
-                                allOtherCharges.OtherChargName1 =
-                                    OtherChargName1;
-                                allOtherCharges.OtherChargeAmount1 =
-                                    OtherChargeAmount1;
-                                allOtherCharges.OtherChargeID1 = OtherChargeID1;
-                                allOtherCharges.OtherChargeTaxType1 =
-                                    OtherChargeTaxType1;
-                                allOtherCharges.OtherChargeGstPer1 =
-                                    OtherChargeGstPer1;
-                                allOtherCharges.OtherChargeBeforGst1 =
-                                    OtherChargeBeforGst1;
-
-                                allOtherCharges.OtherChargName2 =
-                                    OtherChargName2;
-                                allOtherCharges.OtherChargeAmount2 =
-                                    OtherChargeAmount2;
-                                allOtherCharges.OtherChargeID2 = OtherChargeID2;
-                                allOtherCharges.OtherChargeTaxType2 =
-                                    OtherChargeTaxType2;
-                                allOtherCharges.OtherChargeGstPer2 =
-                                    OtherChargeGstPer2;
-                                allOtherCharges.OtherChargeBeforGst2 =
-                                    OtherChargeBeforGst2;
-
-                                allOtherCharges.OtherChargName3 =
-                                    OtherChargName3;
-                                allOtherCharges.OtherChargeAmount3 =
-                                    OtherChargeAmount3;
-                                allOtherCharges.OtherChargeID3 = OtherChargeID3;
-                                allOtherCharges.OtherChargeTaxType3 =
-                                    OtherChargeTaxType3;
-                                allOtherCharges.OtherChargeGstPer3 =
-                                    OtherChargeGstPer3;
-                                allOtherCharges.OtherChargeBeforGst3 =
-                                    OtherChargeBeforGst3;
-
-                                allOtherCharges.OtherChargName4 =
-                                    OtherChargName4;
-                                allOtherCharges.OtherChargeAmount4 =
-                                    OtherChargeAmount4;
-                                allOtherCharges.OtherChargeID4 = OtherChargeID4;
-                                allOtherCharges.OtherChargeTaxType4 =
-                                    OtherChargeTaxType4;
-                                allOtherCharges.OtherChargeGstPer4 =
-                                    OtherChargeGstPer4;
-                                allOtherCharges.OtherChargeBeforGst4 =
-                                    OtherChargeBeforGst4;
-
-                                allOtherCharges.OtherChargName5 =
-                                    OtherChargName5;
-                                allOtherCharges.OtherChargeAmount5 =
-                                    OtherChargeAmount5;
-                                allOtherCharges.OtherChargeID5 = OtherChargeID5;
-                                allOtherCharges.OtherChargeTaxType5 =
-                                    OtherChargeTaxType5;
-                                allOtherCharges.OtherChargeGstPer5 =
-                                    OtherChargeGstPer5;
-                                allOtherCharges.OtherChargeBeforGst5 =
-                                    OtherChargeBeforGst5;
-
-                                navigateTo(context,
-                                    NewQuotationOtherChargeScreen.routeName,
-                                    arguments:
-                                        NewQuotationOtherChargesScreenArguments(
-                                      int.parse(edt_StateCode.text == null
-                                          ? 0
-                                          : edt_StateCode.text),
-                                      _editModel,
-                                      edt_HeaderDisc.text,
-                                      allOtherCharges,
-                                      "Calculation",
-                                    )).then((value) {
-                                  AllOtherCharges allOtherCharges = value;
-                                  if (allOtherCharges == null) {
-                                    print(
-                                        "HeaderDiscount From QTOtherCharges 0.00");
-                                  } else {
-                                    print(
-                                        "HeaderDiscount From OtherChargeAmount " +
-                                            allOtherCharges.OtherChargeAmount1 +
-                                            " OtherChargeName1 : " +
-                                            allOtherCharges.OtherChargName1);
-                                    setState(() {
-                                      edt_HeaderDisc.text =
-                                          allOtherCharges.HeaderDiscount;
-                                      OtherChargName1 =
-                                          allOtherCharges.OtherChargName1;
-                                      OtherChargeAmount1 =
-                                          allOtherCharges.OtherChargeAmount1;
-                                      OtherChargeID1 =
-                                          allOtherCharges.OtherChargeID1;
-                                      OtherChargeTaxType1 =
-                                          allOtherCharges.OtherChargeTaxType1;
-                                      OtherChargeGstPer1 =
-                                          allOtherCharges.OtherChargeGstPer1;
-                                      OtherChargeBeforGst1 =
-                                          allOtherCharges.OtherChargeBeforGst1;
-
-                                      OtherChargName2 =
-                                          allOtherCharges.OtherChargName2;
-                                      OtherChargeAmount2 =
-                                          allOtherCharges.OtherChargeAmount2;
-                                      OtherChargeID2 =
-                                          allOtherCharges.OtherChargeID2;
-                                      OtherChargeTaxType2 =
-                                          allOtherCharges.OtherChargeTaxType2;
-                                      OtherChargeGstPer2 =
-                                          allOtherCharges.OtherChargeGstPer2;
-                                      OtherChargeBeforGst2 =
-                                          allOtherCharges.OtherChargeBeforGst2;
-
-                                      OtherChargName3 =
-                                          allOtherCharges.OtherChargName3;
-                                      OtherChargeAmount3 =
-                                          allOtherCharges.OtherChargeAmount3;
-                                      OtherChargeID3 =
-                                          allOtherCharges.OtherChargeID3;
-                                      OtherChargeTaxType3 =
-                                          allOtherCharges.OtherChargeTaxType3;
-                                      OtherChargeGstPer3 =
-                                          allOtherCharges.OtherChargeGstPer3;
-                                      OtherChargeBeforGst3 =
-                                          allOtherCharges.OtherChargeBeforGst3;
-
-                                      OtherChargName4 =
-                                          allOtherCharges.OtherChargName4;
-                                      OtherChargeAmount4 =
-                                          allOtherCharges.OtherChargeAmount4;
-                                      OtherChargeID4 =
-                                          allOtherCharges.OtherChargeID4;
-                                      OtherChargeTaxType4 =
-                                          allOtherCharges.OtherChargeTaxType4;
-                                      OtherChargeGstPer4 =
-                                          allOtherCharges.OtherChargeGstPer4;
-                                      OtherChargeBeforGst4 =
-                                          allOtherCharges.OtherChargeBeforGst4;
-
-                                      OtherChargName5 =
-                                          allOtherCharges.OtherChargName5;
-                                      OtherChargeAmount5 =
-                                          allOtherCharges.OtherChargeAmount5;
-                                      OtherChargeID5 =
-                                          allOtherCharges.OtherChargeID5;
-                                      OtherChargeTaxType5 =
-                                          allOtherCharges.OtherChargeTaxType5;
-                                      OtherChargeGstPer5 =
-                                          allOtherCharges.OtherChargeGstPer5;
-                                      OtherChargeBeforGst5 =
-                                          allOtherCharges.OtherChargeBeforGst5;
-                                    });
-                                  }
-                                });
-                              } else {
-                                showCommonDialogWithSingleOption(context,
-                                    "Atleast one product is required to view other charges !",
-                                    positiveButtonTitle: "OK");
-                              }
-                            }, "Final Summary",
-                                width: 600,
-                                backGroundColor: Color(0xff4d62dc),
-                                radius: 25.0),
-                          ),
+                        SizedBox(
+                          width: 20,
+                          height: 15,
                         ),
                         Container(
                           margin: EdgeInsets.all(10),
@@ -970,7 +692,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
                             _onTaptoSaveQuotationHeader(context);
                           }, "Save  ",
-                              width: 600, backGroundColor: colorPrimary),
+                              width: 600,
+                              radius: 30,
+                              backGroundColor: colorPrimary),
                         ),
                       ]))),
         ),
@@ -989,7 +713,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         elevation: 2,
         child: Container(
           decoration: BoxDecoration(
-              color: Color(0xff4d62dc), borderRadius: BorderRadius.circular(20)
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
               // boxShadow: [
               //   BoxShadow(
               //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
@@ -1011,17 +735,16 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                 title: Text(
                   "Email Content",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
                 ),
 
                 leading: Container(
                   child: ClipRRect(
                     child: Image.asset(
-                      EMAIL,
+                      BASIC_INFORMATION,
                       width: 27,
-                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -1115,6 +838,93 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     );
   }
 
+  FollowupFiled() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Follow Up",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      BASIC_INFORMATION,
+                      width: 27,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        createTextLabel("Next FollowUpDate.", 10.0, 0.0),
+                        _buildNextFollowupDate(),
+                        FollowupType("FollowUp Type",
+                            enable1: false,
+                            title: "FollowUp Type",
+                            hintTextvalue: "Tap to FollowUp Type",
+                            icon: Icon(Icons.arrow_drop_down),
+                            controllerForLeft: edt_FollowupType,
+                            controllerpkID: edt_FollowupTypepkID,
+                            Custom_values1:
+                                arr_ALL_Name_ID_For_TermConditionList),
+                        createTextLabel("Meeting Notes", 10.0, 0.0),
+                        createTextFormField(edt_FollowupNotes, "Enter Notes",
+                            minLines: 2,
+                            maxLines: 5,
+                            height: 100,
+                            bottom: 5,
+                            top: 5,
+                            keyboardInput: TextInputType.text),
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
   AssumptionandOthers() {
     return Container(
       child: Card(
@@ -1124,7 +934,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         elevation: 2,
         child: Container(
           decoration: BoxDecoration(
-              color: Color(0xff4d62dc), borderRadius: BorderRadius.circular(20)
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
               // boxShadow: [
               //   BoxShadow(
               //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
@@ -1146,17 +956,16 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                 title: Text(
                   "Assumption & Others",
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
                 ),
 
                 leading: Container(
                   child: ClipRRect(
                     child: Image.asset(
-                      EMAIL,
+                      BASIC_INFORMATION,
                       width: 27,
-                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -1208,6 +1017,199 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     );
   }
 
+  ProductAndAddtionalCharges() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Products & Additional Charges",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      BASIC_INFORMATION,
+                      width: 27,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.all(10),
+                          alignment: Alignment.bottomCenter,
+                          child: getCommonButton(baseTheme, () async {
+                            if (edt_CustomerName.text != "") {
+                              print("INWWWE" + edt_HeaderDisc.text.toString());
+                              navigateTo(context,
+                                      OldQuotationProductListScreen.routeName,
+                                      arguments:
+                                          OldAddQuotationProductListArgument(
+                                              InquiryNo,
+                                              edt_StateCode.text,
+                                              edt_HeaderDisc.text))
+                                  .then((value) async {
+                                await getInquiryProductDetails();
+                              });
+                            } else {
+                              showCommonDialogWithSingleOption(context,
+                                  "Customer name is required To view Product !",
+                                  positiveButtonTitle: "OK");
+                            }
+                          }, "Products",
+                              width: 600,
+                              textColor: colorPrimary,
+                              backGroundColor: colorGreenLight,
+                              radius: 25.0),
+                        ),
+                        Visibility(
+                          visible: true,
+                          child: Container(
+                            margin: EdgeInsets.all(10),
+                            alignment: Alignment.bottomCenter,
+                            child: getCommonButton(baseTheme, () async {
+                              await getInquiryProductDetails();
+
+                              if (_inquiryProductList.length != 0) {
+                                print("HeaderDiscll" +
+                                    edt_HeaderDisc.text.toString());
+
+                                navigateTo(context,
+                                        NewQuotationOtherChargeScreen.routeName,
+                                        arguments:
+                                            NewQuotationOtherChargesScreenArguments(
+                                                int.parse(
+                                                    edt_StateCode.text == null
+                                                        ? 0
+                                                        : edt_StateCode.text),
+                                                _editModel,
+                                                edt_HeaderDisc.text,
+                                                "OtherCharge",
+                                                addditionalCharges))
+                                    .then((value) {
+                                  setState(() {
+                                    addditionalCharges = value;
+
+                                    isUpdateCalculation = true;
+
+                                    edt_HeaderDisc.text =
+                                        addditionalCharges.DiscountAmt;
+
+                                    print("jjff23kj" +
+                                        addditionalCharges.DiscountAmt);
+                                  });
+                                });
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "Atleast one product is required to view other charges !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            }, "Additional Charges",
+                                width: 600,
+                                textColor: colorPrimary,
+                                backGroundColor: colorGreenLight,
+                                radius: 25.0),
+                          ),
+                        ),
+                        Visibility(
+                          visible: true,
+                          child: Container(
+                            margin: EdgeInsets.all(10),
+                            alignment: Alignment.bottomCenter,
+                            child: getCommonButton(baseTheme, () async {
+                              await getInquiryProductDetails();
+
+                              if (_inquiryProductList.length != 0) {
+                                print("HeaderDiscll" +
+                                    edt_HeaderDisc.text.toString());
+
+                                navigateTo(context,
+                                        NewQuotationOtherChargeScreen.routeName,
+                                        arguments:
+                                            NewQuotationOtherChargesScreenArguments(
+                                                int.parse(
+                                                    edt_StateCode.text == null
+                                                        ? 0
+                                                        : edt_StateCode.text),
+                                                _editModel,
+                                                edt_HeaderDisc.text,
+                                                "Calculation",
+                                                addditionalCharges))
+                                    .then((value) {
+                                  setState(() {
+                                    addditionalCharges = value;
+
+                                    isUpdateCalculation = true;
+
+                                    edt_HeaderDisc.text =
+                                        addditionalCharges.DiscountAmt;
+
+                                    print("jjff23kj" +
+                                        addditionalCharges.DiscountAmt);
+                                  });
+                                });
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "Atleast one product is required to view other charges !",
+                                    positiveButtonTitle: "OK");
+                              }
+                            }, "Final Summary",
+                                width: 600,
+                                textColor: colorPrimary,
+                                backGroundColor: colorGreenLight,
+                                radius: 25.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
   Widget createTextLabel(String labelName, double leftPad, double rightPad) {
     return Align(
       alignment: Alignment.centerLeft,
@@ -1218,7 +1220,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
             Text(labelName,
                 style: TextStyle(
                     fontSize: 10,
-                    color: colorBlack,
+                    color: colorPrimary,
                     fontWeight: FontWeight.bold)),
           ],
         ),
@@ -1378,7 +1380,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
-              height: 60,
+              height: 40,
               padding: EdgeInsets.only(left: 20, right: 20),
               width: double.maxFinite,
               child: Row(
@@ -1410,12 +1412,12 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
   Future<void> _selectDate(
       BuildContext context, TextEditingController F_datecontroller) async {
-    DateTime selectedDate = DateTime.now();
+    // DateTime selectedDate = DateTime.now();
 
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: selectedDate,
+        firstDate: DateTime.now(),
         lastDate: DateTime(2101));
     if (picked != null && picked != selectedDate)
       setState(() {
@@ -1461,7 +1463,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
-              height: 60,
+              height: 40,
               padding: EdgeInsets.only(left: 20, right: 20),
               width: double.maxFinite,
               child: Row(
@@ -1476,6 +1478,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                             color: Color(0xFF000000),
                           ),
                           border: InputBorder.none,
+                          contentPadding: EdgeInsets.only(bottom: 10),
                         ),
                         style: TextStyle(
                           fontSize: 15,
@@ -1509,6 +1512,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           edt_CustomerpkID.text = _searchInquiryListResponse.value.toString();
           setState(() {
             edt_InquiryNoExist.text = "true";
+            edt_KindAtt.text = "";
+            edt_KindAttID.text = "";
+            arr_ALL_Name_ID_For_KindAttList.clear();
           });
           _inquiryBloc.add(CustIdToInqListCallEvent(CustIdToInqListRequest(
               CustomerID: _searchInquiryListResponse.value.toString(),
@@ -1562,13 +1568,60 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     InquiryNo = _editModel.quotationNo;
     edt_StateCode.text = _editModel.stateCode.toString();
     int StateCode = _editModel.stateCode;
+
+    print("sdlfjdfsj" +
+        _offlineLoggedInData.details[0].stateCode.toString() +
+        " CustomerStateCode : " +
+        _editModel.stateCode.toString());
     if (InquiryNo != '') {
-      await _onTapOfDeleteALLProduct();
+      // await _onTapOfDeleteALLProduct();
       _inquiryBloc.add(QuotationNoToProductListCallEvent(
           StateCode,
           QuotationNoToProductListRequest(
               QuotationNo: InquiryNo, CompanyId: CompanyID.toString())));
     }
+
+    _inquiryBloc.add(DeleteGenericAddditionalChargesEvent());
+
+    _inquiryBloc.add(AddGenericAddditionalChargesEvent(
+        GenericAddditionalCharges(
+            _editModel.discountAmt.toString(),
+            _editModel.chargeID1.toString(),
+            _editModel.chargeAmt1.toString(),
+            _editModel.chargeID2.toString(),
+            _editModel.chargeAmt2.toString(),
+            _editModel.chargeID3.toString(),
+            _editModel.chargeAmt3.toString(),
+            _editModel.chargeID4.toString(),
+            _editModel.chargeAmt4.toString(),
+            _editModel.chargeID5.toString(),
+            _editModel.chargeAmt5.toString(),
+            _editModel.chargeName1,
+            _editModel.chargeName2,
+            _editModel.chargeName3,
+            _editModel.chargeName4,
+            _editModel.chargeName5)));
+
+    /*GenericAddditionalCharges newGenericAddditionalCharges =
+        GenericAddditionalCharges(
+      _editModel.discountAmt.toString(),
+      _editModel.chargeID1.toString(),
+      _editModel.chargeAmt1.toString(),
+      _editModel.chargeID2.toString(),
+      _editModel.chargeAmt2.toString(),
+      _editModel.chargeID3.toString(),
+      _editModel.chargeAmt3.toString(),
+      _editModel.chargeID4.toString(),
+      _editModel.chargeAmt4.toString(),
+      _editModel.chargeID5.toString(),
+      _editModel.chargeAmt5.toString(),
+      _editModel.chargeName1,
+      _editModel.chargeName2,
+      _editModel.chargeName3,
+      _editModel.chargeName4,
+      _editModel.chargeName5,
+    );*/
+
     setState(() {
       edt_InquiryNo.text = "";
     });
@@ -1636,6 +1689,83 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
     _controller_Ref_Inquiry.text = _editModel.assumptionRemark;
     _contrller_other_Remarks.text = _editModel.additionalRemark;
+
+    print("ListTaxType" +
+        "TaxType1 : " +
+        SharedPrefHelper.instance.getGenricTaxtype() +
+        "TaxType2 : " +
+        genericOtherChargeDetails.OtherChargeTaxType2.toString() +
+        "TaxType3 : " +
+        edt_ChargeTaxType3.text +
+        "TaxType4 : " +
+        edt_ChargeTaxType4.text);
+
+    addditionalCharges = AddditionalCharges(
+      DiscountAmt: _editModel.discountAmt.toString(),
+      SGSTAmt: _editModel.sGSTAmt.toString(),
+      CGSTAmt: _editModel.cGSTAmt.toString(),
+      IGSTAmt: _editModel.iGSTAmt.toString(),
+      //_totalIGSST_AMOUNT_Controller.text.toString(),
+
+      ChargeID1: _editModel.chargeID1.toString(),
+      ChargeName1: _editModel.chargeName1.toString(),
+      ChargeAmt1: _editModel.chargeAmt1.toString(),
+      ChargeBasicAmt1: _editModel.chargeBasicAmt1.toString(),
+      ChargeGSTAmt1: _editModel.chargeGSTAmt1.toString(),
+      ChargeTaxType1: OtherChargeTaxType1,
+      ChargeGstPer1: OtherChargeGstPer1,
+      ChargeIsBeforGst1: OtherChargeBeforGst1,
+
+      ChargeID2: _editModel.chargeID2.toString(),
+      ChargeName2: _editModel.chargeName2.toString(),
+      ChargeAmt2: _editModel.chargeAmt2.toString(),
+      ChargeBasicAmt2: _editModel.chargeBasicAmt2.toString(),
+      ChargeGSTAmt2: _editModel.chargeGSTAmt2.toString(),
+      ChargeTaxType2: OtherChargeTaxType2,
+      ChargeGstPer2: OtherChargeGstPer2,
+      ChargeIsBeforGst2: OtherChargeBeforGst2,
+
+      ChargeID3: _editModel.chargeID3.toString(),
+      ChargeName3: _editModel.chargeName3.toString(),
+      ChargeAmt3: _editModel.chargeAmt3.toString(),
+      ChargeBasicAmt3: _editModel.chargeBasicAmt3.toString(),
+      ChargeGSTAmt3: _editModel.chargeGSTAmt3.toString(),
+      ChargeTaxType3: OtherChargeTaxType3,
+      ChargeGstPer3: OtherChargeGstPer3,
+      ChargeIsBeforGst3: OtherChargeBeforGst3,
+
+      ChargeID4: _editModel.chargeID4.toString(),
+      ChargeName4: _editModel.chargeName4.toString(),
+      ChargeAmt4: _editModel.chargeAmt4.toString(),
+      ChargeBasicAmt4: _editModel.chargeBasicAmt4.toString(),
+      ChargeGSTAmt4: _editModel.chargeGSTAmt4.toString(),
+      ChargeTaxType4: OtherChargeTaxType4,
+      ChargeGstPer4: OtherChargeGstPer4,
+      ChargeIsBeforGst4: OtherChargeBeforGst4,
+
+      ChargeID5: _editModel.chargeID5.toString(),
+      ChargeName5: _editModel.chargeName5.toString(),
+      ChargeAmt5: _editModel.chargeAmt5.toString(),
+      ChargeBasicAmt5: _editModel.chargeBasicAmt5.toString(),
+      ChargeGSTAmt5: _editModel.chargeGSTAmt5.toString(),
+      ChargeTaxType5: OtherChargeTaxType5,
+      ChargeGstPer5: OtherChargeGstPer5,
+      ChargeIsBeforGst5: OtherChargeBeforGst5,
+
+      NetAmt: _editModel.netAmt.toString(),
+      BasicAmt: _editModel.basicAmt.toString(),
+      ROffAmt: _editModel.roffAmt.toString(),
+      ChargePer1: "0.00",
+      ChargePer2: "0.00",
+      ChargePer3: "0.00",
+      ChargePer4: "0.00",
+      ChargePer5: "0.00",
+    );
+
+    print("ADDDitonalCharge" +
+        " AdditionalChargeModel :  " +
+        addditionalCharges.BasicAmt
+            .toString() /*addditionalCharges.toJson().toString()*/);
 
     // OtherChargeTaxType5;
     // OtherChargeGstPer5;
@@ -1770,163 +1900,28 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         "QuotationProductDeleteResponse " + state.response.details[0].column1);
   }
 
-  Widget FollowupFields() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.only(left: 10, right: 10),
-          child: Text("Followup Notes *",
-              style: TextStyle(
-                  fontSize: 12,
-                  color: colorPrimary,
-                  fontWeight: FontWeight
-                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-              ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 7, right: 7, top: 10),
-          child: TextFormField(
-            controller: edt_FollowupNotes,
-            minLines: 2,
-            maxLines: 5,
-            keyboardType: TextInputType.multiline,
-            decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(10.0),
-                hintText: 'Enter Notes',
-                hintStyle: TextStyle(color: Colors.grey),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                )),
-          ),
-        ),
-        SizedBox(
-          width: 20,
-          height: 15,
-        ),
-        InkWell(
-          onTap: () {
-            _selectNextFollowupDate(context, edt_NextFollowupDate);
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: 10, right: 10),
-                child: Text("Next FollowUp Date *",
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: colorPrimary,
-                        fontWeight: FontWeight
-                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                    ),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Card(
-                elevation: 5,
-                color: colorLightGray,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                child: Container(
-                  height: 60,
-                  padding: EdgeInsets.only(left: 20, right: 20),
-                  width: double.maxFinite,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          edt_NextFollowupDate.text == null ||
-                                  edt_NextFollowupDate.text == ""
-                              ? "DD-MM-YYYY"
-                              : edt_NextFollowupDate.text,
-                          style: baseTheme.textTheme.headline3.copyWith(
-                              color: edt_NextFollowupDate.text == null ||
-                                      edt_NextFollowupDate.text == ""
-                                  ? colorGrayDark
-                                  : colorBlack),
-                        ),
-                      ),
-                      Icon(
-                        Icons.calendar_today_outlined,
-                        color: colorGrayDark,
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        SizedBox(
-          width: 20,
-          height: 15,
-        ),
-        InkWell(
-          onTap: () {
-            _selectTime(context, edt_PreferedTime);
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                margin: EdgeInsets.only(left: 10, right: 10),
-                child: Text("Preferred Time",
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: colorPrimary,
-                        fontWeight: FontWeight
-                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                    ),
-              ),
-              SizedBox(
-                height: 5,
-              ),
-              Card(
-                elevation: 5,
-                color: colorLightGray,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                child: Container(
-                  height: 60,
-                  padding: EdgeInsets.only(left: 20, right: 20),
-                  width: double.maxFinite,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          edt_PreferedTime.text == null ||
-                                  edt_PreferedTime.text == ""
-                              ? "HH:MM:SS"
-                              : edt_PreferedTime.text,
-                          style: baseTheme.textTheme.headline3.copyWith(
-                              color: edt_PreferedTime.text == null ||
-                                      edt_PreferedTime.text == ""
-                                  ? colorGrayDark
-                                  : colorBlack),
-                        ),
-                      ),
-                      Icon(
-                        Icons.watch_later_outlined,
-                        color: colorGrayDark,
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-        SizedBox(
-          width: 20,
-          height: 15,
-        ),
-      ],
-    );
+  Future<void> _selectRefrenceFollowupDate(
+      BuildContext context, TextEditingController F_datecontroller) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: selectedDate,
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDateRefrence)
+      setState(() {
+        selectedDateRefrence = picked;
+        _controller_reference_date.text = selectedDateRefrence.day.toString() +
+            "-" +
+            selectedDateRefrence.month.toString() +
+            "-" +
+            selectedDateRefrence.year.toString();
+        _controller_rev_reference_date.text =
+            selectedDateRefrence.year.toString() +
+                "-" +
+                selectedDateRefrence.month.toString() +
+                "-" +
+                selectedDateRefrence.day.toString();
+      });
   }
 
   Future<void> _selectNextFollowupDate(
@@ -1936,19 +1931,20 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         initialDate: selectedDate,
         firstDate: selectedDate,
         lastDate: DateTime(2101));
-    if (picked != null && picked != selectedDate)
+    if (picked != null && picked != selectedNextFollowupDate)
       setState(() {
-        selectedDate = picked;
-        edt_NextFollowupDate.text = selectedDate.day.toString() +
+        selectedNextFollowupDate = picked;
+        edt_NextFollowupDate.text = selectedNextFollowupDate.day.toString() +
             "-" +
-            selectedDate.month.toString() +
+            selectedNextFollowupDate.month.toString() +
             "-" +
-            selectedDate.year.toString();
-        edt_ReverseNextFollowupDate.text = selectedDate.year.toString() +
-            "-" +
-            selectedDate.month.toString() +
-            "-" +
-            selectedDate.day.toString();
+            selectedNextFollowupDate.year.toString();
+        edt_ReverseNextFollowupDate.text =
+            selectedNextFollowupDate.year.toString() +
+                "-" +
+                selectedNextFollowupDate.month.toString() +
+                "-" +
+                selectedNextFollowupDate.day.toString();
       });
   }
 
@@ -2047,6 +2043,15 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           IGSTAmount,
           StateCode,
           HeaderDiscAmnr);
+
+      _inquiryBloc.add(QuotationSpecificationCallEvent(
+          "quotation",
+          SpecificationListRequest(
+              Module: "quotation",
+              QuotationNo: InquiryNo,
+              FinishProductID: state.response.details[i].productID.toString(),
+              LoginUserID: LoginUserID,
+              CompanyId: CompanyID.toString())));
     }
   }
 
@@ -2093,7 +2098,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: 60,
+                    height: 40,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -2108,6 +2113,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                   color: Color(0xFF000000),
                                 ),
                                 border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(bottom: 10),
                               ),
                               style: TextStyle(
                                 fontSize: 15,
@@ -2142,25 +2148,22 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       TextEditingController controllerpkID,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
       child: Column(
         children: [
           InkWell(
-            onTap:
-                () => /*showcustomdialogWithID(
-                values: Custom_values1,
-                context1: context,
-                controller: controllerForLeft,
-                controllerID: controllerpkID,
-                lable: "Select $Category")*/
-                    {
-              if (edt_CustomerpkID != "")
-                {
-                  _inquiryBloc.add(QuotationKindAttListCallEvent(
-                      QuotationKindAttListApiRequest(
-                          CompanyId: CompanyID.toString(),
-                          CustomerID: edt_CustomerpkID.text)))
-                }
+            onTap: () {
+              if (edt_CustomerpkID.text != "") {
+                _inquiryBloc.add(QuotationKindAttListCallEvent(
+                    QuotationKindAttListApiRequest(
+                        CompanyId: CompanyID.toString(),
+                        CustomerID: edt_CustomerpkID.text)));
+              } else {
+                showCommonDialogWithSingleOption(
+                    context, "Customer Name is Required!",
+                    positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                  Navigator.pop(context);
+                });
+              }
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2169,7 +2172,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   margin: EdgeInsets.only(left: 10, right: 10),
                   child: Text(title,
                       style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: colorPrimary,
                           fontWeight: FontWeight
                               .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
@@ -2185,7 +2188,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: 60,
+                    height: 40,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -2257,7 +2260,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   margin: EdgeInsets.only(left: 10, right: 10),
                   child: Text(title,
                       style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
                           color: colorPrimary,
                           fontWeight: FontWeight
                               .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
@@ -2273,7 +2276,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: 60,
+                    height: 40,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -2361,7 +2364,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: 60,
+                    height: 40,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -2376,6 +2379,98 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                   color: Color(0xFF000000),
                                 ),
                                 border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(bottom: 10),
+                              ),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                              ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget FollowupType(String Category,
+      {bool enable1,
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      TextEditingController controller1,
+      TextEditingController controllerpkID,
+      List<ALL_Name_ID> Custom_values1}) {
+    return Container(
+      margin: EdgeInsets.only(top: 10, bottom: 10),
+      child: Column(
+        children: [
+          InkWell(
+            onTap:
+                () => /*showcustomdialogWithID(
+                values: Custom_values1,
+                context1: context,
+                controller: controllerForLeft,
+                controllerID: controllerpkID,
+                lable: "Select $Category")*/
+                    _inquiryBloc.add(FollowupTypeListByNameCallEvent(
+                        FollowupTypeListRequest(
+                            CompanyId: CompanyID.toString(),
+                            pkID: "",
+                            StatusCategory: "FollowUp",
+                            LoginUserID: LoginUserID,
+                            SearchKey: ""))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 10, right: 10),
+                  child: Text(title,
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: colorPrimary,
+                          fontWeight: FontWeight
+                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                      ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Card(
+                  elevation: 5,
+                  color: colorLightGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                              controller: controllerForLeft,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                hintText: hintTextvalue,
+                                labelStyle: TextStyle(
+                                  color: Color(0xFF000000),
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(bottom: 10),
                               ),
                               style: TextStyle(
                                 fontSize: 15,
@@ -2525,7 +2620,11 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         TotalAmount = 0.00;
 
         TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
+        TaxAmount = TaxAmount1;
+
         Amount1 = (Quantity * NetRate1) - TaxAmount1;
+        Amount = Amount1;
+
         TotalAmount = (Quantity * NetRate1);
 
         /*TaxAmount1 = ((Quantity * NetRate1) * TaxPer) / (100 + TaxPer);
@@ -2584,6 +2683,15 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           CompanyID.toString(),
           0,
           0.00));
+
+      _inquiryBloc.add(QuotationSpecificationCallEvent(
+          "pro",
+          SpecificationListRequest(
+              Module: "pro",
+              QuotationNo: "",
+              FinishProductID: state.response.details[i].productID.toString(),
+              LoginUserID: LoginUserID,
+              CompanyId: CompanyID.toString())));
     }
   }
 
@@ -2591,33 +2699,88 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       '$input'.substring(0, '$input'.indexOf('.') + precision + 1));
 
   void _onTaptoSaveQuotationHeader(BuildContext context) async {
-    /* bool isExistNetAmnt = false;
-    if (_isForUpdate == true) {
-      if (IsWithoutTapOtherCharges == false) {
-        await getInquiryProductDetails();
-
-        _OnTaptoSave();
-        print("netamountfj" + " NetAmnt : " + netAmountController.toString());
-        PushAllOtherChargesToDb();
-        print("netamountfj" + " NetAmnt1 : " + netAmountController.toString());
-        isExistNetAmnt = true;
-      } else {
-        isExistNetAmnt = false;
-      }
-    } else {
-      isExistNetAmnt = false;
-    }*/
     print("netamountfj" + " NetAmnt2 : " + netAmountController.toString());
 
     print("NETAMNTRT" + " NETAMNT : " + editMode_netamount_controller.text);
-    await getInquiryProductDetails();
-    List<QT_OtherChargeTable> tempOtherCharges =
-        await OfflineDbHelper.getInstance().getQuotationOtherCharge();
+    // await getInquiryProductDetails();
+    List<QuotationTable> temp =
+        await OfflineDbHelper.getInstance().getQuotationProduct();
 
     if (edt_InquiryDate.text != "") {
       if (edt_CustomerName.text != "") {
         if (edt_Portal_details.text != "") {
-          if (_inquiryProductList.length != 0) {
+          if (temp.length != 0) {
+            HeaderDisAmnt = edt_HeaderDisc.text.isNotEmpty
+                ? double.parse(edt_HeaderDisc.text)
+                : 0.00;
+
+            List<QuotationTable> TempproductList1 =
+                HeaderDiscountCalculation.txtHeadDiscount_WithZero(
+                    temp,
+                    HeaderDisAmnt,
+                    _offlineLoggedInData.details[0].stateCode.toString(),
+                    edt_StateCode.text.toString());
+
+            List<QuotationTable> TempproductList =
+                HeaderDiscountCalculation.txtHeadDiscount_TextChanged(
+                    TempproductList1,
+                    HeaderDisAmnt,
+                    _offlineLoggedInData.details[0].stateCode.toString(),
+                    edt_StateCode.text.toString());
+
+            for (int i = 0; i < temp.length; i++) {
+              print("productList" +
+                  " AmountFromProductList : " +
+                  temp[i].DiscountPercent.toString() +
+                  " NetAmountFromProductList : " +
+                  temp[i].DiscountAmt.toString() +
+                  " NetRate : " +
+                  temp[i].NetRate.toString() +
+                  " BasicAmount : " +
+                  temp[i].Amount.toString() +
+                  " NetAmnount : " +
+                  temp[i].NetAmount.toString());
+            }
+
+            for (int i = 0; i < TempproductList1.length; i++) {
+              print("TempproductList1" +
+                  " AmountCalculation : " +
+                  TempproductList1[i].DiscountPercent.toString() +
+                  " NetAmountCalculation : " +
+                  TempproductList1[i].DiscountAmt.toString() +
+                  " NetRate : " +
+                  TempproductList1[i].NetRate.toString() +
+                  " BasicAmount : " +
+                  TempproductList1[i].Amount.toString() +
+                  " NetAmount : " +
+                  TempproductList1[i].NetAmount.toString());
+            }
+
+            for (int i = 0; i < TempproductList.length; i++) {
+              print("TempproductList" +
+                  " AmountCalculation : " +
+                  TempproductList[i].DiscountPercent.toString() +
+                  " NetAmountCalculation : " +
+                  TempproductList[i].DiscountAmt.toString() +
+                  " NetRate : " +
+                  TempproductList[i].NetRate.toString() +
+                  " BasicAmount : " +
+                  TempproductList[i].Amount.toString() +
+                  " NetAmount : " +
+                  TempproductList[i].NetAmount.toString());
+            }
+
+            List<GenericAddditionalCharges> quotationOtherChargesListResponse =
+                await OfflineDbHelper.getInstance()
+                    .getGenericAddditionalCharges();
+
+            List<double> finalPrice = UpdateHeaderDiscountCalculation(
+                TempproductList, quotationOtherChargesListResponse);
+
+            for (int i = 0; i < finalPrice.length; i++) {
+              print("finalCalfk" + finalPrice[i].toString());
+            }
+
             showCommonDialogWithTwoOptions(
                 context, "Are you sure you want to Save this Quotation ?",
                 negativeButtonTitle: "No",
@@ -2640,126 +2803,6 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                         CompanyId: CompanyID.toString())));
               } else {}
 
-              double tot_basicAmount = 0.00;
-              double tot_CGSTAmount = 0.00;
-              double tot_SGSTAmount = 0.00;
-              double tot_IGSTAmount = 0.00;
-              double tot_DiscountAmount = 0.00;
-              double tot_NetAmount = 0.00;
-
-              for (int i = 0; i < _inquiryProductList.length; i++) {
-                tot_basicAmount =
-                    tot_basicAmount + _inquiryProductList[i].Amount;
-                tot_DiscountAmount =
-                    tot_DiscountAmount + _inquiryProductList[i].DiscountAmt;
-                tot_NetAmount =
-                    tot_NetAmount + _inquiryProductList[i].NetAmount;
-
-                if (_offlineLoggedInData.details[0].stateCode ==
-                    int.parse(edt_StateCode.text)) {
-                  tot_CGSTAmount =
-                      tot_CGSTAmount + _inquiryProductList[i].CGSTAmt;
-                  tot_SGSTAmount =
-                      tot_SGSTAmount + _inquiryProductList[i].SGSTAmt;
-                  tot_IGSTAmount = 0.00;
-                } else {
-                  tot_IGSTAmount =
-                      tot_IGSTAmount + _inquiryProductList[i].IGSTAmt;
-                  tot_CGSTAmount = 0.00;
-                  tot_SGSTAmount = 0.00;
-                }
-              }
-
-              String ChargeID1 = "";
-              String ChargeAmt1 = "";
-              String ChargeBasicAmt1 = "";
-              String ChargeGSTAmt1 = "";
-              String ChargeID2 = "";
-              String ChargeAmt2 = "";
-              String ChargeBasicAmt2 = "";
-              String ChargeGSTAmt2 = "";
-              String ChargeID3 = "";
-              String ChargeAmt3 = "";
-              String ChargeBasicAmt3 = "";
-              String ChargeGSTAmt3 = "";
-              String ChargeID4 = "";
-              String ChargeAmt4 = "";
-              String ChargeBasicAmt4 = "";
-              String ChargeGSTAmt4 = "";
-              String ChargeID5 = "";
-              String ChargeAmt5 = "";
-              String ChargeBasicAmt5 = "";
-              String ChargeGSTAmt5 = "";
-
-              if (tempOtherCharges.length != 0) {
-                for (int i = 0; i < tempOtherCharges.length; i++) {
-                  print("Cjkdfj" +
-                      " ChargeId : " +
-                      tempOtherCharges[i].ChargeID1.toString());
-                  ChargeID1 = tempOtherCharges[i].ChargeID1.toString();
-                  ChargeAmt1 =
-                      tempOtherCharges[i].ChargeAmt1.toStringAsFixed(2);
-                  ChargeBasicAmt1 =
-                      tempOtherCharges[i].ChargeBasicAmt1.toStringAsFixed(2);
-                  ChargeGSTAmt1 =
-                      tempOtherCharges[i].ChargeGSTAmt1.toStringAsFixed(2);
-                  ChargeID2 = tempOtherCharges[i].ChargeID2.toString();
-                  ChargeAmt2 =
-                      tempOtherCharges[i].ChargeAmt2.toStringAsFixed(2);
-                  ChargeBasicAmt2 =
-                      tempOtherCharges[i].ChargeBasicAmt2.toStringAsFixed(2);
-                  ChargeGSTAmt2 =
-                      tempOtherCharges[i].ChargeGSTAmt2.toStringAsFixed(2);
-                  ChargeID3 = tempOtherCharges[i].ChargeID3.toString();
-                  ChargeAmt3 =
-                      tempOtherCharges[i].ChargeAmt3.toStringAsFixed(2);
-                  ChargeBasicAmt3 =
-                      tempOtherCharges[i].ChargeBasicAmt3.toStringAsFixed(2);
-                  ChargeGSTAmt3 =
-                      tempOtherCharges[i].ChargeGSTAmt3.toStringAsFixed(2);
-                  ChargeID4 = tempOtherCharges[i].ChargeID4.toString();
-                  ChargeAmt4 =
-                      tempOtherCharges[i].ChargeAmt4.toStringAsFixed(2);
-                  ChargeBasicAmt4 =
-                      tempOtherCharges[i].ChargeBasicAmt4.toStringAsFixed(2);
-                  ChargeGSTAmt4 =
-                      tempOtherCharges[i].ChargeGSTAmt4.toStringAsFixed(2);
-                  ChargeID5 = tempOtherCharges[i].ChargeID5.toString();
-                  ChargeAmt5 =
-                      tempOtherCharges[i].ChargeAmt5.toStringAsFixed(2);
-                  ChargeBasicAmt5 =
-                      tempOtherCharges[i].ChargeBasicAmt5.toStringAsFixed(2);
-                  ChargeGSTAmt5 =
-                      tempOtherCharges[i].ChargeGSTAmt5.toStringAsFixed(2);
-                }
-              } else {
-                ChargeID1 = "";
-                ChargeAmt1 = "";
-                ChargeBasicAmt1 = "";
-                ChargeGSTAmt1 = "";
-                ChargeID2 = "";
-                ChargeAmt2 = "";
-                ChargeBasicAmt2 = "";
-                ChargeGSTAmt2 = "";
-                ChargeID3 = "";
-                ChargeAmt3 = "";
-                ChargeBasicAmt3 = "";
-                ChargeGSTAmt3 = "";
-                ChargeID4 = "";
-                ChargeAmt4 = "";
-                ChargeBasicAmt4 = "";
-                ChargeGSTAmt4 = "";
-                ChargeID5 = "";
-                ChargeAmt5 = "";
-                ChargeBasicAmt5 = "";
-                ChargeGSTAmt5 = "";
-              }
-
-              print("Assumptionn" +
-                  _contrller_other_Remarks.text +
-                  " Assumption : " +
-                  _controller_Ref_Inquiry.text);
-
               _inquiryBloc.add(QuotationHeaderSaveCallEvent(
                   context,
                   pkID,
@@ -2778,36 +2821,37 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                       Latitude: SharedPrefHelper.instance.getLatitude(),
                       Longitude: SharedPrefHelper.instance.getLongitude(),
                       DiscountAmt: edt_HeaderDisc.text.toString(),
-                      SGSTAmt: tot_SGSTAmount.toString(),
-                      CGSTAmt: tot_CGSTAmount.toString(),
-                      IGSTAmt: tot_IGSTAmount.toString(),
-                      ChargeID1: ChargeID1,
-                      ChargeAmt1: ChargeAmt1,
-                      ChargeBasicAmt1: ChargeBasicAmt1,
-                      ChargeGSTAmt1: ChargeGSTAmt1,
-                      ChargeID2: ChargeID2,
-                      ChargeAmt2: ChargeAmt2,
-                      ChargeBasicAmt2: ChargeBasicAmt2,
-                      ChargeGSTAmt2: ChargeGSTAmt2,
-                      ChargeID3: ChargeID3,
-                      ChargeAmt3: ChargeAmt3,
-                      ChargeBasicAmt3: ChargeBasicAmt3,
-                      ChargeGSTAmt3: ChargeGSTAmt3,
-                      ChargeID4: ChargeID4,
-                      ChargeAmt4: ChargeAmt4,
-                      ChargeBasicAmt4: ChargeBasicAmt4,
-                      ChargeGSTAmt4: ChargeGSTAmt4,
-                      ChargeID5: ChargeID5,
-                      ChargeAmt5: ChargeAmt5,
-                      ChargeBasicAmt5: ChargeBasicAmt5,
-                      ChargeGSTAmt5: ChargeGSTAmt5,
-                      NetAmt:
-                          netAmountController /*isExistNetAmnt == true
-                          ? netAmountController
-                          : tot_NetAmount.toString()*/
-                      ,
-                      BasicAmt: tot_basicAmount.toString(),
-                      ROffAmt: "0.00",
+                      SGSTAmt: finalPrice[4].toStringAsFixed(2),
+                      CGSTAmt: finalPrice[3].toStringAsFixed(2),
+                      IGSTAmt: finalPrice[5].toStringAsFixed(2),
+                      ChargeID1: quotationOtherChargesListResponse[0].ChargeID1,
+                      ChargeAmt1:
+                          quotationOtherChargesListResponse[0].ChargeAmt1,
+                      ChargeBasicAmt1: finalPrice[6].toStringAsFixed(2),
+                      ChargeGSTAmt1: finalPrice[11].toStringAsFixed(2),
+                      ChargeID2: quotationOtherChargesListResponse[0].ChargeID2,
+                      ChargeAmt2:
+                          quotationOtherChargesListResponse[0].ChargeAmt2,
+                      ChargeBasicAmt2: finalPrice[7].toStringAsFixed(2),
+                      ChargeGSTAmt2: finalPrice[12].toStringAsFixed(2),
+                      ChargeID3: quotationOtherChargesListResponse[0].ChargeID3,
+                      ChargeAmt3:
+                          quotationOtherChargesListResponse[0].ChargeAmt3,
+                      ChargeBasicAmt3: finalPrice[8].toStringAsFixed(2),
+                      ChargeGSTAmt3: finalPrice[13].toStringAsFixed(2),
+                      ChargeID4: quotationOtherChargesListResponse[0].ChargeID4,
+                      ChargeAmt4:
+                          quotationOtherChargesListResponse[0].ChargeAmt4,
+                      ChargeBasicAmt4: finalPrice[9].toStringAsFixed(2),
+                      ChargeGSTAmt4: finalPrice[14].toStringAsFixed(2),
+                      ChargeID5: quotationOtherChargesListResponse[0].ChargeID5,
+                      ChargeAmt5:
+                          quotationOtherChargesListResponse[0].ChargeAmt5,
+                      ChargeBasicAmt5: finalPrice[10].toStringAsFixed(2),
+                      ChargeGSTAmt5: finalPrice[15].toStringAsFixed(2),
+                      NetAmt: finalPrice[17].toStringAsFixed(2),
+                      BasicAmt: finalPrice[0].toStringAsFixed(2),
+                      ROffAmt: finalPrice[18].toStringAsFixed(2),
                       ChargePer1: "0.00",
                       ChargePer2: "0.00",
                       ChargePer3: "0.00",
@@ -2821,20 +2865,28 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           } else {
             showCommonDialogWithSingleOption(
                 context, "Quotation Product is required !",
-                positiveButtonTitle: "OK");
+                positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+              Navigator.pop(context);
+            });
           }
         } else {
           showCommonDialogWithSingleOption(
-              context, "Bank Details is required !",
-              positiveButtonTitle: "OK");
+              context, "Bank Details is required !", positiveButtonTitle: "OK",
+              onTapOfPositiveButton: () {
+            Navigator.pop(context);
+          });
         }
       } else {
         showCommonDialogWithSingleOption(context, "Customer name is required !",
-            positiveButtonTitle: "OK");
+            positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+          Navigator.pop(context);
+        });
       }
     } else {
       showCommonDialogWithSingleOption(context, "Quotation date is required !",
-          positiveButtonTitle: "OK");
+          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+        Navigator.pop(context);
+      });
     }
   }
 
@@ -2870,35 +2922,53 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     };
 
     print("Notificationdf" + request123.toString());
-    _inquiryBloc.add(FCMNotificationRequestEvent(request123));
+
+    if (ReportToToken != "") {
+      _inquiryBloc.add(FCMNotificationRequestEvent(request123));
+    }
   }
 
   void _OnQuotationProductSaveSucessResponse(
       QuotationProductSaveResponseState state) async {
-    String Msg = _isForUpdate == true
+    /*String Msg = _isForUpdate == true
         ? "Quotation Updated Successfully"
         : "Quotation Added Successfully";
 
-    /* showCommonDialogWithSingleOption(context, Msg,
+    showCommonDialogWithSingleOption(state.context, Msg,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-          navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
-        });*/
-    await showCommonDialogWithSingleOption(Globals.context, Msg,
-        positiveButtonTitle: "OK");
-    Navigator.of(context).pop();
+      navigateTo(state.context, QuotationListScreen.routeName,
+          clearAllStack: true);
+    });*/
+
+    _inquiryBloc
+        .add(GetQuotationSpecificationwithQTNOTableEvent(state.RetrunQtNo));
   }
 
   void updateRetrunInquiryNoToDB(
       BuildContext context1, int pkID, String ReturnQT_No) async {
     await getInquiryProductDetails();
 
-    _inquiryProductList.forEach((element) {
+    List<QuotationTable> TempproductList1 =
+        HeaderDiscountCalculation.txtHeadDiscount_WithZero(
+            _inquiryProductList,
+            HeaderDisAmnt,
+            _offlineLoggedInData.details[0].stateCode.toString(),
+            edt_StateCode.text.toString());
+
+    List<QuotationTable> TempproductList =
+        HeaderDiscountCalculation.txtHeadDiscount_TextChanged(
+            TempproductList1,
+            HeaderDisAmnt,
+            _offlineLoggedInData.details[0].stateCode.toString(),
+            edt_StateCode.text.toString());
+
+    TempproductList.forEach((element) {
       element.pkID = pkID;
       element.LoginUserID = LoginUserID;
       element.CompanyId = CompanyID.toString();
     });
-    _inquiryBloc.add(QuotationProductSaveCallEvent(
-        context1, ReturnQT_No, _inquiryProductList));
+    _inquiryBloc.add(
+        QuotationProductSaveCallEvent(context1, ReturnQT_No, TempproductList));
   }
 
   void _onOtherChargeListResponse(QuotationOtherChargeListResponseState state) {
@@ -3009,11 +3079,12 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       child: Column(
         children: [
           InkWell(
-            onTap: () => _inquiryBloc
-              ..add(QuotationBankDropDownCallEvent(BankDropDownRequest(
-                  CompanyID: CompanyID.toString(),
-                  LoginUserID: LoginUserID,
-                  pkID: ""))),
+            onTap: () => showcustomdialogWithID(
+                values: arr_ALL_Name_ID_For_BankDropDownList,
+                context1: context,
+                controller: edt_Portal_details,
+                controllerID: edt_Portal_details_ID,
+                lable: "Select Bank Portal"),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -3037,7 +3108,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: 60,
+                    height: 40,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -3052,6 +3123,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                   color: Color(0xFF000000),
                                 ),
                                 border: InputBorder.none,
+                                contentPadding: EdgeInsets.only(bottom: 10),
                               ),
                               style: TextStyle(
                                 fontSize: 15,
@@ -3079,17 +3151,16 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   void _onBankVoucherSaveResponse(QuotationBankDropDownResponseState state) {
     arr_ALL_Name_ID_For_BankDropDownList.clear();
     for (var i = 0; i < state.response.details.length; i++) {
+      if (i == 0) {
+        edt_Portal_details.text = state.response.details[0].bankName;
+        edt_Portal_details_ID.text = state.response.details[0].pkID.toString();
+      }
+
       ALL_Name_ID all_name_id = new ALL_Name_ID();
       all_name_id.pkID = state.response.details[i].pkID;
       all_name_id.Name = state.response.details[i].bankName;
       arr_ALL_Name_ID_For_BankDropDownList.add(all_name_id);
     }
-    showcustomdialogWithID(
-        values: arr_ALL_Name_ID_For_BankDropDownList,
-        context1: context,
-        controller: edt_Portal_details,
-        controllerID: edt_Portal_details_ID,
-        lable: "Select Bank Portal");
   }
 
   void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {
@@ -3345,51 +3416,104 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   }
 
   void _OnChargID1Response(QuotationOtherCharge1ListResponseState state) {
-    OtherChargeTaxType1 =
+    edt_ChargeTaxType1.text =
         state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    edt_ChargeGstPer1.text = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    edt_ChargeBeforGST1.text =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
+    print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType1.text.toString());
+
     OtherChargeGstPer1 = state
         .quotationOtherChargesListResponse.details[0].gSTPer
         .toStringAsFixed(2);
+    OtherChargeTaxType1 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
     OtherChargeBeforGst1 =
         state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
+    genericOtherChargeDetails.OtherChargeTaxType1 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+
+    SharedPrefHelper.instance.setGenricTaxtype(
+        state.quotationOtherChargesListResponse.details[0].taxType.toString());
   }
 
   void _OnChargID2Response(QuotationOtherCharge2ListResponseState state) {
-    OtherChargeTaxType2 =
+    edt_ChargeTaxType2.text =
         state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    edt_ChargeGstPer2.text = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    edt_ChargeBeforGST2.text =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
     OtherChargeGstPer2 = state
         .quotationOtherChargesListResponse.details[0].gSTPer
         .toStringAsFixed(2);
+    OtherChargeTaxType2 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
     OtherChargeBeforGst2 =
         state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
+    genericOtherChargeDetails.OtherChargeTaxType2 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
   }
 
   void _OnChargID3Response(QuotationOtherCharge3ListResponseState state) {
-    OtherChargeTaxType3 =
+    edt_ChargeTaxType3.text =
         state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    edt_ChargeGstPer3.text = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    edt_ChargeBeforGST3.text =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
     OtherChargeGstPer3 = state
         .quotationOtherChargesListResponse.details[0].gSTPer
         .toStringAsFixed(2);
+    OtherChargeTaxType3 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
     OtherChargeBeforGst3 =
         state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+    genericOtherChargeDetails.OtherChargeTaxType3 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
   }
 
   void _OnChargID4Response(QuotationOtherCharge4ListResponseState state) {
-    OtherChargeTaxType4 =
+    edt_ChargeTaxType4.text =
         state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    edt_ChargeGstPer4.text = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    edt_ChargeBeforGST4.text =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
     OtherChargeGstPer4 = state
         .quotationOtherChargesListResponse.details[0].gSTPer
         .toStringAsFixed(2);
+    OtherChargeTaxType4 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
     OtherChargeBeforGst4 =
         state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
   }
 
   void _OnChargID5Response(QuotationOtherCharge5ListResponseState state) {
-    OtherChargeTaxType5 =
+    edt_ChargeTaxType5.text =
         state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    edt_ChargeGstPer5.text = state
+        .quotationOtherChargesListResponse.details[0].gSTPer
+        .toStringAsFixed(2);
+    edt_ChargeBeforGST5.text =
+        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+
     OtherChargeGstPer5 = state
         .quotationOtherChargesListResponse.details[0].gSTPer
         .toStringAsFixed(2);
+    OtherChargeTaxType5 =
+        state.quotationOtherChargesListResponse.details[0].taxType.toString();
     OtherChargeBeforGst5 =
         state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
   }
@@ -4428,5 +4552,1107 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                 InclusiveItemWiseHeaderDisAmnt));*/
       }
     }
+  }
+
+  void UpdateCalculation() {}
+
+  List<double> UpdateHeaderDiscountCalculation(
+      List<QuotationTable> tempproductList,
+      List<GenericAddditionalCharges> quotationOtherChargesListResponse1) {
+    if (tempproductList != null) {
+      ///From OtherCharge DropDown API
+      String _otherChargeTaxTypeController1 = "";
+      String _otherChargeTaxTypeController2 = "";
+      String _otherChargeTaxTypeController3 = "";
+      String _otherChargeTaxTypeController4 = "";
+      String _otherChargeTaxTypeController5 = "";
+
+      String _otherChargeBeForeGSTController1 = "";
+      String _otherChargeBeForeGSTController2 = "";
+      String _otherChargeBeForeGSTController3 = "";
+      String _otherChargeBeForeGSTController4 = "";
+      String _otherChargeBeForeGSTController5 = "";
+
+      String _otherChargeGSTPerController1 = "";
+      String _otherChargeGSTPerController2 = "";
+      String _otherChargeGSTPerController3 = "";
+      String _otherChargeGSTPerController4 = "";
+      String _otherChargeGSTPerController5 = "";
+
+      /// From GenericAddtionalCharge DB Table
+      String _otherChargeIDController1 = "";
+      String _otherChargeIDController2 = "";
+      String _otherChargeIDController3 = "";
+      String _otherChargeIDController4 = "";
+      String _otherChargeIDController5 = "";
+
+      String _otherChargeNameController1 = "";
+      String _otherChargeNameController2 = "";
+      String _otherChargeNameController3 = "";
+      String _otherChargeNameController4 = "";
+      String _otherChargeNameController5 = "";
+
+      String _otherAmount1 = "";
+      String _otherAmount2 = "";
+      String _otherAmount3 = "";
+      String _otherAmount4 = "";
+      String _otherAmount5 = "";
+
+      double Tot_BasicAmount = 0.00;
+      double Tot_GSTAmt = 0.00;
+      double Tot_CGSTAmt = 0.00;
+      double Tot_SGSTAmt = 0.00;
+      double Tot_IGSTAmt = 0.00;
+
+      double Tot_NetAmt = 0.00;
+      Tot_otherChargeWithTax = 0.0;
+      Tot_otherChargeExcludeTax = 0.0;
+      List<GenericAddditionalCharges> quotationOtherChargesListResponse =
+          quotationOtherChargesListResponse1;
+
+      _otherChargeIDController1 =
+          quotationOtherChargesListResponse[0].ChargeID1;
+      _otherChargeIDController2 =
+          quotationOtherChargesListResponse[0].ChargeID2;
+      _otherChargeIDController3 =
+          quotationOtherChargesListResponse[0].ChargeID3;
+      _otherChargeIDController4 =
+          quotationOtherChargesListResponse[0].ChargeID4;
+      _otherChargeIDController5 =
+          quotationOtherChargesListResponse[0].ChargeID5;
+
+      _otherChargeNameController1 =
+          quotationOtherChargesListResponse[0].ChargeName1;
+      _otherChargeNameController2 =
+          quotationOtherChargesListResponse[0].ChargeName2;
+      _otherChargeNameController3 =
+          quotationOtherChargesListResponse[0].ChargeName3;
+      _otherChargeNameController4 =
+          quotationOtherChargesListResponse[0].ChargeName4;
+      _otherChargeNameController5 =
+          quotationOtherChargesListResponse[0].ChargeName5;
+
+      _otherAmount1 = quotationOtherChargesListResponse[0].ChargeAmt1;
+      _otherAmount2 = quotationOtherChargesListResponse[0].ChargeAmt2;
+      _otherAmount3 = quotationOtherChargesListResponse[0].ChargeAmt3;
+      _otherAmount4 = quotationOtherChargesListResponse[0].ChargeAmt4;
+      _otherAmount5 = quotationOtherChargesListResponse[0].ChargeAmt5;
+
+      // productList.clear();
+
+      for (int i = 0; i < tempproductList.length; i++) {
+        print("Amount" +
+            tempproductList[i].Amount.toString() +
+            "NetAmount : " +
+            tempproductList[i].Amount.toString());
+        // productList.add(tempproductList[i]);
+        Tot_BasicAmount += tempproductList[i].Amount;
+        Tot_otherChargeWithTax = 0.00;
+
+        ///Before Gst
+        Tot_GSTAmt += tempproductList[i].TaxAmount;
+        Tot_CGSTAmt += tempproductList[i].CGSTAmt;
+        Tot_SGSTAmt += tempproductList[i].SGSTAmt;
+        Tot_IGSTAmt += tempproductList[i].IGSTAmt;
+
+        Tot_otherChargeExcludeTax = 0.00;
+
+        ///AFTER gst
+        Tot_NetAmt += tempproductList[i].NetAmount;
+      }
+
+      print("FinalAmount" +
+          " BasicAmount : " +
+          Tot_BasicAmount.toString() +
+          " TotalGST Amnt : " +
+          Tot_GSTAmt.toString() +
+          " Tot_NetAmt : " +
+          Tot_NetAmt.toString());
+
+      HeaderDisAmnt = edt_HeaderDisc.text.isNotEmpty
+          ? double.parse(edt_HeaderDisc.text)
+          : 0.00;
+
+      List<double> hdnOthChrgGST1hdnOthChrgBasic1 = [],
+          hdnOthChrgGST1hdnOthChrgBasic2 = [],
+          hdnOthChrgGST1hdnOthChrgBasic3 = [],
+          hdnOthChrgGST1hdnOthChrgBasic4 = [],
+          hdnOthChrgGST1hdnOthChrgBasic5 = [];
+
+      Tot_otherChargeWithTax = 0.00;
+
+      for (int i = 0; i < arrGenericOtheCharge.length; i++) {
+        print("TAXXXXX" + arrGenericOtheCharge[i].chargeName);
+        if (_otherChargeIDController1 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController1 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController1 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+
+          _otherChargeGSTPerController1 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+
+        if (_otherChargeIDController2 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController2 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController2 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController2 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+        if (_otherChargeIDController3 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController3 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController3 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController3 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+        if (_otherChargeIDController4 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController4 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController4 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController4 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+        if (_otherChargeIDController5 ==
+            arrGenericOtheCharge[i].pkId.toString()) {
+          _otherChargeTaxTypeController5 =
+              arrGenericOtheCharge[i].taxType.toString();
+          _otherChargeBeForeGSTController5 =
+              arrGenericOtheCharge[i].beforeGST.toString();
+          _otherChargeGSTPerController5 =
+              arrGenericOtheCharge[i].gSTPer.toString();
+        }
+      }
+
+      if (_otherChargeNameController1.isNotEmpty) {
+        if (_otherChargeNameController1.toString() != "null") {
+          print("AA1" + _otherChargeBeForeGSTController1.toString());
+
+          hdnOthChrgGST1hdnOthChrgBasic1 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController1.isNotEmpty
+                      ? int.parse(_otherChargeIDController1)
+                      : 0,
+                  _otherAmount1.isNotEmpty ? double.parse(_otherAmount1) : 0.00,
+                  _otherChargeGSTPerController1.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController1)
+                      : 0.00,
+                  _otherChargeTaxTypeController1.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController1.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController1.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController1.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController1 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic1[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic1[1];
+          }
+        } else {
+          _otherChargeNameController1 = "";
+        }
+      }
+      if (_otherChargeNameController2.isNotEmpty) {
+        if (_otherChargeNameController2.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic2 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController2.isNotEmpty
+                      ? int.parse(_otherChargeIDController2)
+                      : 0,
+                  _otherAmount2.isNotEmpty ? double.parse(_otherAmount2) : 0.00,
+                  _otherChargeGSTPerController2.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController2)
+                      : 0.00,
+                  _otherChargeTaxTypeController2.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController2.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController2.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController2.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController2 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic2[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic2[1];
+          }
+        } else {
+          _otherChargeNameController2 = "";
+        }
+      }
+
+      print("ds9980" + _otherChargeNameController3.toString());
+      if (_otherChargeNameController3.isNotEmpty) {
+        if (_otherChargeNameController3.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic3 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController3.isNotEmpty
+                      ? int.parse(_otherChargeIDController3)
+                      : 0,
+                  _otherAmount3.isNotEmpty ? double.parse(_otherAmount3) : 0.00,
+                  _otherChargeGSTPerController3.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController3)
+                      : 0.00,
+                  _otherChargeTaxTypeController3.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController3.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController3.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController3.toString() == "true"
+                      ? true
+                      : false);
+          if (_otherChargeBeForeGSTController3 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic3[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic3[1];
+          }
+        } else {
+          _otherChargeNameController3 = "";
+        }
+      }
+
+      if (_otherChargeNameController4.isNotEmpty) {
+        if (_otherChargeNameController4.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic4 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController4.isNotEmpty
+                      ? int.parse(_otherChargeIDController4)
+                      : 0,
+                  _otherAmount4.isNotEmpty ? double.parse(_otherAmount4) : 0.00,
+                  _otherChargeGSTPerController4.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController4)
+                      : 0.00,
+                  _otherChargeTaxTypeController4.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController4.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController4.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController4.toString() == "true"
+                      ? true
+                      : false);
+          if (_otherChargeBeForeGSTController4 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          }
+        } else {
+          _otherChargeNameController4 = "";
+        }
+      }
+
+      if (_otherChargeNameController5.isNotEmpty) {
+        if (_otherChargeNameController5.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic5 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  _otherChargeIDController5.isNotEmpty
+                      ? int.parse(_otherChargeIDController5)
+                      : 0,
+                  _otherAmount5.isNotEmpty ? double.parse(_otherAmount5) : 0.00,
+                  _otherChargeGSTPerController5.isNotEmpty
+                      ? double.parse(_otherChargeGSTPerController5)
+                      : 0.00,
+                  _otherChargeTaxTypeController5.isNotEmpty
+                      ? int.parse(
+                          _otherChargeTaxTypeController5.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController5.toString())
+                      : 0,
+                  _otherChargeBeForeGSTController5.toString() == "true"
+                      ? true
+                      : false);
+          if (_otherChargeBeForeGSTController5 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          }
+        } else {
+          _otherChargeNameController5 = "";
+        }
+      }
+
+      /* if (_otherChargeNameController4.isNotEmpty) {
+        if (_otherChargeNameController4.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic4 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  int.parse(_otherChargeIDController4),
+                  double.parse(_otherAmount4),
+                  double.parse(_otherChargeGSTPerController4),
+                  int.parse(_otherChargeTaxTypeController4.toString() == "0.00"
+                      ? "0"
+                      : _otherChargeTaxTypeController4.toString()),
+                  _otherChargeBeForeGSTController4.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController4 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic4[1];
+          }
+        } else {
+          _otherChargeNameController4 = "";
+        }
+      }
+
+      if (_otherChargeNameController5.isNotEmpty) {
+        if (_otherChargeNameController5.toString() != "null") {
+          hdnOthChrgGST1hdnOthChrgBasic5 =
+              AddtionalCharges.txtOthChrgAmt1_TextChanged(
+                  int.parse(_otherChargeIDController5),
+                  double.parse(_otherAmount5),
+                  double.parse(_otherChargeGSTPerController5),
+                  int.parse(_otherChargeTaxTypeController5.toString() == "0.00"
+                      ? "0"
+                      : _otherChargeTaxTypeController5.toString()),
+                  _otherChargeBeForeGSTController5.toString() == "true"
+                      ? true
+                      : false);
+
+          if (_otherChargeBeForeGSTController5 == "true") {
+            Tot_otherChargeWithTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          } else {
+            Tot_otherChargeExcludeTax += hdnOthChrgGST1hdnOthChrgBasic5[1];
+          }
+        } else {
+          _otherChargeNameController5 = "";
+        }
+      }*/
+
+      /* print("llll" +
+          "hdnOthChrgGST1" +
+          hdnOthChrgGST1hdnOthChrgBasic1[0].toString() +
+          " hdnOthChrgBasic1 : " +
+          hdnOthChrgGST1hdnOthChrgBasic1[1].toString());*/
+
+      double otherChargeGstAmnt1 = hdnOthChrgGST1hdnOthChrgBasic1.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic1[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt1 =
+          hdnOthChrgGST1hdnOthChrgBasic1.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic1[1]
+              : 0.00;
+      double otherChargeGstAmnt2 = hdnOthChrgGST1hdnOthChrgBasic2.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic2[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt2 =
+          hdnOthChrgGST1hdnOthChrgBasic2.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic2[1]
+              : 0.00;
+      double otherChargeGstAmnt3 = hdnOthChrgGST1hdnOthChrgBasic3.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic3[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt3 =
+          hdnOthChrgGST1hdnOthChrgBasic3.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic3[1]
+              : 0.00;
+      double otherChargeGstAmnt4 = hdnOthChrgGST1hdnOthChrgBasic4.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic4[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt4 =
+          hdnOthChrgGST1hdnOthChrgBasic4.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic4[1]
+              : 0.00;
+
+      double otherChargeGstAmnt5 = hdnOthChrgGST1hdnOthChrgBasic5.length != 0
+          ? hdnOthChrgGST1hdnOthChrgBasic5[0]
+          : 0.00;
+      double otherChargeGstBasicAmnt5 =
+          hdnOthChrgGST1hdnOthChrgBasic5.length != 0
+              ? hdnOthChrgGST1hdnOthChrgBasic5[1]
+              : 0.00;
+
+      List<double> TempproductList =
+          HeaderDiscountCalculation.funCalculateTotal(
+              otherChargeGstAmnt1,
+              otherChargeGstAmnt2,
+              otherChargeGstAmnt3,
+              otherChargeGstAmnt4,
+              otherChargeGstAmnt5,
+              otherChargeGstBasicAmnt1,
+              otherChargeGstBasicAmnt2,
+              otherChargeGstBasicAmnt3,
+              otherChargeGstBasicAmnt4,
+              otherChargeGstBasicAmnt5,
+              Tot_CGSTAmt,
+              Tot_SGSTAmt,
+              Tot_IGSTAmt,
+              Tot_BasicAmount,
+              Tot_NetAmt,
+              HeaderDisAmnt,
+              Tot_otherChargeWithTax,
+              Tot_otherChargeExcludeTax);
+
+      double totalGstController = 0.00,
+          netAmountController = 0.00,
+          roundOFController = 0.00;
+      totalGstController = TempproductList[2];
+      netAmountController = TempproductList[4];
+      roundOFController = TempproductList[5];
+
+      List<double> finalcalculation = [
+        /*0*/ Tot_BasicAmount,
+        /*1*/ Tot_otherChargeWithTax,
+        /*2*/ Tot_otherChargeExcludeTax,
+        /*3*/ Tot_CGSTAmt,
+        /*4*/ Tot_SGSTAmt,
+        /*5*/ Tot_IGSTAmt,
+        /*6*/ otherChargeGstBasicAmnt1,
+        /*7*/ otherChargeGstBasicAmnt2,
+        /*8*/ otherChargeGstBasicAmnt3,
+        /*9*/ otherChargeGstBasicAmnt4,
+        /*10*/ otherChargeGstBasicAmnt5,
+        /*11*/ otherChargeGstAmnt1,
+        /*12*/ otherChargeGstAmnt2,
+        /*13*/ otherChargeGstAmnt3,
+        /*14*/ otherChargeGstAmnt4,
+        /*15*/ otherChargeGstAmnt5,
+        /*16*/ totalGstController,
+        /*17*/ netAmountController,
+        /*18*/ roundOFController
+      ];
+
+      return finalcalculation;
+
+      /* _basicAmountController.text = Tot_BasicAmount.toStringAsFixed(2);
+      _otherChargeWithTaxController.text =
+          Tot_otherChargeWithTax.toStringAsFixed(2);
+      //TempproductList[0].toStringAsFixed(2);
+      _otherChargeExcludeTaxController.text =
+          Tot_otherChargeExcludeTax.toStringAsFixed(2);
+      // TempproductList[3].toStringAsFixed(2);
+
+      _totalCGSST_AMOUNT_Controller.text = Tot_CGSTAmt.toStringAsFixed(2);
+      _totalSGSST_AMOUNT_Controller.text = Tot_SGSTAmt.toStringAsFixed(2);
+      _totalIGSST_AMOUNT_Controller.text = Tot_IGSTAmt.toStringAsFixed(2);
+
+      otherChargeGstBasicAmnt1Controller.text =
+          otherChargeGstBasicAmnt1.toStringAsFixed(2);
+      otherChargeGstBasicAmnt2Controller.text =
+          otherChargeGstBasicAmnt2.toStringAsFixed(2);
+      otherChargeGstBasicAmnt3Controller.text =
+          otherChargeGstBasicAmnt3.toStringAsFixed(2);
+      otherChargeGstBasicAmnt4Controller.text =
+          otherChargeGstBasicAmnt4.toStringAsFixed(2);
+      otherChargeGstBasicAmnt5Controller.text =
+          otherChargeGstBasicAmnt5.toStringAsFixed(2);
+
+      otherChargeGstAmnt1Controller.text =
+          otherChargeGstAmnt1.toStringAsFixed(2);
+      otherChargeGstAmnt2Controller.text =
+          otherChargeGstAmnt2.toStringAsFixed(2);
+      otherChargeGstAmnt3Controller.text =
+          otherChargeGstAmnt3.toStringAsFixed(2);
+      otherChargeGstAmnt4Controller.text =
+          otherChargeGstAmnt4.toStringAsFixed(2);
+      otherChargeGstAmnt5Controller.text =
+          otherChargeGstAmnt5.toStringAsFixed(2);
+
+      _totalGstController.text = totalGstController.toStringAsFixed(2);
+      _netAmountController.text = netAmountController.toStringAsFixed(2);
+      _roundOFController.text = roundOFController.toStringAsFixed(2);*/
+    }
+  }
+
+  void _OnGenricOtherChargeResponse(
+      GenericOtherCharge1ListResponseState state) {
+    arrGenericOtheCharge.clear();
+
+    for (int i = 0;
+        i < state.quotationOtherChargesListResponse.details.length;
+        i++) {
+      arrGenericOtheCharge
+          .add(state.quotationOtherChargesListResponse.details[i]);
+    }
+    //.add(state.quotationOtherChargesListResponse.details[i]);
+  }
+
+  void AddAddtionalCharge() async {
+    await OfflineDbHelper.getInstance()
+        .insertGenericAddditionalCharges(GenericAddditionalCharges(
+      edt_HeaderDisc.text,
+      _editModel.chargeID1.toString(),
+      _editModel.chargeAmt1.toString(),
+      _editModel.chargeID2.toString(),
+      _editModel.chargeAmt2.toString(),
+      _editModel.chargeID3.toString(),
+      _editModel.chargeAmt3.toString(),
+      _editModel.chargeID4.toString(),
+      _editModel.chargeAmt4.toString(),
+      _editModel.chargeID5.toString(),
+      _editModel.chargeAmt5.toString(),
+      _editModel.chargeName1,
+      _editModel.chargeName2,
+      _editModel.chargeName3,
+      _editModel.chargeName4,
+      _editModel.chargeName5,
+    ));
+  }
+
+  void _OnGenericIsertCallSucess(AddGenericAddditionalChargesState state) {
+    print("_OnGenericIsertCallSucess" + state.response);
+  }
+
+  void _onDeleteAllGenericAddtionalAmount(
+      DeleteAllGenericAddditionalChargesState state) {
+    print("DeleteAllGenericAddditionalChargesState" + state.response);
+  }
+
+  void _onGetQuotationSpecificationFromQuotationAPI(
+      SpecificationListResponseState state) {
+    if (state.response.details.length != 0) {
+      for (int i = 0; i < state.response.details.length; i++) {
+        /*QuotationSpecificationTable quotationSpecificationTable =
+            QuotationSpecificationTable(
+          state.response.details[i].itemOrder.toString(),
+          state.response.details[i].groupHead.toString(),
+          state.response.details[i].materialHead.toString(),
+          state.response.details[i].materialSpec.toString(),
+          "",
+          state.response.details[i].quotationNo.toString(),
+          state.response.details[i].finishProductID.toString(),
+        );
+*/
+        print("ssfsfd342ed" +
+            state.response.details[i].finishProductID.toString());
+        /* _inquiryBloc.add(InsertQuotationSpecificationTableEvent(
+            quotationSpecificationTable));*/
+      }
+    }
+  }
+
+  void _onInsertQuotationSpecificationresponse(
+      InsertQuotationSpecificationTableState state) {
+    print("MSGG" + " Response Specification : " + state.response);
+  }
+
+  void _onDeleteAllSpecificationResponse(
+      DeleteALLQuotationSpecificationTableState state) {
+    print("DeleteSpecificationALL" + " DeleteMsdg : " + state.response);
+  }
+
+  basicInformation() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Basic Information",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      BASIC_INFORMATION,
+                      width: 27,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          color: Colors.white70,
+                          borderRadius: BorderRadius.only(
+                              bottomRight: Radius.circular(15),
+                              bottomLeft: Radius.circular(15))),
+                      child: Column(
+                        children: [
+                          KindAttList("Kind Attn.",
+                              enable1: false,
+                              title: "Kind Attn.",
+                              hintTextvalue: "Tap to Select Kind Attn.",
+                              icon: Icon(Icons.arrow_drop_down),
+                              controllerForLeft: edt_KindAtt,
+                              controllerpkID: edt_KindAttID,
+                              Custom_values1: arr_ALL_Name_ID_For_KindAttList),
+                          ProjectList("Project",
+                              enable1: false,
+                              title: "Project",
+                              hintTextvalue: "Tap to Select Project",
+                              icon: Icon(Icons.arrow_drop_down),
+                              controllerForLeft: edt_ProjectName,
+                              controllerpkID: edt_ProjectID,
+                              Custom_values1: arr_ALL_Name_ID_For_ProjectList),
+                          createTextLabel("Select Currency", 10.0, 0.0),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          CustomDropDown1("Currency",
+                              enable1: false,
+                              title: "Select Currency",
+                              hintTextvalue: "Tap to Select Currency",
+                              icon: Icon(Icons.arrow_drop_down),
+                              controllerForLeft: _controller_currency,
+                              Custom_values1:
+                                  arr_ALL_Name_ID_For_Sales_Order_Select_Currency),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child:
+                                    createTextLabel("Exchange Rate", 10.0, 0.0),
+                              ),
+                              Flexible(
+                                child:
+                                    createTextLabel("Credit Days", 10.0, 0.0),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                  child: createTextFormField(
+                                      _controller_exchange_rate,
+                                      "Exchange Rate")),
+                              Flexible(
+                                  child: createTextFormField(
+                                      _controller_credit_days, "Credit Days"))
+                            ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child:
+                                    createTextLabel("Reference No.", 10.0, 0.0),
+                              ),
+                              Flexible(
+                                child: createTextLabel(
+                                    "Reference Date", 10.0, 0.0),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: createTextFormField(
+                                    _controller_reference_no, "Reference No."),
+                              ),
+                              Flexible(child: _buildReferenceDate())
+                            ],
+                          ),
+                        ],
+                      )),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  termsAndCondition() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Terms & Condition",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
+                ),
+
+                leading: Container(
+                  child: ClipRRect(
+                    child: Image.asset(
+                      CREDIT_INFORMATION,
+                      width: 27,
+                    ),
+                  ),
+                ),
+
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        TermsConditionList("Select Term & Condition",
+                            enable1: false,
+                            title: "Select Term & Condition",
+                            hintTextvalue: "Tap to Select Term & Condition",
+                            icon: Icon(Icons.arrow_drop_down),
+                            controllerForLeft: edt_TermConditionHeader,
+                            controllerpkID: edt_TermConditionHeaderID,
+                            Custom_values1:
+                                arr_ALL_Name_ID_For_TermConditionList),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        createTextFormField(
+                            edt_TermConditionFooter, "Terms & Condition",
+                            minLines: 2,
+                            maxLines: 10,
+                            height: 150,
+                            keyboardInput: TextInputType.text),
+                        SizedBox(
+                          height: 3,
+                        ),
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  Widget CustomDropDown1(String Category,
+      {bool enable1,
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      List<ALL_Name_ID> Custom_values1}) {
+    return Container(
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              _inquiryBloc.add(SOCurrencyListRequestEvent(SOCurrencyListRequest(
+                  LoginUserID: LoginUserID,
+                  CurrencyName: "",
+                  CompanyID: CompanyID.toString())));
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /*SizedBox(
+                  height: 5,
+                ),*/
+                Card(
+                  elevation: 3,
+                  color: colorLightGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: controllerForLeft,
+                            enabled: false,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.only(bottom: 7),
+                              hintText: hintTextvalue,
+                              hintStyle:
+                                  TextStyle(fontSize: 13, color: colorGrayDark),
+                              labelStyle: TextStyle(
+                                color: Color(0xFF000000),
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF000000),
+                            )
+                            // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                            ,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _ONCurrencyResponse(SOCurrencyListResponseState state) {
+    arr_ALL_Name_ID_For_Sales_Order_Select_Currency.clear();
+    if (state.response.details.length != 0) {
+      for (int i = 0; i < state.response.details.length; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].currencyName;
+        all_name_id.Name1 = state.response.details[i].currencySymbol;
+        arr_ALL_Name_ID_For_Sales_Order_Select_Currency.add(all_name_id);
+      }
+
+      showcustomdialog(
+          values: arr_ALL_Name_ID_For_Sales_Order_Select_Currency,
+          context1: context,
+          controller: _controller_currency,
+          controller2: _controller_currency_Symbol,
+          lable: "Select Currency");
+    }
+  }
+
+  Widget _buildReferenceDate() {
+    return InkWell(
+      onTap: () {
+        _selectRefrenceFollowupDate(context, _controller_reference_date);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /*  SizedBox(
+            height: 5,
+          ),*/
+          Card(
+            elevation: 3,
+            color: colorLightGray,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              height: 40,
+              padding: EdgeInsets.only(left: 20, right: 20),
+              width: double.maxFinite,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _controller_reference_date.text == null ||
+                              _controller_reference_date.text == ""
+                          ? "DD-MM-YYYY"
+                          : _controller_reference_date.text,
+                      style: baseTheme.textTheme.headline3.copyWith(
+                          color: _controller_reference_date.text == null ||
+                                  _controller_reference_date.text == ""
+                              ? colorGrayDark
+                              : colorBlack,
+                          fontSize: dateFontSize),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 17,
+                    color: colorGrayDark,
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNextFollowupDate() {
+    return InkWell(
+      onTap: () {
+        _selectNextFollowupDate(context, edt_NextFollowupDate);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /*  SizedBox(
+            height: 5,
+          ),*/
+          Card(
+            elevation: 3,
+            color: colorLightGray,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: Container(
+              height: 40,
+              padding: EdgeInsets.only(left: 20, right: 20),
+              width: double.maxFinite,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      edt_NextFollowupDate.text == null ||
+                              edt_NextFollowupDate.text == ""
+                          ? "DD-MM-YYYY"
+                          : edt_NextFollowupDate.text,
+                      style: baseTheme.textTheme.headline3.copyWith(
+                          color: edt_NextFollowupDate.text == null ||
+                                  edt_NextFollowupDate.text == ""
+                              ? colorGrayDark
+                              : colorBlack,
+                          fontSize: dateFontSize),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    size: 17,
+                    color: colorGrayDark,
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _selectRefrenceDate(
+      BuildContext context,
+      TextEditingController F_datecontroller,
+      TextEditingController Rev_dateController) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDateRefrence,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null)
+      setState(() {
+        selectedDateRefrence = picked;
+        F_datecontroller.text = selectedDateRefrence.day.toString() +
+            "-" +
+            selectedDateRefrence.month.toString() +
+            "-" +
+            selectedDateRefrence.year.toString();
+        Rev_dateController.text = selectedDateRefrence.year.toString() +
+            "-" +
+            selectedDateRefrence.month.toString() +
+            "-" +
+            selectedDateRefrence.day.toString();
+      });
+  }
+
+  void _onFollowupListTypeCallSuccess(FollowupTypeListCallResponseState state) {
+    if (state.followupTypeListResponse.details.length != 0) {
+      arr_ALL_Name_ID_For_FolowupType.clear();
+      for (var i = 0; i < state.followupTypeListResponse.details.length; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name =
+            state.followupTypeListResponse.details[i].inquiryStatus;
+        all_name_id.pkID = state.followupTypeListResponse.details[i].pkID;
+        arr_ALL_Name_ID_For_FolowupType.add(all_name_id);
+      }
+
+      showcustomdialogWithID(
+          values: arr_ALL_Name_ID_For_FolowupType,
+          context1: context,
+          controller: edt_FollowupType,
+          controllerID: edt_FollowupTypepkID,
+          lable: "Select Followup Type");
+    }
+  }
+
+  void _onDeleteAllQTAssemblyResponse(QTAssemblyTableDeleteALLState state) {
+    print("deleteAllAssembly" + state.response);
+  }
+
+  void _onAfterProductSaveSuccess(
+      GetQuotationSpecificationQTnoTableState state) {
+    List<QTSpecSaveRequest> arrQTSpecSaveRequest = [];
+    if (state.response.length != 0) {
+      for (int i = 0; i < state.response.length; i++) {
+        QTSpecSaveRequest qtSpecSaveRequest = QTSpecSaveRequest();
+        qtSpecSaveRequest.pkID = "0";
+        qtSpecSaveRequest.QuotationNo = state.QtNo;
+        qtSpecSaveRequest.FinishProductID = state.response[i].ProductID;
+        qtSpecSaveRequest.GroupHead = state.response[i].Group_Description;
+        qtSpecSaveRequest.MaterialHead = state.response[i].Head;
+        qtSpecSaveRequest.MaterialSpec = state.response[i].Specification;
+        qtSpecSaveRequest.MaterialRemarks = state.response[i].Material_Remarks;
+        qtSpecSaveRequest.ItemOrder = state.response[i].OrderNo;
+        qtSpecSaveRequest.LoginUserID = LoginUserID;
+        qtSpecSaveRequest.CompanyId = CompanyID.toString();
+        arrQTSpecSaveRequest.add(qtSpecSaveRequest);
+      }
+
+      _inquiryBloc.add(
+          QuotationProductSpecificationSaveCallEvent(arrQTSpecSaveRequest));
+    }
+  }
+
+  void _onQTSpecificationSaveResponse(QTSpecSaveResponseState state) {
+    String Msg = _isForUpdate == true
+        ? "Quotation Updated Successfully"
+        : "Quotation Added Successfully";
+
+    showCommonDialogWithSingleOption(context, Msg, positiveButtonTitle: "OK",
+        onTapOfPositiveButton: () {
+      navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
+    });
   }
 }

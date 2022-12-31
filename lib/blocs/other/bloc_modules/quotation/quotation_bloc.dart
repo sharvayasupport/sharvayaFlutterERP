@@ -5,9 +5,11 @@ import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_reques
 import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
 import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/qt_spec_save_api_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
@@ -22,13 +24,16 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_terms_conditio
 import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_drop_down_response.dart';
 import 'package:soleoserp/models/api_responses/customer/cust_id_to_inq_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inq_no_to_product_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
 import 'package:soleoserp/models/api_responses/other/specification_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/qt_spec_save_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_delete_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_header_save_response.dart';
@@ -43,6 +48,11 @@ import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_
 import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/save_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
+import 'package:soleoserp/models/common/assembly/qt_assembly_table.dart';
+import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
 import 'package:soleoserp/models/common/quotationtable.dart';
 import 'package:soleoserp/models/common/specification/quotation/quotation_specification.dart';
@@ -119,6 +129,9 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     if (event is QuotationProductSaveCallEvent) {
       yield* _mapQuotationProductSaveEventToState(event);
     }
+    if (event is QuotationProductSpecificationSaveCallEvent) {
+      yield* _mapQuotationProductSpecificationSaveCallEventToState(event);
+    }
 
     if (event is QuotationDeleteProductCallEvent) {
       yield* _mapqtNoToDeleteProductEventToState(event);
@@ -186,8 +199,15 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     if (event is GetQuotationSpecificationTableEvent) {
       yield* _mapGetQuotationSpecificationTableEventState(event);
     }
+
+    if (event is GetQuotationSpecificationwithQTNOTableEvent) {
+      yield* _mapGetQuotationSpecificationwithQTNOTableEventState(event);
+    }
     if (event is GetQuotationProductListEvent) {
       yield* _mapGetQuotationProductListEventState(event);
+    }
+    if (event is QuotationOneProductDeleteEvent) {
+      yield* _mapQuotationOneProductDeleteEventState(event);
     }
 
     //GetQuotationProductListEvent
@@ -195,10 +215,66 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       yield* _mapDeleteQuotationSpecificationTableEventState(event);
     }
 
+    if (event is DeleteQuotationSpecificationByFinishProductIDEvent) {
+      yield* _mapDeleteQuotationSpecificationByFinishProductIDEventState(event);
+    }
+
     if (event is DeleteAllQuotationSpecificationTableEvent) {
       yield* _mapDeleteAllQuotationSpecificationTableEventState(event);
     }
-    //
+
+    if (event is InsertProductEvent) {
+      yield* _map_InsertProductEventState(event);
+    }
+
+    if (event is DeleteAllQuotationProductEvent) {
+      yield* _mapDeleteAllQuotationProductEventState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
+    }
+    if (event is GenericOtherChargeCallEvent) {
+      yield* _mapGenericOtherChargeCallEventToState(event);
+    }
+
+    if (event is GetGenericAddditionalChargesEvent) {
+      yield* _mapGetGenericAddditionalChargesEventToState(event);
+    }
+
+    if (event is AddGenericAddditionalChargesEvent) {
+      yield* mapAddGeneric(event);
+    }
+
+    if (event is DeleteGenericAddditionalChargesEvent) {
+      yield* _mapDeleteGenericAddditionalChargesEventToState(event);
+    }
+
+    if (event is SOCurrencyListRequestEvent) {
+      yield* _mapSOCurrencyListRequestEventToState(event);
+    }
+    if (event is FollowupTypeListByNameCallEvent) {
+      yield* _mapFollowupTypeListCallEventToState(event);
+    }
+    if (event is QTAssemblyTableListEvent) {
+      yield* _mapQTAssemblyTableListEventState(event);
+    }
+    if (event is QTAssemblyTableInsertEvent) {
+      yield* mapQTAssemblyTableInsertEventState(event);
+    }
+    if (event is QTAssemblyTableUpdateEvent) {
+      yield* mapQTAssemblyTableUpdateEventState(event);
+    }
+    if (event is QTAssemblyTableOneItemDeleteEvent) {
+      yield* _mapQTAssemblyTableOneItemDeleteEventToState(event);
+    }
+    if (event is QTAssemblyTableALLDeleteEvent) {
+      yield* _mapQTAssemblyTableALLDeleteEventToState(event);
+    }
+    if (event is InquiryProductSearchNameCallEvent) {
+      yield* _mapGeneralProductSearchCallEventToState(event);
+    }
+    //InquiryProductSearchNameCallEvent
   }
 
   ///event functions to states implementation
@@ -297,8 +373,21 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       QuotationSpecificationCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      SpecificationListResponse response =
-          await userRepository.getProductSpecificationList(event.request);
+      SpecificationListResponse response = await userRepository
+          .getProductSpecificationList(event.ModuleName, event.request);
+
+      for (int i = 0; i < response.details.length; i++) {
+        await OfflineDbHelper.getInstance().insertQuotationSpecificationTable(
+            QuotationSpecificationTable(
+                response.details[i].itemOrder.toString(),
+                response.details[i].groupHead,
+                response.details[i].materialHead,
+                response.details[i].materialSpec.replaceAll("  ", ""),
+                response.details[i].MaterialRemarks,
+                response.details[i].OrderNo,
+                response.details[i].finishProductID.toString()));
+      }
+
       yield SpecificationListResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -430,7 +519,8 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       QuotationProductSaveResponse respo =
           await userRepository.quotationProductSaveDetails(
               event.QT_No, event.quotationProductModel);
-      yield QuotationProductSaveResponseState(event.context, respo);
+      yield QuotationProductSaveResponseState(
+          event.context, respo, event.quotationProductModel, event.QT_No);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -438,6 +528,23 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+  Stream<QuotationStates> _mapQuotationProductSpecificationSaveCallEventToState(
+      QuotationProductSpecificationSaveCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      QTSpecSaveResponse respo = await userRepository
+          .quotationProductSpecificationSaveDetails(event.qTSpecSaveRequest);
+      yield QTSpecSaveResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+  //QuotationProductSpecificationSaveCallEvent
 
   Stream<QuotationStates> _mapqtNoToDeleteProductEventToState(
       QuotationDeleteProductCallEvent event) async* {
@@ -668,6 +775,23 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     }
   }
 
+  Stream<QuotationStates> _mapGenericOtherChargeCallEventToState(
+      GenericOtherChargeCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOtherChargesListResponse quotationOtherChargesListResponse =
+          await userRepository.getQuotationOtherChargeList(
+              event.CompanyID, event.request);
+      yield GenericOtherCharge1ListResponseState(
+          quotationOtherChargesListResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
   Stream<QuotationStates> _mapQuotationOtherCharge2ListEventToState(
       QuotationOtherCharge2CallEvent event) async* {
     try {
@@ -741,16 +865,18 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      await OfflineDbHelper.getInstance()
-          .insertQuotationSpecificationTable(QuotationSpecificationTable(
-        event.quotationSpecificationTable.OrderNo,
-        event.quotationSpecificationTable.Group_Description,
-        event.quotationSpecificationTable.Head,
-        event.quotationSpecificationTable.Specification,
-        event.quotationSpecificationTable.Material_Remarks,
-      ));
+      await OfflineDbHelper.getInstance().insertQuotationSpecificationTable(
+          QuotationSpecificationTable(
+              event.quotationSpecificationTable.OrderNo,
+              event.quotationSpecificationTable.Group_Description,
+              event.quotationSpecificationTable.Head,
+              event.quotationSpecificationTable.Specification,
+              event.quotationSpecificationTable.Material_Remarks,
+              event.quotationSpecificationTable.QuotationNo,
+              event.quotationSpecificationTable.ProductID));
 
-      yield InsertQuotationSpecificationTableState("Inserted Successfully");
+      yield InsertQuotationSpecificationTableState(
+          "Specification Inserted Successfully");
       //yield QT_OtherChargeDeleteResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -767,16 +893,19 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      await OfflineDbHelper.getInstance()
-          .insertQuotationSpecificationTable(QuotationSpecificationTable(
-        event.quotationSpecificationTable.OrderNo,
-        event.quotationSpecificationTable.Group_Description,
-        event.quotationSpecificationTable.Head,
-        event.quotationSpecificationTable.Specification,
-        event.quotationSpecificationTable.Material_Remarks,
-      ));
+      await OfflineDbHelper.getInstance().updateQuotationSpecificationTable(
+          QuotationSpecificationTable(
+              event.quotationSpecificationTable.OrderNo,
+              event.quotationSpecificationTable.Group_Description,
+              event.quotationSpecificationTable.Head,
+              event.quotationSpecificationTable.Specification,
+              event.quotationSpecificationTable.Material_Remarks,
+              event.quotationSpecificationTable.QuotationNo,
+              event.quotationSpecificationTable.ProductID,
+              id: event.quotationSpecificationTable.id));
 
-      yield UpdateQuotationSpecificationTableState("Updated Successfully");
+      yield UpdateQuotationSpecificationTableState(
+          event.context, "Updated Successfully");
       //yield QT_OtherChargeDeleteResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -806,6 +935,24 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     }
   }
 
+  Stream<QuotationStates> _mapGetQuotationSpecificationwithQTNOTableEventState(
+      GetQuotationSpecificationwithQTNOTableEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      List<QuotationSpecificationTable> response =
+          await OfflineDbHelper.getInstance()
+              .getQuotationSpecificationTableList();
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield GetQuotationSpecificationQTnoTableState(response, event.QTNo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
   Stream<QuotationStates> _mapGetQuotationProductListEventState(
       GetQuotationProductListEvent event) async* {
     try {
@@ -815,6 +962,22 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
           await OfflineDbHelper.getInstance().getQuotationProduct();
       // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
       yield GetQuotationProductListState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOneProductDeleteEventState(
+      QuotationOneProductDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().deleteQuotationProduct(event.tableid);
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield QuotationOneProductDeleteState("Product Deleted SucessFully");
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -841,6 +1004,26 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     }
   }
 
+  Stream<QuotationStates>
+      _mapDeleteQuotationSpecificationByFinishProductIDEventState(
+          DeleteQuotationSpecificationByFinishProductIDEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance()
+          .deleteQuotationSpecificationByFinishProductID(event.id);
+
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield DeleteQuotationSpecificationByFinishProductIDState(
+          "Deleted Successfully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
   Stream<QuotationStates> _mapDeleteAllQuotationSpecificationTableEventState(
       DeleteAllQuotationSpecificationTableEvent event) async* {
     try {
@@ -852,6 +1035,298 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
       yield DeleteALLQuotationSpecificationTableState(
           "Deleted All Item in Table Successfully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _map_InsertProductEventState(
+      InsertProductEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      for (int i = 0; i < event.quotationTable.length; i++) {
+        //event.quotationTable[i]
+        await OfflineDbHelper.getInstance().insertQuotationProduct(
+            QuotationTable(
+                event.quotationTable[i].QuotationNo,
+                event.quotationTable[i].ProductSpecification,
+                event.quotationTable[i].ProductID,
+                event.quotationTable[i].ProductName,
+                event.quotationTable[i].Unit,
+                event.quotationTable[i].Quantity,
+                event.quotationTable[i].UnitRate,
+                event.quotationTable[i].DiscountPercent,
+                event.quotationTable[i].DiscountAmt,
+                event.quotationTable[i].NetRate,
+                event.quotationTable[i].Amount,
+                event.quotationTable[i].TaxRate,
+                event.quotationTable[i].TaxAmount,
+                event.quotationTable[i].NetAmount,
+                event.quotationTable[i].TaxType,
+                event.quotationTable[i].CGSTPer,
+                event.quotationTable[i].SGSTPer,
+                event.quotationTable[i].IGSTPer,
+                event.quotationTable[i].CGSTAmt,
+                event.quotationTable[i].SGSTAmt,
+                event.quotationTable[i].IGSTAmt,
+                event.quotationTable[i].StateCode,
+                event.quotationTable[i].pkID,
+                event.quotationTable[i].LoginUserID,
+                event.quotationTable[i].CompanyId,
+                event.quotationTable[i].BundleId,
+                event.quotationTable[i].HeaderDiscAmt));
+      }
+
+      yield InsertProductSucessResponseState("Inserted Successfully");
+      //yield QT_OtherChargeDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapDeleteAllQuotationProductEventState(
+      DeleteAllQuotationProductEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().deleteALLQuotationProduct();
+
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield DeleteALLQuotationProductTableState(
+          "Deleted All Item in Table Successfully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapGetGenericAddditionalChargesEventToState(
+      GetGenericAddditionalChargesEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      List<GenericAddditionalCharges> quotationOtherChargesListResponse =
+          await OfflineDbHelper.getInstance().getGenericAddditionalCharges();
+
+      GenericAddditionalCharges genericAddditionalCharges;
+      for (int i = 0; i < quotationOtherChargesListResponse.length; i++) {
+        genericAddditionalCharges = quotationOtherChargesListResponse[i];
+      }
+      yield GetGenericAddditionalChargesState(genericAddditionalCharges);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> mapAddGeneric(
+      AddGenericAddditionalChargesEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance()
+          .insertGenericAddditionalCharges(GenericAddditionalCharges(
+        event.genericAddditionalCharges.DiscountAmt,
+        event.genericAddditionalCharges.ChargeID1,
+        event.genericAddditionalCharges.ChargeAmt1,
+        event.genericAddditionalCharges.ChargeID2,
+        event.genericAddditionalCharges.ChargeAmt2,
+        event.genericAddditionalCharges.ChargeID3,
+        event.genericAddditionalCharges.ChargeAmt3,
+        event.genericAddditionalCharges.ChargeID4,
+        event.genericAddditionalCharges.ChargeAmt4,
+        event.genericAddditionalCharges.ChargeID5,
+        event.genericAddditionalCharges.ChargeAmt5,
+        event.genericAddditionalCharges.ChargeName1,
+        event.genericAddditionalCharges.ChargeName2,
+        event.genericAddditionalCharges.ChargeName3,
+        event.genericAddditionalCharges.ChargeName4,
+        event.genericAddditionalCharges.ChargeName5,
+      ));
+
+      yield AddGenericAddditionalChargesState("Added SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapDeleteGenericAddditionalChargesEventToState(
+      DeleteGenericAddditionalChargesEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteALLGenericAddditionalCharges();
+      yield DeleteAllGenericAddditionalChargesState("Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapSOCurrencyListRequestEventToState(
+      SOCurrencyListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SOCurrencyListResponse inquiryDeleteResponse =
+          await userRepository.SOCurrencyListAPI(event.request);
+      yield SOCurrencyListResponseState(inquiryDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapFollowupTypeListCallEventToState(
+      FollowupTypeListByNameCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FollowupTypeListResponse response = await userRepository
+          .getFollowupTypeList(event.followupTypeListRequest);
+      yield FollowupTypeListCallResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQTAssemblyTableListEventState(
+      QTAssemblyTableListEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      List<QTAssemblyTable> response = await OfflineDbHelper.getInstance()
+          .getQtAssemblyItems(event.finishProductID);
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield QTAssemblyTableListState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> mapQTAssemblyTableInsertEventState(
+      QTAssemblyTableInsertEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().insertQtAssemblyItems(QTAssemblyTable(
+        event.qtAssemblyTable.FinishProductID,
+        event.qtAssemblyTable.ProductID,
+        event.qtAssemblyTable.ProductName,
+        event.qtAssemblyTable.Quantity,
+        event.qtAssemblyTable.Unit,
+        event.qtAssemblyTable.QuotationNo,
+      ));
+
+      yield QTAssemblyTableInsertState(
+          event.context, "Assembly Added SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> mapQTAssemblyTableUpdateEventState(
+      QTAssemblyTableUpdateEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().updateQtAssemblyItems(QTAssemblyTable(
+          event.qtAssemblyTable.FinishProductID,
+          event.qtAssemblyTable.ProductID,
+          event.qtAssemblyTable.ProductName,
+          event.qtAssemblyTable.Quantity,
+          event.qtAssemblyTable.Unit,
+          event.qtAssemblyTable.QuotationNo,
+          id: event.qtAssemblyTable.id));
+
+      yield QTAssemblyTableUpdateState(
+          event.context, "Assembly Updated SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQTAssemblyTableOneItemDeleteEventToState(
+      QTAssemblyTableOneItemDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteQtAssemblyItem(event.tableid);
+      yield QTAssemblyTableOneItemDeleteState(
+          "Assembly Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQTAssemblyTableALLDeleteEventToState(
+      QTAssemblyTableALLDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteAllQtAssemblyItems();
+      yield QTAssemblyTableDeleteALLState(
+          "Assembly All Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapGeneralProductSearchCallEventToState(
+      InquiryProductSearchNameCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      InquiryProductSearchResponse response = await userRepository
+          .getInquiryProductSearchList(event.inquiryProductSearchRequest);
+      yield InquiryProductSearchResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

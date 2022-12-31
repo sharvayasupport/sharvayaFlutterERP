@@ -1,4 +1,4 @@
-class QuotationTable{
+class QuotationTable {
   int id;
   String QuotationNo;
   String ProductSpecification;
@@ -28,8 +28,6 @@ class QuotationTable{
   int BundleId;
   double HeaderDiscAmt;
 
-
-
   QuotationTable(
       this.QuotationNo,
       this.ProductSpecification,
@@ -46,24 +44,24 @@ class QuotationTable{
       this.TaxAmount,
       this.NetAmount,
       this.TaxType,
-  this.CGSTPer,
-  this.SGSTPer,
-  this.IGSTPer,
-  this.CGSTAmt,
-  this.SGSTAmt,
-  this.IGSTAmt,
-  this.StateCode,
+      this.CGSTPer,
+      this.SGSTPer,
+      this.IGSTPer,
+      this.CGSTAmt,
+      this.SGSTAmt,
+      this.IGSTAmt,
+      this.StateCode,
       this.pkID,
       this.LoginUserID,
       this.CompanyId,
       this.BundleId,
       this.HeaderDiscAmt,
-      {this.id });
+      {this.id});
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['QuotationNo'] = this.QuotationNo;
-    data['pkID']=this.pkID;
+    data['pkID'] = this.pkID;
     data['ProductID'] = this.ProductID;
     data['Quantity'] = this.Quantity;
     data['Unit'] = this.Unit;
@@ -73,9 +71,9 @@ class QuotationTable{
     data['Amount'] = this.Amount;
     data['TaxAmount'] = this.TaxAmount;
     data['NetAmount'] = this.NetAmount;
-    data['LoginUserID']=this.LoginUserID;
+    data['LoginUserID'] = this.LoginUserID;
     data['TaxRate'] = this.TaxRate;
-    data['BundleId']=this.BundleId;
+    data['BundleId'] = this.BundleId;
     data['DiscountAmt'] = this.DiscountAmt;
     data['SGSTPer'] = this.SGSTPer;
     data['SGSTAmt'] = this.SGSTAmt;
@@ -84,13 +82,11 @@ class QuotationTable{
     data['IGSTPer'] = this.IGSTPer;
     data['IGSTAmt'] = this.IGSTAmt;
     data['TaxType'] = this.TaxType;
-    data['HeaderDiscAmt']=this.HeaderDiscAmt;
-    data['CompanyId']=this.CompanyId;
+    data['HeaderDiscAmt'] = this.HeaderDiscAmt;
+    data['CompanyId'] = this.CompanyId;
     data['ProductSpecification'] = this.ProductSpecification;
     data['ProductName'] = this.ProductName;
     data['StateCode'] = this.StateCode;
-
-
 
     return data;
   }
@@ -100,7 +96,7 @@ class QuotationTable{
     return 'QuotationTable{id: $id, QuotationNo: $QuotationNo, ProductSpecification: $ProductSpecification, ProductID: $ProductID, ProductName: $ProductName, Unit: $Unit, Quantity: $Quantity, UnitRate: $UnitRate, DiscountPercent: $DiscountPercent, DiscountAmt: $DiscountAmt, NetRate: $NetRate, Amount: $Amount, TaxRate: $TaxRate, TaxAmount: $TaxAmount, NetAmount: $NetAmount, CGSTPer: $CGSTPer, SGSTPer: $SGSTPer, IGSTPer: $IGSTPer, CGSTAmt: $CGSTAmt, SGSTAmt: $SGSTAmt, IGSTAmt: $IGSTAmt, StateCode: $StateCode, TaxType: $TaxType, pkID: $pkID, LoginUserID: $LoginUserID, CompanyId: $CompanyId,BundleId:$BundleId , HeaderDiscAmt:$HeaderDiscAmt}';
   }
 
- /* @override
+  /* @override
   String toString() {
     return 'QuotationTable{id: $id, QuotationNo:$QuotationNo, Specification : $Specification , ProductID: $ProductID, ProductName: $ProductName, Unit: $Unit, Quantity: $Quantity, UnitRate: $UnitRate, Disc: $Disc, NetRate: $NetRate, Amount: $Amount, TaxPer: $TaxPer, TaxAmount: $TaxAmount, NetAmount: $NetAmount, IsTaxType: $IsTaxType}';
   }

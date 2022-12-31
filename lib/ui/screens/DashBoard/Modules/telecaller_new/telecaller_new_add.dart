@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart' as geolocator; // or whatever name you want
-import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,12 +33,9 @@ import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/General_Constants.dart';
-import 'package:soleoserp/utils/app_constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
-
-
 
 class AddUpdateTeleCallerScreenArguments {
   TelecallerNewpaginationDetails editModel;
@@ -67,9 +60,9 @@ class _TeleCallerAddEditNewScreenState
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController edt_ExpenseDateController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController edt_ReverseExpenseDateController =
-  TextEditingController();
+      TextEditingController();
 
   final TextEditingController edt_ExpenseNotes = TextEditingController();
 
@@ -99,11 +92,11 @@ class _TeleCallerAddEditNewScreenState
   final TextEditingController edt_LeadStatus = TextEditingController();
   final TextEditingController edt_QualifiedForProduct = TextEditingController();
   final TextEditingController edt_QualifiedForProductID =
-  TextEditingController();
+      TextEditingController();
 
   final TextEditingController edt_QualifiedCountry = TextEditingController();
   final TextEditingController edt_QualifiedCountryCode =
-  TextEditingController();
+      TextEditingController();
 
   final TextEditingController edt_QualifiedState = TextEditingController();
   final TextEditingController edt_QualifiedStateCode = TextEditingController();
@@ -114,7 +107,7 @@ class _TeleCallerAddEditNewScreenState
   final TextEditingController edt_QualifiedPinCode = TextEditingController();
 
   final TextEditingController edt_QualifiedEmplyeeName =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController edt_QualifiedEmplyeeID = TextEditingController();
   final TextEditingController edt_DisQualifiedName = TextEditingController();
   final TextEditingController edt_DisQualifiedID = TextEditingController();
@@ -185,26 +178,19 @@ class _TeleCallerAddEditNewScreenState
   bool isViewSaveButton = false;
   bool isAllEditable = false;
 
-
-  String Address;
-  String Latitude;
-  String Longitude;
-
   Location location = new Location();
   bool _serviceEnabled;
   LocationData _locationData;
   bool is_LocationService_Permission;
   Position _currentPosition;
-  final Geolocator geolocator123 = Geolocator()
-    ..forceAndroidLocationManager;
-  String MapAPIKey="";
+  final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
+  String MapAPIKey = "";
 
   @override
   void initState() {
     super.initState();
     teleCallerNewBloc = TeleCallerNewBloc(baseBloc);
     AmountFocusNode = FocusNode();
-    checkPermissionStatus();
 
     FromLocationFocusNode = FocusNode();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
@@ -219,7 +205,7 @@ class _TeleCallerAddEditNewScreenState
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
 
-    MapAPIKey= _offlineCompanyData.details[0].MapApiKey;
+    MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
     //_onLeaveRequestTypeSuccessResponse(_offlineExpenseType);
     edt_ExpenseDateController.text = selectedDate.day.toString() +
         "-" +
@@ -369,8 +355,11 @@ class _TeleCallerAddEditNewScreenState
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('TeleCaller Details'),
-          gradient:
-          LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -406,7 +395,6 @@ class _TeleCallerAddEditNewScreenState
                           height: 10,
                         ),
                         PINo(),
-
                         SizedBox(
                           width: 20,
                           height: 10,
@@ -425,7 +413,7 @@ class _TeleCallerAddEditNewScreenState
                                   fontWeight: FontWeight
                                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                          ),
+                              ),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 7, right: 7, top: 10),
@@ -441,9 +429,9 @@ class _TeleCallerAddEditNewScreenState
                                 hintStyle: TextStyle(color: Colors.grey),
                                 border: OutlineInputBorder(
                                   borderSide:
-                                  new BorderSide(color: colorPrimary),
+                                      new BorderSide(color: colorPrimary),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                                      BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
                         ),
@@ -537,13 +525,11 @@ class _TeleCallerAddEditNewScreenState
                           height: 10,
                         ),
                         GestureDetector(
-                          onTap: () =>
-                              showcustomdialogWithOnlyName(
-                                  values: arr_ALL_Name_ID_For_LeadStatus,
-                                  context1: context,
-                                  controller: edt_LeadStatus,
-                                  lable: "Select Lead Status")
-                          ,
+                          onTap: () => showcustomdialogWithOnlyName(
+                              values: arr_ALL_Name_ID_For_LeadStatus,
+                              context1: context,
+                              controller: edt_LeadStatus,
+                              lable: "Select Lead Status"),
                           child: Container(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +543,7 @@ class _TeleCallerAddEditNewScreenState
                                           fontWeight: FontWeight
                                               .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                                  ),
+                                      ),
                                 ),
                                 SizedBox(
                                   height: 5,
@@ -570,7 +556,7 @@ class _TeleCallerAddEditNewScreenState
                                   child: Container(
                                     height: CardViewHeight,
                                     padding:
-                                    EdgeInsets.only(left: 20, right: 20),
+                                        EdgeInsets.only(left: 20, right: 20),
                                     width: double.maxFinite,
                                     child: Row(
                                       children: [
@@ -590,7 +576,7 @@ class _TeleCallerAddEditNewScreenState
                                                 color: Color(0xFF000000),
                                               ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                                          ),
+                                              ),
                                         ),
                                         Icon(
                                           Icons.arrow_drop_down,
@@ -615,883 +601,747 @@ class _TeleCallerAddEditNewScreenState
                         ),
                         if (isViewSaveButton == true)
                           getCommonButton(baseTheme, () async {
-                            if (is_LocationService_Permission == true) {
-                              bool serviceLocation = await Permission
-                                  .locationWhenInUse.serviceStatus.isDisabled;
+                            bool serviceLocation = await Permission
+                                .locationWhenInUse.serviceStatus.isDisabled;
 
-                              if (serviceLocation == false) {
-                                _getCurrentLocation();
+                            if (serviceLocation == false) {
+                              baseBloc.emit(ShowProgressIndicatorState(false));
 
-                                Latitude = SharedPrefHelper.instance.getLatitude();
-                                Longitude = SharedPrefHelper.instance.getLongitude();
-
-                                baseBloc.emit(
-                                    ShowProgressIndicatorState(false));
-
-                                if (edt_QualifiedForProduct.text != "") {
-                                  if (edt_Details.text != "") {
-                                    if (edt_SenderName.text != "") {
-                                      if (edt_CompanyName.text != "") {
-                                        if (edt_PrimaryContact.text != "") {
-                                          if (edt_LeadStatus.text != "") {
-                                            if (isqualified == true) {
-                                              if (edt_QualifiedEmplyeeName
-                                                  .text !=
+                              if (edt_QualifiedForProduct.text != "") {
+                                if (edt_Details.text != "") {
+                                  if (edt_SenderName.text != "") {
+                                    if (edt_CompanyName.text != "") {
+                                      if (edt_PrimaryContact.text != "") {
+                                        if (edt_LeadStatus.text != "") {
+                                          if (isqualified == true) {
+                                            if (edt_QualifiedEmplyeeName.text !=
+                                                "") {
+                                              if (edt_QualifiedForProduct
+                                                      .text !=
                                                   "") {
-                                                if (edt_QualifiedForProduct
-                                                    .text !=
+                                                if (edt_QualifiedState.text !=
                                                     "") {
-                                                  if (edt_QualifiedState.text !=
+                                                  if (edt_QualifiedCity.text !=
                                                       "") {
-                                                    if (edt_QualifiedCity
-                                                        .text !=
-                                                        "") {
-                                                      showCommonDialogWithTwoOptions(
-                                                          context,
-                                                          "Are you sure you want to Save TeleCaller Details ?",
-                                                          negativeButtonTitle: "No",
-                                                          positiveButtonTitle:
-                                                          "Yes",
-                                                          onTapOfPositiveButton:
-                                                              () {
-                                                            Navigator.of(
-                                                                context).pop();
-                                                            teleCallerNewBloc
-                                                                .add(
-                                                                NewTeleCallerSaveCallEvent(
-                                                                    savepkID,
-                                                                    NewTeleCallerSaveRequest(
-                                                                      LeadID: LeadID
-                                                                          .toString(),
-                                                                      SenderName: edt_SenderName
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_SenderName
-                                                                          .text,
-                                                                      QueryDatetime:
-                                                                      edt_ReverseExpenseDateController
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_ReverseExpenseDateController
-                                                                          .text,
-                                                                      SenderMail:
-                                                                      edt_Email
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_Email
-                                                                          .text,
-                                                                      CompanyName:
-                                                                      edt_CompanyName
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_CompanyName
-                                                                          .text,
-                                                                      CountryFlagURL:
-                                                                      "",
-                                                                      Message: edt_Details
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_Details
-                                                                          .text,
-                                                                      Address: edt_Address
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_Address
-                                                                          .text,
-                                                                      City: edt_QualifiedCity
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedCity
-                                                                          .text,
-                                                                      State: edt_QualifiedState
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedState
-                                                                          .text,
-                                                                      PrimaryMobileNo:
-                                                                      edt_PrimaryContact
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_PrimaryContact
-                                                                          .text,
-                                                                      SecondaryMobileNo:
-                                                                      edt_AlternateContact
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_AlternateContact
-                                                                          .text,
-                                                                      ForProduct: edt_QualifiedForProduct
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedForProduct
-                                                                          .text,
-                                                                      LeadSource:
-                                                                      "TeleCaller",
-                                                                      LeadStatus: edt_LeadStatus
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_LeadStatus
-                                                                          .text,
-                                                                      EmployeeID: edt_QualifiedEmplyeeID
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedEmplyeeID
-                                                                          .text,
-                                                                      ProductID: edt_QualifiedForProductID
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedForProductID
-                                                                          .text,
-                                                                      Pincode: edt_QualifiedPinCode
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedPinCode
-                                                                          .text,
-                                                                      StateCode: edt_QualifiedStateCode
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedStateCode
-                                                                          .text,
-                                                                      CityCode: edt_QualifiedCityCode
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedCityCode
-                                                                          .text,
-                                                                      CustomerID: "",
-                                                                      ExLeadClosure:
-                                                                      edt_DisQualifiedID
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_DisQualifiedID
-                                                                          .text,
-                                                                      LoginUserID:
-                                                                      LoginUserID,
-                                                                      CountryCode:
-                                                                      edt_QualifiedCountryCode
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_QualifiedCountryCode
-                                                                          .text,
-                                                                      CompanyId: CompanyID
-                                                                          .toString(),
-                                                                      Thickness: edt_thickness
-                                                                          .text ==
-                                                                          null ||
-                                                                          edt_thickness
-                                                                              .text ==
-                                                                              ""
-                                                                          ? "0"
-                                                                          : edt_thickness
-                                                                          .text,
-                                                                      Quantity: edt_totalqty
-                                                                          .text ==
-                                                                          null ||
-                                                                          edt_totalqty
-                                                                              .text ==
-                                                                              ""
-                                                                          ? "0"
-                                                                          : edt_totalqty
-                                                                          .text,
-                                                                      Area: edt_TotalArea
-                                                                          .text ==
-                                                                          null ||
-                                                                          edt_TotalArea
-                                                                              .text ==
-                                                                              ""
-                                                                          ? "0"
-                                                                          : edt_TotalArea
-                                                                          .text,
-                                                                      NetAmt: edt_netamount
-                                                                          .text ==
-                                                                          null ||
-                                                                          edt_netamount
-                                                                              .text ==
-                                                                              ""
-                                                                          ? "0"
-                                                                          : edt_netamount
-                                                                          .text,
-                                                                      RefNo: edt_PINo
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_PINo
-                                                                          .text,
-                                                                      GlassName: edt_glassname
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_glassname
-                                                                          .text,
-                                                                      PrintRate: edt_printrate
-                                                                          .text ==
-                                                                          null ||
-                                                                          edt_printrate
-                                                                              .text ==
-                                                                              ""
-                                                                          ? "0"
-                                                                          : edt_printrate
-                                                                          .text,
-                                                                      Rate:
-                                                                      edt_rate
-                                                                          .text ==
-                                                                          null ||
-                                                                          edt_rate
-                                                                              .text ==
-                                                                              ""
-                                                                          ? "0"
-                                                                          : edt_rate
-                                                                          .text,
-                                                                      DisqualifedRemarks:
-                                                                      edt_DisqualifiedRemarks
-                                                                          .text ==
-                                                                          null
-                                                                          ? ""
-                                                                          : edt_DisqualifiedRemarks
-                                                                          .text,
-                                                                      Latitude: Latitude.toString()==null?"":Latitude.toString(),
-                                                                      Longitude: Longitude.toString()==null?"":Longitude.toString()
-
-                                                                      /* LeadID: edt_LeadNo.text==null?"":edt_LeadNo.text,
+                                                    showCommonDialogWithTwoOptions(
+                                                        context,
+                                                        "Are you sure you want to Save TeleCaller Details ?",
+                                                        negativeButtonTitle:
+                                                            "No",
+                                                        positiveButtonTitle:
+                                                            "Yes",
+                                                        onTapOfPositiveButton:
+                                                            () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      teleCallerNewBloc.add(
+                                                          NewTeleCallerSaveCallEvent(
+                                                              savepkID,
+                                                              NewTeleCallerSaveRequest(
+                                                                LeadID: LeadID
+                                                                    .toString(),
                                                                 SenderName: edt_SenderName
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_SenderName
-                                                                    .text,
-                                                                QueryDatetime: edt_ReverseExpenseDateController
-                                                                    .text ==
-                                                                    null
+                                                                        .text,
+                                                                QueryDatetime:
+                                                                    edt_ReverseExpenseDateController.text ==
+                                                                            null
+                                                                        ? ""
+                                                                        : edt_ReverseExpenseDateController
+                                                                            .text,
+                                                                SenderMail: edt_Email
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
-                                                                    : edt_ReverseExpenseDateController
-                                                                    .text,
+                                                                    : edt_Email
+                                                                        .text,
                                                                 CompanyName: edt_CompanyName
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_CompanyName
-                                                                    .text,
-                                                                SenderMail: edt_Email
-                                                                    .text==null?"":edt_Email.text,
-                                                                CountryFlagURL: "",
+                                                                        .text,
+                                                                CountryFlagURL:
+                                                                    "",
                                                                 Message: edt_Details
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_Details
-                                                                    .text,
+                                                                        .text,
                                                                 Address: edt_Address
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_Address
-                                                                    .text,
+                                                                        .text,
                                                                 City: edt_QualifiedCity
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_QualifiedCity
-                                                                    .text,
+                                                                        .text,
                                                                 State: edt_QualifiedState
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_QualifiedState
-                                                                    .text,
-                                                                Country: edt_QualifiedCountry.text==null?"India":edt_QualifiedCountry.text,
-
-                                                                CountryISO:"",
-
-                                                                PrimaryMobileNo: edt_PrimaryContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PrimaryContact
-                                                                    .text,
-                                                                SecondaryMobileNo: edt_AlternateContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_AlternateContact
-                                                                    .text,
+                                                                        .text,
+                                                                PrimaryMobileNo:
+                                                                    edt_PrimaryContact.text ==
+                                                                            null
+                                                                        ? ""
+                                                                        : edt_PrimaryContact
+                                                                            .text,
+                                                                SecondaryMobileNo:
+                                                                    edt_AlternateContact.text ==
+                                                                            null
+                                                                        ? ""
+                                                                        : edt_AlternateContact
+                                                                            .text,
                                                                 ForProduct: edt_QualifiedForProduct
-                                                                    .text ==
-                                                                    null
+                                                                            .text ==
+                                                                        null
                                                                     ? ""
                                                                     : edt_QualifiedForProduct
-                                                                    .text,
-
-                                                                LeadSource: "TeleCaller",
-                                                                LeadStatus: edt_LeadStatus.text==null?"":edt_LeadStatus.text,
-                                                                EmployeeID: edt_QualifiedEmplyeeID.text==null?"":edt_QualifiedEmplyeeID.text,
-                                                                ACID: "",
-                                                                ProductID: edt_QualifiedForProductID.text==null?"":edt_QualifiedForProductID.text,
-                                                                Pincode: edt_QualifiedPinCode.text==null?"":edt_QualifiedPinCode.text,
-                                                                StateCode: edt_QualifiedStateCode.text==null?"":edt_QualifiedStateCode.text,
-                                                                CityCode: edt_QualifiedCityCode.text==null?"":edt_QualifiedCityCode.text,
-                                                                CountryCode: edt_QualifiedCountryCode.text==null?"":edt_QualifiedCountryCode.text,
+                                                                        .text,
+                                                                LeadSource:
+                                                                    "TeleCaller",
+                                                                LeadStatus: edt_LeadStatus
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_LeadStatus
+                                                                        .text,
+                                                                EmployeeID: edt_QualifiedEmplyeeID
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_QualifiedEmplyeeID
+                                                                        .text,
+                                                                ProductID: edt_QualifiedForProductID
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_QualifiedForProductID
+                                                                        .text,
+                                                                Pincode: edt_QualifiedPinCode
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_QualifiedPinCode
+                                                                        .text,
+                                                                StateCode: edt_QualifiedStateCode
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_QualifiedStateCode
+                                                                        .text,
+                                                                CityCode: edt_QualifiedCityCode
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_QualifiedCityCode
+                                                                        .text,
                                                                 CustomerID: "",
-                                                                ExLeadClosure: edt_DisQualifiedID.text==null?"":edt_DisQualifiedID.text,
-                                                                LoginUserID: LoginUserID,
-                                                                FollowupNotes: "",
-                                                                FollowupDate: "",
-                                                                PreferredTime: "",
-                                                                SerialKey: "",
-                                                                DisqualifedRemarks: edt_DisqualifiedRemarks.text==null?"":edt_DisqualifiedRemarks.text,
-                                                                CompanyId: CompanyID.toString(),*/
-                                                                    )));
-                                                          });
-                                                    } else {
-                                                      showCommonDialogWithSingleOption(
-                                                          context,
-                                                          "Qualified City is required!",
-                                                          positiveButtonTitle: "OK",
-                                                          onTapOfPositiveButton:
-                                                              () {
-                                                            Navigator.of(
-                                                                context).pop();
-                                                          });
-                                                    }
+                                                                ExLeadClosure:
+                                                                    edt_DisQualifiedID.text ==
+                                                                            null
+                                                                        ? ""
+                                                                        : edt_DisQualifiedID
+                                                                            .text,
+                                                                LoginUserID:
+                                                                    LoginUserID,
+                                                                CountryCode: edt_QualifiedCountryCode
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_QualifiedCountryCode
+                                                                        .text,
+                                                                CompanyId: CompanyID
+                                                                    .toString(),
+                                                                Thickness: edt_thickness.text ==
+                                                                            null ||
+                                                                        edt_thickness.text ==
+                                                                            ""
+                                                                    ? "0"
+                                                                    : edt_thickness
+                                                                        .text,
+                                                                Quantity: edt_totalqty.text ==
+                                                                            null ||
+                                                                        edt_totalqty.text ==
+                                                                            ""
+                                                                    ? "0"
+                                                                    : edt_totalqty
+                                                                        .text,
+                                                                Area: edt_TotalArea.text ==
+                                                                            null ||
+                                                                        edt_TotalArea.text ==
+                                                                            ""
+                                                                    ? "0"
+                                                                    : edt_TotalArea
+                                                                        .text,
+                                                                NetAmt: edt_netamount.text ==
+                                                                            null ||
+                                                                        edt_netamount.text ==
+                                                                            ""
+                                                                    ? "0"
+                                                                    : edt_netamount
+                                                                        .text,
+                                                                RefNo: edt_PINo
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_PINo
+                                                                        .text,
+                                                                GlassName: edt_glassname
+                                                                            .text ==
+                                                                        null
+                                                                    ? ""
+                                                                    : edt_glassname
+                                                                        .text,
+                                                                PrintRate: edt_printrate.text ==
+                                                                            null ||
+                                                                        edt_printrate.text ==
+                                                                            ""
+                                                                    ? "0"
+                                                                    : edt_printrate
+                                                                        .text,
+                                                                Rate: edt_rate.text ==
+                                                                            null ||
+                                                                        edt_rate.text ==
+                                                                            ""
+                                                                    ? "0"
+                                                                    : edt_rate
+                                                                        .text,
+                                                                DisqualifedRemarks:
+                                                                    edt_DisqualifiedRemarks.text ==
+                                                                            null
+                                                                        ? ""
+                                                                        : edt_DisqualifiedRemarks
+                                                                            .text,
+                                                                Latitude:
+                                                                    SharedPrefHelper
+                                                                        .instance
+                                                                        .getLatitude(),
+                                                                Longitude:
+                                                                    SharedPrefHelper
+                                                                        .instance
+                                                                        .getLongitude(),
+                                                              )));
+                                                    });
                                                   } else {
                                                     showCommonDialogWithSingleOption(
                                                         context,
-                                                        "Qualified State is required!",
-                                                        positiveButtonTitle: "OK",
-                                                        onTapOfPositiveButton: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        });
+                                                        "Qualified City is required!",
+                                                        positiveButtonTitle:
+                                                            "OK",
+                                                        onTapOfPositiveButton:
+                                                            () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    });
                                                   }
                                                 } else {
                                                   showCommonDialogWithSingleOption(
                                                       context,
-                                                      "Qualified ProductName  is required!",
+                                                      "Qualified State is required!",
                                                       positiveButtonTitle: "OK",
-                                                      onTapOfPositiveButton: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      });
+                                                      onTapOfPositiveButton:
+                                                          () {
+                                                    Navigator.of(context).pop();
+                                                  });
                                                 }
                                               } else {
                                                 showCommonDialogWithSingleOption(
                                                     context,
-                                                    "AssignTo is required!",
+                                                    "Qualified ProductName  is required!",
                                                     positiveButtonTitle: "OK",
                                                     onTapOfPositiveButton: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    });
-                                              }
-                                            }
-                                            else if (isDisqualified == true) {
-                                              if (edt_DisQualifiedName.text !=
-                                                  "") {
-                                                showCommonDialogWithTwoOptions(
-                                                    context,
-                                                    "Are you sure you want to Save TeleCaller Details ?",
-                                                    negativeButtonTitle: "No",
-                                                    positiveButtonTitle: "Yes",
-                                                    onTapOfPositiveButton: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      teleCallerNewBloc.add(
-                                                          NewTeleCallerSaveCallEvent(
-                                                              savepkID,
-                                                              NewTeleCallerSaveRequest(
-                                                                LeadID: LeadID
-                                                                    .toString(),
-
-                                                                SenderName:
-                                                                edt_SenderName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_SenderName
-                                                                    .text,
-                                                                QueryDatetime:
-                                                                edt_ReverseExpenseDateController
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_ReverseExpenseDateController
-                                                                    .text,
-                                                                SenderMail: edt_Email
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Email
-                                                                    .text,
-                                                                CompanyName:
-                                                                edt_CompanyName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_CompanyName
-                                                                    .text,
-                                                                CountryFlagURL: "",
-                                                                Message: edt_Details
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Details
-                                                                    .text,
-                                                                Address: edt_Address
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Address
-                                                                    .text,
-                                                                City: edt_QualifiedCity
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCity
-                                                                    .text,
-                                                                State: edt_QualifiedState
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedState
-                                                                    .text,
-                                                                PrimaryMobileNo:
-                                                                edt_PrimaryContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PrimaryContact
-                                                                    .text,
-                                                                SecondaryMobileNo:
-                                                                edt_AlternateContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_AlternateContact
-                                                                    .text,
-                                                                ForProduct:
-                                                                edt_QualifiedForProduct
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedForProduct
-                                                                    .text,
-                                                                LeadSource:
-                                                                "TeleCaller",
-                                                                LeadStatus:
-                                                                edt_LeadStatus
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_LeadStatus
-                                                                    .text,
-                                                                EmployeeID:
-                                                                edt_QualifiedEmplyeeID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedEmplyeeID
-                                                                    .text,
-                                                                ProductID:
-                                                                edt_QualifiedForProductID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedForProductID
-                                                                    .text,
-                                                                Pincode:
-                                                                edt_QualifiedPinCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedPinCode
-                                                                    .text,
-                                                                StateCode:
-                                                                edt_QualifiedStateCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedStateCode
-                                                                    .text,
-                                                                CityCode:
-                                                                edt_QualifiedCityCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCityCode
-                                                                    .text,
-                                                                CustomerID: "",
-                                                                ExLeadClosure:
-                                                                edt_DisQualifiedID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisQualifiedID
-                                                                    .text,
-                                                                LoginUserID:
-                                                                LoginUserID,
-                                                                CountryCode:
-                                                                edt_QualifiedCountryCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCountryCode
-                                                                    .text,
-                                                                CompanyId: CompanyID
-                                                                    .toString(),
-                                                                Thickness: edt_thickness
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_thickness
-                                                                        .text ==
-                                                                        "" ? "0"
-                                                                    : edt_thickness
-                                                                    .text,
-                                                                Quantity: edt_totalqty
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_totalqty
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_totalqty
-                                                                    .text,
-                                                                Area: edt_TotalArea
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_TotalArea
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_TotalArea
-                                                                    .text,
-                                                                NetAmt: edt_netamount
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_netamount
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_netamount
-                                                                    .text,
-                                                                RefNo: edt_PINo
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PINo
-                                                                    .text,
-                                                                GlassName: edt_glassname
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_glassname
-                                                                    .text,
-                                                                PrintRate: edt_printrate
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_printrate
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_printrate
-                                                                    .text,
-                                                                Rate:
-                                                                edt_rate.text ==
-                                                                    null ||
-                                                                    edt_rate
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_rate
-                                                                    .text,
-                                                                DisqualifedRemarks:
-                                                                edt_DisqualifiedRemarks
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisqualifiedRemarks
-                                                                    .text,
-                                                                  Latitude: Latitude.toString()==null?"":Latitude.toString(),
-                                                                  Longitude: Longitude.toString()==null?"":Longitude.toString()
-                                                              )));
-                                                    });
-                                              } else {
-                                                showCommonDialogWithSingleOption(
-                                                    context,
-                                                    "DisQualified Reason is required!",
-                                                    positiveButtonTitle: "OK",
-                                                    onTapOfPositiveButton: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    });
-                                              }
-                                            } else if (isInProcess == true) {
-                                              if (edt_QualifiedEmplyeeName
-                                                  .text !=
-                                                  "") {
-                                                showCommonDialogWithTwoOptions(
-                                                    context,
-                                                    "Are you sure you want to Save TeleCaller Details ?",
-                                                    negativeButtonTitle: "No",
-                                                    positiveButtonTitle: "Yes",
-                                                    onTapOfPositiveButton: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                      teleCallerNewBloc.add(
-                                                          NewTeleCallerSaveCallEvent(
-                                                              savepkID,
-                                                              NewTeleCallerSaveRequest(
-                                                                LeadID: LeadID
-                                                                    .toString(),
-
-                                                                SenderName:
-                                                                edt_SenderName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_SenderName
-                                                                    .text,
-                                                                QueryDatetime:
-                                                                edt_ReverseExpenseDateController
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_ReverseExpenseDateController
-                                                                    .text,
-                                                                SenderMail: edt_Email
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Email
-                                                                    .text,
-                                                                CompanyName:
-                                                                edt_CompanyName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_CompanyName
-                                                                    .text,
-                                                                CountryFlagURL: "",
-                                                                Message: edt_Details
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Details
-                                                                    .text,
-                                                                Address: edt_Address
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Address
-                                                                    .text,
-                                                                City: edt_QualifiedCity
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCity
-                                                                    .text,
-                                                                State: edt_QualifiedState
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedState
-                                                                    .text,
-                                                                PrimaryMobileNo:
-                                                                edt_PrimaryContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PrimaryContact
-                                                                    .text,
-                                                                SecondaryMobileNo:
-                                                                edt_AlternateContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_AlternateContact
-                                                                    .text,
-                                                                ForProduct:
-                                                                edt_QualifiedForProduct
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedForProduct
-                                                                    .text,
-                                                                LeadSource:
-                                                                "TeleCaller",
-                                                                LeadStatus:
-                                                                edt_LeadStatus
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_LeadStatus
-                                                                    .text,
-                                                                EmployeeID:
-                                                                edt_QualifiedEmplyeeID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedEmplyeeID
-                                                                    .text,
-                                                                ProductID:
-                                                                edt_QualifiedForProductID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedForProductID
-                                                                    .text,
-                                                                Pincode:
-                                                                edt_QualifiedPinCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedPinCode
-                                                                    .text,
-                                                                StateCode:
-                                                                edt_QualifiedStateCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedStateCode
-                                                                    .text,
-                                                                CityCode:
-                                                                edt_QualifiedCityCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCityCode
-                                                                    .text,
-                                                                CustomerID: "",
-                                                                ExLeadClosure:
-                                                                edt_DisQualifiedID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisQualifiedID
-                                                                    .text,
-                                                                LoginUserID:
-                                                                LoginUserID,
-                                                                CountryCode:
-                                                                edt_QualifiedCountryCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCountryCode
-                                                                    .text,
-                                                                CompanyId: CompanyID
-                                                                    .toString(),
-                                                                Thickness: edt_thickness
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_thickness
-                                                                        .text ==
-                                                                        "" ? "0"
-                                                                    : edt_thickness
-                                                                    .text,
-                                                                Quantity: edt_totalqty
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_totalqty
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_totalqty
-                                                                    .text,
-                                                                Area: edt_TotalArea
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_TotalArea
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_TotalArea
-                                                                    .text,
-                                                                NetAmt: edt_netamount
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_netamount
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_netamount
-                                                                    .text,
-                                                                RefNo: edt_PINo
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PINo
-                                                                    .text,
-                                                                GlassName: edt_glassname
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_glassname
-                                                                    .text,
-                                                                PrintRate: edt_printrate
-                                                                    .text ==
-                                                                    null ||
-                                                                    edt_printrate
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_printrate
-                                                                    .text,
-                                                                Rate:
-                                                                edt_rate.text ==
-                                                                    null ||
-                                                                    edt_rate
-                                                                        .text ==
-                                                                        ""
-                                                                    ? "0"
-                                                                    : edt_rate
-                                                                    .text,
-                                                                DisqualifedRemarks:
-                                                                edt_DisqualifiedRemarks
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisqualifiedRemarks
-                                                                    .text,
-                                                                  Latitude: Latitude.toString()==null?"":Latitude.toString(),
-                                                                  Longitude: Longitude.toString()==null?"":Longitude.toString()
-
-
-                                                              )));
-                                                    });
-                                              } else {
-                                                showCommonDialogWithSingleOption(
-                                                    context,
-                                                    "Assign To is required!",
-                                                    positiveButtonTitle: "OK",
-                                                    onTapOfPositiveButton: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    });
+                                                  Navigator.of(context).pop();
+                                                });
                                               }
                                             } else {
                                               showCommonDialogWithSingleOption(
                                                   context,
-                                                  "Lead Status is required!",
+                                                  "AssignTo is required!",
                                                   positiveButtonTitle: "OK",
                                                   onTapOfPositiveButton: () {
-                                                    Navigator.of(context).pop();
-                                                  });
+                                                Navigator.of(context).pop();
+                                              });
+                                            }
+                                          } else if (isDisqualified == true) {
+                                            if (edt_DisQualifiedName.text !=
+                                                "") {
+                                              showCommonDialogWithTwoOptions(
+                                                  context,
+                                                  "Are you sure you want to Save TeleCaller Details ?",
+                                                  negativeButtonTitle: "No",
+                                                  positiveButtonTitle: "Yes",
+                                                  onTapOfPositiveButton: () {
+                                                Navigator.of(context).pop();
+                                                teleCallerNewBloc.add(
+                                                    NewTeleCallerSaveCallEvent(
+                                                        savepkID,
+                                                        NewTeleCallerSaveRequest(
+                                                          LeadID:
+                                                              LeadID.toString(),
+                                                          SenderName: edt_SenderName
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_SenderName
+                                                                  .text,
+                                                          QueryDatetime:
+                                                              edt_ReverseExpenseDateController
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_ReverseExpenseDateController
+                                                                      .text,
+                                                          SenderMail: edt_Email
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_Email.text,
+                                                          CompanyName:
+                                                              edt_CompanyName
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_CompanyName
+                                                                      .text,
+                                                          CountryFlagURL: "",
+                                                          Message: edt_Details
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_Details
+                                                                  .text,
+                                                          Address: edt_Address
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_Address
+                                                                  .text,
+                                                          City: edt_QualifiedCity
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedCity
+                                                                  .text,
+                                                          State: edt_QualifiedState
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedState
+                                                                  .text,
+                                                          PrimaryMobileNo:
+                                                              edt_PrimaryContact
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_PrimaryContact
+                                                                      .text,
+                                                          SecondaryMobileNo:
+                                                              edt_AlternateContact
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_AlternateContact
+                                                                      .text,
+                                                          ForProduct:
+                                                              edt_QualifiedForProduct
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedForProduct
+                                                                      .text,
+                                                          LeadSource:
+                                                              "TeleCaller",
+                                                          LeadStatus: edt_LeadStatus
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_LeadStatus
+                                                                  .text,
+                                                          EmployeeID:
+                                                              edt_QualifiedEmplyeeID
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedEmplyeeID
+                                                                      .text,
+                                                          ProductID:
+                                                              edt_QualifiedForProductID
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedForProductID
+                                                                      .text,
+                                                          Pincode: edt_QualifiedPinCode
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedPinCode
+                                                                  .text,
+                                                          StateCode:
+                                                              edt_QualifiedStateCode
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedStateCode
+                                                                      .text,
+                                                          CityCode: edt_QualifiedCityCode
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedCityCode
+                                                                  .text,
+                                                          CustomerID: "",
+                                                          ExLeadClosure:
+                                                              edt_DisQualifiedID
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_DisQualifiedID
+                                                                      .text,
+                                                          LoginUserID:
+                                                              LoginUserID,
+                                                          CountryCode:
+                                                              edt_QualifiedCountryCode
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedCountryCode
+                                                                      .text,
+                                                          CompanyId: CompanyID
+                                                              .toString(),
+                                                          Thickness: edt_thickness
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_thickness
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_thickness
+                                                                  .text,
+                                                          Quantity: edt_totalqty
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_totalqty
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_totalqty
+                                                                  .text,
+                                                          Area: edt_TotalArea
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_TotalArea
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_TotalArea
+                                                                  .text,
+                                                          NetAmt: edt_netamount
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_netamount
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_netamount
+                                                                  .text,
+                                                          RefNo: edt_PINo
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_PINo.text,
+                                                          GlassName: edt_glassname
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_glassname
+                                                                  .text,
+                                                          PrintRate: edt_printrate
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_printrate
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_printrate
+                                                                  .text,
+                                                          Rate: edt_rate.text ==
+                                                                      null ||
+                                                                  edt_rate.text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_rate.text,
+                                                          DisqualifedRemarks:
+                                                              edt_DisqualifiedRemarks
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_DisqualifiedRemarks
+                                                                      .text,
+                                                          Latitude:
+                                                              SharedPrefHelper
+                                                                  .instance
+                                                                  .getLatitude(),
+                                                          Longitude:
+                                                              SharedPrefHelper
+                                                                  .instance
+                                                                  .getLongitude(),
+                                                        )));
+                                              });
+                                            } else {
+                                              showCommonDialogWithSingleOption(
+                                                  context,
+                                                  "DisQualified Reason is required!",
+                                                  positiveButtonTitle: "OK",
+                                                  onTapOfPositiveButton: () {
+                                                Navigator.of(context).pop();
+                                              });
+                                            }
+                                          } else if (isInProcess == true) {
+                                            if (edt_QualifiedEmplyeeName.text !=
+                                                "") {
+                                              showCommonDialogWithTwoOptions(
+                                                  context,
+                                                  "Are you sure you want to Save TeleCaller Details ?",
+                                                  negativeButtonTitle: "No",
+                                                  positiveButtonTitle: "Yes",
+                                                  onTapOfPositiveButton: () {
+                                                Navigator.of(context).pop();
+                                                teleCallerNewBloc.add(
+                                                    NewTeleCallerSaveCallEvent(
+                                                        savepkID,
+                                                        NewTeleCallerSaveRequest(
+                                                          LeadID:
+                                                              LeadID.toString(),
+                                                          SenderName: edt_SenderName
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_SenderName
+                                                                  .text,
+                                                          QueryDatetime:
+                                                              edt_ReverseExpenseDateController
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_ReverseExpenseDateController
+                                                                      .text,
+                                                          SenderMail: edt_Email
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_Email.text,
+                                                          CompanyName:
+                                                              edt_CompanyName
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_CompanyName
+                                                                      .text,
+                                                          CountryFlagURL: "",
+                                                          Message: edt_Details
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_Details
+                                                                  .text,
+                                                          Address: edt_Address
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_Address
+                                                                  .text,
+                                                          City: edt_QualifiedCity
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedCity
+                                                                  .text,
+                                                          State: edt_QualifiedState
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedState
+                                                                  .text,
+                                                          PrimaryMobileNo:
+                                                              edt_PrimaryContact
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_PrimaryContact
+                                                                      .text,
+                                                          SecondaryMobileNo:
+                                                              edt_AlternateContact
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_AlternateContact
+                                                                      .text,
+                                                          ForProduct:
+                                                              edt_QualifiedForProduct
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedForProduct
+                                                                      .text,
+                                                          LeadSource:
+                                                              "TeleCaller",
+                                                          LeadStatus: edt_LeadStatus
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_LeadStatus
+                                                                  .text,
+                                                          EmployeeID:
+                                                              edt_QualifiedEmplyeeID
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedEmplyeeID
+                                                                      .text,
+                                                          ProductID:
+                                                              edt_QualifiedForProductID
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedForProductID
+                                                                      .text,
+                                                          Pincode: edt_QualifiedPinCode
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedPinCode
+                                                                  .text,
+                                                          StateCode:
+                                                              edt_QualifiedStateCode
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedStateCode
+                                                                      .text,
+                                                          CityCode: edt_QualifiedCityCode
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_QualifiedCityCode
+                                                                  .text,
+                                                          CustomerID: "",
+                                                          ExLeadClosure:
+                                                              edt_DisQualifiedID
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_DisQualifiedID
+                                                                      .text,
+                                                          LoginUserID:
+                                                              LoginUserID,
+                                                          CountryCode:
+                                                              edt_QualifiedCountryCode
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_QualifiedCountryCode
+                                                                      .text,
+                                                          CompanyId: CompanyID
+                                                              .toString(),
+                                                          Thickness: edt_thickness
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_thickness
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_thickness
+                                                                  .text,
+                                                          Quantity: edt_totalqty
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_totalqty
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_totalqty
+                                                                  .text,
+                                                          Area: edt_TotalArea
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_TotalArea
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_TotalArea
+                                                                  .text,
+                                                          NetAmt: edt_netamount
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_netamount
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_netamount
+                                                                  .text,
+                                                          RefNo: edt_PINo
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_PINo.text,
+                                                          GlassName: edt_glassname
+                                                                      .text ==
+                                                                  null
+                                                              ? ""
+                                                              : edt_glassname
+                                                                  .text,
+                                                          PrintRate: edt_printrate
+                                                                          .text ==
+                                                                      null ||
+                                                                  edt_printrate
+                                                                          .text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_printrate
+                                                                  .text,
+                                                          Rate: edt_rate.text ==
+                                                                      null ||
+                                                                  edt_rate.text ==
+                                                                      ""
+                                                              ? "0"
+                                                              : edt_rate.text,
+                                                          DisqualifedRemarks:
+                                                              edt_DisqualifiedRemarks
+                                                                          .text ==
+                                                                      null
+                                                                  ? ""
+                                                                  : edt_DisqualifiedRemarks
+                                                                      .text,
+                                                          Latitude:
+                                                              SharedPrefHelper
+                                                                  .instance
+                                                                  .getLatitude(),
+                                                          Longitude:
+                                                              SharedPrefHelper
+                                                                  .instance
+                                                                  .getLongitude(),
+                                                        )));
+                                              });
+                                            } else {
+                                              showCommonDialogWithSingleOption(
+                                                  context,
+                                                  "Assign To is required!",
+                                                  positiveButtonTitle: "OK",
+                                                  onTapOfPositiveButton: () {
+                                                Navigator.of(context).pop();
+                                              });
                                             }
                                           } else {
                                             showCommonDialogWithSingleOption(
@@ -1499,64 +1349,64 @@ class _TeleCallerAddEditNewScreenState
                                                 "Lead Status is required!",
                                                 positiveButtonTitle: "OK",
                                                 onTapOfPositiveButton: () {
-                                                  Navigator.of(context).pop();
-                                                });
+                                              Navigator.of(context).pop();
+                                            });
                                           }
                                         } else {
                                           showCommonDialogWithSingleOption(
                                               context,
-                                              "Primary Contact is required!",
+                                              "Lead Status is required!",
                                               positiveButtonTitle: "OK",
                                               onTapOfPositiveButton: () {
-                                                Navigator.of(context).pop();
-                                              });
+                                            Navigator.of(context).pop();
+                                          });
                                         }
                                       } else {
                                         showCommonDialogWithSingleOption(
                                             context,
-                                            "Company Name is required!",
+                                            "Primary Contact is required!",
                                             positiveButtonTitle: "OK",
                                             onTapOfPositiveButton: () {
-                                              Navigator.of(context).pop();
-                                            });
+                                          Navigator.of(context).pop();
+                                        });
                                       }
                                     } else {
                                       showCommonDialogWithSingleOption(
-                                          context,
-                                          "Contact Person is required!",
+                                          context, "Company Name is required!",
                                           positiveButtonTitle: "OK",
                                           onTapOfPositiveButton: () {
-                                            Navigator.of(context).pop();
-                                          });
+                                        Navigator.of(context).pop();
+                                      });
                                     }
                                   } else {
                                     showCommonDialogWithSingleOption(
-                                        context, "Details are required!",
+                                        context, "Contact Person is required!",
                                         positiveButtonTitle: "OK",
                                         onTapOfPositiveButton: () {
-                                          Navigator.of(context).pop();
-                                        });
+                                      Navigator.of(context).pop();
+                                    });
                                   }
-                                }
-                                else {
+                                } else {
                                   showCommonDialogWithSingleOption(
-                                      context, "Product is required!",
+                                      context, "Details are required!",
                                       positiveButtonTitle: "OK",
                                       onTapOfPositiveButton: () {
-                                        Navigator.of(context).pop();
-                                      });
+                                    Navigator.of(context).pop();
+                                  });
                                 }
+                              } else {
+                                showCommonDialogWithSingleOption(
+                                    context, "Product is required!",
+                                    positiveButtonTitle: "OK",
+                                    onTapOfPositiveButton: () {
+                                  Navigator.of(context).pop();
+                                });
                               }
-                              else {
-                                location.requestService();
-                                await Future.delayed(
-                                    const Duration(seconds: 3), () {});
-                                baseBloc.emit(
-                                    ShowProgressIndicatorState(false));
-                              }
-                            }
-                            else {
-                              checkPermissionStatus();
+                            } else {
+                              location.requestService();
+                              await Future.delayed(
+                                  const Duration(seconds: 3), () {});
+                              baseBloc.emit(ShowProgressIndicatorState(false));
                             }
                           }, "Save", backGroundColor: colorPrimary)
                         else
@@ -1614,7 +1464,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -1623,7 +1473,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: 60,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -1648,13 +1498,8 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
-                Image.network(
-                  "https://www.freeiconspng.com/uploads/rupees-symbol-png-10.png",
-                  height: 18,
-                  width: 18,
-                )
               ],
             ),
           ),
@@ -1676,7 +1521,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -1685,7 +1530,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -1712,7 +1557,7 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
               ],
             ),
@@ -1735,7 +1580,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -1744,7 +1589,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -1770,7 +1615,7 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
               ],
             ),
@@ -1779,7 +1624,6 @@ class _TeleCallerAddEditNewScreenState
       ],
     );
   }
-
 
   Widget LeadSource() {
     return Column(
@@ -1794,7 +1638,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -1803,7 +1647,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -1830,7 +1674,7 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
               ],
             ),
@@ -1853,7 +1697,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -1862,7 +1706,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -1889,7 +1733,7 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
               ],
             ),
@@ -1912,7 +1756,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -1921,7 +1765,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -1948,7 +1792,7 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
               ],
             ),
@@ -1971,19 +1815,19 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
         ),
         InkWell(
           onTap: () =>
-          isAllEditable == true ? _onTapOfSearchCompanyView() : Container(),
+              isAllEditable == true ? _onTapOfSearchCompanyView() : Container(),
           child: Card(
             elevation: 5,
             color: colorLightGray,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
               height: CardViewHeight,
               padding: EdgeInsets.only(left: 20, right: 20),
@@ -2010,7 +1854,7 @@ class _TeleCallerAddEditNewScreenState
                           color: Color(0xFF000000),
                         ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                    ),
+                        ),
                   ),
                 ],
               ),
@@ -2049,7 +1893,7 @@ class _TeleCallerAddEditNewScreenState
                   fontWeight: FontWeight
                       .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-          ),
+              ),
         ),
         SizedBox(
           height: 5,
@@ -2058,7 +1902,7 @@ class _TeleCallerAddEditNewScreenState
           elevation: 5,
           color: colorLightGray,
           shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
             height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
@@ -2085,7 +1929,7 @@ class _TeleCallerAddEditNewScreenState
                         color: Color(0xFF000000),
                       ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                  ),
+                      ),
                 ),
               ],
             ),
@@ -2094,7 +1938,6 @@ class _TeleCallerAddEditNewScreenState
       ],
     );
   }
-
 
   Widget Address1234() {
     return Column(
@@ -2722,7 +2565,6 @@ class _TeleCallerAddEditNewScreenState
               children: [
                 Expanded(
                   child: TextField(
-
                       enabled: isAllEditable,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.next,
@@ -3154,7 +2996,9 @@ class _TeleCallerAddEditNewScreenState
     edt_QualifiedPinCode.text = expenseDetails.pincode;
     edt_PrimaryContact.text = expenseDetails.primaryMobileNo;
     edt_AlternateContact.text = expenseDetails.secondaryMobileNo;
-    edt_LeadStatus.text = expenseDetails.leadStatus=="Disqualified"?"DisQualified":expenseDetails.leadStatus;
+    edt_LeadStatus.text = expenseDetails.leadStatus == "Disqualified"
+        ? "DisQualified"
+        : expenseDetails.leadStatus;
     edt_DisqualifiedRemarks.text = expenseDetails.disqualifedRemarks.toString();
     print("remarks" + "CityCode : " + expenseDetails.cityCode.toString());
     edt_thickness.text = expenseDetails.thickness.toString();
@@ -3170,7 +3014,6 @@ class _TeleCallerAddEditNewScreenState
     edt_QualifiedCityCode.text = expenseDetails.cityCode.toString();
     edt_QualifiedPinCode.text = expenseDetails.pincode;
     edt_PINo.text = expenseDetails.refNo;
-
 
     if (edt_LeadStatus.text == "Qualified") {
       isqualified = true;
@@ -3214,10 +3057,9 @@ class _TeleCallerAddEditNewScreenState
       edt_QualifiedCity.text = expenseDetails.cityName;
       edt_QualifiedCityCode.text = expenseDetails.cityCode.toString();
       edt_QualifiedPinCode.text = expenseDetails.pincode;
-      edt_DisqualifiedRemarks.text = expenseDetails.disqualifedRemarks.toString();
+      edt_DisqualifiedRemarks.text =
+          expenseDetails.disqualifedRemarks.toString();
       edt_DisQualifiedID.text = expenseDetails.exLeadClosure.toString();
-
-
     }
     if (edt_LeadStatus.text == "InProcess") {
       isAllEditable = true;
@@ -3266,7 +3108,9 @@ class _TeleCallerAddEditNewScreenState
   Widget _buildFollowupDate() {
     return InkWell(
       onTap: () {
-        _isForUpdate==true?Container():_selectDate(context, edt_ExpenseDateController);
+        _isForUpdate == true
+            ? Container()
+            : _selectDate(context, edt_ExpenseDateController);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3380,8 +3224,6 @@ class _TeleCallerAddEditNewScreenState
 
           GestureDetector(
             onTap: () {
-
-
               isAllEditable == true
                   ? showcustomdialogWithID(
                       values: arr_All_Employee_List,
@@ -3674,8 +3516,6 @@ class _TeleCallerAddEditNewScreenState
         ),
         InkWell(
           onTap: () {
-
-
             _onTapOfSearchCityView(edt_QualifiedStateCode.text == null
                 ? ""
                 : edt_QualifiedStateCode.text);
@@ -3916,7 +3756,6 @@ class _TeleCallerAddEditNewScreenState
             _productSearchDetails.productName.toString();
         edt_QualifiedForProductID.text = _productSearchDetails.pkID.toString();
         //_totalAmountController.text = ""
-
       }
     });
   }
@@ -4196,7 +4035,6 @@ class _TeleCallerAddEditNewScreenState
         edt_CompanyName.text = searchDetails123.Name.toString();
         edt_PrimaryContact.text = searchDetails123.Name1.toString();
         //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
-
       }
     });
   }
@@ -4227,145 +4065,4 @@ class _TeleCallerAddEditNewScreenState
     });
     //Navigator.of(context).pop();
   }
-
-
-  void checkPermissionStatus() async {
-
-
-    bool granted = await Permission.location.isGranted;
-    bool Denied = await  Permission.location.isDenied;
-    bool PermanentlyDenied = await Permission.location.isPermanentlyDenied;
-
-    print("PermissionStatus" + "Granted : "+   granted.toString()  + " Denied : " + Denied.toString() + " PermanentlyDenied : " + PermanentlyDenied.toString() );
-
-    if (Denied==true) {
-      // openAppSettings();
-      is_LocationService_Permission=false;
-      await Permission.storage.request();
-
-      /*showCommonDialogWithSingleOption(
-          context, "Location permission is required , You have to click on OK button to Allow the location access !",
-          positiveButtonTitle: "OK",
-          onTapOfPositiveButton: () async {
-            await openAppSettings();
-            Navigator.of(context).pop();
-
-          }
-
-      );*/
-
-      // await Permission.location.request();
-      // We didn't ask for permission yet or the permission has been denied before but not permanently.
-    }
-
-// You can can also directly ask the permission about its status.
-    if (await Permission.location.isRestricted) {
-      // The OS restricts access, for example because of parental controls.
-      openAppSettings();
-
-    }
-    if (PermanentlyDenied==true) {
-      // The user opted to never again see the permission request dialog for this
-      // app. The only way to change the permission's status now is to let the
-      // user manually enable it in the system settings.
-      is_LocationService_Permission=false;
-      openAppSettings();
-
-
-
-    }
-
-    if (granted==true) {
-      // The OS restricts access, for example because of parental controls.
-      is_LocationService_Permission=true;
-
-      /*if (serviceLocation == true) {
-        // Use location.
-        _serviceEnabled=false;
-
-         location.requestService();
-
-
-      }
-      else{
-        _serviceEnabled=true;
-        _getCurrentLocation();
-
-
-
-      }*/
-    }
-  }
-  _getCurrentLocation()  {
-    geolocator123.getCurrentPosition(desiredAccuracy: geolocator.LocationAccuracy.best)
-        .then((Position position) async {
-      _currentPosition = position;
-      Longitude = position.longitude.toString();
-      Latitude = position.latitude.toString();
-
-      Address = await getAddressFromLatLngMapMyIndia(
-          Latitude, Longitude, MAPMYINDIAKEY);
-
-    }).catchError((e) {
-      print(e);
-    });
-
-    location.onLocationChanged.listen((LocationData currentLocation) async {
-      // Use current location
-      print("OnLocationChange" +
-          " Location : " +
-          currentLocation.latitude.toString());
-      //  placemarks = await placemarkFromCoordinates(currentLocation.latitude,currentLocation.longitude);
-      // final coordinates = new Coordinates(currentLocation.latitude,currentLocation.longitude);
-      // var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      // var first = addresses.first;
-      //  print("${first.featureName} : ${first.addressLine}");
-      Latitude = currentLocation.latitude.toString();
-      Longitude = currentLocation.longitude.toString();
-      Address = await getAddressFromLatLngMapMyIndia(
-          Latitude, Longitude, MAPMYINDIAKEY);
-      //  Address = "${first.featureName} : ${first.addressLine}";
-    });
-
-
-    // _FollowupBloc.add(LocationAddressCallEvent(LocationAddressRequest(key:"",latlng:Latitude+","+Longitude)));
-
-  }
-
- /* Future<String> getAddressFromLatLng(String lat, String lng, String skey) async {
-    String _host = 'https://maps.google.com/maps/api/geocode/json';
-    final url = '$_host?key=$skey&latlng=$lat,$lng';
-    if(lat != "" && lng != "null"){
-      var response = await http.get(Uri.parse(url));
-      if(response.statusCode == 200) {
-        Map data = jsonDecode(response.body);
-        String _formattedAddress = data["results"][0]["formatted_address"];
-        //Address = _formattedAddress;
-        print("response ==== $_formattedAddress");
-        return _formattedAddress;
-      } else return null;
-    } else return null;
-  }*/
-
-  Future<String> getAddressFromLatLngMapMyIndia(
-      String lat, String lng, String skey) async {
-    String _host =
-        'https://apis.mapmyindia.com/advancedmaps/v1/$skey/rev_geocode';
-    final url = '$_host?lat=$lat&lng=$lng';
-
-    print("MapRequest" + url);
-    if (lat != "" && lng != "null") {
-      var response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        Map data = jsonDecode(response.body);
-        String _formattedAddress = data["results"][0]["formatted_address"];
-        //Address = _formattedAddress;
-        print("response ==== $_formattedAddress");
-        return _formattedAddress;
-      } else
-        return null;
-    } else
-      return null;
-  }
-
 }

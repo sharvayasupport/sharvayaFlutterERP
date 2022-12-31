@@ -13,7 +13,9 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/loan/loan_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/bank_voucher/bank_voucher_add_edit/bank_voucher_add_edit.dart';
@@ -66,6 +68,12 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
 
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   int CompanyID = 0;
   String LoginUserID = "";
   List<ContactModel> _contactsList = [];
@@ -90,6 +98,9 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
     screenStatusBarColor = colorDarkYellow;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
@@ -105,6 +116,8 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
+
+    getUserRights(_menuRightsResponse);
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
@@ -152,11 +165,16 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
           if (state is LoanSearchResponseState) {
             _onSearchInquiryListCallSuccess(state);
           }
+
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is LoanListResponseState ||
-              currentState is LoanSearchResponseState) {
+              currentState is LoanSearchResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -188,7 +206,11 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
         appBar: NewGradientAppBar(
           title: Text('Loan List'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -227,6 +249,8 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                           pkID: "",
                           CompanyID: CompanyID.toString(),
                         )));
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -246,15 +270,17 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
             ],
           ),
         ),
-/*        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            await _onTapOfDeleteALLContact();
-            navigateTo(context, BankVoucherAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),*/
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  // await _onTapOfDeleteALLContact();
+                  // navigateTo(context, BankVoucherAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -674,35 +700,33 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  /*  ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          fixedSize: Size(90, 15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(24.0),
-            ),
-          ),
-        ),
-                    onPressed: () {
-                      //_onTapOfEditCustomer(model);
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Icon(
-                          Icons.edit,
-                          color: colorPrimary,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        ),
-                        Text(
-                          'Edit',
-                          style: TextStyle(color: colorPrimary),
-                        ),
-                      ],
-                    ),
-                  ),*/
-                  isDeleteVisible == true
+                  IsAddRights == true
+                      ? GestureDetector(
+                          onTap: () {
+                            // _onTapOfDeleteInquiry(model.pkID);
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.edit,
+                                color: colorPrimary,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
+                              Text(
+                                'Edit',
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
@@ -863,5 +887,48 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
 
   void _onSearchInquiryListCallSuccess(LoanSearchResponseState state) {
     _inquiryListResponse = state.employeeListResponse;
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgLoan") {
+        _CustomerBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

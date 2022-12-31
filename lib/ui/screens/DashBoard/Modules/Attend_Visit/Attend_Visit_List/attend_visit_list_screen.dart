@@ -11,7 +11,9 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Attend_Visit/Attend_Visit_Add_Edit/attend_visit_add_edit_screen.dart';
@@ -39,6 +41,9 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
   AttendVisitBloc _complaintScreenBloc;
   CompanyDetailsResponse _offlineCompanyData;
   LoginUserDetialsResponse _offlineLoggedInData;
+
+  MenuRightsResponse _menuRightsResponse;
+
   int CompanyID = 0;
   String LoginUserID = "";
   int _pageNo = 0;
@@ -58,6 +63,10 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Folowup_EmplyeeList = [];
   FollowerEmployeeListResponse _offlineFollowerEmployeeListData;
 
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   @override
   void initState() {
     super.initState();
@@ -65,6 +74,8 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     _onFollowerEmployeeListByStatusCallSuccess(
@@ -80,6 +91,7 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
         AttendVisitListRequest(
             CompanyId: CompanyID.toString(),
             LoginUserID: edt_FollowupEmployeeUserID.text)));
+    getUserRights(_menuRightsResponse);
   }
 
   ///listener to multiple states of bloc to handles api responses
@@ -118,12 +130,16 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
           if (state is AttendVisitSearchByIDResponseState) {
             _onSearchbyIDResponse(state);
           }
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           //return true for state for which builder method should be called
           if (currentState is AttendVisitListCallResponseState ||
-              currentState is AttendVisitSearchByIDResponseState) {
+              currentState is AttendVisitSearchByIDResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -155,7 +171,11 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
         appBar: NewGradientAppBar(
           title: Text('Attend Visit List'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -182,6 +202,7 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
                         AttendVisitListRequest(
                             CompanyId: CompanyID.toString(),
                             LoginUserID: edt_FollowupEmployeeUserID.text)));
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -214,14 +235,16 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            navigateTo(context, AttendVisitAddEditScreen.routeName);
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  navigateTo(context, AttendVisitAddEditScreen.routeName);
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -932,30 +955,33 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      _onTapOfEditCustomer(model);
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Icon(
-                          Icons.edit,
-                          color: colorPrimary,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        ),
-                        Text(
-                          'Edit',
-                          style: TextStyle(color: colorPrimary),
-                        ),
-                      ],
-                    ),
-                  ),
+                  IsEditRights == true
+                      ? GestureDetector(
+                          onTap: () {
+                            _onTapOfEditCustomer(model);
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.edit,
+                                color: colorPrimary,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
+                              Text(
+                                'Edit',
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
                   SizedBox(
                     width: 10,
                   ),
-                  isDeleteVisible == true
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             showCommonDialogWithTwoOptions(context,
@@ -1038,5 +1064,48 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
     }
 
     setState(() {});
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgVisit") {
+        _complaintScreenBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

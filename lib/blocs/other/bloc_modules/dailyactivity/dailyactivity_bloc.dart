@@ -9,6 +9,8 @@ import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_del
 import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_list_response.dart';
 import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_save_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/task_category_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'dailyactivity_events.dart';
@@ -38,6 +40,10 @@ class DailyActivityScreenBloc
 
     if (event is DailyActivitySaveByNameCallEvent) {
       yield* _mapSaveDailyActivityCallEventToState(event);
+    }
+
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -95,6 +101,22 @@ class DailyActivityScreenBloc
       DailyActivitySaveResponse dailyActivitySaveResponse = await userRepository
           .saveDailyActivity(event.pkID, event.dailyActivitySaveRequest);
       yield DailyActivitySaveCallResponseState(dailyActivitySaveResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DailyActivityScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

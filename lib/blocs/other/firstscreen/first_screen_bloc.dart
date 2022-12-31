@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
+import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
@@ -25,13 +27,18 @@ class FirstScreenBloc extends Bloc<FirstScreenEvents, FirstScreenStates> {
     if (event is LoginUserDetailsCallEvent) {
       yield* _mapLoginUserDetailsCallEventToState(event);
     }
+    if (event is ConstantRequestEvent) {
+      yield* _mapConstantRequestEventToState(event);
+    }
   }
 
   ///event functions to states implementation
   Stream<FirstScreenStates> _mapCompanyDetailsCallEventToState(
       CompanyDetailsCallEvent event) async* {
     try {
+      print("uuuuuuu");
       baseBloc.emit(ShowProgressIndicatorState(true));
+
       //call your api as follows
       CompanyDetailsResponse companyDetailsResponse =
           await userRepository.CompanyDetailsCallApi(
@@ -54,6 +61,21 @@ class FirstScreenBloc extends Bloc<FirstScreenEvents, FirstScreenStates> {
       LoginUserDetialsResponse loginResponse =
           await userRepository.loginUserDetailsCall(event.request);
       yield LoginUserDetialsCallEventResponseState(loginResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FirstScreenStates> _mapConstantRequestEventToState(
+      ConstantRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      ConstantResponse respo =
+          await userRepository.getConstantAPI(event.CompanyID, event.request);
+      yield ConstantResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

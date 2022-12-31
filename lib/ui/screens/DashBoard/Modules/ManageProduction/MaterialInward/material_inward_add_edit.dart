@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/manage_production/production_bloc.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -131,8 +130,11 @@ class _MaterialInwardAddEditState extends BaseState<MaterialInwardAddEdit>
   Widget buildBody(BuildContext context) {
     return Scaffold(
       appBar: NewGradientAppBar(
-        gradient:
-            LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+        gradient: LinearGradient(colors: [
+          Color(0xff108dcf),
+          Color(0xff0066b3),
+          Color(0xff62bb47),
+        ]),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,

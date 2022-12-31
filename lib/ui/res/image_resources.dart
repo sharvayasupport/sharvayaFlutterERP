@@ -38,3 +38,24 @@ const CREDIT_INFORMATION =
 const EMAIL = "assets/images/custom_logo_icon/email.png";
 const CUSTOMER_DOC = "assets/images/custom_logo_icon/sutomer_doc.png";
 const DEALER_LOGO = "assets/images/dealer_logo.png";
+const REVISE_QT = "assets/images/revise_qt.png";
+const NO_ImageNetWorkURL = "https://img.icons8.com/color/2x/no-image.png";
+const LEAD_LOGO = "assets/images/e_lead_img.jpg";
+const DASHBOARD_LEAD = "assets/images/dashboard_res/dashboard_lead_four.png";
+
+const DASHBOARD_SALES = "assets/images/dashboard_res/dashboard_sales.png";
+const DASHBOARD_PRODUCTION =
+    "assets/images/dashboard_res/dashboard_production.png";
+const DASHBOARD_ACCOUNT = "assets/images/dashboard_res/dashboard_account.png";
+const DASHBOARD_HR = "assets/images/dashboard_res/dashboard_hr.png";
+const DASHBOARD_PURCHASE = "assets/images/dashboard_res/dashboard_purchase.png";
+const DASHBOARD_OFFICE = "assets/images/dashboard_res/dashboard_office.png";
+const DASHBOARD_SUPPORT = "assets/images/dashboard_res/dashboard_support.png";
+
+///Listing ITem Resources
+const CUSTOM_SEARCH = "assets/images/listing_res/custom_search.png";
+const CUSTOM_INSERT = "assets/images/listing_res/insert.png";
+const CUSTOM_UPDATE = "assets/images/listing_res/ic_update.png";
+const CUSTOM_DELETE = "assets/images/listing_res/ic_delete.png";
+const CUSTOM_SETTING = "assets/images/listing_res/setting.png";
+//setting.png

@@ -1,25 +1,31 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:soleoserp/blocs/other/bloc_modules/quotation/quotation_bloc.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/specification/quotation/quotation_specification.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/add_inquiry_product_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_add_edit/specification/specification_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/offline_db_helper.dart';
+import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class SpecificationListArgument {
   String inquiry_No;
+  String ProductID;
 
-  SpecificationListArgument(this.inquiry_No);
+  SpecificationListArgument(this.inquiry_No, this.ProductID);
 }
 
 class SpecificationListScreen extends BaseStatefulWidget {
   static const routeName = '/SpecificationListScreen';
   final SpecificationListArgument arguments;
+
   SpecificationListScreen(this.arguments);
   @override
   _SpecificationListScreenState createState() =>
@@ -28,21 +34,65 @@ class SpecificationListScreen extends BaseStatefulWidget {
 
 class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
     with BasicScreen, WidgetsBindingObserver {
+  CompanyDetailsResponse _offlineCompanyData;
+  LoginUserDetialsResponse _offlineLoggedInData;
+
+  String LoginUserID;
+  String CompanyID;
+
   List<QuotationSpecificationTable> _productList = [];
   double sizeboxsize = 12;
   double _fontSize_Label = 9;
   double _fontSize_Title = 11;
   int label_color = 0xff4F4F4F; //0x66666666;
   int title_color = 0xff362d8b;
+
+  QuotationBloc _quotationBloc;
+  String _productID = "";
+
   @override
   void initState() {
     super.initState();
+    _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
+    _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+    LoginUserID = _offlineLoggedInData.details[0].userID;
+    CompanyID = _offlineCompanyData.details[0].pkId.toString();
+    _quotationBloc = QuotationBloc(baseBloc);
+
     screenStatusBarColor = colorWhite;
     if (widget.arguments != null) {
       print("GetINQNOFRomList" + widget.arguments.inquiry_No);
+
+      _productID = widget.arguments.ProductID;
     }
     //getContacts();
     getProduct();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (BuildContext context) => _quotationBloc,
+      child: BlocConsumer<QuotationBloc, QuotationStates>(
+        builder: (BuildContext context, QuotationStates state) {
+          /* if (state is GetQuotationProductListState) {
+            _OnGetQuotationProductList(state);
+          }*/
+          return super.build(context);
+        },
+        buildWhen: (oldState, currentState) {
+          /*if (currentState is GetQuotationProductListState) {
+            return true;
+          }*/
+
+          return false;
+        },
+        listener: (BuildContext context, QuotationStates state) {},
+        listenWhen: (oldState, currentState) {
+          return false;
+        },
+      ),
+    );
   }
 
   @override
@@ -51,26 +101,12 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
       color: colorWhite,
       child: Column(
         children: [
-          getCommonAppBar(context, baseTheme, "Product List", showBack: true),
+          getCommonAppBar(context, baseTheme, "Specification List",
+              showBack: true),
           Expanded(
             child: Stack(
               children: [
                 _buildContactsListView(),
-                Container(
-                  margin: EdgeInsets.all(20),
-                  alignment: Alignment.bottomRight,
-                  child: FloatingActionButton(
-                    backgroundColor: colorPrimary,
-                    onPressed: () async {
-                      await navigateTo(
-                        context,
-                        AddInquiryProductScreen.routeName,
-                      );
-                      getProduct(); //right now calling again get contacts, later it can be optimized
-                    },
-                    child: Icon(Icons.add),
-                  ),
-                ),
               ],
             ),
           ),
@@ -143,22 +179,25 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
   Future<void> getProduct() async {
     _productList.clear();
     _productList.addAll(await OfflineDbHelper.getInstance()
-        .getQuotationSpecificationTableList());
+        .getQuotationSpecificationWithProductID(_productID));
+
     setState(() {});
   }
 
-  Future<void> _onTapOfEditContact(int index) async {
+  Future<void> _onTapOfEditContact(QuotationSpecificationTable model) async {
     /* await navigateTo(context, AddInquiryProductScreen.routeName,
         arguments: AddInquiryProductScreenArguments(_productList[index]));
 */
 
     navigateTo(context, QuotationSpecificationAddEditScreen.routeName,
-            arguments: AddUpdateQuotationSpecificationScreenArguments(""))
+            arguments: AddUpdateQuotationSpecificationScreenArguments(model))
         .then((value) {
       print("ljfdjg" + value.toString());
+
+      getProduct();
     });
 
-    getProduct(); //right now calling again get contacts, later it can be optimized
+    // getProduct(); //right now calling again get contacts, later it can be optimized
   }
 
   Future<void> _onTapOfDeleteContact(int index) async {
@@ -195,7 +234,7 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
                 width: 48,
               )), //Image.network("https://cdn-icons.flaticon.com/png/512/4785/premium/4785452.png?token=exp=1639741267~hmac=4fc9726eef0cf39128308a40039ea5ca", height: 35, fit: BoxFit.fill,width: 35,)),
           title: Text(
-            model.OrderNo + " " + model.Head,
+            model.Group_Description,
             style: TextStyle(color: Colors.black),
           ),
 
@@ -222,6 +261,82 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Order.#",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    model.OrderNo == ""
+                                                        ? "N/A"
+                                                        : model.OrderNo,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
+                                  Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            flex: 1,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Text("Head",
+                                                    style: TextStyle(
+                                                        fontStyle:
+                                                            FontStyle.italic,
+                                                        color:
+                                                            Color(label_color),
+                                                        fontSize:
+                                                            _fontSize_Label,
+                                                        letterSpacing: .3)),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    model.Head == ""
+                                                        ? "N/A"
+                                                        : model.Head,
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(title_color),
+                                                        fontSize:
+                                                            _fontSize_Title,
+                                                        letterSpacing: .3)),
+                                              ],
+                                            )),
+                                      ]),
+                                  SizedBox(
+                                    height: sizeboxsize,
+                                  ),
                                   Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -356,7 +471,7 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
                 children: <Widget>[
                   GestureDetector(
                     onTap: () {
-                      _onTapOfEditContact(index);
+                      _onTapOfEditContact(model);
                     },
                     child: Column(
                       children: <Widget>[
@@ -377,7 +492,7 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
                   SizedBox(
                     width: 10,
                   ),
-                  GestureDetector(
+                  /* GestureDetector(
                     onTap: () {
                       _onTapOfDeleteContact(index);
                     },
@@ -396,7 +511,7 @@ class _SpecificationListScreenState extends BaseState<SpecificationListScreen>
                         ),
                       ],
                     ),
-                  ),
+                  ),*/
                 ]),
           ],
         ));

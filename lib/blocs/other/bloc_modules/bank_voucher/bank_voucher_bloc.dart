@@ -16,6 +16,8 @@ import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_save_re
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_voucher_search_by_name_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'banck_voucher_events.dart';
@@ -60,6 +62,11 @@ class BankVoucherScreenBloc
     if (event is BankVoucherSaveCallEvent) {
       yield* _mapSavedBankVoucherCallEventToState(event);
     }
+    if (event is UserMenuRightsRequestEvent1) {
+      yield* _mapUserMenuRightsRequestEventState(event);
+    }
+    //
+
     /* if (event is DailyActivityListCallEvent) {
       yield* _mapDailyActivityListCallEventToState(event);
     }
@@ -207,6 +214,22 @@ class BankVoucherScreenBloc
           .getbankvoucherSave(event.pkID, event.bankVoucherSaveRequest);
       yield BankVoucherSaveResponseState(
           event.context, bankVoucherDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<BankVoucherScreenStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent1 event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState1(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

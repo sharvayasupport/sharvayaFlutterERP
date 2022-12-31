@@ -1,8 +1,8 @@
 class SalesBillListRequest {
-  String CompanyId;
   String LoginUserID;
+  String CompanyId;
 
-  SalesBillListRequest({this.CompanyId,this.LoginUserID});
+  SalesBillListRequest({this.LoginUserID, this.CompanyId});
 
   SalesBillListRequest.fromJson(Map<String, dynamic> json) {
     CompanyId = json['CompanyId'];

@@ -13,6 +13,8 @@ import 'package:soleoserp/models/api_responses/leave_request/leave_request_delet
 import 'package:soleoserp/models/api_responses/leave_request/leave_request_list_response.dart';
 import 'package:soleoserp/models/api_responses/leave_request/leave_request_save_response.dart';
 import 'package:soleoserp/models/api_responses/leave_request/leave_request_type_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
@@ -58,6 +60,9 @@ class LeaveRequestScreenBloc
     }
     if (event is GetReportToTokenRequestEvent) {
       yield* _map_GetReportToTokenRequestEventState(event);
+    }
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -185,6 +190,22 @@ class LeaveRequestScreenBloc
     } finally {
       await Future.delayed(const Duration(milliseconds: 500), () {});
 
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<LeaveRequestStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

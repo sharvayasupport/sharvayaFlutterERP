@@ -7,6 +7,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/external_lead/external_lead_list/external_lead_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/followup_pagination_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/leave_request/leave_request_list_screen.dart';
@@ -170,6 +171,9 @@ class PushNotificationService {
           } else if (dataMap['title'] == "Quick Inquiry") {
             navigateTo(Globals.context, InquiryListScreen.routeName,
                 clearAllStack: true);
+          } else if (dataMap['title'] == "Portal Lead") {
+            navigateTo(Globals.context, ExternalLeadListScreen.routeName,
+                clearAllStack: true);
           }
         }
       }
@@ -230,5 +234,4 @@ class PushNotificationService {
   // handle notification data
 
   // start chat screen
-
 }

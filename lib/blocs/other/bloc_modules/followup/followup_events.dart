@@ -83,6 +83,15 @@ class FollowupUploadImageNameCallEvent extends FollowupEvents {
       this.expenseImageFile, this.expenseUploadImageAPIRequest);
 }
 
+class FollowupUploadImageNameFromMainFollowupCallEvent extends FollowupEvents {
+  final File expenseImageFile;
+  final FollowUpUploadImageAPIRequest expenseUploadImageAPIRequest;
+  BuildContext context;
+
+  FollowupUploadImageNameFromMainFollowupCallEvent(
+      this.context, this.expenseImageFile, this.expenseUploadImageAPIRequest);
+}
+
 class FollowupImageDeleteCallEvent extends FollowupEvents {
   final int pkID;
 
@@ -157,4 +166,24 @@ class TeleCallerFollowupHistoryRequestEvent extends FollowupEvents {
   final TeleCallerFollowupHistoryRequest request;
   TeleCallerFollowupHistoryRequestEvent(this.request);
 }
-//
+
+class InquiryShareEmpListRequestEvent extends FollowupEvents {
+  final InquiryShareEmpListRequest inquiryShareEmpListRequest;
+  InquiryShareEmpListRequestEvent(this.inquiryShareEmpListRequest);
+}
+
+class UserMenuRightsRequestEvent extends FollowupEvents {
+  String MenuID;
+
+  final UserMenuRightsRequest userMenuRightsRequest;
+  UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}
+
+class TeleCallerFollowupSaveRequestEvent extends FollowupEvents {
+  BuildContext context;
+  int followuppkID;
+  final TeleCallerFollowupSaveRequest request;
+
+  TeleCallerFollowupSaveRequestEvent(
+      this.context, this.followuppkID, this.request);
+}

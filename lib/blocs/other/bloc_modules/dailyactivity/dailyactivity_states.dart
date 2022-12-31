@@ -12,7 +12,7 @@ class DailyActivityCallResponseState extends DailyActivityScreenStates {
   final DailyActivityListResponse dailyActivityListResponse;
   final int newPage;
 
-  DailyActivityCallResponseState(this.newPage,this.dailyActivityListResponse);
+  DailyActivityCallResponseState(this.newPage, this.dailyActivityListResponse);
 }
 
 class DailyActivityDeleteCallResponseState extends DailyActivityScreenStates {
@@ -20,7 +20,6 @@ class DailyActivityDeleteCallResponseState extends DailyActivityScreenStates {
 
   DailyActivityDeleteCallResponseState(this.dailyActivityDeleteResponse);
 }
-
 
 class TaskCategoryCallResponseState extends DailyActivityScreenStates {
   final TaskCategoryResponse taskCategoryResponse;
@@ -32,4 +31,9 @@ class DailyActivitySaveCallResponseState extends DailyActivityScreenStates {
   final DailyActivitySaveResponse dailyActivitySaveResponse;
 
   DailyActivitySaveCallResponseState(this.dailyActivitySaveResponse);
+}
+
+class UserMenuRightsResponseState extends DailyActivityScreenStates {
+  final UserMenuRightsResponse userMenuRightsResponse;
+  UserMenuRightsResponseState(this.userMenuRightsResponse);
 }

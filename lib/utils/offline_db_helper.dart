@@ -1,12 +1,16 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:soleoserp/models/common/assembly/qt_assembly_table.dart';
+import 'package:soleoserp/models/common/assembly/sb_assembly_table.dart';
+import 'package:soleoserp/models/common/assembly/so_assembly_table.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/dealer/purchase_bill/other_charge_db_table.dart';
 import 'package:soleoserp/models/common/dealer/purchase_bill/product_db_table.dart';
 import 'package:soleoserp/models/common/dealer/sales_bill/other_charge_db_table.dart';
 import 'package:soleoserp/models/common/dealer/sales_bill/productl_db_table.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
+import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
 import 'package:soleoserp/models/common/other_charge_table.dart';
 import 'package:soleoserp/models/common/packingProductAssamblyTable.dart';
@@ -49,6 +53,14 @@ class OfflineDbHelper {
       "dealer_sales_bill_other_charge";
   static const TABLE_QUOTATION_SPECIFICATION_TABLE =
       "quotation_specification_table";
+
+  static const TABLE_GENERIC_ADDITIONAL_CHARGES = "generic_additional_charges";
+  static const TABLE_QT_ASSEMBLY = "quotation_assembly_table";
+  static const TABLE_SO_ASSEMBLY = "salesOrder_assembly_table";
+  static const TABLE_SB_ASSEMBLY = "salesBill_assembly_table";
+
+  //GenericAddditionalCharges
+
 /*  static createInstance() async {
     _offlineDbHelper = OfflineDbHelper();
     database = await openDatabase(
@@ -72,7 +84,7 @@ class OfflineDbHelper {
     database = await openDatabase(
         join(await getDatabasesPath(), 'soleoserp_database.db'),
         onCreate: (db, version) => _createDb(db),
-        version: 8);
+        version: 14);
   }
 
   static void _createDb(Database db) {
@@ -133,7 +145,20 @@ class OfflineDbHelper {
     );
 
     db.execute(
-      'CREATE TABLE $TABLE_QUOTATION_SPECIFICATION_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,OrderNo TEXT, Group_Description TEXT, Head TEXT, Specification TEXT, Material_Remarks TEXT)',
+      'CREATE TABLE $TABLE_QUOTATION_SPECIFICATION_TABLE(id INTEGER PRIMARY KEY AUTOINCREMENT,OrderNo TEXT, Group_Description TEXT, Head TEXT, Specification TEXT, Material_Remarks TEXT , QuotationNo TEXT , ProductID TEXT)',
+    );
+
+    db.execute(
+      'CREATE TABLE $TABLE_GENERIC_ADDITIONAL_CHARGES(id INTEGER PRIMARY KEY AUTOINCREMENT,DiscountAmt TEXT, ChargeID1 TEXT, ChargeAmt1 TEXT, ChargeID2 TEXT, ChargeAmt2 TEXT, ChargeID3 TEXT,ChargeAmt3 TEXT, ChargeID4 TEXT, ChargeAmt4 TEXT, ChargeID5 TEXT, ChargeAmt5 TEXT, ChargeName1 TEXT, ChargeName2 TEXT, ChargeName3 TEXT, ChargeName4 TEXT, ChargeName5 TEXT)',
+    );
+    db.execute(
+      'CREATE TABLE $TABLE_QT_ASSEMBLY(id INTEGER PRIMARY KEY AUTOINCREMENT,FinishProductID TEXT, ProductID TEXT, ProductName TEXT, Quantity TEXT, Unit TEXT, QuotationNo TEXT)',
+    );
+    db.execute(
+      'CREATE TABLE $TABLE_SO_ASSEMBLY(id INTEGER PRIMARY KEY AUTOINCREMENT,FinishProductID TEXT, ProductID TEXT, ProductName TEXT, Quantity TEXT, Unit TEXT, OrderNo TEXT)',
+    );
+    db.execute(
+      'CREATE TABLE $TABLE_SB_ASSEMBLY(id INTEGER PRIMARY KEY AUTOINCREMENT,FinishProductID TEXT, ProductID TEXT, ProductName TEXT, Quantity TEXT, Unit TEXT, InvoiceNo TEXT)',
     );
     //
   }
@@ -1406,6 +1431,31 @@ class OfflineDbHelper {
         maps[i]['Head'],
         maps[i]['Specification'],
         maps[i]['Material_Remarks'],
+        maps[i]['QuotationNo'],
+        maps[i]['ProductID'],
+        id: maps[i]['id'],
+      );
+    });
+  }
+
+  Future<List<QuotationSpecificationTable>>
+      getQuotationSpecificationWithProductID(String ProductID) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+        TABLE_QUOTATION_SPECIFICATION_TABLE,
+        where: 'ProductID = ? ',
+        whereArgs: [ProductID]);
+
+    return List.generate(maps.length, (i) {
+      return QuotationSpecificationTable(
+        maps[i]['OrderNo'],
+        maps[i]['Group_Description'],
+        maps[i]['Head'],
+        maps[i]['Specification'],
+        maps[i]['Material_Remarks'],
+        maps[i]['QuotationNo'],
+        maps[i]['ProductID'],
         id: maps[i]['id'],
       );
     });
@@ -1433,9 +1483,235 @@ class OfflineDbHelper {
     );
   }
 
+  Future<void> deleteQuotationSpecificationByFinishProductID(int id) async {
+    final db = await database;
+
+    await db.delete(
+      TABLE_QUOTATION_SPECIFICATION_TABLE,
+      where: 'ProductID = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<void> deleteALLQuotationSpecificationTable() async {
     final db = await database;
 
     await db.delete(TABLE_QUOTATION_SPECIFICATION_TABLE);
+  }
+
+  ///Generic Addional DB //
+  ///DB Name : TABLE_GENERIC_ADDITIONAL_CHARGES
+  ///Model Name : GenericAddditionalCharges
+  Future<int> insertGenericAddditionalCharges(
+      GenericAddditionalCharges model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_GENERIC_ADDITIONAL_CHARGES,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<GenericAddditionalCharges>> getGenericAddditionalCharges() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps =
+        await db.query(TABLE_GENERIC_ADDITIONAL_CHARGES);
+
+    return List.generate(maps.length, (i) {
+      return GenericAddditionalCharges(
+        maps[i]['DiscountAmt'],
+        maps[i]['ChargeID1'],
+        maps[i]['ChargeAmt1'],
+        maps[i]['ChargeID2'],
+        maps[i]['ChargeAmt2'],
+        maps[i]['ChargeID3'],
+        maps[i]['ChargeAmt3'],
+        maps[i]['ChargeID4'],
+        maps[i]['ChargeAmt4'],
+        maps[i]['ChargeID5'],
+        maps[i]['ChargeAmt5'],
+        maps[i]['ChargeName1'],
+        maps[i]['ChargeName2'],
+        maps[i]['ChargeName3'],
+        maps[i]['ChargeName4'],
+        maps[i]['ChargeName5'],
+        id: maps[i]['id'],
+      );
+    });
+  }
+
+  Future<void> updateGenericAddditionalCharges(
+      GenericAddditionalCharges model) async {
+    final db = await database;
+
+    await db.update(
+      TABLE_GENERIC_ADDITIONAL_CHARGES,
+      model.toJson(),
+      where: 'id = ?',
+      whereArgs: [model.id],
+    );
+  }
+
+  Future<void> deleteGenericAddditionalCharges(int id) async {
+    final db = await database;
+
+    await db.delete(
+      TABLE_GENERIC_ADDITIONAL_CHARGES,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteALLGenericAddditionalCharges() async {
+    final db = await database;
+
+    await db.delete(TABLE_GENERIC_ADDITIONAL_CHARGES);
+  }
+
+  /// Quotation Assembly CRUD/////
+  Future<int> insertQtAssemblyItems(QTAssemblyTable model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_QT_ASSEMBLY,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<QTAssemblyTable>> getQtAssemblyItems(
+      String FinishProductID) async {
+    final db = await database;
+
+    // final List<Map<String, dynamic>> maps = await db.query(TABLE_QT_ASSEMBLY);
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_QT_ASSEMBLY,
+        where: 'FinishProductID = ? ', whereArgs: [FinishProductID]);
+    return List.generate(maps.length, (i) {
+      return QTAssemblyTable(
+          maps[i]['FinishProductID'],
+          maps[i]['ProductID'],
+          maps[i]['ProductName'],
+          maps[i]['Quantity'],
+          maps[i]['Unit'],
+          maps[i]['QuotationNo'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<void> updateQtAssemblyItems(QTAssemblyTable model) async {
+    final db = await database;
+
+    await db.update(TABLE_QT_ASSEMBLY, model.toJson(),
+        where: 'id = ?', whereArgs: [model.id]);
+  }
+
+  Future<void> deleteQtAssemblyItem(int id) async {
+    final db = await database;
+    await db.delete(TABLE_QT_ASSEMBLY, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllQtAssemblyItems() async {
+    final db = await database;
+
+    db.delete(TABLE_QT_ASSEMBLY);
+  }
+
+  /// SalesOrder Assembly CRUD TABLE_SO_ASSEMBLY
+
+  Future<int> insertSOAssemblyItems(SOAssemblyTable model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_SO_ASSEMBLY,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<SOAssemblyTable>> getSOAssemblyItems(
+      String FinishProductID) async {
+    final db = await database;
+
+    // final List<Map<String, dynamic>> maps = await db.query(TABLE_QT_ASSEMBLY);
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_SO_ASSEMBLY,
+        where: 'FinishProductID = ? ', whereArgs: [FinishProductID]);
+    return List.generate(maps.length, (i) {
+      return SOAssemblyTable(
+          maps[i]['FinishProductID'],
+          maps[i]['ProductID'],
+          maps[i]['ProductName'],
+          maps[i]['Quantity'],
+          maps[i]['Unit'],
+          maps[i]['OrderNo'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<void> updateSOAssemblyItems(SOAssemblyTable model) async {
+    final db = await database;
+
+    await db.update(TABLE_SO_ASSEMBLY, model.toJson(),
+        where: 'id = ?', whereArgs: [model.id]);
+  }
+
+  Future<void> deleteSOAssemblyItem(int id) async {
+    final db = await database;
+    await db.delete(TABLE_SO_ASSEMBLY, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllSOAssemblyItems() async {
+    final db = await database;
+
+    db.delete(TABLE_SO_ASSEMBLY);
+  }
+
+  /// SalesBill Assembly CRUD TABLE_SB_ASSEMBLY SBAssemblyTable
+  Future<int> insertSBAssemblyItems(SBAssemblyTable model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_SB_ASSEMBLY,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<SBAssemblyTable>> getSBAssemblyItems(
+      String FinishProductID) async {
+    final db = await database;
+
+    // final List<Map<String, dynamic>> maps = await db.query(TABLE_QT_ASSEMBLY);
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_SB_ASSEMBLY,
+        where: 'FinishProductID = ? ', whereArgs: [FinishProductID]);
+    return List.generate(maps.length, (i) {
+      return SBAssemblyTable(
+          maps[i]['FinishProductID'],
+          maps[i]['ProductID'],
+          maps[i]['ProductName'],
+          maps[i]['Quantity'],
+          maps[i]['Unit'],
+          maps[i]['InvoiceNo'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<void> updateSBAssemblyItems(SBAssemblyTable model) async {
+    final db = await database;
+
+    await db.update(TABLE_SB_ASSEMBLY, model.toJson(),
+        where: 'id = ?', whereArgs: [model.id]);
+  }
+
+  Future<void> deleteSBAssemblyItem(int id) async {
+    final db = await database;
+    await db.delete(TABLE_SB_ASSEMBLY, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllSBAssemblyItems() async {
+    final db = await database;
+
+    db.delete(TABLE_SB_ASSEMBLY);
   }
 }

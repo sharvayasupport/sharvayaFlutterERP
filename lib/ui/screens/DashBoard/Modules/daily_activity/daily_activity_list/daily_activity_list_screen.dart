@@ -9,8 +9,10 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/daily_activity/daily_activity_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
+import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/daily_activity/daily_activity_add_edit/daily_activity_add_edit_screen.dart';
@@ -86,12 +88,20 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
   final TextEditingController TASKTOTALDURATION = TextEditingController();
   bool _isForUpdate;
 
+  MenuRightsResponse _menuRightsResponse;
+  bool IsAddRights = true;
+  bool IsEditRights = true;
+  bool IsDeleteRights = true;
+
   @override
   void initState() {
     super.initState();
     screenStatusBarColor = colorDarkYellow;
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
+    _menuRightsResponse = SharedPrefHelper.instance.getMenuRights();
+
     _offlineFollowerEmployeeListData =
         SharedPrefHelper.instance.getFollowerEmployeeList();
     _onFollowerEmployeeListByStatusCallSuccess(
@@ -154,6 +164,8 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
     edt_FollowupStatusReverse.addListener(followerEmployeeList);
     edt_FollowupEmployeeList.addListener(followerEmployeeList);
     edt_FollowupEmployeeUserID.addListener(followerEmployeeList);
+
+    getUserRights(_menuRightsResponse);
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
@@ -192,11 +204,14 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
           /* if (state is SearchCustomerListByNumberCallResponseState) {
             _onInquiryListByNumberCallSuccess(state);
           }*/
-
+          if (state is UserMenuRightsResponseState) {
+            _OnMenuRightsSucess(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is DailyActivityCallResponseState) {
+          if (currentState is DailyActivityCallResponseState ||
+              currentState is UserMenuRightsResponseState) {
             return true;
           }
           return false;
@@ -224,8 +239,11 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Daily Activities List'),
-          gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+          gradient: LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -259,6 +277,8 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
                 child: RefreshIndicator(
                   onRefresh: () async {
                     baseBloc.refreshScreen();
+
+                    getUserRights(_menuRightsResponse);
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -289,20 +309,23 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            // Add your onPressed code here!
-            // navigateTo(context, DailyActivityAddEditScreen.routeName);
-            navigateTo(context, DailyActivityAddEditScreen.routeName,
-                    arguments: AddUpdateDailyActivityRequestScreenArguments(
-                        null, edt_FollowupStatusReverse.text))
-                .then((value) {
-              setState(() {});
-            });
-          },
-          child: const Icon(Icons.add),
-          backgroundColor: colorPrimary,
-        ),
+        floatingActionButton: IsAddRights == true
+            ? FloatingActionButton(
+                onPressed: () async {
+                  // Add your onPressed code here!
+                  // navigateTo(context, DailyActivityAddEditScreen.routeName);
+                  navigateTo(context, DailyActivityAddEditScreen.routeName,
+                          arguments:
+                              AddUpdateDailyActivityRequestScreenArguments(
+                                  null, edt_FollowupStatusReverse.text))
+                      .then((value) {
+                    setState(() {});
+                  });
+                },
+                child: const Icon(Icons.add),
+                backgroundColor: colorPrimary,
+              )
+            : Container(),
         bottomSheet: Padding(padding: EdgeInsets.only(bottom: 80)),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
@@ -609,30 +632,33 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      _onTapOfEditCustomer(model);
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Icon(
-                          Icons.edit,
-                          color: colorPrimary,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        ),
-                        Text(
-                          'Edit',
-                          style: TextStyle(color: colorPrimary),
-                        ),
-                      ],
-                    ),
-                  ),
+                  IsEditRights == true
+                      ? GestureDetector(
+                          onTap: () {
+                            _onTapOfEditCustomer(model);
+                          },
+                          child: Column(
+                            children: <Widget>[
+                              Icon(
+                                Icons.edit,
+                                color: colorPrimary,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                              ),
+                              Text(
+                                'Edit',
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Container(),
                   SizedBox(
                     width: 10,
                   ),
-                  isDeleteVisible == true
+                  IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {
                             _onTapOfDeleteInquiry(model.pkID);
@@ -1012,5 +1038,48 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
         ),
       ],
     );
+  }
+
+  void getUserRights(MenuRightsResponse menuRightsResponse) {
+    for (int i = 0; i < menuRightsResponse.details.length; i++) {
+      print("ldsj" + "MaenudNAme : " + menuRightsResponse.details[i].menuName);
+
+      if (menuRightsResponse.details[i].menuName == "pgDailyActivity") {
+        _dailyActivityScreenBloc.add(UserMenuRightsRequestEvent(
+            menuRightsResponse.details[i].menuId.toString(),
+            UserMenuRightsRequest(
+                MenuID: menuRightsResponse.details[i].menuId.toString(),
+                CompanyId: CompanyID.toString(),
+                LoginUserID: LoginUserID)));
+        break;
+      }
+    }
+  }
+
+  void _OnMenuRightsSucess(UserMenuRightsResponseState state) {
+    for (int i = 0; i < state.userMenuRightsResponse.details.length; i++) {
+      print("DSFsdfkk" +
+          " MenuName :" +
+          state.userMenuRightsResponse.details[i].addFlag1.toString());
+
+      IsAddRights = state.userMenuRightsResponse.details[i].addFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsEditRights = state.userMenuRightsResponse.details[i].editFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+      IsDeleteRights = state.userMenuRightsResponse.details[i].delFlag1
+                  .toLowerCase()
+                  .toString() ==
+              "true"
+          ? true
+          : false;
+    }
   }
 }

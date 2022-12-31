@@ -21,6 +21,8 @@ import 'package:soleoserp/models/api_responses/expense/expense_save_response.dar
 import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
 import 'package:soleoserp/models/api_responses/expense/expense_upload_image_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/fetch_image_by_expense_pk_id_response.dart';
+import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
+import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
 
 part 'expense_events.dart';
@@ -64,6 +66,9 @@ class ExpenseBloc extends Bloc<ExpenseEvents, ExpenseStates> {
 
     if (event is ExpenseTypeByNameCallEvent) {
       yield* _mapExpenseTypeCallEventToState(event);
+    }
+    if (event is UserMenuRightsRequestEvent) {
+      yield* _mapUserMenuRightsRequestEventState(event);
     }
   }
 
@@ -215,4 +220,22 @@ class ExpenseBloc extends Bloc<ExpenseEvents, ExpenseStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+
+  Stream<ExpenseStates> _mapUserMenuRightsRequestEventState(
+      UserMenuRightsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
+          event.MenuID, event.userMenuRightsRequest);
+      yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
 }

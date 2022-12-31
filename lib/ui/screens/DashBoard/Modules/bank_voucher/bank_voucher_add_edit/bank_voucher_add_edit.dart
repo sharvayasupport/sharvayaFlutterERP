@@ -193,7 +193,11 @@ class _BankVoucherAddEditScreenState extends BaseState<BankVoucherAddEditScreen>
         appBar: NewGradientAppBar(
           title: Text('Bank Voucher Details'),
           gradient:
-              LinearGradient(colors: [Colors.blue, Colors.purple, Colors.red]),
+              LinearGradient(colors: [
+            Color(0xff108dcf),
+            Color(0xff0066b3),
+            Color(0xff62bb47),
+          ]),
           actions: <Widget>[
             IconButton(
                 icon: Icon(
@@ -596,7 +600,7 @@ class _BankVoucherAddEditScreenState extends BaseState<BankVoucherAddEditScreen>
     final DateTime picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: selectedDate,
+        firstDate: DateTime(2015, 8),
         lastDate: DateTime(2101));
     if (picked != null && picked != selectedDate)
       setState(() {
