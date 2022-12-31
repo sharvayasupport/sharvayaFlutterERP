@@ -1,18 +1,3 @@
-/*
-
-ComppkID:1
-FollowupDate:2022-07-31
-FollowupSource:
-MeetingNotes:Test from apis for followup
-NextFollowupDate:2022-08-01
-PreferredTime:10:00 AM
-CustomerID:
-InquiryStatusID:32
-LoginUserID:admin
-CompanyId:4156
-
-*/
-
 class AccuraBathComplaintFollowupSaveRequest {
   String ComppkID;
   String FollowupDate;
