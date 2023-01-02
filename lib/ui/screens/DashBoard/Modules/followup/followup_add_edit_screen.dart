@@ -1530,8 +1530,16 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
             positiveButtonTitle: "OK", onTapOfPositiveButton: ()  {
              // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
              //isTaptoEvent = true;
-             Navigator.pop(context);
-             Navigator.of(state.context).pop(_FollowupStatus);
+             if(_isForUpdate==true)
+               {
+                 Navigator.pop(context);
+                 Navigator.of(state.context).pop(_FollowupStatus);
+               }
+             else
+               {
+                 navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+               }
+
 
            });
 
@@ -2329,8 +2337,15 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
         positiveButtonTitle: "OK", onTapOfPositiveButton: ()  {
           // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
           //isTaptoEvent = true;
-          Navigator.pop(context);
-          Navigator.of(state.context).pop(_FollowupStatus);
+          if(_isForUpdate==true)
+          {
+            Navigator.pop(context);
+            Navigator.of(state.context).pop(_FollowupStatus);
+          }
+          else
+          {
+            navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+          }
 
         });
 

@@ -19,8 +19,8 @@ import 'error_response_exception.dart';
 class ApiClient {
   ///set apis' base url here
 
-  static const BASE_URL = 'http://208.109.14.134:83/';
-  // "http://122.169.111.101:108/";
+  static const BASE_URL = //'http://208.109.14.134:83/';
+      "http://122.169.111.101:108/";
   //"http://157.119.215.190:150/"; //
 
   /// General Flutter Test SerialKey = TEST-0000-SI0F-0208 / ID : admin / Pwd : Sharvaya / SiteURL : 122.169.11.101:3346
