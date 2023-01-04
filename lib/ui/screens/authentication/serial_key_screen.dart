@@ -15,6 +15,7 @@ import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SerialKeyScreen extends BaseStatefulWidget {
   static const routeName = '/SerialKeyScreen';
@@ -50,6 +51,7 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_ModeOfTransfer = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_SerialKeyDropDown = [];
+  bool value = false;
 
   @override
   void initState() {
@@ -131,7 +133,22 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
             bottom: 50),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_buildTopView(), SizedBox(height: 50), _buildLoginForm()],
+          children: [
+            _buildTopView(),
+            SizedBox(height: 50),
+            _buildLoginForm(),
+
+            /*Positioned(
+              child: new Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  alignment: Alignment.center,
+                  child: ,
+                ),
+              ),
+            ),*/
+          ],
         ),
       ),
     );
@@ -236,14 +253,97 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
           SizedBox(
             height: 25,
           ),
+          /* CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            contentPadding: EdgeInsets.all(1),
+            title: Text(
+              'Accept Our Terms & Condition(Privacy Policy).',
+              style: TextStyle(fontSize: 10, color: colorPrimary),
+            ),
+            */ /*subtitle: Text('Privacy Policy',
+                style: TextStyle(fontSize: 10, color: colorPrimary)),*/ /*
+            value: value,
+            onChanged: (bool value1) {
+              setState(() {
+                value = value1;
+              });
+            },
+          ),*/
           Container(
-            margin: EdgeInsets.all(10),
+            margin: EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 5,
+            ),
             child: getCommonButton(baseTheme, () {
               _onTapOfLogin();
             }, "Register"),
           ),
           SizedBox(
             height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              /*Text(
+                      "By Signing up you are agreeing to the",
+                      style: TextStyle(
+                        fontSize: 7,
+                        color: colorPrimary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),*/
+              InkWell(
+                onTap: () async {
+                  final url =
+                      'https://docs.google.com/document/d/1Vaw_raFxfDK8Rj7nWsteafX8k47h0N3Ye0irNAV8oK4/edit?usp=sharing';
+
+                  if (await canLaunch(url)) {
+                    await launch(
+                      url,
+                      forceSafariVC: false,
+                    );
+                  }
+                },
+                child: Text(
+                  "Terms of Use ",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: colorPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              Text(
+                "  |  ",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: colorPrimary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              InkWell(
+                onTap: () async {
+                  final url =
+                      'https://docs.google.com/document/d/13HliC_idDq4G-06Ii8z0gyzsXYZgSbvfzYThxTmQRpc/edit?usp=sharing';
+
+                  if (await canLaunch(url)) {
+                    await launch(
+                      url,
+                      forceSafariVC: false,
+                    );
+                  }
+                },
+                child: Text(
+                  "Privacy Policy",
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: colorPrimary,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(
             height: 20,
@@ -253,20 +353,22 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     );
   }
 
-  void _onTapOfForgetPassword() {
-    //TODO
-  }
-
   void _onTapOfLogin() {
     if (_userNameController.text != "") {
       /* _firstScreenBloc.add(LoginUserDetailsCallEvent(LoginUserDetialsAPIRequest(
           userID: _userNameController.text.toString(),
           password: _passwordController.text.toString(),
           companyId: _offlineLoggedInData.details[0].pkId)));*/
-
       _firstScreenBloc
         ..add(CompanyDetailsCallEvent(CompanyDetailsApiRequest(
             serialKey: _userNameController.text.toString())));
+      /* if (value == true) {
+
+      } else {
+        showCommonDialogWithSingleOption(
+            context, "Terms & Condition is Required !",
+            positiveButtonTitle: "OK");
+      }*/
     } else {
       showCommonDialogWithSingleOption(context, "Serial Key field is blank !",
           positiveButtonTitle: "OK");
