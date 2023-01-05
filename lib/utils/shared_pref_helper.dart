@@ -55,6 +55,7 @@ class SharedPrefHelper {
 
   static const String MENU_RIGHTS = "menurights";
   static const String GEN_ADDRESS = "Address";
+  static const String BASE_URL_FROM_SCREEN = "baseURL";
 
   SharedPrefHelper(this.prefs);
 
@@ -265,6 +266,14 @@ class SharedPrefHelper {
 
   getGenricTaxtype() {
     return getString(GENERICTAXTYPE);
+  }
+
+  String getBaseURL() {
+    return getString(BASE_URL_FROM_SCREEN);
+  }
+
+  setBaseURL(String data) async {
+    await putString(BASE_URL_FROM_SCREEN, data);
   }
   /* setSalesListData(String key, List<ALL_Name_ID> value) async {
     SharedPreferences myPrefs = await SharedPreferences.getInstance();
