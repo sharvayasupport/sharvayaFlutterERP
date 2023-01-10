@@ -68,7 +68,8 @@ class TeleCallerSearchByIDCallEvent extends TeleCallerEvents {
 class TeleCallerSaveCallEvent extends TeleCallerEvents {
   final int pkID;
   final TeleCallerSaveRequest request1;
-  TeleCallerSaveCallEvent(this.pkID, this.request1);
+  BuildContext contextfromHeader;
+  TeleCallerSaveCallEvent(this.contextfromHeader, this.pkID, this.request1);
 }
 
 class SearchCustomerListByNameCallEvent extends TeleCallerEvents {
@@ -80,8 +81,9 @@ class SearchCustomerListByNameCallEvent extends TeleCallerEvents {
 class TeleCallerUploadImageNameCallEvent extends TeleCallerEvents {
   final File telecallerImageFile;
   final TeleCallerUploadImgApiRequest teleCallerUploadImgApiRequest;
+  BuildContext contextFromAddEditScreen;
 
-  TeleCallerUploadImageNameCallEvent(
+  TeleCallerUploadImageNameCallEvent(this.contextFromAddEditScreen,
       this.telecallerImageFile, this.teleCallerUploadImgApiRequest);
 }
 

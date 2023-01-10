@@ -1045,7 +1045,16 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   }
 
   Future<bool> _onBackPressed() {
-    navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+    if(_isForUpdate==true)
+    {
+     // Navigator.pop(context);
+      Navigator.of(context).pop(_FollowupStatus);
+    }
+    else
+    {
+      navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
+    }
+   // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
   }
 
   Future<bool> _onOldState() {

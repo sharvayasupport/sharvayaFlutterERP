@@ -17,6 +17,12 @@ class CompanyDetailsCallEvent extends FirstScreenEvents {
   CompanyDetailsCallEvent(this.companyDetailsApiRequest);
 }
 
+class MasterBaseURLCallEvent extends FirstScreenEvents {
+  final CompanyDetailsApiRequest companyDetailsApiRequest;
+
+  MasterBaseURLCallEvent(this.companyDetailsApiRequest);
+}
+
 class ConstantRequestEvent extends FirstScreenEvents {
   String CompanyID;
   final ConstantRequest request;

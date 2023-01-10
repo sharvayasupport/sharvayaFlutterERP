@@ -128,7 +128,7 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
             LoginUserID: edt_EmployeeUserName.text,
             TaskStatus: edt_FollowupStatus.text,
             EmployeeID: edt_FollowupEmployeeUserID.text,
-            PageNo: _pageNo + 1,
+            PageNo: 1,
             PageSize: 10000))),
       child: BlocConsumer<ToDoBloc, ToDoStates>(
         builder: (BuildContext context, ToDoStates state) {
@@ -177,8 +177,7 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('To-Do List'),
-          gradient:
-              LinearGradient(colors: [
+          gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
             Color(0xff62bb47),
@@ -438,45 +437,7 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
       },
       child: ListView.builder(
         itemBuilder: (context, index) {
-          return Slidable(
-            // Specify a key if the Slidable is dismissible.
-            key: const ValueKey(0),
-
-            // The start action pane is the one at the left or the top side.
-            startActionPane: ActionPane(
-              // A motion is a widget used to control how the pane animates.
-              motion: const ScrollMotion(),
-
-              // A pane can dismiss the Slidable.
-
-              // All actions are defined in the children parameter.
-              children: [
-                // A SlidableAction can have an icon and/or a label.
-
-                SlidableAction(
-                  onPressed: (c) {
-                    showcustomdialog123(
-                        context1: context,
-                        finalCheckingItems:
-                            _FollowupListResponse.details[index],
-                        index1: index);
-                  },
-                  backgroundColor: colorGreen,
-                  foregroundColor: Colors.white,
-                  icon: Icons.done,
-                  label: 'Complete',
-                ),
-              ],
-            ),
-
-            // The end action pane is the one at the right or the bottom side.
-
-            // The child of the Slidable is what the user sees when the
-            // component is not dragged.
-            child: _buildFollowupListItem(index),
-          );
-
-          // return _buildFollowupListItem(index);
+          return _buildFollowupListItem(index);
         },
         shrinkWrap: true,
         itemCount: _FollowupListResponse.details.length,
@@ -574,256 +535,288 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
 
   ExpantionCustomer(BuildContext context, int index) {
     ToDoDetails model = _FollowupListResponse.details[index];
-
-    return Container(
-      padding: EdgeInsets.all(15),
-      child: ExpansionTileCard(
-        initialElevation: 5.0,
-        elevation: 5.0,
-        elevationCurve: Curves.easeInOut,
-        shadowColor: Color(0xFF504F4F),
-        baseColor: Color(0xFFFCFCFC),
-        expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
-        leading: CircleAvatar(
-            backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
-                Image.network(
-              "http://demo.sharvayainfotech.in/images/profile.png",
-              height: 35,
-              fit: BoxFit.fill,
-              width: 35,
-            )),
-        /* title: Text("Customer",style:TextStyle(fontSize: 12,color: Color(0xFF504F4F),fontWeight: FontWeight.bold)// baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-      ),*/
-        /* title: Text(model.employeeName,style: TextStyle(
-            color: Colors.black
-        ),),*/
-        title: Text(
-          model.CustomerName != "" ? model.CustomerName : model.taskDescription,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Colors.black),
-        ),
-        subtitle: Text(
-          model.taskStatus,
-          style: TextStyle(
-            color: Color(0xFF504F4F),
-            fontSize: _fontSize_Title,
+    return Slidable(
+      key: const ValueKey(0),
+      startActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
+          SlidableAction(
+            onPressed: (c) {
+              showcustomdialog123(
+                  context1: context,
+                  finalCheckingItems: _FollowupListResponse.details[index],
+                  index1: index);
+            },
+            backgroundColor: colorGreen,
+            foregroundColor: Colors.white,
+            icon: Icons.done,
+            label: 'Complete',
           ),
-        ),
-        children: <Widget>[
-          Divider(
-            thickness: 1.0,
-            height: 1.0,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
+        ],
+      ),
+      child: ClipPath(
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+              border: Border(left: BorderSide(color: colorGreen, width: 2))),
+          child: ExpansionTileCard(
+            initialElevation: 5.0,
+            elevation: 5.0,
+            elevationCurve: Curves.easeInOut,
+            shadowColor: Color(0xFF504F4F),
+            baseColor: colorVeryLightCardBG,
+            expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
+            leading: CircleAvatar(
+                backgroundColor: Color(0xFF504F4F),
+                child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
+                    Image.network(
+                  "http://demo.sharvayainfotech.in/images/profile.png",
+                  height: 35,
+                  fit: BoxFit.fill,
+                  width: 35,
+                )),
+            /* title: Text("Customer",style:TextStyle(fontSize: 12,color: Color(0xFF504F4F),fontWeight: FontWeight.bold)// baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+          ),*/
+            /* title: Text(model.employeeName,style: TextStyle(
+                color: Colors.black
+            ),),*/
+            title: Text(
+              model.CustomerName != ""
+                  ? model.CustomerName
+                  : model.taskDescription,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: Colors.black),
+            ),
+            subtitle: Text(
+              model.taskStatus,
+              style: TextStyle(
+                color: Color(0xFF504F4F),
+                fontSize: _fontSize_Title,
               ),
-              child: Container(
-                padding:
-                    EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Start Date",
-                                model.startDate.getFormattedDate(
-                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                        toFormat: "dd-MM-yyyy") ??
-                                    "-"),
-                          ),
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Due Date",
-                                model.dueDate.getFormattedDate(
-                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                        toFormat: "dd-MM-yyyy") ??
-                                    "-"),
-                          ),
-                          Visibility(
-                            visible: true,
-                            child: GestureDetector(
-                              onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                //await _makeSms(model.contactNo1);
-                                //  _launchURL(model.contactNo1);
-                                MoveTofollowupHistoryPage(
-                                    model.pkID.toString());
-                              },
-                              child: /*Container(
-                                            width:40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                                                shape: BoxShape.circle,
-                                                                color: colorPrimary,
+            ),
+            children: <Widget>[
+              Divider(
+                thickness: 1.0,
+                height: 1.0,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.only(
+                        left: 10, right: 10, top: 25, bottom: 25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _buildTitleWithValueView(
+                                    "Start Date",
+                                    model.startDate.getFormattedDate(
+                                            fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                            toFormat: "dd-MM-yyyy") ??
+                                        "-"),
+                              ),
+                              Expanded(
+                                child: _buildTitleWithValueView(
+                                    "Due Date",
+                                    model.dueDate.getFormattedDate(
+                                            fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                            toFormat: "dd-MM-yyyy") ??
+                                        "-"),
+                              ),
+                              Visibility(
+                                visible: true,
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    //await _makePhoneCall(model.contactNo1);
+                                    //await _makeSms(model.contactNo1);
+                                    //  _launchURL(model.contactNo1);
+                                    MoveTofollowupHistoryPage(
+                                        model.pkID.toString());
+                                  },
+                                  child: /*Container(
+                                                width:40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                                    shape: BoxShape.circle,
+                                                                    color: colorPrimary,
 
 
-                                                              ),
-                                            child:
-                                            Image.asset(
-                                              HISTORY_ICON,
-                                              width: 24,
-                                              height: 24,
-                                            ),
-                                          ),*/
-                                  Container(
-                                width: 38,
-                                height: 38,
-                                decoration: const BoxDecoration(
-                                    color: colorWhite, shape: BoxShape.circle),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Image.asset(
-                                      HISTORY_ICON,
-                                      width: 24,
-                                      height: 24,
+                                                                  ),
+                                                child:
+                                                Image.asset(
+                                                  HISTORY_ICON,
+                                                  width: 24,
+                                                  height: 24,
+                                                ),
+                                              ),*/
+                                      Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: const BoxDecoration(
+                                        color: colorWhite,
+                                        shape: BoxShape.circle),
+                                    child: Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8),
+                                        child: Image.asset(
+                                          HISTORY_ICON,
+                                          width: 24,
+                                          height: 24,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Assign To",
-                        /*model.referenceName ?? "-" */ model.employeeName ==
-                                    "" ||
-                                model.employeeName == null
-                            ? '-'
-                            : model.employeeName),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Status",
-                        /*model.referenceName ?? "-" */ model.taskStatus ==
-                                    "" ||
-                                model.taskStatus == null
-                            ? '-'
-                            : model.taskStatus),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Task Description",
-                        /*model.referenceName ?? "-" */ model.taskDescription ==
-                                    "" ||
-                                model.taskDescription == null
-                            ? '-'
-                            : model.taskDescription),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Initiated By", model.fromEmployeeName),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Completion Date",
-                        model.completionDate == "" ||
-                                model.completionDate == null ||
-                                model.completionDate == "1900-01-01T00:00:00"
-                            ? '-'
-                            : model.completionDate.getFormattedDate(
-                                fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                toFormat: "dd-MM-yyyy")),
-                    /*Row(children: [
-                        Expanded(
-                          child: getCommonButton(baseTheme, () {}, "Edit"),
-                        ),
+                            ]),
                         SizedBox(
-                          width: 20,
+                          height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                         ),
-                        Expanded(
-                          child: getCommonButton(baseTheme, () {}, "Delete"),
+                        _buildTitleWithValueView(
+                            "Assign To",
+                            /*model.referenceName ?? "-" */ model
+                                            .employeeName ==
+                                        "" ||
+                                    model.employeeName == null
+                                ? '-'
+                                : model.employeeName),
+                        SizedBox(
+                          height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                         ),
-                      ]),*/
-                  ],
+                        _buildTitleWithValueView(
+                            "Status",
+                            /*model.referenceName ?? "-" */ model.taskStatus ==
+                                        "" ||
+                                    model.taskStatus == null
+                                ? '-'
+                                : model.taskStatus),
+                        SizedBox(
+                          height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                        ),
+                        _buildTitleWithValueView(
+                            "Task Description",
+                            /*model.referenceName ?? "-" */ model
+                                            .taskDescription ==
+                                        "" ||
+                                    model.taskDescription == null
+                                ? '-'
+                                : model.taskDescription),
+                        SizedBox(
+                          height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                        ),
+                        _buildTitleWithValueView(
+                            "Initiated By", model.fromEmployeeName),
+                        SizedBox(
+                          height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                        ),
+                        _buildTitleWithValueView(
+                            "Completion Date",
+                            model.completionDate == "" ||
+                                    model.completionDate == null ||
+                                    model.completionDate ==
+                                        "1900-01-01T00:00:00"
+                                ? '-'
+                                : model.completionDate.getFormattedDate(
+                                    fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                    toFormat: "dd-MM-yyyy")),
+                        /*Row(children: [
+                            Expanded(
+                              child: getCommonButton(baseTheme, () {}, "Edit"),
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Expanded(
+                              child: getCommonButton(baseTheme, () {}, "Delete"),
+                            ),
+                          ]),*/
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          ButtonBar(
-              alignment: MainAxisAlignment.center,
-              buttonHeight: 52.0,
-              buttonMinWidth: 90.0,
-              children: <Widget>[
-                IsEditRights == true
-                    ? GestureDetector(
-                        onTap: () {
-                          _onTapOfEditCustomer(model);
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            Icon(
-                              Icons.edit,
-                              color: Colors.black,
+              ButtonBar(
+                  alignment: MainAxisAlignment.center,
+                  buttonHeight: 52.0,
+                  buttonMinWidth: 90.0,
+                  children: <Widget>[
+                    IsEditRights == true
+                        ? GestureDetector(
+                            onTap: () {
+                              _onTapOfEditCustomer(model);
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.edit,
+                                  color: Colors.black,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Edit',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2.0),
-                            ),
-                            Text(
-                              'Edit',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Container(),
-                SizedBox(
-                  width: 10,
-                ),
-                IsDeleteRights == true
-                    ? GestureDetector(
-                        onTap: () {
-                          //  cardA.currentState?.collapse();
-                          //new ExpansionTileCardState().collapse();
+                          )
+                        : Container(),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    IsDeleteRights == true
+                        ? GestureDetector(
+                            onTap: () {
+                              //  cardA.currentState?.collapse();
+                              //new ExpansionTileCardState().collapse();
 
-                          showCommonDialogWithTwoOptions(context,
-                              "Are you sure you want to Delete This Details ?",
-                              negativeButtonTitle: "No",
-                              positiveButtonTitle: "Yes",
-                              onTapOfPositiveButton: () {
-                            Navigator.of(context).pop();
-                            _ToDoBloc.add(ToDoDeleteEvent(
-                                model.pkID,
-                                ToDoDeleteRequest(
-                                    CompanyId: CompanyID.toString())));
-                          });
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            Icon(
-                              Icons.delete,
-                              color: Colors.black,
+                              showCommonDialogWithTwoOptions(context,
+                                  "Are you sure you want to Delete This Details ?",
+                                  negativeButtonTitle: "No",
+                                  positiveButtonTitle: "Yes",
+                                  onTapOfPositiveButton: () {
+                                Navigator.of(context).pop();
+                                _ToDoBloc.add(ToDoDeleteEvent(
+                                    model.pkID,
+                                    ToDoDeleteRequest(
+                                        CompanyId: CompanyID.toString())));
+                              });
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.black,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 2.0),
+                                ),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2.0),
-                            ),
-                            Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Container(),
-              ]),
-        ],
+                          )
+                        : Container(),
+                  ]),
+            ],
+          ),
+        ),
+        clipper: ShapeBorderClipper(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15))),
       ),
     );
   }
@@ -960,9 +953,13 @@ class _ToDoListScreenState extends BaseState<ToDoListScreen>
 
   void _onTapOfEditCustomer(ToDoDetails model) {
     navigateTo(context, ToDoAddEditScreen.routeName,
-            arguments: AddUpdateTODOScreenArguments(model))
+            arguments: AddUpdateTODOScreenArguments(edt_FollowupStatus.text,
+                edt_FollowupEmployeeUserID.text, model))
         .then((value) {
       setState(() {
+        ALL_Name_ID all_name_id = value;
+        edt_FollowupStatus.text = all_name_id.Name;
+        edt_FollowupEmployeeUserID.text = all_name_id.Name1;
         _ToDoBloc.add(ToDoListCallEvent(ToDoListApiRequest(
             CompanyId: CompanyID.toString(),
             LoginUserID: LoginUserID,

@@ -227,7 +227,7 @@ class ExternalLeadBloc extends Bloc<ExternalLeadEvents, ExternalLeadStates> {
 
       ExternalLeadSaveResponse respo = await userRepository
           .externalLeadSaveDetails(event.pkID, event.request1);
-      yield ExternalLeadSaveResponseState(respo);
+      yield ExternalLeadSaveResponseState(event.contextFromAddEdit, respo);
     } catch (error, stacktrace) {
       print(error.toString());
       baseBloc.emit(ApiCallFailureState(error));

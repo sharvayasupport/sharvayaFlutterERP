@@ -20,6 +20,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path_provider/path_provider.dart';
@@ -29,6 +30,7 @@ import 'package:soleoserp/models/api_requests/api_token/api_token_update_request
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
+import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/other/all_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/follower_employee_list_request.dart';
@@ -196,10 +198,18 @@ class _HomeScreenState extends BaseState<HomeScreen>
   final double spacing = 4;
   final columns = 4;
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+  );
+
   @override
   void initState() {
     super.initState();
-
+    _dashBoardScreenBloc = DashBoardScreenBloc(baseBloc);
     PuchInboolcontroller.text = "";
     PuchOutboolcontroller.text = "";
     LunchInboolcontroller.text = "";
@@ -269,6 +279,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
     pushNotificationService.getToken();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
+    _dashBoardScreenBloc.add(CompanyDetailsCallEvent(CompanyDetailsApiRequest(
+        serialKey: _offlineLoggedInData.details[0].serialKey.toString())));
+
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
@@ -286,7 +300,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         " PassWord : " +
         Password);
     ImgFromTextFiled.text = "https://img.icons8.com/color/2x/no-image.png";
-    _dashBoardScreenBloc = DashBoardScreenBloc(baseBloc);
+
     checkPermissionStatus();
     FirebaseMessaging.instance.getToken().then((token) {
       final tokenStr = token.toString();
@@ -372,6 +386,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         builder: (BuildContext context, DashBoardScreenStates state) {
           //handle states
 
+          if (state is ComapnyDetailsEventResponseState) {
+            _OnCompanyResponse(state);
+          }
+
           if (state is APITokenUpdateState) {
             _OnTokenUpdateResponse(state);
           }
@@ -408,7 +426,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
               currentState is ALL_EmployeeNameListResponseState ||
               currentState is AttendanceListCallResponseState ||
               currentState is EmployeeListResponseState ||
-              currentState is ConstantResponseState) {
+              currentState is ConstantResponseState ||
+              currentState is ComapnyDetailsEventResponseState) {
             return true;
           }
           return false;
@@ -448,6 +467,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
   @override
   Widget buildBody(BuildContext context123) {
     //getcurrentTimeInfoFromMain(context123);
+
     final w = (MediaQuery.of(context).size.width - runSpacing * (4 - 1)) / 4;
 
     print("FromScreen" + ConstantMAster.toString());
@@ -568,8 +588,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                   alignment: Alignment.center,
                                   margin: EdgeInsets.all(5),
                                   child: /*getCommonButton(baseTheme, () {
-                                    Navigator.pop(context);
-                                  }, "Close"),*/
+                                  Navigator.pop(context);
+                                }, "Close"),*/
                                       Column(
                                     children: [
                                       Divider(
@@ -579,12 +599,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                         Navigator.pop(context);
                                       }, "Close", radius: 25.0),
                                       /*Text(
-                                        "Close",
-                                        style: TextStyle(
-                                            color: colorPrimary,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold),
-                                      ),*/
+                                      "Close",
+                                      style: TextStyle(
+                                          color: colorPrimary,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),*/
                                     ],
                                   ),
                                 ),
@@ -620,16 +640,16 @@ class _HomeScreenState extends BaseState<HomeScreen>
             ),
             body: RefreshIndicator(
               onRefresh: () async {
+                _dashBoardScreenBloc.add(CompanyDetailsCallEvent(
+                    CompanyDetailsApiRequest(
+                        serialKey: _offlineLoggedInData.details[0].serialKey
+                            .toString())));
+
                 checkPermissionStatus();
 
                 checkPhotoPermissionStatus();
                 getcurrentTimeInfoFromMaindfd();
-                /* _dashBoardScreenBloc..add(EmployeeListCallEvent(
-              1,
-              EmployeeListRequest(
-                CompanyId: CompanyID.toString(),
-                OrgCode: "",
-                LoginUserID: LoginUserID,)));*/
+
                 _dashBoardScreenBloc.add(AttendanceCallEvent(
                     AttendanceApiRequest(
                         pkID: "",
@@ -655,38 +675,38 @@ class _HomeScreenState extends BaseState<HomeScreen>
                   right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
                 ),
                 child: /*ISDelaer == "Dealer"
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              margin: EdgeInsets.only(
-                                  top: 5.0, left: 10, right: 10, bottom: 5),
-                              child: GridView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 5.0,
-                                  mainAxisSpacing: 5.0,
-                                  childAspectRatio: (200 / 200),
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                            margin: EdgeInsets.only(
+                                top: 5.0, left: 10, right: 10, bottom: 5),
+                            child: GridView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 5.0,
+                                mainAxisSpacing: 5.0,
+                                childAspectRatio: (200 / 200),
 
-                                  ///200,300
-                                ),
-                                itemCount: 2,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                    child: makeDashboardItem(
-                                        arr_ALL_Name_ID_For_Lead[index].Name,
-                                        Icons.person,
-                                        context123,
-                                        arr_ALL_Name_ID_For_Lead[index].Name1),
-                                  );
-                                },
-                              ))
-                        ],
-                      )
-                    :*/
+                                ///200,300
+                              ),
+                              itemCount: 2,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  child: makeDashboardItem(
+                                      arr_ALL_Name_ID_For_Lead[index].Name,
+                                      Icons.person,
+                                      context123,
+                                      arr_ALL_Name_ID_For_Lead[index].Name1),
+                                );
+                              },
+                            ))
+                      ],
+                    )
+                  :*/
                     ListView(
                   children: [
                     ///___________________Leads____________________________
@@ -754,97 +774,97 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                         FontWeight.bold),
                                               ),
                                               /*  Container(
-                                                width: 200,
-                                                height: 1,
-                                                margin: EdgeInsets.symmetric(
-                                                    vertical: 5),
-                                                color: colorWhite,
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Text("0",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                      Text("Contacts",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Column(
-                                                    children: [
-                                                      Text("0",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                      Text("Followup",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Column(
-                                                    children: [
-                                                      Text("0",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                      Text("Inquiry",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Column(
-                                                    children: [
-                                                      Text("0",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                      Text("Quotation",
-                                                          style: TextStyle(
-                                                              color: colorWhite,
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold)),
-                                                    ],
-                                                  ),
-                                                ],
-                                              )*/
+                                              width: 200,
+                                              height: 1,
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 5),
+                                              color: colorWhite,
+                                            ),
+                                            Row(
+                                              children: [
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Contacts",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Followup",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Inquiry",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Column(
+                                                  children: [
+                                                    Text("0",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                    Text("Quotation",
+                                                        style: TextStyle(
+                                                            color: colorWhite,
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold)),
+                                                  ],
+                                                ),
+                                              ],
+                                            )*/
                                             ],
                                           ),
                                         ),
@@ -973,55 +993,55 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             /*  Container(
-                                              width: 200,
-                                              height: 1,
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              color: colorWhite,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("SalesOrder",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("SalesBill",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                              ],
-                                            )*/
+                                            width: 200,
+                                            height: 1,
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            color: colorWhite,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("SalesOrder",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("SalesBill",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                            ],
+                                          )*/
                                           ],
                                         ),
                                         Icon(
@@ -1323,55 +1343,55 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             /*  Container(
-                                              width: 200,
-                                              height: 1,
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              color: colorWhite,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("voucher",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("journal",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                              ],
-                                            )*/
+                                            width: 200,
+                                            height: 1,
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            color: colorWhite,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("voucher",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("journal",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                            ],
+                                          )*/
                                           ],
                                         ),
                                         Icon(
@@ -1500,55 +1520,55 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             /*Container(
-                                              width: 200,
-                                              height: 1,
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              color: colorWhite,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("Leave",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("MissedPunch",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                              ],
-                                            )*/
+                                            width: 200,
+                                            height: 1,
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            color: colorWhite,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("Leave",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("MissedPunch",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                            ],
+                                          )*/
                                           ],
                                         ),
                                         Icon(
@@ -1674,55 +1694,55 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             /* Container(
-                                              width: 200,
-                                              height: 1,
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              color: colorWhite,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("PurchaseOrder",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("PurchaseBill",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                              ],
-                                            )*/
+                                            width: 200,
+                                            height: 1,
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            color: colorWhite,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("PurchaseOrder",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("PurchaseBill",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                            ],
+                                          )*/
                                           ],
                                         ),
                                         Icon(
@@ -1851,55 +1871,55 @@ class _HomeScreenState extends BaseState<HomeScreen>
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             /* Container(
-                                              width: 200,
-                                              height: 1,
-                                              margin: EdgeInsets.symmetric(
-                                                  vertical: 5),
-                                              color: colorWhite,
-                                            ),
-                                            Row(
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("PendingTask",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Text("0",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                    Text("Activity",
-                                                        style: TextStyle(
-                                                            color: colorWhite,
-                                                            fontSize: 10,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                              ],
-                                            )*/
+                                            width: 200,
+                                            height: 1,
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            color: colorWhite,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("PendingTask",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Text("0",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                  Text("Activity",
+                                                      style: TextStyle(
+                                                          color: colorWhite,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .bold)),
+                                                ],
+                                              ),
+                                            ],
+                                          )*/
                                           ],
                                         ),
                                         Icon(
@@ -2137,85 +2157,85 @@ class _HomeScreenState extends BaseState<HomeScreen>
                         : Container(),
 
                     /*   arr_ALL_Name_ID_For_Support.length != 0
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                    left: 10, top: 15, right: 10),
-                                child: Card(
-                                  elevation: 5,
-                                  color: colorLightGray,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(25)),
-                                  child: Container(
-                                    height: 40,
-                                    padding: EdgeInsets.only(left: 10),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25),
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.indigo,
-                                          Colors.blue,
-                                          Colors.blue,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.ac_unit,
-                                          color: colorWhite,
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            "  Support",
-                                            style: TextStyle(
-                                                color: colorWhite,
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
+                          ? Container(
+                              margin: EdgeInsets.only(
+                                  left: 10, top: 15, right: 10),
+                              child: Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(25)),
+                                child: Container(
+                                  height: 40,
+                                  padding: EdgeInsets.only(left: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.indigo,
+                                        Colors.blue,
+                                        Colors.blue,
                                       ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.ac_unit,
+                                        color: colorWhite,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          "  Support",
+                                          style: TextStyle(
+                                              color: colorWhite,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              )
-                            : Container(),
-                        arr_ALL_Name_ID_For_Support.length != 0
-                            ? SizedBox(
-                                height: 20,
-                              )
-                            : Container(),
-                        arr_ALL_Name_ID_For_Support.length != 0
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                    top: 5.0, left: 10, right: 10, bottom: 5),
-                                child: GridView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 5.0,
-                                    mainAxisSpacing: 5.0,
-                                    childAspectRatio: (150 / 150),
-                                  ),
-                                  itemCount:
-                                      arr_ALL_Name_ID_For_Support.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      child: makeDashboardItem(
-                                          arr_ALL_Name_ID_For_Support[index]
-                                              .Name,
-                                          Icons.person,
-                                          context123,
-                                          arr_ALL_Name_ID_For_Support[index]
-                                              .Name1),
-                                    );
-                                  },
-                                ))
-                            : Container(),*/
+                              ),
+                            )
+                          : Container(),
+                      arr_ALL_Name_ID_For_Support.length != 0
+                          ? SizedBox(
+                              height: 20,
+                            )
+                          : Container(),
+                      arr_ALL_Name_ID_For_Support.length != 0
+                          ? Container(
+                              margin: EdgeInsets.only(
+                                  top: 5.0, left: 10, right: 10, bottom: 5),
+                              child: GridView.builder(
+                                physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 5.0,
+                                  mainAxisSpacing: 5.0,
+                                  childAspectRatio: (150 / 150),
+                                ),
+                                itemCount:
+                                    arr_ALL_Name_ID_For_Support.length,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                    child: makeDashboardItem(
+                                        arr_ALL_Name_ID_For_Support[index]
+                                            .Name,
+                                        Icons.person,
+                                        context123,
+                                        arr_ALL_Name_ID_For_Support[index]
+                                            .Name1),
+                                  );
+                                },
+                              ))
+                          : Container(),*/
 
                     //  arr_ALL_Name_ID_For_Dealer
                     ///___________________Dealer___________________________
@@ -2736,10 +2756,22 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name = "To-Do";
         all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
         arr_ALL_Name_ID_For_Office.add(all_name_id);
-        /*ALL_Name_ID all_name_id2 = ALL_Name_ID();
-        all_name_id2.Name = "Office Task";
+
+        ALL_Name_ID all_name_id2 = ALL_Name_ID();
+        all_name_id2.Name = "Activity Summary";
         all_name_id2.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
-        arr_ALL_Name_ID_For_Office.add(all_name_id2);*/
+        arr_ALL_Name_ID_For_Office.add(all_name_id2);
+
+        if (_offlineLoggedInData.details[0].serialKey.toLowerCase() ==
+            "si08-sb94-my45-ry15") {
+          if (LoginUserID == "satish") {
+            ALL_Name_ID all_name_id2 = ALL_Name_ID();
+            all_name_id2.Name = "Activity Summary";
+            all_name_id2.Name1 =
+                "http://demo.sharvayainfotech.in/images/Task.png";
+            arr_ALL_Name_ID_For_Office.add(all_name_id2);
+          }
+        }
       }
 
       ///------------------------------------Support_________________________________________________________
@@ -4433,594 +4465,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
     );
   }
 
-  Future<void> showInformationDialog(BuildContext context) async {
-    return await showDialog(
-        context: context,
-        builder: (context) {
-          bool isChecked = false;
-          // timeChangesEvent();
-
-          return StatefulBuilder(builder: (context, setState) {
-            isPunchIn = PuchInboolcontroller.text == "" ||
-                    PuchInboolcontroller.text == "false"
-                ? false
-                : true;
-            isPunchOut = PuchOutboolcontroller.text == "" ||
-                    PuchOutboolcontroller.text == "false"
-                ? false
-                : true;
-            isLunchIn = LunchInboolcontroller.text == "" ||
-                    LunchInboolcontroller.text == "false"
-                ? false
-                : true;
-            isLunchOut = LunchOutboolcontroller.text == "" ||
-                    LunchOutboolcontroller.text == "false"
-                ? false
-                : true;
-            return AlertDialog(
-              content: Column(
-                children: [
-                  InkWell(
-                    onTap: () async {
-                      TimeOfDay selectedTime = TimeOfDay.now();
-
-                      if (isCurrentTime == true) {
-                        if (isPunchIn == true) {
-                          showCommonDialogWithSingleOption(
-                              context,
-                              _offlineLoggedInData.details[0].employeeName +
-                                  " \n Punch In : " +
-                                  PuchInTime.text,
-                              positiveButtonTitle: "OK");
-                        } else {
-                          if (await Permission.storage.isDenied) {
-                            //await Permission.storage.request();
-
-                            checkPhotoPermissionStatus();
-                          } else {
-                            if (ConstantMAster.toString() == "" ||
-                                ConstantMAster.toString().toLowerCase() ==
-                                    "no") {
-                              _dashBoardScreenBloc.add(
-                                  PunchWithoutImageAttendanceSaveRequestEvent(
-                                      PunchWithoutImageAttendanceSaveRequest(
-                                          Mode: "punchin",
-                                          pkID: "0",
-                                          EmployeeID: _offlineLoggedInData
-                                              .details[0].employeeID
-                                              .toString(),
-                                          PresenceDate: selectedDate.year
-                                                  .toString() +
-                                              "-" +
-                                              selectedDate.month.toString() +
-                                              "-" +
-                                              selectedDate.day.toString(),
-                                          TimeIn: selectedTime.hour.toString() +
-                                              ":" +
-                                              selectedTime.minute.toString(),
-                                          TimeOut: "",
-                                          LunchIn: "",
-                                          LunchOut: "",
-                                          LoginUserID: LoginUserID,
-                                          Notes: "",
-                                          Latitude: Latitude,
-                                          Longitude: Longitude,
-                                          LocationAddress: Address,
-                                          CompanyId: CompanyID.toString())));
-                            } else {
-                              final imagepicker = ImagePicker();
-
-                              XFile file = await imagepicker.pickImage(
-                                source: ImageSource.camera,
-                                imageQuality: 85,
-                              );
-
-                              if (file != null) {
-                                File file1 = File(file.path);
-
-                                final dir =
-                                    await path_provider.getTemporaryDirectory();
-
-                                final extension = p.extension(file1.path);
-
-                                int timestamp1 =
-                                    DateTime.now().millisecondsSinceEpoch;
-
-                                String filenamepunchin = _offlineLoggedInData
-                                        .details[0].employeeID
-                                        .toString() +
-                                    "_" +
-                                    DateTime.now().day.toString() +
-                                    "_" +
-                                    DateTime.now().month.toString() +
-                                    "_" +
-                                    DateTime.now().year.toString() +
-                                    "_" +
-                                    timestamp1.toString() +
-                                    extension;
-
-                                final targetPath =
-                                    dir.absolute.path + "/" + filenamepunchin;
-                                File file1231 = await testCompressAndGetFile(
-                                    file1, targetPath);
-                                final bytes =
-                                    file1.readAsBytesSync().lengthInBytes;
-                                final kb = bytes / 1024;
-                                final mb = kb / 1024;
-
-                                print("Image File Is Largre" +
-                                    " KB : " +
-                                    kb.toString() +
-                                    " MB : " +
-                                    mb.toString());
-                                final snackBar = SnackBar(
-                                  content: Text(" KB : " +
-                                      kb.toString() +
-                                      " MB : " +
-                                      mb.toString()),
-                                );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-
-                                _dashBoardScreenBloc
-                                    .add(PunchAttendanceSaveRequestEvent(
-                                        file1231,
-                                        PunchAttendanceSaveRequest(
-                                          pkID: "0",
-                                          CompanyId: CompanyID.toString(),
-                                          Mode: "punchIN",
-                                          EmployeeID: _offlineLoggedInData
-                                              .details[0].employeeID
-                                              .toString(),
-                                          FileName: filenamepunchin,
-                                          PresenceDate: selectedDate.year
-                                                  .toString() +
-                                              "-" +
-                                              selectedDate.month.toString() +
-                                              "-" +
-                                              selectedDate.day.toString(),
-                                          Time: selectedTime.hour.toString() +
-                                              ":" +
-                                              selectedTime.minute.toString(),
-                                          Notes: "",
-                                          Latitude: Latitude,
-                                          Longitude: Longitude,
-                                          LocationAddress: Address,
-                                          LoginUserId: LoginUserID,
-                                        )));
-                              } /*else {
-                                            showCommonDialogWithSingleOption(
-                                                context,
-                                                "Something Went Wrong File Not Found Exception!",
-                                                positiveButtonTitle:
-                                                    "OK");
-                                          }*/
-                            }
-                          }
-                        }
-                      } else {
-                        getcurrentTimeInfoFromMaindfd();
-                      }
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 20, bottom: 20),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isPunchIn == true
-                                ? Icons.file_download_done
-                                : Icons.ac_unit,
-                            color: isPunchIn == true
-                                ? colorPresentDay
-                                : colorAbsentfDay,
-                            size: 42,
-                          ),
-                          Card(
-                            elevation: 5,
-                            color: PuchInTime.text == ""
-                                ? colorAbsentfDay
-                                : colorPresentDay,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Container(
-                              height: 50,
-                              width: 200,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "Punch In",
-                                        style: TextStyle(
-                                            color: colorWhite,
-                                            // <-- Change this
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          isPunchIn == true
-                              ? Icon(
-                                  Icons.access_alarm,
-                                  color: colorPrimary,
-                                )
-                              : Container(),
-                          isPunchIn == true
-                              ? Text(
-                                  PuchInTime.text,
-                                  style: TextStyle(
-                                      fontSize: 15, color: colorPrimary),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      TimeOfDay selectedTime = TimeOfDay.now();
-
-                      if (isCurrentTime == true) {
-                        if (isPunchIn == true) {
-                          if (isPunchOut == false) {
-                            if (isLunchIn == true) {
-                              showCommonDialogWithSingleOption(
-                                  context,
-                                  _offlineLoggedInData.details[0].employeeName +
-                                      " \n Lunch In : " +
-                                      LunchInTime.text,
-                                  positiveButtonTitle: "OK");
-                            } else {
-                              if (ConstantMAster.toString() == "" ||
-                                  ConstantMAster.toString().toLowerCase() ==
-                                      "no") {
-                                _dashBoardScreenBloc.add(
-                                    PunchWithoutImageAttendanceSaveRequestEvent(
-                                        PunchWithoutImageAttendanceSaveRequest(
-                                            Mode: "lunchin",
-                                            pkID: "0",
-                                            EmployeeID: _offlineLoggedInData
-                                                .details[0].employeeID
-                                                .toString(),
-                                            PresenceDate: selectedDate.year
-                                                    .toString() +
-                                                "-" +
-                                                selectedDate.month.toString() +
-                                                "-" +
-                                                selectedDate.day.toString(),
-                                            TimeIn: "",
-                                            TimeOut: "",
-                                            LunchIn: selectedTime.hour
-                                                    .toString() +
-                                                ":" +
-                                                selectedTime.minute.toString(),
-                                            LunchOut: "",
-                                            LoginUserID: LoginUserID,
-                                            Notes: "",
-                                            Latitude: "",
-                                            Longitude: "",
-                                            LocationAddress: "",
-                                            CompanyId: CompanyID.toString())));
-                              } else {
-                                final imagepicker = ImagePicker();
-
-                                XFile file = await imagepicker.pickImage(
-                                  source: ImageSource.camera,
-                                  imageQuality: 85,
-                                );
-
-                                if (file != null) {
-                                  File file1 = File(file.path);
-
-                                  final dir = await path_provider
-                                      .getTemporaryDirectory();
-
-                                  final extension = p.extension(file1.path);
-
-                                  int timestamp1 =
-                                      DateTime.now().millisecondsSinceEpoch;
-
-                                  String filenameLunchIn = _offlineLoggedInData
-                                          .details[0].employeeID
-                                          .toString() +
-                                      "_" +
-                                      DateTime.now().day.toString() +
-                                      "_" +
-                                      DateTime.now().month.toString() +
-                                      "_" +
-                                      DateTime.now().year.toString() +
-                                      "_" +
-                                      timestamp1.toString() +
-                                      extension;
-
-                                  final targetPath =
-                                      dir.absolute.path + "/" + filenameLunchIn;
-                                  File file1231 = await testCompressAndGetFile(
-                                      file1, targetPath);
-                                  final bytes =
-                                      file1.readAsBytesSync().lengthInBytes;
-                                  final kb = bytes / 1024;
-                                  final mb = kb / 1024;
-
-                                  print("Image File Is Largre" +
-                                      " KB : " +
-                                      kb.toString() +
-                                      " MB : " +
-                                      mb.toString());
-                                  final snackBar = SnackBar(
-                                    content: Text(" KB : " +
-                                        kb.toString() +
-                                        " MB : " +
-                                        mb.toString()),
-                                  );
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(snackBar);
-
-                                  _dashBoardScreenBloc
-                                      .add(PunchAttendanceSaveRequestEvent(
-                                          file1231,
-                                          PunchAttendanceSaveRequest(
-                                            pkID: "0",
-                                            CompanyId: CompanyID.toString(),
-                                            Mode: "lunchin",
-                                            EmployeeID: _offlineLoggedInData
-                                                .details[0].employeeID
-                                                .toString(),
-                                            FileName: filenameLunchIn,
-                                            PresenceDate: selectedDate.year
-                                                    .toString() +
-                                                "-" +
-                                                selectedDate.month.toString() +
-                                                "-" +
-                                                selectedDate.day.toString(),
-                                            Time: selectedTime.hour.toString() +
-                                                ":" +
-                                                selectedTime.minute.toString(),
-                                            Notes: "",
-                                            Latitude: Latitude,
-                                            Longitude: Longitude,
-                                            LocationAddress: Address,
-                                            LoginUserId: LoginUserID,
-                                          )));
-                                }
-                              }
-                            }
-                          } else {
-                            if (isLunchIn == false) {
-                              showCommonDialogWithSingleOption(context,
-                                  "After Punch Out, You can't be able to do Lunch In!!",
-                                  positiveButtonTitle: "OK");
-                            }
-                          }
-                        } else {
-                          showCommonDialogWithSingleOption(
-                              context, "Punch in Is Required !",
-                              positiveButtonTitle: "OK");
-                        }
-                      } else {
-                        getcurrentTimeInfoFromMaindfd();
-                      }
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 20, bottom: 20),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isLunchIn == true
-                                ? Icons.file_download_done
-                                : Icons.ac_unit,
-                            color: isLunchIn == true
-                                ? colorPresentDay
-                                : colorAbsentfDay,
-                            size: 42,
-                          ),
-                          Card(
-                            elevation: 5,
-                            color: LunchInTime.text == ""
-                                ? colorAbsentfDay
-                                : colorPresentDay,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Container(
-                              height: 50,
-                              width: 200,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "Lunch In",
-                                        style: TextStyle(
-                                            color: colorWhite,
-                                            // <-- Change this
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          isLunchIn == true
-                              ? Icon(
-                                  Icons.access_alarm,
-                                  color: colorPrimary,
-                                )
-                              : Container(),
-                          isLunchIn == true
-                              ? Text(
-                                  LunchInTime.text,
-                                  style: TextStyle(
-                                      fontSize: 15, color: colorPrimary),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      if (isCurrentTime == true) {
-                        lunchoutLogic();
-                      } else {
-                        getcurrentTimeInfoFromMaindfd();
-                      }
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 20, bottom: 20),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isLunchOut == true
-                                ? Icons.file_download_done
-                                : Icons.ac_unit,
-                            color: isLunchOut == true
-                                ? colorPresentDay
-                                : colorAbsentfDay,
-                            size: 42,
-                          ),
-                          Card(
-                            elevation: 5,
-                            color: LunchOutTime.text == ""
-                                ? colorAbsentfDay
-                                : colorPresentDay,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Container(
-                              height: 50,
-                              width: 100,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "Lunch Out",
-                                        style: TextStyle(
-                                            color: colorWhite,
-                                            // <-- Change this
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          isLunchOut == true
-                              ? Icon(
-                                  Icons.access_alarm,
-                                  color: colorPrimary,
-                                )
-                              : Container(),
-                          isLunchOut == true
-                              ? Text(
-                                  LunchOutTime.text,
-                                  style: TextStyle(
-                                      fontSize: 15, color: colorPrimary),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      if (isCurrentTime == true) {
-                        punchoutLogic();
-                      } else {
-                        getcurrentTimeInfoFromMaindfd();
-                      }
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 20, bottom: 20),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(
-                            isPunchOut == true
-                                ? Icons.file_download_done
-                                : Icons.ac_unit,
-                            color: isPunchOut == true
-                                ? colorPresentDay
-                                : colorAbsentfDay,
-                            size: 42,
-                          ),
-                          Card(
-                            elevation: 5,
-                            color: PuchOutTime.text == ""
-                                ? colorAbsentfDay
-                                : colorPresentDay,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Container(
-                              height: 50,
-                              width: 100,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "Punch Out",
-                                        style: TextStyle(
-                                            color: colorWhite,
-                                            // <-- Change this
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          isPunchOut == true
-                              ? Icon(
-                                  Icons.access_alarm,
-                                  color: colorPrimary,
-                                )
-                              : Container(),
-                          isPunchOut == true
-                              ? Text(
-                                  PuchOutTime.text,
-                                  style: TextStyle(
-                                      fontSize: 15, color: colorPrimary),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                ],
-              ),
-              title: Text('Stateful Dialog'),
-              actions: <Widget>[
-                InkWell(
-                  child: Text('OK   '),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          });
-        });
-  }
-
   timeChangesEvent() {
     setState(() {
       PuchInboolcontroller.text = isPunchIn.toString();
@@ -5028,5 +4472,237 @@ class _HomeScreenState extends BaseState<HomeScreen>
       LunchInboolcontroller.text = isLunchIn.toString();
       LunchOutboolcontroller.text = isLunchOut.toString();
     });
+  }
+
+  Future<void> _initPackageInfo(String APIMobileVersion) async {
+    final info = await PackageInfo.fromPlatform();
+    _packageInfo = info;
+
+    int mobileAPIVersion = int.parse(APIMobileVersion);
+    int CurrentMobileVersion = int.parse(_packageInfo.buildNumber);
+
+    if (CurrentMobileVersion > mobileAPIVersion) {
+      if (Platform.isAndroid == true) {
+        await showDialog(
+          barrierDismissible: false,
+          context: Globals.context,
+          builder: (BuildContext context123) {
+            return SimpleDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(32.0))),
+              children: [
+                SizedBox(
+                    width: MediaQuery.of(context123).size.width,
+                    child: Container(
+                      margin: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            GOOGLE_PLAY,
+                            width: 200,
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 10),
+                            height: 1,
+                            color: colorGrayVeryDark,
+                          ),
+                          Text(
+                            "Update App ?",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: colorBlack),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.all(10),
+                            child: Text(
+                              "A new version of Sharvaya ERP is available on play-store \n would you like to update it now ? ",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colorBlack,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Releases Notes :",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: colorBlack),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Minor updates and improvements.",
+                            style: TextStyle(fontSize: 12, color: colorBlack),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: getCommonButton(baseTheme, () {
+                                    Navigator.pop(context123);
+                                  }, "Skip",
+                                      backGroundColor: colorPrimary,
+                                      radius: 25.0),
+                                ),
+                              ),
+                              Flexible(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: getCommonButton(baseTheme, () async {
+                                    await launch(
+                                      "https://play.google.com/store/apps/details?id=com.sharvayainfotech.eofficedesk",
+                                    );
+                                  }, "Update",
+                                      backGroundColor: colorPrimary,
+                                      radius: 25.0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )),
+              ],
+            );
+          },
+        );
+      }
+      if (Platform.isIOS == true) {
+        await showDialog(
+          barrierDismissible: false,
+          context: Globals.context,
+          builder: (BuildContext context123) {
+            return SimpleDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(32.0))),
+              children: [
+                SizedBox(
+                    width: MediaQuery.of(context123).size.width,
+                    child: Container(
+                      margin: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            APPSTORE,
+                            height: 100,
+                            width: 100,
+                          ),
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 10),
+                            height: 1,
+                            color: colorGrayVeryDark,
+                          ),
+                          Text(
+                            "Update App ?",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: colorBlack),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(
+                            margin: EdgeInsets.all(10),
+                            child: Text(
+                              "A new version of Sharvaya ERP is available on App-Store \n would you like to update it now ? ",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colorBlack,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Releases Notes :",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: colorBlack),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Minor updates and improvements.",
+                            style: TextStyle(fontSize: 12, color: colorBlack),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: getCommonButton(baseTheme, () {
+                                    Navigator.pop(context123);
+                                  }, "Skip",
+                                      backGroundColor: colorPrimary,
+                                      radius: 25.0),
+                                ),
+                              ),
+                              Flexible(
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 10, right: 10),
+                                  child: getCommonButton(baseTheme, () async {
+                                    await launch(
+                                      "https://apps.apple.com/us/app/sharvaya-erp/id1626023618",
+                                    );
+                                  }, "Update",
+                                      backGroundColor: colorPrimary,
+                                      radius: 25.0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )),
+              ],
+            );
+          },
+        );
+      }
+    }
+
+    print("MobileAppVersion123" +
+        " BuildNumber : " +
+        _packageInfo.buildNumber.toString() +
+        " Version : " +
+        _packageInfo.version.toString() +
+        "MobileAPI" +
+        APIMobileVersion);
+  }
+
+  void _OnCompanyResponse(ComapnyDetailsEventResponseState state) {
+    print(state.companyDetailsResponse.details[0].mobileAppVersion);
+    _initPackageInfo(
+        state.companyDetailsResponse.details[0].mobileAppVersion.toString());
   }
 }

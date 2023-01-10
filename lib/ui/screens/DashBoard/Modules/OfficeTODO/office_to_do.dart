@@ -186,7 +186,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
           titleSpacing: 0,
           leadingWidth: 100,
           title: Text(
-            "Office Task",
+            "Activity Summary",
             style: TextStyle(color: colorWhite, fontWeight: FontWeight.bold),
           ),
           leading: Builder(

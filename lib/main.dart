@@ -211,6 +211,8 @@ Location location = new Location();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  //Upgrader.resetSingleton(); // REMOVE this for release builds
+
   await Firebase.initializeApp(
       // options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -307,22 +309,6 @@ void checkPermissionStatus() async {
     // The OS restricts access, for example because of parental controls.
     is_LocationService_Permission = true;
     _getCurrentLocation();
-
-    /*if (serviceLocation == true) {
-        // Use location.
-        _serviceEnabled=false;
-
-         location.requestService();
-
-
-      }
-      else{
-        _serviceEnabled=true;
-        _getCurrentLocation();
-
-
-
-      }*/
   }
 }
 
@@ -882,7 +868,7 @@ class _MyAppState extends State<MyApp> {
             // from the list (English, in this case).
             return supportedLocales.first;
           },
-          title: "Flutter base app",
+          title: "Sharvaya ERP",
           theme: buildAppTheme(),
           initialRoute: getInitialRoute(TitleNotificationSharvaya)),
     );

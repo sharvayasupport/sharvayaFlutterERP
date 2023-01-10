@@ -39,7 +39,9 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 class AddUpdateExternalLeadScreenArguments {
   ExternalLeadDetails editModel;
 
-  AddUpdateExternalLeadScreenArguments(this.editModel);
+  int PagNo;
+  String LeadStatusFromList;
+  AddUpdateExternalLeadScreenArguments(this.PagNo,this.LeadStatusFromList,this.editModel);
 }
 
 class ExternalLeadAddEditScreen extends BaseStatefulWidget {
@@ -617,7 +619,7 @@ class _ExternalLeadAddEditScreenState
 
 
                                                                 _expenseBloc.add(
-                                                                    ExternalLeadSaveCallEvent(
+                                                                    ExternalLeadSaveCallEvent(context,
                                                                         savepkID,
                                                                         ExternalLeadSaveRequest(
                                                                             CompanyName: edt_CompanyName
@@ -817,7 +819,7 @@ class _ExternalLeadAddEditScreenState
                                                         context)
                                                         .pop();
                                                     _expenseBloc.add(
-                                                        ExternalLeadSaveCallEvent(
+                                                        ExternalLeadSaveCallEvent(context,
                                                             savepkID,
                                                             ExternalLeadSaveRequest(
                                                                 CompanyName: edt_CompanyName
@@ -970,7 +972,7 @@ class _ExternalLeadAddEditScreenState
                                                     context)
                                                     .pop();
                                                 _expenseBloc.add(
-                                                    ExternalLeadSaveCallEvent(
+                                                    ExternalLeadSaveCallEvent(context,
                                                         savepkID,
                                                         ExternalLeadSaveRequest(
                                                             CompanyName: edt_CompanyName
@@ -1184,7 +1186,20 @@ class _ExternalLeadAddEditScreenState
   }
 
   Future<bool> _onBackPressed() {
-    navigateTo(context, ExternalLeadListScreen.routeName, clearAllStack: true);
+    //navigateTo(context, ExternalLeadListScreen.routeName, clearAllStack: true);
+    if(_isForUpdate==true)
+    {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name = widget.arguments.LeadStatusFromList;
+      all_name_id.pkID = widget.arguments.PagNo;
+      all_name_id.Name1 = "";
+      Navigator.of(context).pop(all_name_id);
+    }
+    else
+    {
+      navigateTo(context, ExternalLeadListScreen.routeName, clearAllStack: true);
+
+    }
   }
 
   /*Future<int> deleteFile(File file123) async {
@@ -2246,7 +2261,7 @@ class _ExternalLeadAddEditScreenState
     edt_QualifiedPinCode.text = expenseDetails.pincode;
     edt_PrimaryContact.text = expenseDetails.primaryMobileNo;
     edt_AlternateContact.text = expenseDetails.secondaryMobileNo;
-    edt_LeadStatus.text = expenseDetails.leadStatus;
+    edt_LeadStatus.text = expenseDetails.leadStatus=="New"?"":expenseDetails.leadStatus;
 
 
 
@@ -2322,27 +2337,27 @@ class _ExternalLeadAddEditScreenState
         edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
         edt_QualifiedPinCode.text ="";
       }
-    if(edt_LeadStatus.text=="")
-      {
-        isAllEditable = true;
-        isViewSaveButton = true;
-        edt_QualifiedEmplyeeName.text = expenseDetails.employeeName=="--Not Available--"?"":expenseDetails.employeeName;
-        edt_QualifiedEmplyeeID.text = expenseDetails.employeeID.toString();
-        edt_QualifiedForProduct.text = expenseDetails.productName=="--Not Available--"?"":expenseDetails.productName;
-        edt_QualifiedForProductID.text = expenseDetails.productID.toString();
-       /* edt_QualifiedCountry.text = expenseDetails.countryName;
-        edt_QualifiedCountryCode.text = expenseDetails.countryCode;*/
-        edt_QualifiedCountry.text = expenseDetails.countryCode==""?"India":expenseDetails.countryName;
-        edt_QualifiedCountryCode.text = expenseDetails.countryCode==""?"IND":expenseDetails.countryCode;
-        edt_QualifiedState.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].StateName:expenseDetails.stateName;
-        edt_QualifiedStateCode.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].stateCode.toString():expenseDetails.stateCode.toString();
-        edt_QualifiedCity.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityName:expenseDetails.cityName;
-        edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
-        edt_QualifiedPinCode.text = expenseDetails.pincode;
-        edt_DisQualifiedName.text = expenseDetails.exLeadClosureReason;
-        edt_DisQualifiedID.text = expenseDetails.exLeadClosure.toString();
-      }
 
+    if(edt_LeadStatus.text=="")
+    {
+      isAllEditable = true;
+      isViewSaveButton = true;
+      edt_QualifiedEmplyeeName.text = expenseDetails.employeeName=="--Not Available--"?"":expenseDetails.employeeName;
+      edt_QualifiedEmplyeeID.text = expenseDetails.employeeID.toString();
+      edt_QualifiedForProduct.text = expenseDetails.productName=="--Not Available--"?"":expenseDetails.productName;
+      edt_QualifiedForProductID.text = expenseDetails.productID.toString();
+      /* edt_QualifiedCountry.text = expenseDetails.countryName;
+        edt_QualifiedCountryCode.text = expenseDetails.countryCode;*/
+      edt_QualifiedCountry.text = expenseDetails.countryCode==""?"India":expenseDetails.countryName;
+      edt_QualifiedCountryCode.text = expenseDetails.countryCode==""?"IND":expenseDetails.countryCode;
+      edt_QualifiedState.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].StateName:expenseDetails.stateName;
+      edt_QualifiedStateCode.text = expenseDetails.stateCode==0?_offlineLoggedInData.details[0].stateCode.toString():expenseDetails.stateCode.toString();
+      edt_QualifiedCity.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityName:expenseDetails.cityName;
+      edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
+      edt_QualifiedPinCode.text = expenseDetails.pincode;
+      edt_DisQualifiedName.text = expenseDetails.exLeadClosureReason;
+      edt_DisQualifiedID.text = expenseDetails.exLeadClosure.toString();
+    }
 
     _expenseBloc.add(RegionCodeRequestEvent(expenseDetails,RegionCodeRequest(
         CountryName: expenseDetails.countryName==""?"India":expenseDetails.countryName,
@@ -3296,7 +3311,11 @@ class _ExternalLeadAddEditScreenState
         };
 
         print("Notificationdf" + request123.toString());
-        _expenseBloc.add(FCMNotificationRequestEvent(request123));
+        if(AssignToToken!="")
+          {
+            _expenseBloc.add(FCMNotificationRequestEvent(request123));
+
+          }
       }
     else{
       String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
@@ -3322,19 +3341,36 @@ class _ExternalLeadAddEditScreenState
       };
 
       print("Notificationdf" + request123.toString());
-      _expenseBloc.add(FCMNotificationRequestEvent(request123));
+      if(AssignToToken!="")
+      {
+        _expenseBloc.add(FCMNotificationRequestEvent(request123));
+
+      }
     }
 
 
 
-    showCommonDialogWithSingleOption(context, state.response.details[0].column2,
+    showCommonDialogWithSingleOption(state.contextFromAPIResponse, state.response.details[0].column2,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      if(_isForUpdate==true)
+        {
+         // skdjdsf
 
 
-
-
-
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = edt_LeadStatus.text;
+          all_name_id.pkID = widget.arguments.PagNo;
+          all_name_id.Name1 = savepkID.toString();
+          Navigator.pop(context);
+          Navigator.of(state.contextFromAPIResponse).pop(all_name_id);
+        }
+      else
+        {
           navigateTo(context, ExternalLeadListScreen.routeName, clearAllStack: true);
+
+        }
+
+
         });
   }
 

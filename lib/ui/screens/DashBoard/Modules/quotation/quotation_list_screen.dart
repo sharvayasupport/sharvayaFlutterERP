@@ -1171,7 +1171,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                         if (pageTitle != "E-Office-Desk") {
                           Navigator.pop(context123);
                           showCommonDialogWithSingleOption(
-                              context, "PO Generated Successfully ",
+                              context, "Quotation Generated Successfully ",
                               onTapOfPositiveButton: () {
                             Navigator.of(context).pop();
                             _QuotationBloc.add(QuotationPDFGenerateCallEvent(

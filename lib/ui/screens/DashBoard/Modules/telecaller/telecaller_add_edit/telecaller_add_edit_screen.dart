@@ -52,8 +52,9 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateTeleCallerScreenArguments {
   TeleCallerListDetails editModel;
-
-  AddUpdateTeleCallerScreenArguments(this.editModel);
+  int PagNo;
+  String LeadStatusFromList;
+  AddUpdateTeleCallerScreenArguments(this.PagNo,this.LeadStatusFromList,this.editModel);
 }
 
 class TeleCallerAddEditScreen extends BaseStatefulWidget {
@@ -719,6 +720,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                             .pop();
                                                         _expenseBloc.add(
                                                             TeleCallerSaveCallEvent(
+                                                              context,
                                                                 savepkID,
                                                                 TeleCallerSaveRequest(
                                                                     LeadID: edt_LeadNo
@@ -906,7 +908,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                 onTapOfPositiveButton: () {
                                                   Navigator.of(context).pop();
                                                   _expenseBloc.add(
-                                                      TeleCallerSaveCallEvent(
+                                                      TeleCallerSaveCallEvent(context,
                                                           savepkID,
                                                           TeleCallerSaveRequest(
                                                               LeadID: edt_LeadNo
@@ -1059,7 +1061,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                 onTapOfPositiveButton: () {
                                                   Navigator.of(context).pop();
                                                   _expenseBloc.add(
-                                                      TeleCallerSaveCallEvent(
+                                                      TeleCallerSaveCallEvent(context,
                                                           savepkID,
                                                           TeleCallerSaveRequest(
                                                               LeadID: edt_LeadNo
@@ -1295,7 +1297,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                           Navigator.of(context)
                                                               .pop();
                                                           _expenseBloc.add(
-                                                              TeleCallerSaveCallEvent(
+                                                              TeleCallerSaveCallEvent(context,
                                                                   savepkID,
                                                                   TeleCallerSaveRequest(
                                                                       LeadID: edt_LeadNo
@@ -1512,7 +1514,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                   onTapOfPositiveButton: () {
                                                     Navigator.of(context).pop();
                                                     _expenseBloc.add(
-                                                        TeleCallerSaveCallEvent(
+                                                        TeleCallerSaveCallEvent(context,
                                                             savepkID,
                                                             TeleCallerSaveRequest(
                                                                 LeadID: edt_LeadNo
@@ -1695,7 +1697,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                   onTapOfPositiveButton: () {
                                                     Navigator.of(context).pop();
                                                     _expenseBloc.add(
-                                                        TeleCallerSaveCallEvent(
+                                                        TeleCallerSaveCallEvent(context,
                                                             savepkID,
                                                             TeleCallerSaveRequest(
                                                                 LeadID: edt_LeadNo
@@ -1964,7 +1966,20 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   }
 
   Future<bool> _onBackPressed() {
-    navigateTo(context, TeleCallerListScreen.routeName, clearAllStack: true);
+    if(_isForUpdate==true)
+    {
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name = widget.arguments.LeadStatusFromList;
+      all_name_id.pkID = widget.arguments.PagNo;
+      all_name_id.Name1 = "";
+      Navigator.of(context).pop(all_name_id);
+    }
+    else
+    {
+      navigateTo(context, TeleCallerListScreen.routeName, clearAllStack: true);
+
+    }
+   // navigateTo(context, TeleCallerListScreen.routeName, clearAllStack: true);
   }
 
   /*Future<int> deleteFile(File file123) async {
@@ -4094,7 +4109,12 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
         };
 
         print("Notificationdf" + request123.toString());
-        _expenseBloc.add(FCMNotificationRequestEvent(request123));
+
+        if(ReportToToken!="")
+          {
+            _expenseBloc.add(FCMNotificationRequestEvent(request123));
+
+          }
       }
     //String Msg = _isForUpdate == true ? "Inquiry Updated Successfully" : "Inquiry Added Successfully";
 
@@ -4125,6 +4145,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                 .millisecondsSinceEpoch;
 
             _expenseBloc.add(TeleCallerUploadImageNameCallEvent(
+                  state.contextfromHeader,
                 _selectedImageFile,
                 TeleCallerUploadImgApiRequest(
                   CompanyID: CompanyID.toString(),
@@ -4149,6 +4170,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                 .now()
                 .millisecondsSinceEpoch;
             _expenseBloc.add(TeleCallerUploadImageNameCallEvent(
+                state.contextfromHeader,
                 _selectedImageFile,
                 TeleCallerUploadImgApiRequest(
                   CompanyID: CompanyID.toString(),
@@ -4175,8 +4197,23 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                   "Duplicate Contact Number, This Number Already exists in Customer Master !") {
                 Navigator.of(context).pop();
               } else {
-                navigateTo(context, TeleCallerListScreen.routeName,
-                    clearAllStack: true);
+                if(_isForUpdate==true)
+                {
+                  // skdjdsf
+
+
+                  ALL_Name_ID all_name_id = ALL_Name_ID();
+                  all_name_id.Name = edt_LeadStatus.text;
+                  all_name_id.pkID = widget.arguments.PagNo;
+                  all_name_id.Name1 = savepkID.toString();
+                  Navigator.pop(context);
+                  Navigator.of(state.contextfromHeader).pop(all_name_id);
+                }
+                else
+                {
+                  navigateTo(context, TeleCallerListScreen.routeName, clearAllStack: true);
+
+                }
               }
             });
       }
@@ -4510,8 +4547,25 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
    await  showCommonDialogWithSingleOption(Globals.context, _isForUpdate==true ?"Lead and Image Updated Successfully ! " : "Lead and Image Added Successfully",
     positiveButtonTitle: "OK", onTapOfPositiveButton: () {
       //Duplicate Contact Number, This Number Already exists in Customer Master !
-          navigateTo(context, TeleCallerListScreen.routeName,
-              clearAllStack: true);
+         if(_isForUpdate==true)
+         {
+           // skdjdsf
+
+
+           ALL_Name_ID all_name_id = ALL_Name_ID();
+           all_name_id.Name = edt_LeadStatus.text;
+           all_name_id.pkID = widget.arguments.PagNo;
+           all_name_id.Name1 = savepkID.toString();
+           Navigator.pop(context);
+           Navigator.of(state.contextFromAddEditScreen).pop(all_name_id);
+         }
+         else
+         {
+           navigateTo(context, TeleCallerListScreen.routeName, clearAllStack: true);
+
+         }
+          /*navigateTo(context, TeleCallerListScreen.routeName,
+              clearAllStack: true);*/
     });
 
   }

@@ -400,16 +400,19 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
 
   LeadStatus() {
     arr_ALL_Name_ID_For_LeadStatus.clear();
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 5; i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();
 
       if (i == 0) {
         all_name_id.Name = "ALL Leads";
-      } else if (i == 1) {
-        all_name_id.Name = "Disqualified";
+      }
+      if (i == 1) {
+        all_name_id.Name = "New";
       } else if (i == 2) {
-        all_name_id.Name = "Qualified";
+        all_name_id.Name = "Disqualified";
       } else if (i == 3) {
+        all_name_id.Name = "Qualified";
+      } else if (i == 4) {
         all_name_id.Name = "InProcess";
       }
       arr_ALL_Name_ID_For_LeadStatus.add(all_name_id);
@@ -431,11 +434,14 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
           }
         },
         child: ListView.builder(
-          key: Key('selected $selected'),
+          //key: Key('selected $selected'),
+          //key: Key('builder ${_pageNo.toString()}'),
           itemBuilder: (context, index) {
             return _buildInquiryListItem(index);
           },
           shrinkWrap: true,
+          primary: false,
+
           itemCount: _expenseListResponse.details.length,
         ),
       );
@@ -497,6 +503,8 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
     return Container(
         padding: EdgeInsets.all(15),
         child: ExpansionTileCard(
+          // key: Key(index.toString()),
+          initiallyExpanded: false, //attention
           initialElevation: 5.0,
           borderRadius: BorderRadius.all(Radius.circular(10)),
           elevation: 1,
@@ -600,82 +608,239 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
                     ),
             ],
           ),
-          subtitle: Card(
-            color: colorBackGroundGray,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: Container(
-              padding: EdgeInsets.all(5),
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.mobile_friendly,
-                        color: Color(0xff108dcf),
-                        size: 24,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        _expenseListResponse.details[index].primaryMobileNo,
-                        style: TextStyle(
-                          color: colorPrimary,
-                          fontSize: _fontSize_Title,
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.mobile_friendly,
+                              color: Color(0xff108dcf),
+                              size: 24,
+                            ),
+                          ],
                         ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () async {
-                                MakeCall.callto(_expenseListResponse
-                                    .details[index].primaryMobileNo);
-                              },
-                              child: Container(
-                                child: Image.asset(
-                                  PHONE_CALL_IMAGE,
-                                  width: 24,
-                                  height: 24,
-                                ),
+                        Row(
+                          children: [
+                            Text(
+                              _expenseListResponse
+                                  .details[index].primaryMobileNo,
+                              style: TextStyle(
+                                color: colorPrimary,
+                                fontSize: _fontSize_Title,
                               ),
                             ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                ShareMsg.msg(
-                                    context,
-                                    _expenseListResponse
-                                        .details[index].primaryMobileNo);
-                              },
-                              child: Container(
-                                child: Image.asset(WHATSAPP_IMAGE,
-                                    width: 29, height: 29),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                          ])
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
+              Flexible(
+                child: Card(
+                  color: _expenseListResponse.details[index].leadStatus == "New"
+                      ? Colors.blue
+                      : _expenseListResponse.details[index].leadStatus ==
+                              "Qualified"
+                          ? Colors.green
+                          : _expenseListResponse.details[index].leadStatus
+                                      .toLowerCase() ==
+                                  "disqualified"
+                              ? Colors.redAccent
+                              : _expenseListResponse
+                                          .details[index].leadStatus ==
+                                      "InProcess"
+                                  ? colorLightGray
+                                  : Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Text(
+                      _expenseListResponse.details[index].leadStatus,
+                      style: TextStyle(
+                          color:
+                              _expenseListResponse.details[index].leadStatus ==
+                                      "InProcess"
+                                  ? colorPrimary
+                                  : Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           children: <Widget>[
             Divider(
               thickness: 1.0,
               height: 1.0,
+            ),
+            Visibility(
+              visible: false,
+              child: Card(
+                color: colorBackGroundGray,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.mobile_friendly,
+                            color: Color(0xff108dcf),
+                            size: 24,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            _expenseListResponse.details[index].primaryMobileNo,
+                            style: TextStyle(
+                              color: colorPrimary,
+                              fontSize: _fontSize_Title,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                GestureDetector(
+                                  onTap: () async {
+                                    MakeCall.callto(_expenseListResponse
+                                        .details[index].primaryMobileNo);
+                                  },
+                                  child: Container(
+                                    child: Image.asset(
+                                      PHONE_CALL_IMAGE,
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    ShareMsg.msg(
+                                        context,
+                                        _expenseListResponse
+                                            .details[index].primaryMobileNo);
+                                  },
+                                  child: Container(
+                                    child: Image.asset(WHATSAPP_IMAGE,
+                                        width: 29, height: 29),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                              ])
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    //await _makePhoneCall(model.contactNo1);
+                    MakeCall.callto(
+                        _expenseListResponse.details[index].primaryMobileNo);
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                            child: Icon(
+                              Icons.call,
+                              size: 24,
+                              color: colorPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Call",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    ShareMsg.msg(context,
+                        _expenseListResponse.details[index].primaryMobileNo);
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                            child: Icon(
+                              Icons.message,
+                              size: 24,
+                              color: colorPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Message",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+                /*        model.inquiryNo==""?Container() :*/ SizedBox(
+                  width: 15,
+                ),
+              ],
             ),
             Container(
                 margin: EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
@@ -1133,8 +1298,23 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
 
   void _onTapOfEditCustomer(ExternalLeadDetails detail) {
     navigateTo(context, ExternalLeadAddEditScreen.routeName,
-            arguments: AddUpdateExternalLeadScreenArguments(detail))
+            arguments: AddUpdateExternalLeadScreenArguments(
+                _pageNo, edt_LeadStatus.text, detail))
         .then((value) {
+      ALL_Name_ID all_name_id = value;
+      edt_LeadStatus.text = all_name_id.Name;
+      _pageNo = all_name_id.pkID;
+      _expenseBloc
+        ..add(ExternalLeadListCallEvent(
+            1,
+            ExternalLeadListRequest(
+                pkID: "",
+                acid: "",
+                LeadStatus: edt_LeadStatus.text == "ALL Leads"
+                    ? ""
+                    : edt_LeadStatus.text,
+                LoginUserID: LoginUserID,
+                CompanyId: CompanyID.toString())));
       //_expenseBloc..add(ExpenseEventsListCallEvent(1,ExpenseListAPIRequest(CompanyId: CompanyID.toString(),LoginUserID: edt_FollowupEmployeeUserID.text,word: edt_FollowupStatus.text,needALL: "0")));
     });
   }

@@ -288,16 +288,23 @@ class _FirstScreenState extends BaseState<FirstScreen>
           fit: BoxFit.fitWidth,
         ),*/
 
-        Container(
-          width: 200.0,
-          height: 100.0,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Container(
-                child: Center(
-              child: Image.network(
-                  SiteUrl + "/images/companylogo/CompanyLogo.png"),
-            )),
+        InkWell(
+          onDoubleTap: () {
+            showCommonDialogWithSingleOption(context,
+                "Your BaseURL : " + SharedPrefHelper.instance.getBaseURL(),
+                positiveButtonTitle: "OK");
+          },
+          child: Container(
+            width: 200.0,
+            height: 100.0,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Container(
+                  child: Center(
+                child: Image.network(
+                    SiteUrl + "/images/companylogo/CompanyLogo.png"),
+              )),
+            ),
           ),
         ),
 
@@ -348,16 +355,23 @@ class _FirstScreenState extends BaseState<FirstScreen>
           fit: BoxFit.fitWidth,
         ),*/
 
-        Container(
-          width: 200.0,
-          height: 100.0,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Container(
-                child: Center(
-              child: Image.network(
-                  SiteUrl + "/images/companylogo/CompanyLogo.png"),
-            )),
+        InkWell(
+          onDoubleTap: () {
+            showCommonDialogWithSingleOption(context,
+                "Your BaseURL : " + SharedPrefHelper.instance.getBaseURL(),
+                positiveButtonTitle: "OK");
+          },
+          child: Container(
+            width: 200.0,
+            height: 100.0,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Container(
+                  child: Center(
+                child: Image.network(
+                    SiteUrl + "/images/companylogo/CompanyLogo.png"),
+              )),
+            ),
           ),
         ),
 
@@ -695,6 +709,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
   void _onTapOfRegister() {
     SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, false);
+    //SharedPrefHelper.instance.setBaseURL("");
     navigateTo(context, SerialKeyScreen.routeName, clearAllStack: true);
     // navigateTo(context, RegisterScreen.routeName, clearAllStack: true);
   }

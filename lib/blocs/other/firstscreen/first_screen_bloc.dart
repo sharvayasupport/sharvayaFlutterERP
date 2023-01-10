@@ -4,6 +4,7 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
+import 'package:soleoserp/models/api_responses/MasterBaseURL/master_base_url_response.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
@@ -23,6 +24,10 @@ class FirstScreenBloc extends Bloc<FirstScreenEvents, FirstScreenStates> {
     /// sets state based on events
     if (event is CompanyDetailsCallEvent) {
       yield* _mapCompanyDetailsCallEventToState(event);
+    }
+
+    if (event is MasterBaseURLCallEvent) {
+      yield* _mapMasterBaseURLCallEventState(event);
     }
     if (event is LoginUserDetailsCallEvent) {
       yield* _mapLoginUserDetailsCallEventToState(event);
@@ -44,6 +49,24 @@ class FirstScreenBloc extends Bloc<FirstScreenEvents, FirstScreenStates> {
           await userRepository.CompanyDetailsCallApi(
               event.companyDetailsApiRequest);
       yield ComapnyDetailsEventResponseState(companyDetailsResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FirstScreenStates> _mapMasterBaseURLCallEventState(
+      MasterBaseURLCallEvent event) async* {
+    try {
+      print("uuuuuuu");
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      //call your api as follows
+      MasterBaseURLResponse companyDetailsResponse =
+          await userRepository.MasterBaseURLAPI(event.companyDetailsApiRequest);
+      yield MasterBaseURLResponseState(companyDetailsResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

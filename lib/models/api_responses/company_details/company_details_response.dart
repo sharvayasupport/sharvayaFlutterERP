@@ -54,7 +54,7 @@ class CompanyProfile {
     siteURL = json['SiteURL'] == null ? "" : json['SiteURL'];
     expiryDate = json['ExpiryDate'] == null ? "" : json['ExpiryDate'];
     mobileAppVersion =
-        json['MobileAppVersion'] == null ? "" : json['MobileAppVersion'];
+        json['MobileAppVersion'] == null ? "0" : json['MobileAppVersion'];
     portNo = json['PortNo'] == null ? 0 : json['PortNo'];
     iSAMC = json['ISAMC'] == null ? 0 : json['ISAMC'];
     AndroidApp = json['AndroidApp'] == null ? "" : json['AndroidApp'];

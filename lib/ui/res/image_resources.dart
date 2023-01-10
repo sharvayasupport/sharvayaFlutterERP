@@ -51,6 +51,8 @@ const DASHBOARD_HR = "assets/images/dashboard_res/dashboard_hr.png";
 const DASHBOARD_PURCHASE = "assets/images/dashboard_res/dashboard_purchase.png";
 const DASHBOARD_OFFICE = "assets/images/dashboard_res/dashboard_office.png";
 const DASHBOARD_SUPPORT = "assets/images/dashboard_res/dashboard_support.png";
+const GOOGLE_PLAY = "assets/images/dashboard_res/googleplayicon.png";
+const APPSTORE = "assets/images/dashboard_res/app_store.png";
 
 ///Listing ITem Resources
 const CUSTOM_SEARCH = "assets/images/listing_res/custom_search.png";
@@ -58,4 +60,5 @@ const CUSTOM_INSERT = "assets/images/listing_res/insert.png";
 const CUSTOM_UPDATE = "assets/images/listing_res/ic_update.png";
 const CUSTOM_DELETE = "assets/images/listing_res/ic_delete.png";
 const CUSTOM_SETTING = "assets/images/listing_res/setting.png";
+
 //setting.png

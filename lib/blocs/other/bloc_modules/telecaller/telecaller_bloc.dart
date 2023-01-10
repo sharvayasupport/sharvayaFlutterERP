@@ -249,7 +249,7 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
 
       ExternalLeadSaveResponse respo = await userRepository
           .teleCallerSaveDetails(event.pkID, event.request1);
-      yield ExternalLeadSaveResponseState(respo);
+      yield ExternalLeadSaveResponseState(event.contextfromHeader, respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -284,7 +284,8 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
           await userRepository.getuploadImageTeleCaller(
               event.telecallerImageFile, event.teleCallerUploadImgApiRequest);
 
-      yield TeleCallerUploadImgApiResponseState(expenseUploadImageResponse);
+      yield TeleCallerUploadImgApiResponseState(
+          event.contextFromAddEditScreen, expenseUploadImageResponse);
     } catch (error, stacktrace) {
       print(error);
       baseBloc.emit(ApiCallFailureState(error));

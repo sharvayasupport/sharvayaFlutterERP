@@ -1229,7 +1229,7 @@ makeDashboardItem(
             clearAllStack: true);
       } else if (title == "To-Do") {
         navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
-      } else if (title == "Office Task") {
+      } else if (title == "Activity Summary") {
         navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
       } else if (title == "Quotation") {
         navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
@@ -1481,9 +1481,13 @@ void getcurrentTimeInfo(BuildContext context) async {
 void getcurrentTimeInfoFromMain(BuildContext context) async {
   DateTime startDate = await NTP.now();
   print('NTP DateTime: ${startDate} ${DateTime.now()}');
-
+  /* var PresentDate = startDate.year.toString() +
+      "-" +
+      startDate.month.toString() +
+      "-" +
+      startDate.day.toString();*/
   var now = startDate;
-  var formatter = new DateFormat('yyyy-MM-ddTHH:mm');
+  var formatter = new DateFormat('yyyy-MM-ddTHH');
   String currentday = formatter.format(now);
   String PresentDate1 = formatter.format(DateTime.now());
   print(

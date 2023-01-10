@@ -12,6 +12,12 @@ class MenuRightsEventResponseState extends DashBoardScreenStates {
   MenuRightsResponse menuRightsResponse;
   MenuRightsEventResponseState(this.menuRightsResponse);
 }
+
+class ComapnyDetailsEventResponseState extends DashBoardScreenStates {
+  final CompanyDetailsResponse companyDetailsResponse;
+
+  ComapnyDetailsEventResponseState(this.companyDetailsResponse);
+}
 /*class CustomerCategoryCallEventResponseState extends DashBoardScreenStates{
   final CustomerCategoryResponse categoryResponse;
   CustomerCategoryCallEventResponseState(this.categoryResponse);

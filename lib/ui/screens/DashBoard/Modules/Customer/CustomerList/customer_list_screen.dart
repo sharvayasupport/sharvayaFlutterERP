@@ -463,93 +463,168 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
             ],
           ),
 
-          subtitle: Card(
-            elevation: 5,
-            color: colorBackGroundGray,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            child: Container(
-              padding: EdgeInsets.only(left: 10, right: 10, top: 2, bottom: 2),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.mobile_friendly,
-                    color: Color(0xff108dcf),
-                    size: 24,
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 200,
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8.0),
                   ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    model.contactNo1,
-                    style: TextStyle(
-                      color: Color(0xFF504F4F),
-                      fontSize: _fontSize_Title,
+                  color: colorPresentDay,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.mobile_friendly,
+                          color: colorWhite,
+                          size: 20,
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () async {
-                            MakeCall.callto(model.contactNo1);
-                          },
-                          child: Container(
-                            child: Image.asset(
-                              PHONE_CALL_IMAGE,
-                              width: 18,
-                              height: 18,
+                    Container(
+                      margin: EdgeInsets.only(left: 5),
+                      child: Row(
+                        children: [
+                          Text(
+                            model.contactNo1,
+                            style: TextStyle(
+                              color: colorWhite,
+                              fontSize: _fontSize_Title,
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            ShareMsg.msg(context, model.contactNo1);
-                          },
-                          child: Container(
-                            child: Image.asset(
-                              WHATSAPP_IMAGE,
-                              width: 20,
-                              height: 20,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            _CustomerBloc.add(
-                                CustomerFetchDocumentApiRequestEvent(
-                                    true,
-                                    model,
-                                    CustomerFetchDocumentApiRequest(
-                                        CompanyID: CompanyID.toString(),
-                                        CustomerID:
-                                            model.customerID.toString())));
-                          },
-                          child: Container(
-                              child: Icon(
-                            Icons.attachment,
-                            size: 20,
-                          )),
-                        ),
-                      ])
-                ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
           children: <Widget>[
             Divider(
               thickness: 1.0,
               height: 1.0,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    //await _makePhoneCall(model.contactNo1);
+                    MakeCall.callto(model.contactNo1);
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                            child: Icon(
+                              Icons.call,
+                              size: 24,
+                              color: colorPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Call",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    ShareMsg.msg(context, model.contactNo1);
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                            child: Icon(
+                              Icons.message,
+                              size: 24,
+                              color: colorPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Message",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    //await _makePhoneCall(model.contactNo1);
+                    _CustomerBloc.add(CustomerFetchDocumentApiRequestEvent(
+                        true,
+                        model,
+                        CustomerFetchDocumentApiRequest(
+                            CompanyID: CompanyID.toString(),
+                            CustomerID: model.customerID.toString())));
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                            child: Icon(
+                              Icons.attachment,
+                              size: 24,
+                              color: colorPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Attachments",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+              ],
             ),
             Container(
                 margin: EdgeInsets.all(20),
@@ -592,7 +667,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             ],
                                           ),
                                           SizedBox(
-                                            width: 10,
+                                            width: 5,
                                           ),
                                           Flexible(
                                             child: Text(
@@ -662,12 +737,22 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Container(
                                     padding: EdgeInsets.only(
-                                        left: 10, right: 10, top: 5, bottom: 5),
+                                        left: 12, right: 10, top: 5, bottom: 5),
                                     child: Row(
                                       children: <Widget>[
-                                        Icon(
-                                          Icons.mobile_friendly,
-                                          color: colorCardBG,
+                                        Column(
+                                          children: [
+                                            Icon(
+                                              Icons.mobile_friendly,
+                                              color: colorCardBG,
+                                            ),
+                                            Text("Mobile",
+                                                style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                ))
+                                          ],
                                         ),
                                         SizedBox(
                                           width: 10,
@@ -694,15 +779,25 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                       borderRadius: BorderRadius.circular(10)),
                                   child: Container(
                                     padding: EdgeInsets.only(
-                                        left: 10, right: 10, top: 5, bottom: 5),
+                                        left: 12, right: 10, top: 5, bottom: 5),
                                     child: Row(
                                       children: <Widget>[
-                                        Icon(
-                                          Icons.email,
-                                          color: colorCardBG,
+                                        Column(
+                                          children: [
+                                            Icon(
+                                              Icons.email,
+                                              color: colorCardBG,
+                                            ),
+                                            Text("Email",
+                                                style: TextStyle(
+                                                  fontStyle: FontStyle.italic,
+                                                  color: colorCardBG,
+                                                  fontSize: 7,
+                                                ))
+                                          ],
                                         ),
                                         SizedBox(
-                                          width: 10,
+                                          width: 15,
                                         ),
                                         Text(
                                             model.emailAddress == ""
@@ -746,7 +841,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                     ],
                                   ),
                                   SizedBox(
-                                    width: 10,
+                                    width: 12,
                                   ),
                                   Flexible(
                                     child: Text(
@@ -800,7 +895,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             ],
                                           ),
                                           SizedBox(
-                                            width: 10,
+                                            width: 15,
                                           ),
                                           Flexible(
                                             child: Text(
@@ -887,7 +982,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             ],
                                           ),
                                           SizedBox(
-                                            width: 10,
+                                            width: 15,
                                           ),
                                           Flexible(
                                             child: Text(
@@ -1129,124 +1224,129 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
 
   void _onFetchCustomer_document_List(
       CustomerFetchDocumentResponseState state) {
-    if (state.isforViewDoc == true) {
-      if (state.customerFetchDocumentResponse.details.length != 0) {
-        documentAPIList.clear();
+    if (state.customerFetchDocumentResponse.details.length != 0) {
+      if (state.isforViewDoc == true) {
+        if (state.customerFetchDocumentResponse.details.length != 0) {
+          documentAPIList.clear();
 
-        for (int i = 0;
-            i < state.customerFetchDocumentResponse.details.length;
-            i++) {
-          CustomerFetchDocumentResponseDetails
-              customerFetchDocumentResponseDetails =
-              CustomerFetchDocumentResponseDetails();
-          customerFetchDocumentResponseDetails.pkID =
-              state.customerFetchDocumentResponse.details[i].pkID;
-          customerFetchDocumentResponseDetails.customerID =
-              state.customerFetchDocumentResponse.details[i].customerID;
-          customerFetchDocumentResponseDetails.name =
-              state.customerFetchDocumentResponse.details[i].name;
-          ;
-          customerFetchDocumentResponseDetails.customerName =
-              state.customerFetchDocumentResponse.details[i].customerName;
-          customerFetchDocumentResponseDetails.createdBy =
-              state.customerFetchDocumentResponse.details[i].createdBy;
-          customerFetchDocumentResponseDetails.createdDate =
-              state.customerFetchDocumentResponse.details[i].createdDate;
+          for (int i = 0;
+              i < state.customerFetchDocumentResponse.details.length;
+              i++) {
+            CustomerFetchDocumentResponseDetails
+                customerFetchDocumentResponseDetails =
+                CustomerFetchDocumentResponseDetails();
+            customerFetchDocumentResponseDetails.pkID =
+                state.customerFetchDocumentResponse.details[i].pkID;
+            customerFetchDocumentResponseDetails.customerID =
+                state.customerFetchDocumentResponse.details[i].customerID;
+            customerFetchDocumentResponseDetails.name =
+                state.customerFetchDocumentResponse.details[i].name;
+            ;
+            customerFetchDocumentResponseDetails.customerName =
+                state.customerFetchDocumentResponse.details[i].customerName;
+            customerFetchDocumentResponseDetails.createdBy =
+                state.customerFetchDocumentResponse.details[i].createdBy;
+            customerFetchDocumentResponseDetails.createdDate =
+                state.customerFetchDocumentResponse.details[i].createdDate;
 
-          documentAPIList.add(customerFetchDocumentResponseDetails);
-        }
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("View File"),
-                    getCommonButton(baseTheme, () {
-                      Navigator.pop(context);
-                    }, "Close", width: 100, height: 30)
-                  ],
-                ),
-                content: Container(
-                    width: double.maxFinite,
-                    child: ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          child: Row(
-                            children: [
-                              Card(
-                                elevation: 5,
-                                color: colorLightGray,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Container(
-                                  child: Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          urlToFile(
-                                              _offlineCompanyData
-                                                      .details[0].siteURL +
-                                                  "/CustomerDocs/" +
-                                                  documentAPIList[index]
-                                                      .name
-                                                      .toString(),
-                                              documentAPIList[index].name);
-                                        },
-                                        child: Text(
-                                          documentAPIList[index].name,
-                                          softWrap: true,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              color: colorPrimary),
-                                        ),
-                                      )),
+            documentAPIList.add(customerFetchDocumentResponseDetails);
+          }
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("View File"),
+                      getCommonButton(baseTheme, () {
+                        Navigator.pop(context);
+                      }, "Close", width: 100, height: 30)
+                    ],
+                  ),
+                  content: Container(
+                      width: double.maxFinite,
+                      child: ListView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Container(
+                            child: Row(
+                              children: [
+                                Card(
+                                  elevation: 5,
+                                  color: colorLightGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            urlToFile(
+                                                _offlineCompanyData
+                                                        .details[0].siteURL +
+                                                    "/CustomerDocs/" +
+                                                    documentAPIList[index]
+                                                        .name
+                                                        .toString(),
+                                                documentAPIList[index].name);
+                                          },
+                                          child: Text(
+                                            documentAPIList[index].name,
+                                            softWrap: true,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: colorPrimary),
+                                          ),
+                                        )),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      shrinkWrap: true,
-                      itemCount: documentAPIList.length,
-                    )),
-              );
-            });
+                              ],
+                            ),
+                          );
+                        },
+                        shrinkWrap: true,
+                        itemCount: documentAPIList.length,
+                      )),
+                );
+              });
+        }
+      } else {
+        if (state.customerFetchDocumentResponse.details.length != 0) {
+          documentAPIList.clear();
+
+          for (int i = 0;
+              i < state.customerFetchDocumentResponse.details.length;
+              i++) {
+            CustomerFetchDocumentResponseDetails
+                customerFetchDocumentResponseDetails =
+                CustomerFetchDocumentResponseDetails();
+            customerFetchDocumentResponseDetails.pkID =
+                state.customerFetchDocumentResponse.details[i].pkID;
+            customerFetchDocumentResponseDetails.customerID =
+                state.customerFetchDocumentResponse.details[i].customerID;
+            customerFetchDocumentResponseDetails.name =
+                state.customerFetchDocumentResponse.details[i].name;
+            ;
+            customerFetchDocumentResponseDetails.customerName =
+                state.customerFetchDocumentResponse.details[i].customerName;
+            customerFetchDocumentResponseDetails.createdBy =
+                state.customerFetchDocumentResponse.details[i].createdBy;
+            customerFetchDocumentResponseDetails.createdDate =
+                state.customerFetchDocumentResponse.details[i].createdDate;
+
+            documentAPIList.add(customerFetchDocumentResponseDetails);
+          }
+
+          _onTapOfEditCustomer(state.customerDetails, documentAPIList);
+        } else {
+          _onTapOfEditCustomer(state.customerDetails, documentAPIList);
+        }
       }
     } else {
-      if (state.customerFetchDocumentResponse.details.length != 0) {
-        documentAPIList.clear();
-
-        for (int i = 0;
-            i < state.customerFetchDocumentResponse.details.length;
-            i++) {
-          CustomerFetchDocumentResponseDetails
-              customerFetchDocumentResponseDetails =
-              CustomerFetchDocumentResponseDetails();
-          customerFetchDocumentResponseDetails.pkID =
-              state.customerFetchDocumentResponse.details[i].pkID;
-          customerFetchDocumentResponseDetails.customerID =
-              state.customerFetchDocumentResponse.details[i].customerID;
-          customerFetchDocumentResponseDetails.name =
-              state.customerFetchDocumentResponse.details[i].name;
-          ;
-          customerFetchDocumentResponseDetails.customerName =
-              state.customerFetchDocumentResponse.details[i].customerName;
-          customerFetchDocumentResponseDetails.createdBy =
-              state.customerFetchDocumentResponse.details[i].createdBy;
-          customerFetchDocumentResponseDetails.createdDate =
-              state.customerFetchDocumentResponse.details[i].createdDate;
-
-          documentAPIList.add(customerFetchDocumentResponseDetails);
-        }
-
-        _onTapOfEditCustomer(state.customerDetails, documentAPIList);
-      } else {
-        _onTapOfEditCustomer(state.customerDetails, documentAPIList);
-      }
+      showCommonDialogWithSingleOption(context, "No Attachments Found !",
+          positiveButtonTitle: "OK");
     }
   }
 

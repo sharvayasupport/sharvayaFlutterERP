@@ -10,7 +10,6 @@ import 'package:soleoserp/models/api_requests/dolphin_complaint/dolphin_complain
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/dolphin_complaint/dolphin_complaint_visit_list_response.dart';
 import 'package:soleoserp/models/api_responses/expense/expense_type_response.dart';
-import 'package:soleoserp/models/api_responses/external_leads/external_lead_list_response.dart';
 import 'package:soleoserp/models/api_responses/external_leads/external_leadsearch_response_by_name.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
@@ -18,7 +17,6 @@ import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/external_lead/external_lead_add_edit/external_lead_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/external_lead/external_lead_list/search_external_lead_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -732,14 +730,6 @@ class _DolphinComplaintVisitListScreenState
   ///navigates to search list screen
 
   ///updates data of inquiry list
-
-  void _onTapOfEditCustomer(ExternalLeadDetails detail) {
-    navigateTo(context, ExternalLeadAddEditScreen.routeName,
-            arguments: AddUpdateExternalLeadScreenArguments(detail))
-        .then((value) {
-      //_expenseBloc..add(ExpenseEventsListCallEvent(1,ExpenseListAPIRequest(CompanyId: CompanyID.toString(),LoginUserID: edt_FollowupEmployeeUserID.text,word: edt_FollowupStatus.text,needALL: "0")));
-    });
-  }
 
   void _onFollowerEmployeeListByStatusCallSuccess(
       FollowerEmployeeListResponse state) {

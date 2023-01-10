@@ -19,9 +19,10 @@ import 'error_response_exception.dart';
 class ApiClient {
   ///set apis' base url here
 
-  static const BASE_URL = //'http://208.109.14.134:83/';
-      "http://122.169.111.101:108/";
-  //"http://157.119.215.190:150/"; //
+  /* String BASE_URL = */
+  // SharedPrefHelper.instance.getBaseURL();
+/*  static const BASE_URL = //'http://208.109.14.134:83/';
+      "http://122.169.111.101:108/";*/
 
   /// General Flutter Test SerialKey = TEST-0000-SI0F-0208 / ID : admin / Pwd : Sharvaya / SiteURL : 122.169.11.101:3346
 
@@ -49,6 +50,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 */
 
   ///add end point of your apis as below
+  static const END_POINT_MASTER_BASE_URL = 'BaseURL/SerialKey';
+
   static const END_POINT_LOGIN = 'Login/SerialKey';
 
   /// end point of login User Details
@@ -357,6 +360,8 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   Future<dynamic> apiCallGet(String url, {String query = ""}) async {
     var responseJson;
     var getUrl;
+    var BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
 
     if (query.isNotEmpty) {
       getUrl = '$BASE_URL$url?$query';
@@ -397,7 +402,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   Future<dynamic> apiCallPost(
     String url,
     Map<String, dynamic> requestJsonMap, {
-    String baseUrl = BASE_URL,
+    /* String baseUrl = BASE_URL,*/
     bool showSuccessDialog = false,
     //dynamic jsontemparray,
   }) async {
@@ -410,13 +415,14 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
         "\nApi request params : $requestJsonMap");*/
     print("Headers - $headers");
     //String asd = json.encode(jsontemparray);
-
-    log("Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+    var BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
+    log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {
       final response = await httpClient
-          .post(Uri.parse("$baseUrl$url"),
+          .post(Uri.parse("$BASE_URL$url"),
               headers: headers,
               body:
                   (requestJsonMap == null) ? null : json.encode(requestJsonMap))
@@ -435,25 +441,27 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   Future<dynamic> apiCallPostforMultipleJSONArray(
     String url,
     dynamic jsontemparray, {
-    String baseUrl = BASE_URL,
+    /*String baseUrl = BASE_URL,*/
     bool showSuccessDialog = false,
     //dynamic jsontemparray,
   }) async {
     var responseJson;
+    var BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
     print("Headers - $headers");
     String asd = json.encode(jsontemparray);
-    log("Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $asd" +
+    log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $asd" +
         json.encode(jsontemparray));
 
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $asd" +
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $asd" +
             json.encode(jsontemparray));
     try {
       final response = await httpClient
-          .post(Uri.parse("$baseUrl$url"),
+          .post(Uri.parse("$BASE_URL$url"),
               headers: headers,
               body: (jsontemparray == null) ? null : json.encode(jsontemparray))
           .timeout(const Duration(seconds: 60));
@@ -473,11 +481,14 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   Future<dynamic> apiCallPostMultipart(
       String url, Map<String, dynamic> requestJsonMap,
       {List<File> imageFilesToUpload,
-      String baseUrl = BASE_URL,
+      /* String baseUrl = BASE_URL,*/
       String imageFieldKey = "image",
       bool showSuccessDialog: false}) async {
     var responseJson;
-    print("$baseUrl$url\n$requestJsonMap");
+
+    var BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
+    print("$BASE_URL$url\n$requestJsonMap");
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
@@ -487,9 +498,9 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     }
 
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
 
-    final request = http.MultipartRequest("POST", Uri.parse("$baseUrl$url"));
+    final request = http.MultipartRequest("POST", Uri.parse("$BASE_URL$url"));
     if (requestJsonMap != null) {
       request.fields.addAll(requestJsonMap);
     }
@@ -570,12 +581,13 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     String url,
     String query,
     Map<String, dynamic> requestJsonMap, {
-    String baseUrl = BASE_URL,
+    /*String baseUrl = BASE_URL,*/
     bool showSuccessDialog = false,
   }) async {
     var responseJson;
     var geturl;
-
+    var BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
     if (query.isNotEmpty) {
       geturl = '$BASE_URL$url/$query-10';
     } else {
@@ -587,7 +599,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     };
     print("Headers - $headers");
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {
       final response = await httpClient
           .post(Uri.parse("$geturl"),
@@ -610,19 +622,21 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   Future<dynamic> apiCallLoginUSerPost(
     String url,
     Map<String, dynamic> requestJsonMap, {
-    String baseUrl = BASE_URL,
+    /* String baseUrl = BASE_URL,*/
     bool showSuccessDialog = false,
   }) async {
     var responseJson;
+    String BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
     print("Headers - $headers");
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {
       final response = await httpClient
-          .post(Uri.parse("$baseUrl$url"),
+          .post(Uri.parse("$BASE_URL$url"),
               headers: headers,
               body:
                   (requestJsonMap == null) ? null : json.encode(requestJsonMap))
@@ -642,19 +656,21 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   Future<dynamic> apiCallCustomerPaginationPost(
     String url,
     Map<String, dynamic> requestJsonMap, {
-    String baseUrl = BASE_URL,
+    /* String baseUrl = BASE_URL,*/
     bool showSuccessDialog = false,
   }) async {
     var responseJson;
+    var BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
     print("Headers - $headers");
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {
       final response = await httpClient
-          .post(Uri.parse("$baseUrl$url"),
+          .post(Uri.parse("$BASE_URL$url"),
               headers: headers,
               body:
                   (requestJsonMap == null) ? null : json.encode(requestJsonMap))
@@ -673,9 +689,11 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   ///PUT api call with multipart and single image
   Future<dynamic> apiCallPutMultipart(
       String url, Map<String, String> requestJsonMap,
-      {File imageFileToUpload, String baseUrl = BASE_URL}) async {
+      {File imageFileToUpload /*, String baseUrl = BASE_URL*/}) async {
     var responseJson;
-    print("$baseUrl$url\n$requestJsonMap");
+    String BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
+    print("$BASE_URL$url\n$requestJsonMap");
     Map<String, String> headers = {};
     String authToken =
         SharedPrefHelper.instance.getString(SharedPrefHelper.AUTH_TOKEN_STRING);
@@ -690,9 +708,9 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       }
     } catch (e) {}
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
 
-    final request = http.MultipartRequest("PUT", Uri.parse("$baseUrl$url"));
+    final request = http.MultipartRequest("PUT", Uri.parse("$BASE_URL$url"));
     request.fields.addAll(requestJsonMap);
     request.headers.addAll(headers);
 
@@ -805,8 +823,10 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
   ///PUT api call
   Future<dynamic> apiCallPut(String url, Map<String, dynamic> requestJsonMap,
-      {String baseUrl = BASE_URL, bool showSuccessDialog = false}) async {
+      {/*String baseUrl = BASE_URL,*/ bool showSuccessDialog = false}) async {
     var responseJson;
+    String BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
@@ -824,10 +844,10 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     } catch (e) {}
 
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {
       final response = await httpClient
-          .put(Uri.parse("$baseUrl$url"),
+          .put(Uri.parse("$BASE_URL$url"),
               headers: headers,
               body:
                   (requestJsonMap == null) ? null : json.encode(requestJsonMap))
@@ -844,8 +864,10 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
   ///DELETE api call
   Future<dynamic> apiCallDelete(String url, Map<String, dynamic> requestJsonMap,
-      {String baseUrl = BASE_URL, bool showSuccessDialog = false}) async {
+      {/*String baseUrl = BASE_URL,*/ bool showSuccessDialog = false}) async {
     var responseJson;
+    String BASE_URL = "";
+    BASE_URL = SharedPrefHelper.instance.getBaseURL();
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
     };
@@ -854,7 +876,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     if (authToken != null && authToken.isNotEmpty) {
       headers['access-token'] = "$authToken";
     }
-    print("$baseUrl$url");
+    print("$BASE_URL$url");
 
     try {
       String timeZone = await getCurrentTimeZone();
@@ -863,11 +885,11 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       }
     } catch (e) {}
     print(
-        "Api request url : $baseUrl$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
 
     try {
       final response = await httpClient
-          .delete(Uri.parse("$baseUrl$url"),
+          .delete(Uri.parse("$BASE_URL$url"),
               headers: headers,
               body:
                   (requestJsonMap == null) ? null : json.encode(requestJsonMap))
@@ -1321,5 +1343,44 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     }*/
 
     // return response.headers.value(HttpHeaders.locationHeader);
+  }
+
+  Future<dynamic> MasterBaseURLAPI(
+    String url,
+    Map<String, dynamic> requestJsonMap, {
+    /* String baseUrl = BASE_URL,*/
+    bool showSuccessDialog = false,
+    //dynamic jsontemparray,
+  }) async {
+    var responseJson;
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+
+    /*FlutterLogs.logInfo("POST", "Api request url : $baseUrl$url",
+        "\nApi request params : $requestJsonMap");*/
+    print("Headers - $headers");
+    //String asd = json.encode(jsontemparray);
+    var BASE_URL = "";
+    BASE_URL = "http://baseurl.sharvayainfotech.in/";
+    log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+    print(
+        "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+    try {
+      final response = await httpClient
+          .post(Uri.parse("$BASE_URL$url"),
+              headers: headers,
+              body:
+                  (requestJsonMap == null) ? null : json.encode(requestJsonMap))
+          .timeout(const Duration(seconds: 60));
+
+      responseJson =
+          await _response(response, showSuccessDialog: showSuccessDialog);
+    } on SocketException {
+      throw FetchDataException('No Internet Connection');
+    } on TimeoutException {
+      throw FetchDataException('Request time out');
+    }
+    return responseJson;
   }
 }

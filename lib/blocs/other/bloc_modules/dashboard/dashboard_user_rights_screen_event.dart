@@ -10,6 +10,12 @@ class MenuRightsCallEvent extends DashBoardScreenEvents {
   MenuRightsCallEvent(this.menuRightsRequest);
 }
 
+class CompanyDetailsCallEvent extends DashBoardScreenEvents {
+  final CompanyDetailsApiRequest companyDetailsApiRequest;
+
+  CompanyDetailsCallEvent(this.companyDetailsApiRequest);
+}
+
 /*class CustomerCategoryCallEvent extends DashBoardScreenEvents {
   final CustomerCategoryRequest request1;
   CustomerCategoryCallEvent(this.request1);

@@ -19,6 +19,7 @@ import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_req
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/followup/telecaller_followup_history_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/FollowUpDialog/telecaller_followup_ADD_EDIT_Screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_add_edit/telecaller_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
@@ -521,6 +522,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
         ? Container(
             padding: EdgeInsets.all(15),
             child: ExpansionTileCard(
+              initiallyExpanded: false, //attention
               initialElevation: 5.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               elevation: 1,
@@ -627,86 +629,221 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                         ),
                 ],
               ),
-              subtitle: Card(
-                color: colorBackGroundGray,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                child: Container(
-                  padding: EdgeInsets.all(2),
-                  child: Row(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.mobile_friendly,
-                            color: Color(0xff108dcf),
-                            size: 24,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            _expenseListResponse.details[index].primaryMobileNo,
-                            style: TextStyle(
-                              color: colorPrimary,
-                              fontSize: _fontSize_Title,
+              subtitle: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Card(
+                      color: colorBackGroundGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.mobile_friendly,
+                                  color: Color(0xff108dcf),
+                                  size: 24,
+                                ),
+                              ],
                             ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () async {
-                                    MakeCall.callto(_expenseListResponse
-                                        .details[index].primaryMobileNo);
-                                  },
-                                  child: Container(
-                                    child: Image.asset(
-                                      PHONE_CALL_IMAGE,
-                                      width: 24,
-                                      height: 24,
-                                    ),
+                            Row(
+                              children: [
+                                Text(
+                                  _expenseListResponse
+                                      .details[index].primaryMobileNo,
+                                  style: TextStyle(
+                                    color: colorPrimary,
+                                    fontSize: _fontSize_Title,
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    ShareMsg.msg(
-                                        context,
-                                        _expenseListResponse
-                                            .details[index].primaryMobileNo);
-                                  },
-                                  child: Container(
-                                    child: Image.asset(WHATSAPP_IMAGE,
-                                        width: 29, height: 29),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                              ])
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  Flexible(
+                    child: Card(
+                      color: _expenseListResponse.details[index].leadStatus ==
+                              "New"
+                          ? Colors.blue
+                          : _expenseListResponse.details[index].leadStatus ==
+                                  "Qualified"
+                              ? Colors.green
+                              : _expenseListResponse.details[index].leadStatus
+                                          .toLowerCase() ==
+                                      "disqualified"
+                                  ? Colors.redAccent
+                                  : _expenseListResponse
+                                              .details[index].leadStatus ==
+                                          "InProcess"
+                                      ? colorLightGray
+                                      : Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        child: Text(
+                          _expenseListResponse.details[index].leadStatus,
+                          style: TextStyle(
+                              color: _expenseListResponse
+                                          .details[index].leadStatus ==
+                                      "InProcess"
+                                  ? colorPrimary
+                                  : Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               children: <Widget>[
                 Divider(
                   thickness: 1.0,
                   height: 1.0,
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        //await _makePhoneCall(model.contactNo1);
+                        MakeCall.callto(_expenseListResponse
+                            .details[index].primaryMobileNo);
+                      },
+                      child: Column(
+                        children: [
+                          Card(
+                            color: colorBackGroundGray,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Container(
+                              width: 35,
+                              height: 35,
+                              child: Center(
+                                child: Icon(
+                                  Icons.call,
+                                  size: 24,
+                                  color: colorPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Text("Call",
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: colorPrimary,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.bold))
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        ShareMsg.msg(
+                            context,
+                            _expenseListResponse
+                                .details[index].primaryMobileNo);
+                      },
+                      child: Column(
+                        children: [
+                          Card(
+                            color: colorBackGroundGray,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Container(
+                              width: 35,
+                              height: 35,
+                              child: Center(
+                                child: Icon(
+                                  Icons.message,
+                                  size: 24,
+                                  color: colorPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Text("Message",
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: colorPrimary,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.bold))
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        navigateTo(context,
+                                FollowUpFromTeleCallerddEditScreen.routeName,
+                                arguments:
+                                    AddUpdateFollowupFromTeleCallerScreenArguments(
+                                        _expenseListResponse.details[index].pkId
+                                            .toString()))
+                            .then((value) {
+                          _expenseBloc.add(TeleCallerListCallEvent(
+                              _pageNo + 1,
+                              TeleCallerListRequest(
+                                  pkID: "",
+                                  acid: "",
+                                  LeadStatus: edt_LeadStatus.text == "ALL Leads"
+                                      ? ""
+                                      : edt_LeadStatus.text,
+                                  LoginUserID: LoginUserID,
+                                  CompanyId: CompanyID.toString())));
+                        });
+
+                        //FollowUpFromTeleCallerddEditScreen
+                      },
+                      child: Column(
+                        children: [
+                          Card(
+                            color: colorBackGroundGray,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Container(
+                              width: 35,
+                              height: 35,
+                              child: Center(
+                                child: Icon(
+                                  Icons.add,
+                                  size: 24,
+                                  color: colorPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Text("Followup",
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: colorPrimary,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.bold))
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 Container(
                     margin: EdgeInsets.only(
-                        left: 20, right: 20, top: 10, bottom: 10),
+                        left: 20, right: 20, top: 5, bottom: 10),
                     child: Container(
                         child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1223,8 +1360,22 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
 
   void _onTapOfEditCustomer(TeleCallerListDetails detail) {
     navigateTo(context, TeleCallerAddEditScreen.routeName,
-            arguments: AddUpdateTeleCallerScreenArguments(detail))
+            arguments: AddUpdateTeleCallerScreenArguments(
+                _pageNo, edt_LeadStatus.text, detail))
         .then((value) {
+      ALL_Name_ID all_name_id = value;
+      edt_LeadStatus.text = all_name_id.Name;
+      _pageNo = all_name_id.pkID;
+      _expenseBloc.add(TeleCallerListCallEvent(
+          1,
+          TeleCallerListRequest(
+              pkID: "",
+              acid: "",
+              LeadStatus:
+                  edt_LeadStatus.text == "ALL Leads" ? "" : edt_LeadStatus.text,
+              LoginUserID: LoginUserID,
+              CompanyId: CompanyID.toString())));
+
       //_expenseBloc..add(ExpenseEventsListCallEvent(1,ExpenseListAPIRequest(CompanyId: CompanyID.toString(),LoginUserID: edt_FollowupEmployeeUserID.text,word: edt_FollowupStatus.text,needALL: "0")));
     });
   }

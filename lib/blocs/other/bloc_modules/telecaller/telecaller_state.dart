@@ -51,7 +51,8 @@ class TeleCallerSearchByIDResponseState extends TeleCallerStates {
 
 class ExternalLeadSaveResponseState extends TeleCallerStates {
   final ExternalLeadSaveResponse response;
-  ExternalLeadSaveResponseState(this.response);
+  BuildContext contextfromHeader;
+  ExternalLeadSaveResponseState(this.contextfromHeader, this.response);
 }
 
 class CustomerListByNameCallResponseState extends TeleCallerStates {
@@ -62,8 +63,9 @@ class CustomerListByNameCallResponseState extends TeleCallerStates {
 
 class TeleCallerUploadImgApiResponseState extends TeleCallerStates {
   final Telecaller_image_upload_response response;
-
-  TeleCallerUploadImgApiResponseState(this.response);
+  BuildContext contextFromAddEditScreen;
+  TeleCallerUploadImgApiResponseState(
+      this.contextFromAddEditScreen, this.response);
 }
 
 class TeleCallerImageDeleteResponseState extends TeleCallerStates {

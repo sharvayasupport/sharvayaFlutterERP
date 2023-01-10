@@ -50,8 +50,9 @@ class ExternalLeadSearchByIDResponseState extends ExternalLeadStates {
 }
 
 class ExternalLeadSaveResponseState extends ExternalLeadStates {
+  BuildContext contextFromAPIResponse;
   final ExternalLeadSaveResponse response;
-  ExternalLeadSaveResponseState(this.response);
+  ExternalLeadSaveResponseState(this.contextFromAPIResponse,this.response);
 }
 
 class FCMNotificationResponseState extends ExternalLeadStates {

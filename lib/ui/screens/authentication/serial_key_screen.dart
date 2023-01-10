@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
 import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
@@ -53,13 +54,21 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_SerialKeyDropDown = [];
   bool value = false;
 
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+  );
+
   @override
   void initState() {
     super.initState();
     screenStatusBarColor = colorWhite;
     getIPDropDown();
-    getSerialKeyDropDown();
     _firstScreenBloc = FirstScreenBloc(baseBloc);
+    _initPackageInfo();
 
     /*  _firstScreenBloc
       ..add(CompanyDetailsCallEvent(
@@ -102,6 +111,9 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
         },
         listener: (BuildContext context, FirstScreenStates state) {
           //handle states
+          if (state is MasterBaseURLResponseState) {
+            _onMasterBaseURLAPIResponse(state);
+          }
           if (state is ComapnyDetailsEventResponseState) {
             _onCompanyDetailsCallSucess(state.companyDetailsResponse);
           }
@@ -110,7 +122,8 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
         },
         listenWhen: (oldState, currentState) {
           //return true for state for which listener method should be called
-          if (currentState is ComapnyDetailsEventResponseState) {
+          if (currentState is ComapnyDetailsEventResponseState ||
+              currentState is MasterBaseURLResponseState) {
             return true;
           }
           return false;
@@ -177,32 +190,14 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onDoubleTap: () {
-            showcustomdialogSendEmail(context1: context, Email: "Test");
-          },
-          child: Image.asset(
-            IMG_HEADER_LOGO,
-            width: MediaQuery.of(context).size.width / 1.8,
-            fit: BoxFit.fitWidth,
-          ),
+        Image.asset(
+          IMG_HEADER_LOGO,
+          width: MediaQuery.of(context).size.width / 1.8,
+          fit: BoxFit.fitWidth,
         ),
-        /* Container(
-          alignment: Alignment.topLeft,
-         // width: MediaQuery.of(context).size.width / 1.5,
-          child: Icon(Icons.vpn_key_outlined,
-            color: colorPrimary,
-            size: 78,
-
-          ),
-        ),*/
         SizedBox(
           height: 40,
         ),
-        /* Text(
-          "Login",
-          style: baseTheme.textTheme.headline1,
-        ),*/
         Text(
           "Registration",
           style: TextStyle(
@@ -231,44 +226,10 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
       key: _formKey,
       child: Column(
         children: [
-          /*  getCommonTextFormField(context, baseTheme,
-              title: "Serial Key",
-              hint: "enter Serial Key",
-              keyboardType: TextInputType.emailAddress,
-              suffixIcon: ImageIcon(
-                Image.asset(
-                  IC_USERNAME,
-                  color: colorPrimary,
-                  width: 10,
-                  height: 10,
-                ).image,
-              ),
-              controller: _userNameController, validator: (value) {
-                if (value.toString().trim().isEmpty) {
-                  return "Please enter this field";
-                }
-                return null;
-              }),*/
           SerialKeyTextField(),
           SizedBox(
             height: 25,
           ),
-          /* CheckboxListTile(
-            controlAffinity: ListTileControlAffinity.leading,
-            contentPadding: EdgeInsets.all(1),
-            title: Text(
-              'Accept Our Terms & Condition(Privacy Policy).',
-              style: TextStyle(fontSize: 10, color: colorPrimary),
-            ),
-            */ /*subtitle: Text('Privacy Policy',
-                style: TextStyle(fontSize: 10, color: colorPrimary)),*/ /*
-            value: value,
-            onChanged: (bool value1) {
-              setState(() {
-                value = value1;
-              });
-            },
-          ),*/
           Container(
             margin: EdgeInsets.only(
               left: 10,
@@ -276,6 +237,11 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
               top: 5,
             ),
             child: getCommonButton(baseTheme, () {
+              print("MobileAppVersion" +
+                  " BuildNumber : " +
+                  _packageInfo.buildNumber.toString() +
+                  " Version : " +
+                  _packageInfo.version.toString());
               _onTapOfLogin();
             }, "Register"),
           ),
@@ -285,14 +251,6 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              /*Text(
-                      "By Signing up you are agreeing to the",
-                      style: TextStyle(
-                        fontSize: 7,
-                        color: colorPrimary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),*/
               InkWell(
                 onTap: () async {
                   final url =
@@ -353,35 +311,16 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     );
   }
 
-  void _onTapOfLogin() {
+  void _onTapOfLogin() async {
     if (_userNameController.text != "") {
-      /* _firstScreenBloc.add(LoginUserDetailsCallEvent(LoginUserDetialsAPIRequest(
-          userID: _userNameController.text.toString(),
-          password: _passwordController.text.toString(),
-          companyId: _offlineLoggedInData.details[0].pkId)));*/
-      _firstScreenBloc
-        ..add(CompanyDetailsCallEvent(CompanyDetailsApiRequest(
-            serialKey: _userNameController.text.toString())));
-      /* if (value == true) {
-
-      } else {
-        showCommonDialogWithSingleOption(
-            context, "Terms & Condition is Required !",
-            positiveButtonTitle: "OK");
-      }*/
+      print("SERRRR" + _userNameController.text.toString().toUpperCase());
+      _firstScreenBloc.add(MasterBaseURLCallEvent(CompanyDetailsApiRequest(
+          serialKey: _userNameController.text.toString())));
     } else {
       showCommonDialogWithSingleOption(context, "Serial Key field is blank !",
           positiveButtonTitle: "OK");
     }
     //TODO
-  }
-
-  void _onTapOfSignInWithGoogle() {
-    //TODO
-  }
-
-  void _onTapOfRegister() {
-    // navigateTo(context, RegisterScreen.routeName, clearAllStack: true);
   }
 
   Widget SerialKeyTextField() {
@@ -509,76 +448,6 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
         ],
       ),
     );
-
-/*
-    return TextFormField(
-        maxLength: 19,
-        controller: _userNameController,
-        cursorColor: Color(0xFFF1E6FF),
-        decoration: InputDecoration(
-          icon: Icon(
-            Icons.vpn_key,
-
-
-          ),
-          hintText: "xxxx-xxxx-xxxx-xxxx",
-          border: InputBorder.none,
-          counterStyle: TextStyle(
-              height: double.minPositive),
-          counterText: "",
-        ),
-        onChanged: (String value) async {
-          setState(() {
-            if (count <=
-                _userNameController
-                    .text.length &&
-                (_userNameController.text.length ==
-                    4 ||
-                    _userNameController
-                        .text.length ==
-                        9 ||
-                    _userNameController
-                        .text.length ==
-                        14)) {
-              _userNameController.text =
-                  _userNameController.text + "-";
-              int pos = _userNameController
-                  .text.length;
-              _userNameController.selection =
-                  TextSelection.fromPosition(
-                      TextPosition(
-                          offset: pos));
-            } else if (count >=
-                _userNameController
-                    .text.length &&
-                (_userNameController
-                    .text.length ==
-                    4 ||
-                    _userNameController
-                        .text.length ==
-                        9 ||
-                    _userNameController
-                        .text.length ==
-                        14)) {
-              _userNameController.text =
-                  _userNameController.text
-                      .substring(
-                      0,
-                      _userNameController
-                          .text.length -
-                          1);
-              int pos = _userNameController
-                  .text.length;
-              _userNameController.selection =
-                  TextSelection.fromPosition(
-                      TextPosition(
-                          offset: pos));
-            }
-            count =
-                _userNameController.text.length;
-          });
-        });
-*/
   }
 
   void getIPDropDown() {
@@ -595,223 +464,23 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     }
   }
 
-  void getSerialKeyDropDown() {
-    arr_ALL_Name_ID_For_SerialKeyDropDown.clear();
-    for (var i = 0; i < 14; i++) {
-      ALL_Name_ID all_name_id = ALL_Name_ID();
+  void _onMasterBaseURLAPIResponse(MasterBaseURLResponseState state) {
+    SharedPrefHelper.instance
+        .setBaseURL(state.masterBaseURLResponse.details[0].baseURL + "/");
 
-      if (i == 0) {
-        all_name_id.Name = "Dolphin";
-      } else if (i == 1) {
-        all_name_id.Name = "DOL2-6UH7-PH03-IN5H";
-      } else if (i == 2) {
-        all_name_id.Name = "SharvayaTest";
-      } else if (i == 3) {
-        all_name_id.Name = "TEST-0000-SI0F-0208";
-      } else if (i == 4) {
-        all_name_id.Name = "E_OfficeDesk";
-      } else if (i == 5) {
-        all_name_id.Name = "SI08-SB94-MY45-RY15";
-      } else if (i == 6) {
-        all_name_id.Name = "AIM";
-      } else if (i == 7) {
-        all_name_id.Name = "A9GM-IP9S-FQT5-3N7D";
-      } else if (i == 8) {
-        all_name_id.Name = "MyGec";
-      } else if (i == 9) {
-        all_name_id.Name = "MYA6-G9EC-VS3P-H4PL";
-      } else if (i == 10) {
-        all_name_id.Name = "Swastik";
-      } else if (i == 11) {
-        all_name_id.Name = "SW0T-GLA5-IND7-AS71";
-      } else if (i == 12) {
-        all_name_id.Name = "Electro Smart";
-      } else if (i == 13) {
-        all_name_id.Name = "ELDF-CTGH-45SD-SM23";
-      }
-
-      //ARA6-ELA9-SFA7-NC0S
-      arr_ALL_Name_ID_For_SerialKeyDropDown.add(all_name_id);
+    if (SharedPrefHelper.instance.getBaseURL() != "") {
+      _firstScreenBloc.add(CompanyDetailsCallEvent(CompanyDetailsApiRequest(
+          serialKey: _userNameController.text.toString())));
+    } else {
+      showCommonDialogWithSingleOption(context, "Something Went Wrong !",
+          positiveButtonTitle: "OK");
     }
   }
 
-  showcustomdialogSendEmail({
-    BuildContext context1,
-    String Email,
-  }) async {
-    await showDialog(
-      barrierDismissible: false,
-      context: context1,
-      builder: (BuildContext context123) {
-        return SimpleDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(32.0))),
-          title: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: colorPrimary, //                   <--- border color
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(
-                        15.0) //                 <--- border radius here
-                    ),
-              ),
-              child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    "For Developer",
-                    style: TextStyle(
-                        color: colorPrimary, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ))),
-          children: [
-            SizedBox(
-                width: MediaQuery.of(context123).size.width,
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Text("Key",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: colorPrimary,
-                                    fontWeight: FontWeight
-                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Card(
-                              elevation: 5,
-                              color: colorLightGray,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                padding: EdgeInsets.only(left: 20, right: 20),
-                                width: double.maxFinite,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                          controller: EmailTO,
-                                          textInputAction: TextInputAction.next,
-                                          decoration: InputDecoration(
-                                            hintText: "Tap to enter Key",
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFF000000),
-                                            ),
-                                            border: InputBorder.none,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF000000),
-                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          child: getCommonButton(
-                            baseTheme,
-                            () {
-                              if (EmailTO.text == "jugad") {
-                                EmailTO.text = "";
-                                Navigator.pop(context123);
-                                getIPDropDown();
-
-                                showcustomdialogWithOnlyName(
-                                    values: arr_ALL_Name_ID_For_ModeOfTransfer,
-                                    context1: context,
-                                    controller: _IPCotroller,
-                                    lable: "AppIP:");
-                              } else {
-                                showCommonDialogWithSingleOption(context,
-                                    "This Field is For Only Developer !",
-                                    positiveButtonTitle: "OK");
-                              }
-                            },
-                            "YES",
-                            backGroundColor: colorPrimary,
-                            textColor: colorWhite,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 100,
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          child: getCommonButton(
-                            baseTheme,
-                            () {
-                              if (EmailTO.text == "jugad") {
-                                EmailTO.text = "";
-                                Navigator.pop(context123);
-                                getSerialKeyDropDown();
-
-                                showcustomdialogWithOnlyName(
-                                    values:
-                                        arr_ALL_Name_ID_For_SerialKeyDropDown,
-                                    context1: context,
-                                    controller: _userNameController,
-                                    lable: "SerialKey:");
-                              } else {
-                                showCommonDialogWithSingleOption(context,
-                                    "This Field is For Only Developer !",
-                                    positiveButtonTitle: "OK");
-                              }
-                            },
-                            "YES_S",
-                            backGroundColor: colorPrimary,
-                            textColor: colorWhite,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 100,
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          child: getCommonButton(
-                            baseTheme,
-                            () {
-                              Navigator.pop(context123);
-                            },
-                            "NO",
-                            backGroundColor: colorPrimary,
-                            textColor: colorWhite,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                )),
-          ],
-        );
-      },
-    );
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
   }
 }

@@ -68,7 +68,8 @@ class ExternalLeadSearchByIDCallEvent extends ExternalLeadEvents {
 class ExternalLeadSaveCallEvent extends ExternalLeadEvents {
   final int pkID;
   final ExternalLeadSaveRequest request1;
-  ExternalLeadSaveCallEvent(this.pkID, this.request1);
+  BuildContext contextFromAddEdit;
+  ExternalLeadSaveCallEvent(this.contextFromAddEdit,this.pkID, this.request1);
 }
 
 class FCMNotificationRequestEvent extends ExternalLeadEvents {

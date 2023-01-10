@@ -222,6 +222,7 @@ import 'package:soleoserp/models/api_responses/External_leads/region_response.da
 import 'package:soleoserp/models/api_responses/Loan/loan_approval_save_response.dart';
 import 'package:soleoserp/models/api_responses/ManageProductionResponse/Material%20Outward/material_outward_list_response.dart';
 import 'package:soleoserp/models/api_responses/ManageProductionResponse/MaterialInward/material_inward_list_response.dart';
+import 'package:soleoserp/models/api_responses/MasterBaseURL/master_base_url_response.dart';
 import 'package:soleoserp/models/api_responses/MissedPunch/missed_punch_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
@@ -450,6 +451,22 @@ class Repository {
       // print("JSONARRAYRESPOVN" + json.toString());
       CompanyDetailsResponse companyDetailsResponse =
           CompanyDetailsResponse.fromJson(json);
+      return companyDetailsResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<MasterBaseURLResponse> MasterBaseURLAPI(
+      CompanyDetailsApiRequest companyDetailsApiRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.MasterBaseURLAPI(
+          ApiClient.END_POINT_MASTER_BASE_URL,
+          companyDetailsApiRequest.toJson());
+
+      // print("JSONARRAYRESPOVN" + json.toString());
+      MasterBaseURLResponse companyDetailsResponse =
+          MasterBaseURLResponse.fromJson(json);
       return companyDetailsResponse;
     } on ErrorResponseException catch (e) {
       rethrow;

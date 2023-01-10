@@ -27,8 +27,9 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateTODOScreenArguments {
   ToDoDetails editModel;
-
-  AddUpdateTODOScreenArguments(this.editModel);
+  String ListStatus;
+  String ListLoginID;
+  AddUpdateTODOScreenArguments(this.ListStatus,this.ListLoginID,this.editModel);
 }
 class ToDoAddEditScreen extends BaseStatefulWidget {
   static const routeName = '/ToDoAddEditScreen';
@@ -312,92 +313,15 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
     }
   }
 
-  ///listener to multiple states of bloc to handles api responses
-  ///use only BlocListener if only need to listen to events
-/*
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<CustomerPaginationListScreenBloc, CustomerPaginationListScreenStates>(
-      bloc: _authenticationBloc,
-      listener: (BuildContext context, CustomerPaginationListScreenStates state) {
-        if (state is CustomerPaginationListScreenResponseState) {
-          _onCustomerPaginationListScreenCallSuccess(state.response);
-        }
-      },
-      child: super.build(context),
-    );
-  }
-*/
-
-  ///listener and builder to multiple states of bloc to handles api responses
-  ///use BlocProvider if need to listen and build
-/*  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (BuildContext context) => _CustomerPaginationListScreenBloc
-        ..add(CustomerPaginationListCallEvent(
-            CustomerPaginationRequest(
-                companyId: 8033, loginUserID: "admin", CustomerID: ""),
-            _page + 1)),
-      child: BlocConsumer<CustomerPaginationScreenBloc,
-          CustomerPaginationScreenStates>(
-        builder: (BuildContext context, CustomerPaginationScreenStates state) {
-          //handle states
-          if (state is CustomerPaginationListCallEventResponseState) {
-            //_onGetListCallSuccess(state.response);
-          }
-          return super.build(context);
-        },
-        buildWhen: (oldState, currentState) {
-          //return true for state for which builder method should be called
-          if (currentState is CustomerPaginationListCallEventResponseState) {
-            return true;
-          }
-          return false;
-        },
-        listener: (BuildContext context, CustomerPaginationScreenStates state) {
-          //handle states
-          if (state is CustomerLabelvalueEventResponseState) {
-           // _onGetListLabelValueCallSuccess(state.customerlabelvalueresponse);
-          }
-          if (state is CustomerSearchByIdEventResponseState) {
-            //_onGetSearchCustomerByIDCallSuccess(
-              //  state.arr_customersearchbyidresponse);
-          }
-        },
-        listenWhen: (oldState, currentState) {
-          //return true for state for which listener method should be called
-          if (currentState is CustomerLabelvalueEventResponseState) {
-            return true;
-          }
-          if (currentState is CustomerSearchByIdEventResponseState) {
-            return true;
-          }
-          return false;
-        },
-      ),
-    );
-  }*/
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => _toDoBloc,
-      /*..add(ExpenseTypeByNameCallEvent(
-            ExpenseTypeAPIRequest(CompanyId: CompanyID.toString()))),*/
-      /* ..add(FollowupTypeListByNameCallEvent(FollowupTypeListRequest(
-            CompanyId: "8033", pkID: "", StatusCategory: "FollowUp"))),*/
 
       child: BlocConsumer<ToDoBloc, ToDoStates>(
         builder: (BuildContext context, ToDoStates state) {
-          /*  if(state is LeaveRequestTypeResponseState)
-          {
-            _onLeaveRequestTypeSuccessResponse(state);
-          }
-          if(state is LeaveRequestEmployeeListResponseState)
-          {
-            _onFollowerEmployeeListByStatusCallSuccess(state);
-          }*/
+
           if (state is GetReportToTokenResponseState) {
             _onGetTokenfromReportopersonResult(state);
           }
@@ -431,10 +355,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
           if (state is FCMNotificationResponseState) {
             _onRecevedNotification(state);
           }
-         /* if(state is DailyActivitySaveCallResponseState)
-          {
-           // _onLeaveSaveStatusCallSuccess(state);
-          }*/
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -526,6 +447,10 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                           Custom_values1: arr_ALL_Name_ID_For_Category,
                           Custom_values2: arr_ALL_Name_ID_For_Priority,
                         ),*/
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
                         showcustomdialogWithID1("Task Category",
                             enable1: false,
                             title: "Task Category *",
@@ -558,7 +483,10 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                             ),
                           ),
                         ),
-
+                        SizedBox(
+                          width: 20,
+                          height: 10,
+                        ),
                         CustomDropDown1("Priority",
                             enable1: false,
                             title: "Priority ",
@@ -578,6 +506,10 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                           controllerForRight: edt_AssignTo,
                           Custom_values1: arr_ALL_Name_ID_For_AssignTo,
                         ),*/
+                        SizedBox(
+                          width: 20,
+                          height: 10,
+                        ),
                         Area(),
                         SizedBox(
                           width: 20,
@@ -610,17 +542,17 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                         _buildPreferredTime(),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
                         _buildDueDate(),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
                         _buildDueTime(),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
                        _buildSearchView(),
 
@@ -630,7 +562,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                             child: _buildSearchView()) : Container(),*/
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
                         GestureDetector(
                           onTap: () => showcustomdialogWithOnlyName(
@@ -705,7 +637,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                           child: GestureDetector(
                       onTap: () => _selectCompletionDate(context, edt_CompletionDate),
                       child: Container(
-                        margin: EdgeInsets.only(top: 20),
+                        margin: EdgeInsets.only(top: 10),
                         child:Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -778,7 +710,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                                 controllerID: edt_ReAssignToID,
                                 lable: "Select Employee "),
                             child: Container(
-                              margin: EdgeInsets.only(top: 20),
+                              margin: EdgeInsets.only(top: 10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -840,7 +772,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
                         ),
                         SizedBox(
                           width: 20,
-                          height: 30,
+                          height: 10,
                         ),
 
                         Container(
@@ -1215,8 +1147,21 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
   }
 
   Future<bool> _onBackPressed() {
-    navigateTo(context, ToDoListScreen.routeName,
-        clearAllStack: true);
+    if(_isForUpdate==true)
+    {
+      // skdjdsf
+
+
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name =  widget.arguments.ListStatus;
+      all_name_id.Name1 = widget.arguments.ListLoginID;
+      Navigator.of(context).pop(all_name_id);
+    }
+    else
+    {
+      navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
+
+    }
   }
 
   Widget FirstRow(
@@ -1789,7 +1734,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         TextEditingController controllerpkID,
         List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 15,bottom: 15),
+
       child: Column(
         children: [
           InkWell(
@@ -1922,7 +1867,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         TextEditingController controllerForLeft,
         List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 15,bottom: 15),
+
       child: Column(
         children: [
           InkWell(
@@ -2008,7 +1953,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: EdgeInsets.only(left: 5),
+            margin: EdgeInsets.only(left: 10),
             child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -2617,11 +2562,22 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
     showCommonDialogWithSingleOption(
         state.context, Msg,
         positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-      Navigator.pop(context);
+      if(_isForUpdate==true)
+      {
+        // skdjdsf
 
-      Navigator.of(state.context).pop("");
-      //navigateTo(context, routeName)
 
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name =  widget.arguments.ListStatus;
+        all_name_id.Name1 = widget.arguments.ListLoginID;
+        Navigator.pop(context);
+        Navigator.of(state.context).pop(all_name_id);
+      }
+      else
+      {
+        navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
+
+      }
     });
 
   }
@@ -2768,7 +2724,7 @@ class _ToDoAddEditScreenScreenState extends BaseState<ToDoAddEditScreen>
  //  SeletedDueDate = DateTime.parse(editModel.dueDate);
 
 
-    edt_CloserDetails.text = editModel.closingRemarks;
+    edt_CloserDetails.text = "";//editModel.closingRemarks;
 
     edt_Location.text = editModel.location;
 

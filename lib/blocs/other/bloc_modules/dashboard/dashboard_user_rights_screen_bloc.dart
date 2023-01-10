@@ -8,6 +8,7 @@ import 'package:soleoserp/models/api_requests/attendance/attendance_list_request
 import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
+import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/employee/employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_status_list_request.dart';
@@ -18,6 +19,7 @@ import 'package:soleoserp/models/api_responses/attendance/attendance_response_li
 import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
 import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
 import 'package:soleoserp/models/api_responses/attendance/punch_without_image_response.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/employee/employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/firebase_token/firebase_token_response.dart';
@@ -100,6 +102,10 @@ class DashBoardScreenBloc
 
     if (event is UserMenuRightsRequestEvent) {
       yield* _mapUserMenuRightsRequestEventState(event);
+    }
+
+    if (event is CompanyDetailsCallEvent) {
+      yield* _mapCompanyDetailsCallEventToState(event);
     }
 /*    if(event is CloserReasonTypeListByNameCallEvent)
     {
@@ -449,6 +455,25 @@ class DashBoardScreenBloc
       UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
           event.MenuID, event.userMenuRightsRequest);
       yield UserMenuRightsResponseState(event.MenuScreenName, respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates> _mapCompanyDetailsCallEventToState(
+      CompanyDetailsCallEvent event) async* {
+    try {
+      print("uuuuuuu");
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      //call your api as follows
+      CompanyDetailsResponse companyDetailsResponse =
+          await userRepository.CompanyDetailsCallApi(
+              event.companyDetailsApiRequest);
+      yield ComapnyDetailsEventResponseState(companyDetailsResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
