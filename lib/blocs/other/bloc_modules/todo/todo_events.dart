@@ -81,3 +81,57 @@ class UserMenuRightsRequestEvent extends ToDoEvents {
   final UserMenuRightsRequest userMenuRightsRequest;
   UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
 }
+
+
+class FollowupFilterListCallEvent extends ToDoEvents {
+  String filtername;
+  final FollowupFilterListRequest followupFilterListRequest;
+
+  FollowupFilterListCallEvent(this.filtername, this.followupFilterListRequest);
+}
+
+
+class FollowupMissedFilterListCallEvent extends ToDoEvents {
+  String filtername;
+  final FollowupFilterListRequest followupFilterListRequest;
+
+  FollowupMissedFilterListCallEvent(this.filtername, this.followupFilterListRequest);
+}
+
+class FollowupFutureFilterListCallEvent extends ToDoEvents {
+  String filtername;
+  final FollowupFilterListRequest followupFilterListRequest;
+
+  FollowupFutureFilterListCallEvent(this.filtername, this.followupFilterListRequest);
+}
+
+
+class AttendanceCallEvent extends ToDoEvents {
+  final AttendanceApiRequest attendanceApiRequest;
+  AttendanceCallEvent(this.attendanceApiRequest);
+}
+
+class ConstantRequestEvent extends ToDoEvents {
+  String CompanyID;
+  final ConstantRequest request;
+
+  ConstantRequestEvent(this.CompanyID, this.request);
+}
+
+class PunchAttendanceSaveRequestEvent extends ToDoEvents {
+  File file;
+  final PunchAttendanceSaveRequest punchAttendanceSaveRequest;
+  PunchAttendanceSaveRequestEvent(this.file, this.punchAttendanceSaveRequest);
+}
+
+class AttendanceSaveCallEvent extends ToDoEvents {
+  final AttendanceSaveApiRequest attendanceSaveApiRequest;
+  AttendanceSaveCallEvent(this.attendanceSaveApiRequest);
+}
+
+class PunchWithoutImageAttendanceSaveRequestEvent
+    extends ToDoEvents {
+  final PunchWithoutImageAttendanceSaveRequest request;
+
+  PunchWithoutImageAttendanceSaveRequestEvent(this.request);
+}

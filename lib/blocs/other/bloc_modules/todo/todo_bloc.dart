@@ -1,14 +1,28 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/ToDo_request/to_do_delete_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/attendance_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
+import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
+import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/task_category_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_save_sub_details_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_worklog_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
+import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
+import 'package:soleoserp/models/api_responses/attendance/punch_without_image_response.dart';
+import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/task_category_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/to_do_delete_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/to_do_header_save_response.dart';
@@ -80,6 +94,35 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
     if (event is UserMenuRightsRequestEvent) {
       yield* _mapUserMenuRightsRequestEventState(event);
     }
+
+    if (event is FollowupFilterListCallEvent) {
+      yield* _mapFollowupFilterListCallEventToState(event);
+    }
+
+    if (event is FollowupMissedFilterListCallEvent) {
+      yield* _mapFollowupMissedFilterListCallEventToState(event);
+    }
+
+    if (event is FollowupFutureFilterListCallEvent) {
+      yield* _mapFollowupFutureFilterListCallEventToState(event);
+    }
+    if (event is AttendanceCallEvent) {
+      yield* _mapAttendanceCallEventToState(event);
+    }
+
+    if (event is ConstantRequestEvent) {
+      yield* _mapConstantRequestEventToState(event);
+    }
+    if (event is PunchAttendanceSaveRequestEvent) {
+      yield* _mapPunchAttendanceSaveRequestEventToState(event);
+    }
+    if (event is AttendanceSaveCallEvent) {
+      yield* _mapAttendanceSaveCallEventToState(event);
+    }
+    if (event is PunchWithoutImageAttendanceSaveRequestEvent) {
+      yield* _mapPunchWithoutImageAttendanceSaveRequestEventToState(event);
+    }
+    //
   }
 
   ///event functions to states implementation
@@ -280,6 +323,143 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
       UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
           event.MenuID, event.userMenuRightsRequest);
       yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapFollowupFilterListCallEventToState(
+      FollowupFilterListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FollowupFilterListResponse response =
+          await userRepository.getFollowupFilterList(
+              event.filtername, event.followupFilterListRequest);
+      yield FollowupFilterListCallResponseState(
+          event.followupFilterListRequest.PageNo, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapFollowupMissedFilterListCallEventToState(
+      FollowupMissedFilterListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FollowupFilterListResponse response =
+          await userRepository.getFollowupFilterList(
+              event.filtername, event.followupFilterListRequest);
+      yield FollowupMissedFilterListCallResponseState(
+          event.followupFilterListRequest.PageNo, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapFollowupFutureFilterListCallEventToState(
+      FollowupFutureFilterListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      FollowupFilterListResponse response =
+          await userRepository.getFollowupFilterList(
+              event.filtername, event.followupFilterListRequest);
+      yield FollowupFutureFilterListCallResponseState(
+          event.followupFilterListRequest.PageNo, response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapAttendanceCallEventToState(
+      AttendanceCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      //call your api as follows
+      // CustomerCategoryResponse loginResponse =
+
+      /* List<CustomerCategoryResponse> customercategoryresponse*/
+      Attendance_List_Response respo =
+          await userRepository.getAttendanceList(event.attendanceApiRequest);
+
+      yield AttendanceListCallResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapConstantRequestEventToState(
+      ConstantRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      ConstantResponse respo =
+          await userRepository.getConstantAPI(event.CompanyID, event.request);
+      yield ConstantResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapPunchAttendanceSaveRequestEventToState(
+      PunchAttendanceSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      PunchAttendenceSaveResponse response = await userRepository
+          .getPunchIN_API(event.file, event.punchAttendanceSaveRequest);
+      yield PunchAttendenceSaveResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500), () {});
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapAttendanceSaveCallEventToState(
+      AttendanceSaveCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      AttendanceSaveResponse respo =
+          await userRepository.DashBoardattendanceSave(
+              event.attendanceSaveApiRequest);
+      yield AttendanceSaveCallResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapPunchWithoutImageAttendanceSaveRequestEventToState(
+      PunchWithoutImageAttendanceSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      PunchWithoutAttendenceSaveResponse respo =
+          await userRepository.getwithoutImageAttendanceSaveAPI(event.request);
+      yield PunchWithoutAttendenceSaveResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

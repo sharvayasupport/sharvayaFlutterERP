@@ -162,9 +162,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ConstantMAster == "yes"
-                    ? _buildDealerTopView()
-                    : _buildTopView(),
+                _buildTopView(),
                 SizedBox(height: 20),
                 _buildDelaerLoginForm(),
               ],

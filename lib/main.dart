@@ -77,6 +77,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/ManageProduction/Material
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ManageProduction/SiteSurvey/site_survey_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ManageProduction/StoreInward/store_inward_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ManageProduction/StoreOutward/store_outward_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/activity_summary.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_Followup/office_followup_add_edit.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_to_do.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_to_do_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_add_edit_screen.dart';
@@ -386,7 +388,8 @@ class MyApp extends StatefulWidget {
       case FollowupListScreen.routeName:
         return getMaterialPageRoute(FollowupListScreen(settings.arguments));
       case FollowUpAddEditScreen.routeName:
-        return getMaterialPageRoute(FollowUpAddEditScreen(settings.arguments));
+        return getMaterialPageRoute(
+            FollowUpAddEditScreen(settings.arguments));
       case ToDoPaginationListScreen.routeName:
         return getMaterialPageRoute(ToDoPaginationListScreen());
       case ToDoAddEditScreen.routeName:
@@ -811,8 +814,11 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(SOAssemblyScreen(settings.arguments));
       case SBAssemblyScreen.routeName:
         return getMaterialPageRoute(SBAssemblyScreen(settings.arguments));
-      //
 
+      case OfficeFollowUpAddEditScreen.routeName:
+        return getMaterialPageRoute(OfficeFollowUpAddEditScreen(settings.arguments));
+      case ActivitySummary.routeName:
+        return getMaterialPageRoute(ActivitySummary());
       default:
         return null;
     }

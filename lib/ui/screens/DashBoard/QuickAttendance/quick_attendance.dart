@@ -242,23 +242,7 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
         onWillPop: _onBackPressed,
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          /* appBar: NewGradientAppBar(
-            title: Text('Quick Attendance'),
-            gradient: LinearGradient(
-                colors: [Colors.blue, Colors.purple, Colors.red]),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(
-                    Icons.water_damage_sharp,
-                    color: colorWhite,
-                  ),
-                  onPressed: () {
-                    //_onTapOfLogOut();
-                    navigateTo(context, HomeScreen.routeName,
-                        clearAllStack: true);
-                  })
-            ],
-          ),*/
+
           body: RefreshIndicator(
             onRefresh: () async {
               getAddressFromLatLong();

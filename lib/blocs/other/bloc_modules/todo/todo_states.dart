@@ -85,3 +85,55 @@ class UserMenuRightsResponseState extends ToDoStates {
   final UserMenuRightsResponse userMenuRightsResponse;
   UserMenuRightsResponseState(this.userMenuRightsResponse);
 }
+
+class FollowupFilterListCallResponseState extends ToDoStates {
+  final FollowupFilterListResponse followupFilterListResponse;
+  final int newPage;
+
+  FollowupFilterListCallResponseState(this.newPage,
+       this.followupFilterListResponse);
+}
+
+class FollowupMissedFilterListCallResponseState extends ToDoStates {
+  final FollowupFilterListResponse followupFilterListResponse;
+  final int newPage;
+
+  FollowupMissedFilterListCallResponseState(this.newPage,
+      this.followupFilterListResponse);
+}
+
+class FollowupFutureFilterListCallResponseState extends ToDoStates {
+  final FollowupFilterListResponse followupFilterListResponse;
+  final int newPage;
+
+  FollowupFutureFilterListCallResponseState(this.newPage,
+      this.followupFilterListResponse);
+}
+
+class AttendanceListCallResponseState extends ToDoStates {
+  final Attendance_List_Response response;
+  AttendanceListCallResponseState(this.response);
+}
+
+class ConstantResponseState extends ToDoStates {
+  final ConstantResponse response;
+
+  ConstantResponseState(this.response);
+}
+
+class PunchAttendenceSaveResponseState extends ToDoStates {
+  final PunchAttendenceSaveResponse punchAttendenceSaveResponse;
+
+  PunchAttendenceSaveResponseState(this.punchAttendenceSaveResponse);
+}
+
+class AttendanceSaveCallResponseState extends ToDoStates {
+  final AttendanceSaveResponse response;
+  AttendanceSaveCallResponseState(this.response);
+}
+
+class PunchWithoutAttendenceSaveResponseState extends ToDoStates {
+  final PunchWithoutAttendenceSaveResponse response;
+
+  PunchWithoutAttendenceSaveResponseState(this.response);
+}
