@@ -2967,8 +2967,8 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       element.LoginUserID = LoginUserID;
       element.CompanyId = CompanyID.toString();
     });
-    _inquiryBloc.add(
-        QuotationProductSaveCallEvent(context1, ReturnQT_No, TempproductList));
+    _inquiryBloc.add(QuotationProductSaveCallEvent(
+        context1, ReturnQT_No.replaceAll("/", "-"), TempproductList));
   }
 
   void _onOtherChargeListResponse(QuotationOtherChargeListResponseState state) {
@@ -5155,7 +5155,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         elevation: 2,
         child: Container(
           decoration: BoxDecoration(
-              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
               // boxShadow: [
               //   BoxShadow(
               //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
@@ -5301,7 +5301,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         elevation: 2,
         child: Container(
           decoration: BoxDecoration(
-              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              color: colorPrimary, borderRadius: BorderRadius.circular(20)
               // boxShadow: [
               //   BoxShadow(
               //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),

@@ -1029,7 +1029,7 @@ class Repository {
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
           ApiClient.END_POINT_QT_NO_TO_DELETE_PRODUCT_LIST +
-              QT_No +
+              QT_No.replaceAll("/", "-") +
               "/ProductDel",
           quotationProductDeleteRequest.toJson());
       QuotationProductDeleteResponse response =

@@ -414,11 +414,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
             height: 35,
             width: 35,
           ),*/
-          title: /*Text(
-            model.customerName,
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-          ),*/
-              Row(
+          title:
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -453,59 +450,61 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
               Flexible(
                 child: Text(
                   model.customerName,
-                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Colors.black,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
 
-          subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                width: 200,
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8.0),
-                  ),
-                  color: colorPresentDay,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.mobile_friendly,
-                          color: colorWhite,
-                          size: 20,
-                        ),
-                      ],
+          subtitle: Container(
+            margin: EdgeInsets.only(top: 5, bottom: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 200,
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(left: 5),
-                      child: Row(
+                    color: colorPresentDay,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            model.contactNo1,
-                            style: TextStyle(
-                              color: colorWhite,
-                              fontSize: _fontSize_Title,
-                            ),
+                          Icon(
+                            Icons.mobile_friendly,
+                            color: colorWhite,
+                            size: 20,
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                      Container(
+                        margin: EdgeInsets.only(left: 5),
+                        child: Row(
+                          children: [
+                            Text(
+                              model.contactNo1,
+                              style: TextStyle(
+                                  color: colorWhite,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           children: <Widget>[
             Divider(

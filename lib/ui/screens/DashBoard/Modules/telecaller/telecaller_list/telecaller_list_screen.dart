@@ -541,10 +541,13 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons.home_work,
-                                  color: Color(0xff0066b3),
-                                  size: 24,
+                                Container(
+                                  margin: EdgeInsets.only(left: 8),
+                                  child: Icon(
+                                    Icons.home_work,
+                                    color: Color(0xff0066b3),
+                                    size: 24,
+                                  ),
                                 ),
                                 Text("Company",
                                     style: TextStyle(
@@ -554,9 +557,6 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                     ))
                               ],
                             ),
-                            SizedBox(
-                              width: 5,
-                            ),
                             Container(
                               child: Icon(
                                 Icons.keyboard_arrow_right,
@@ -564,14 +564,14 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                 size: 24,
                               ),
                             ),
-                            SizedBox(
-                              width: 5,
-                            ),
                             Flexible(
                               child: Text(
                                 _expenseListResponse.details[index].companyName,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: Colors.black),
+                                //overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12),
                               ),
                             ),
                           ],
@@ -581,7 +581,7 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                       ? Container()
                       : Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
-                          height: 2,
+                          height: 1,
                         ),
                   _expenseListResponse.details[index].senderName.toString() ==
                           ""
@@ -589,24 +589,27 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                       : Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.assignment_ind,
-                                  color: Color(0xff0066b3),
-                                  size: 24,
-                                ),
-                                Text("Sender",
-                                    style: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      color: Color(0xff0066b3),
-                                      fontSize: 7,
-                                    ))
-                              ],
+                            Container(
+                              margin: EdgeInsets.only(left: 5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.assignment_ind,
+                                    color: Color(0xff0066b3),
+                                    size: 24,
+                                  ),
+                                  Text("Sender",
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Color(0xff0066b3),
+                                        fontSize: 7,
+                                      ))
+                                ],
+                              ),
                             ),
                             SizedBox(
-                              width: 10,
+                              width: 5,
                             ),
                             Container(
                               child: Icon(
@@ -615,14 +618,14 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                 size: 24,
                               ),
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
                             Flexible(
                               child: Text(
                                 _expenseListResponse.details[index].senderName,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: Colors.black),
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12),
                               ),
                             ),
                           ],

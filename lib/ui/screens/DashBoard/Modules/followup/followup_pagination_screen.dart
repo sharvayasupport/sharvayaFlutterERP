@@ -883,7 +883,11 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
   ExpantionCustomer(BuildContext context, int index) {
     FilterDetails model = arr_FollowupList[index];
 
-    log("ID:YRRR" + " ID: " + model.extpkID.toString());
+    log("ID:YRRR" +
+        " ID: " +
+        model.extpkID.toString() +
+        "LeadStatus : " +
+        model.inquiryStatus.toString());
 
     //Totcount= _FollowupListResponse.totalCount;
     //  if(_FollowupListResponse.details[index].employeeName == edt_FollowupEmployeeList.text) {
@@ -949,8 +953,10 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                 Flexible(
                   child: Text(
                     model.customerName,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.black),
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                 ),
               ],

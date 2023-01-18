@@ -242,7 +242,6 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
         onWillPop: _onBackPressed,
         child: Scaffold(
           backgroundColor: Colors.transparent,
-
           body: RefreshIndicator(
             onRefresh: () async {
               getAddressFromLatLong();
@@ -858,6 +857,12 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
                     ),
                     InkWell(
                       onTap: () {
+                        if (_offlineLoggedInData.details[0].serialKey
+                                .toUpperCase()
+                                .toString() ==
+                            "MYA6-G9EC-VS3P-H4PL") {
+                          EmailTO.text = "hr@mygec.in";
+                        }
                         SendEmailOnlyImg(context1: context, Email: "");
                       },
                       child: Container(

@@ -57,10 +57,10 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
   var isRedirect = true;
 
   double sizeboxsize = 12;
-  double _fontSize_Label = 9;
-  double _fontSize_Title = 11;
-  int label_color = 0xFF504F4F; //0x66666666;
-  int title_color = 0xFF000000;
+  double _fontSize_Label = 8;
+  double _fontSize_Title = 10;
+  int label_color = 0xff0066b3; //0x66666666;
+  int title_color = 0xff0066b3;
   SearchDetails _searchDetails;
   int CompanyID = 0;
   String LoginUserID = "";
@@ -239,6 +239,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
+        backgroundColor: colorVeryLightCardBG,
         appBar: NewGradientAppBar(
           title: Text('Quotation List'),
           gradient: LinearGradient(colors: [
@@ -247,6 +248,19 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
             Color(0xff62bb47),
           ]),
           actions: <Widget>[
+            GestureDetector(
+              onTap: () {
+                _onTapOfSearchView(); //_onTaptoSearchInquiryView();
+              },
+              child: Image.asset(
+                CUSTOM_SEARCH,
+                width: 30,
+                height: 30,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
             IconButton(
                 icon: Icon(
                   Icons.water_damage_sharp,
@@ -276,15 +290,12 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                   },
                   child: Container(
                     padding: EdgeInsets.only(
-                      left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      top: 25,
+                      left: 15,
+                      right: 15,
+                      top: 10,
                     ),
                     child: Column(
-                      children: [
-                        _buildSearchView(),
-                        Expanded(child: _buildInquiryList())
-                      ],
+                      children: [Expanded(child: _buildInquiryList())],
                     ),
                   ),
                 ),
@@ -516,47 +527,79 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     QuotationDetails model = _quotationListResponse.details[index];
 
     return Container(
-      padding: EdgeInsets.all(15),
+      margin: EdgeInsets.all(10),
       child: ExpansionTileCard(
         initialElevation: 5.0,
         elevation: 5.0,
         elevationCurve: Curves.easeInOut,
         shadowColor: Color(0xFF504F4F),
         baseColor: Color(0xFFFCFCFC),
-        expandedColor: Color(0xFFC1E0FA),
+        expandedColor: colorTileBG,
         //Colors.deepOrange[50],ADD8E6
-        leading: CircleAvatar(
-            backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
-                Image.network(
-              "http://demo.sharvayainfotech.in/images/profile.png",
-              height: 35,
-              fit: BoxFit.fill,
-              width: 35,
-            )),
-        /* title: Text("Customer",style:TextStyle(fontSize: 12,color: Color(0xFF504F4F),fontWeight: FontWeight.bold)// baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-      ),*/
-        /* title:  Row(
-            children:<Widget>[
-              Expanded(
-                child: Text(model.customerName,style: TextStyle(
-                    color: Colors.black
-                ),),
+
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.assignment_ind,
+                    color: Color(0xff108dcf),
+                    size: 24,
+                  ),
+                ],
               ),
-              Expanded(child:  Text(model.quotationNo,style: TextStyle(
-                  color: Colors.black
-              ),),)
-            ]
-        ),*/
-        title: Text(
-          model.customerName,
-          style: TextStyle(color: Colors.black),
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.keyboard_arrow_right,
+                color: Color(0xff108dcf),
+                size: 24,
+              ),
+            ),
+            SizedBox(
+              width: 3,
+            ),
+            Flexible(
+              child: Text(
+                model.customerName,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
-        subtitle: Text(
-          model.quotationNo,
-          style: TextStyle(
-            color: Color(0xFF504F4F),
-            fontSize: _fontSize_Title,
+        subtitle: Container(
+          margin: EdgeInsets.only(left: 10),
+          child: Row(
+            children: [
+              Icon(
+                Icons.confirmation_num,
+                color: Color(0xff108dcf),
+                size: 12,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                model.quotationNo,
+                style: TextStyle(
+                  color: Color(0xFF504F4F),
+                  fontSize: 9,
+                ),
+              ),
+            ],
           ),
         ),
         children: <Widget>[
@@ -566,271 +609,670 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Container(
-                padding:
-                    EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            GestureDetector(
+            child: Container(
+              padding:
+                  EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Visibility(
+                            visible: true,
+                            child: GestureDetector(
                               onTap: () async {
                                 MakeCall.callto(model.contactNo1);
                               },
-                              child: Container(
-                                child: Image.asset(
-                                  PHONE_CALL_IMAGE,
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                ShareMsg.msg(context, model.contactNo1);
-                              },
-                              child: Container(
-                                /*decoration: BoxDecoration(
-                                                              shape: BoxShape.rectangle,
-                                                              color: colorPrimary,
-                                                              borderRadius: BorderRadius.all(Radius.circular(30)),
-
-                                                            ),*/
-                                child: /*Icon(
-
-                                                              Icons.message_sharp,
-                                                              color: colorWhite,
-                                                              size: 20,
-                                                            )*/
-                                    Image.asset(
-                                  WHATSAPP_IMAGE,
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                FetchCustomerDetails(model.customerID);
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                    color: colorPrimary,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: Icon(
-                                  Icons.account_box,
-                                  size: 24,
-                                  color: colorWhite,
-                                )),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                /*GenerateMode=new*/
-                                print("jdlfdjf" +
-                                    SiteURL +
-                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                    LoginUserID +
-                                    "&password=" +
-                                    Password +
-                                    "&pQuotID=" +
-                                    model.pkID.toString());
-
-                                String URLPDFF = SiteURL +
-                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                    LoginUserID +
-                                    "&password=" +
-                                    Password +
-                                    "&pQuotID=" +
-                                    model.pkID.toString();
-
-                                await _showMyDialog(model, "new");
-                              },
-                              child: Container(
-                                child: Image.asset(
-                                  PDF_ICON,
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Visibility(
-                              visible: true,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  String sendemailreq = SiteURL +
-                                      "Quotation.aspx?MobilePdf=yes&userid=" +
-                                      LoginUserID +
-                                      "&password=" +
-                                      Password +
-                                      "&pQuotID=" +
-                                      model.pkID.toString() +
-                                      "&CustomerID=" +
-                                      model.customerID.toString();
-
-                                  print("webreqj" + sendemailreq);
-                                  _showEmailMyDialog(model);
-                                  /*
-                                  EmailTO.text = model.emailAddress;
-                                  showcustomdialogSendEmail(
-                                      context1: context,
-                                      Email: model.emailAddress)*/
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: const BoxDecoration(
-                                      color: colorPrimary,
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.email,
-                                    size: 24,
-                                    color: colorWhite,
-                                  )),
-                                ),
-                              ),
-                            ),
-                          ]),
-                    ),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "QT.Date",
-                                model.quotationDate.getFormattedDate(
-                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                        toFormat: "dd-MM-yyyy") ??
-                                    "-"),
-                          ),
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Quotation #", model.quotationNo ?? "-"),
-                          ),
-                          /*Expanded(
-                        child: Container(
-                          child: ,
-                        ),
-                      ),*/
-                          /* Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () async {
-                                    await _showMyDialog(model);
-
-                                    */ /* var progesCount23;
-                               webViewController.getProgress().whenComplete(() async =>  {
-                                 progesCount23 = await webViewController.getProgress(),
-                                 print("PAgeLoaded" + progesCount23.toString())
-                               });*/ /*
-
-                                    */ /*  await _makePhoneCall(
-                                        model.contactNo1);*/ /*
-
-                                    // baseBloc.emit(ShowProgressIndicatorState(true));
-                                    */ /* setState(() {
-                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
-
-
-                                });*/ /*
-
-                                    // await Future.delayed(const Duration(milliseconds: 500), (){});
-                                    // baseBloc.emit(ShowProgressIndicatorState(false));
-                                    //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-                                  },
-                                  child: Container(
-                                    child: Image.asset(
-                                      PDF_ICON,
-                                      width: 48,
-                                      height: 48,
+                              child: Column(
+                                children: [
+                                  Card(
+                                    color: colorBackGroundGray,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.phone,
+                                          size: 24,
+                                          color: colorPrimary,
+                                        ),
+                                      ),
                                     ),
                                   ),
+                                  Text("Call",
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorPrimary,
+                                          fontSize: 7,
+                                          fontWeight: FontWeight.bold))
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              ShareMsg.msg(context, model.contactNo1);
+                            },
+                            child: Column(
+                              children: [
+                                Card(
+                                  color: colorBackGroundGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.message,
+                                      size: 24,
+                                      color: colorPrimary,
+                                    )),
+                                  ),
                                 ),
-                              ])*/
+                                Text("WhatsApp",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: colorPrimary,
+                                        fontSize: 7,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              FetchCustomerDetails(model.customerID);
+                            },
+                            child: Column(
+                              children: [
+                                Card(
+                                  color: colorBackGroundGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    /*decoration: const BoxDecoration(
+                                    color: colorPrimary,
+                                    shape: BoxShape.circle),*/
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.perm_identity_outlined,
+                                      size: 24,
+                                      color: colorPrimary,
+                                    )),
+                                  ),
+                                ),
+                                Text("Info.",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: colorPrimary,
+                                        fontSize: 7,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              print("jdlfdjf" +
+                                  SiteURL +
+                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString());
+
+                              String URLPDFF = SiteURL +
+                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString();
+
+                              await _showMyDialog(model, "new");
+                            },
+                            child: Column(
+                              children: [
+                                Card(
+                                  color: colorBackGroundGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.picture_as_pdf_rounded,
+                                      size: 24,
+                                      color: colorPrimary,
+                                    )),
+                                  ),
+                                ),
+                                Text("pdf",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: colorPrimary,
+                                        fontSize: 7,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              String sendemailreq = SiteURL +
+                                  "Quotation.aspx?MobilePdf=yes&userid=" +
+                                  LoginUserID +
+                                  "&password=" +
+                                  Password +
+                                  "&pQuotID=" +
+                                  model.pkID.toString() +
+                                  "&CustomerID=" +
+                                  model.customerID.toString();
+
+                              print("webreqj" + sendemailreq);
+                              _showEmailMyDialog(model);
+                            },
+                            child: Column(
+                              children: [
+                                Card(
+                                  color: colorBackGroundGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    /*decoration: const BoxDecoration(
+                                    color: colorPrimary,
+                                    shape: BoxShape.circle),*/
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.email,
+                                      size: 24,
+                                      color: colorPrimary,
+                                    )),
+                                  ),
+                                ),
+                                Text("Email",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: colorPrimary,
+                                        fontSize: 7,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                          ),
                         ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                  ),
+                  SizedBox(
+                    height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                  ),
+                  Card(
+                    color: colorBackGroundGray,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          left: 5, right: 10, top: 5, bottom: 5),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.confirmation_num,
+                                        color: colorCardBG,
+                                      ),
+                                      Text("Quotation",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorCardBG,
+                                            fontSize: 7,
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 1,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                        model
+                                            .quotationNo, //put your own long text here.
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: TextStyle(
+                                            color: Color(title_color),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _fontSize_Title)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today_outlined,
+                                        color: colorCardBG,
+                                      ),
+                                      Text("QT.Date",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorCardBG,
+                                            fontSize: 7,
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                        model.quotationDate.getFormattedDate(
+                                                fromFormat:
+                                                    "yyyy-MM-ddTHH:mm:ss",
+                                                toFormat: "dd-MM-yyyy") ??
+                                            "-",
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: TextStyle(
+                                            color: Color(title_color),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _fontSize_Title)),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ]),
                     ),
-                    Row(children: [
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Lead #", model.inquiryNo ?? "-"),
+                  ),
+                  Card(
+                    color: colorBackGroundGray,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          left: 10, right: 10, top: 5, bottom: 5),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.confirmation_num,
+                                        color: colorCardBG,
+                                      ),
+                                      Text("Lead#",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorCardBG,
+                                            fontSize: 7,
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                        model.inquiryNo.toString() == ""
+                                            ? "Not Available"
+                                            : model.inquiryNo
+                                                .toString(), //put your own long text here.
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: TextStyle(
+                                            color: Color(title_color),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _fontSize_Title)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Icon(
+                                        Icons.category,
+                                        color: colorCardBG,
+                                      ),
+                                      Text("Status",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorCardBG,
+                                            fontSize: 7,
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                        model.inquiryStatus == ""
+                                            ? "Not Available"
+                                            : model.inquiryStatus.toString(),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: TextStyle(
+                                            color: Color(title_color),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _fontSize_Title)),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ]),
+                    ),
+                  ),
+                  Card(
+                    color: colorBackGroundGray,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          left: 5, right: 10, top: 5, bottom: 5),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.currency_rupee,
+                                        color: colorCardBG,
+                                      ),
+                                      Text("BasicAmt.",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorCardBG,
+                                            fontSize: 7,
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 3,
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                        model.basicAmt.toString() ??
+                                            "-", //put your own long text here.
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: TextStyle(
+                                            color: Color(title_color),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _fontSize_Title)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Icon(
+                                        Icons.currency_rupee,
+                                        color: colorCardBG,
+                                      ),
+                                      Text("NetAmt.",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorCardBG,
+                                            fontSize: 7,
+                                          ))
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Flexible(
+                                    child: Text(model.netAmt.toString() ?? "-",
+                                        maxLines: 3,
+                                        overflow: TextOverflow.clip,
+                                        style: TextStyle(
+                                            color: Color(title_color),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: _fontSize_Title)),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ]),
+                    ),
+                  ),
+                  Card(
+                    color: colorBackGroundGray,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          left: 10, right: 10, top: 5, bottom: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Column(
+                            children: [
+                              Icon(
+                                Icons.calendar_today_outlined,
+                                color: colorCardBG,
+                              ),
+                              Text("Create",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: colorCardBG,
+                                      fontSize: 7,
+                                      letterSpacing: .3))
+                            ],
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Flexible(
+                            child: Text(
+                                model.createdDate.getFormattedDate(
+                                    fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                    toFormat:
+                                        "dd-MM-yyyy"), //put your own long text here.
+                                maxLines: 3,
+                                overflow: TextOverflow.clip,
+                                style: TextStyle(
+                                    color: Color(title_color),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: _fontSize_Title)),
+                          )
+                        ],
                       ),
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Status", model.inquiryStatus ?? "-"),
+                    ),
+                  ),
+                  Card(
+                    color: colorBackGroundGray,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          left: 10, right: 10, top: 5, bottom: 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Column(
+                            children: [
+                              Icon(
+                                Icons.perm_contact_cal_rounded,
+                                color: colorCardBG,
+                              ),
+                              Text("By",
+                                  style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      color: colorCardBG,
+                                      fontSize: 7,
+                                      letterSpacing: .3))
+                            ],
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Flexible(
+                            child: Text(
+                                model.createdBy, //put your own long text here.
+                                maxLines: 3,
+                                overflow: TextOverflow.clip,
+                                style: TextStyle(
+                                    color: Color(title_color),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: _fontSize_Title)),
+                          )
+                        ],
                       ),
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
-                    _buildTitleWithValueView(
-                        "Project Name",
-                        /*model.referenceName ?? "-" */ model.projectName ==
-                                    "" ||
-                                model.projectName == null
-                            ? '-'
-                            : model.projectName),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    Row(children: [
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "BasicAmt.", model.basicAmt.toString() ?? "-"),
-                      ),
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "NetAmt.", model.netAmt.toString() ?? "-"),
-                      ),
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Sales Executive", model.createdBy),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    _buildTitleWithValueView(
-                        "Created Date",
-                        model.createdDate.getFormattedDate(
-                            fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                            toFormat: "dd-MM-yyyy")),
-                  ],
-                ),
+                  ),
+                  /* _buildTitleWithValueView(
+                      "Sales Executive", model.createdBy),
+                  SizedBox(
+                    height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                  ),*/
+                ],
               ),
             ),
           ),
-          ButtonBar(
+          Divider(
+            thickness: 1.0,
+            height: 1.0,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          IsEditRights == false && IsDeleteRights == false
+              ? Container()
+              : Card(
+                  color: colorCardBG,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    width: 300,
+                    height: 50,
+                    child: ButtonBar(
+                        alignment: MainAxisAlignment.center,
+                        buttonHeight: 52.0,
+                        buttonMinWidth: 90.0,
+                        children: <Widget>[
+                          IsEditRights == true
+                              ? Container(
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // _onTapOfEditCustomer(model);
+
+                                          _onTaptoEditQuotation(model);
+                                        },
+                                        child: Row(
+                                          children: <Widget>[
+                                            Image.asset(
+                                              CUSTOM_UPDATE,
+                                              height: 24,
+                                              width: 24,
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2.0),
+                                            ),
+                                            Text(
+                                              'Update',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: colorWhite),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          IsDeleteRights == true
+                              ? GestureDetector(
+                                  onTap: () {
+                                    _OnDeleteQuotationRequest(model);
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Image.asset(
+                                        CUSTOM_DELETE,
+                                        height: 29,
+                                        width: 29,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                      ),
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: colorWhite),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          SizedBox(
+                            width: 10,
+                          ),
+                        ]),
+                  ),
+                ),
+          SizedBox(
+            height: 10,
+          )
+          /*ButtonBar(
               alignment: MainAxisAlignment.center,
               buttonHeight: 52.0,
               buttonMinWidth: 90.0,
@@ -838,8 +1280,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                 IsEditRights == true
                     ? GestureDetector(
                         onTap: () async {
-                          /* await OfflineDbHelper.getInstance()
-                              .deleteALLGenericAddditionalCharges();*/
+
                           _onTaptoEditQuotation(model);
                         },
                         child: Column(
@@ -889,7 +1330,7 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                         ),
                       )
                     : Container(),
-              ]),
+              ]),*/
         ],
       ),
     );

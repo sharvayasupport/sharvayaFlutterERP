@@ -65,9 +65,9 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
 
   double sizeboxsize = 12;
   double _fontSize_Label = 9;
-  double _fontSize_Title = 11;
-  int label_color = 0xFF504F4F; //0x66666666;
-  int title_color = 0xFF000000;
+  double _fontSize_Title = 10;
+  int label_color = 0xff0066b3; //0x66666666;
+  int title_color = 0xff0066b3;
   SearchDetails _searchDetails;
   int CompanyID = 0;
   String LoginUserID = "";
@@ -245,6 +245,19 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
             Color(0xff62bb47),
           ]),
           actions: <Widget>[
+            GestureDetector(
+              onTap: () {
+                _onTapOfSearchView(); //_onTaptoSearchInquiryView();
+              },
+              child: Image.asset(
+                CUSTOM_SEARCH,
+                width: 30,
+                height: 30,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
             IconButton(
                 icon: Icon(
                   Icons.water_damage_sharp,
@@ -272,15 +285,12 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                   },
                   child: Container(
                     padding: EdgeInsets.only(
-                      left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN2,
-                      top: 25,
+                      left: 15,
+                      right: 15,
+                      top: 10,
                     ),
                     child: Column(
-                      children: [
-                        _buildSearchView(),
-                        Expanded(child: _buildInquiryList())
-                      ],
+                      children: [Expanded(child: _buildInquiryList())],
                     ),
                   ),
                 ),
@@ -301,61 +311,6 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
             : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: LoginUserID),
-      ),
-    );
-  }
-
-  ///builds header and title view
-  Widget _buildSearchView() {
-    return InkWell(
-      onTap: () {
-        _onTapOfSearchView();
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Search SalesOrder",
-              style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF000000),
-                  fontWeight: FontWeight
-                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-              ),
-          SizedBox(
-            height: 5,
-          ),
-          Card(
-            elevation: 5,
-            color: colorLightGray,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Container(
-              height: 60,
-              padding: EdgeInsets.only(left: 20, right: 20),
-              width: double.maxFinite,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _searchDetails == null
-                          ? "Tap to search SalesOrder"
-                          : _searchDetails.custoemerName,
-                      style: baseTheme.textTheme.headline3.copyWith(
-                          color: _searchDetails == null
-                              ? colorGrayDark
-                              : colorBlack),
-                    ),
-                  ),
-                  Icon(
-                    Icons.search,
-                    color: colorGrayDark,
-                  )
-                ],
-              ),
-            ),
-          )
-        ],
       ),
     );
   }
@@ -484,25 +439,70 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
         elevationCurve: Curves.easeInOut,
         shadowColor: Color(0xFF504F4F),
         baseColor: Color(0xFFFCFCFC),
-        expandedColor: Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
-        leading: CircleAvatar(
-            backgroundColor: Color(0xFF504F4F),
-            child: /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/
-                Image.network(
-              "http://demo.sharvayainfotech.in/images/profile.png",
-              height: 35,
-              fit: BoxFit.fill,
-              width: 35,
-            )),
-        title: Text(
-          model.customerName,
-          style: TextStyle(color: Colors.black),
+        expandedColor: colorTileBG,
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.assignment_ind,
+                    color: Color(0xff108dcf),
+                    size: 24,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 2),
+              child: Icon(
+                Icons.keyboard_arrow_right,
+                color: Color(0xff108dcf),
+                size: 24,
+              ),
+            ),
+            SizedBox(
+              width: 3,
+            ),
+            Flexible(
+              child: Text(
+                model.customerName,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12),
+              ),
+            ),
+          ],
         ),
-        subtitle: Text(
-          model.orderNo,
-          style: TextStyle(
-            color: Color(0xFF504F4F),
-            fontSize: _fontSize_Title,
+        subtitle: Container(
+          margin: EdgeInsets.only(left: 10),
+          child: Row(
+            children: [
+              Icon(
+                Icons.confirmation_num,
+                color: Color(0xff108dcf),
+                size: 12,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text(
+                model.orderNo,
+                style: TextStyle(
+                  color: Color(0xFF504F4F),
+                  fontSize: 9,
+                ),
+              ),
+            ],
           ),
         ),
         children: <Widget>[
@@ -518,212 +518,282 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                 vertical: 8.0,
               ),
               child: Container(
-                padding:
-                    EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            GestureDetector(
-                              onTap: () async {
-                                //await _makePhoneCall(model.contactNo1);
-                                MakeCall.callto(model.contactNo1);
-                              },
-                              child: Container(
-                                child: Image.asset(
-                                  PHONE_CALL_IMAGE,
-                                  width: 30,
-                                  height: 30,
+                            Visibility(
+                              visible: true,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  MakeCall.callto(model.contactNo1);
+                                },
+                                child: Column(
+                                  children: [
+                                    Card(
+                                      color: colorBackGroundGray,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Container(
+                                        width: 35,
+                                        height: 35,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.phone,
+                                            size: 24,
+                                            color: colorPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Text("Call",
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorPrimary,
+                                            fontSize: 7,
+                                            fontWeight: FontWeight.bold))
+                                  ],
                                 ),
                               ),
                             ),
                             SizedBox(
-                              width: 20,
+                              width: 15,
                             ),
                             GestureDetector(
                               onTap: () async {
                                 ShareMsg.msg(context, model.contactNo1);
                               },
-                              child: Container(
-                                child: Image.asset(
-                                  WHATSAPP_IMAGE,
-                                  width: 30,
-                                  height: 30,
-                                ),
+                              child: Column(
+                                children: [
+                                  Card(
+                                    color: colorBackGroundGray,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.message,
+                                        size: 24,
+                                        color: colorPrimary,
+                                      )),
+                                    ),
+                                  ),
+                                  Text("WhatsApp",
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorPrimary,
+                                          fontSize: 7,
+                                          fontWeight: FontWeight.bold))
+                                ],
                               ),
                             ),
                             SizedBox(
-                              width: 20,
+                              width: 15,
                             ),
                             GestureDetector(
                               onTap: () async {
                                 FetchCustomerDetails(model.customerID);
                               },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
+                              child: Column(
+                                children: [
+                                  Card(
+                                    color: colorBackGroundGray,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      /*decoration: const BoxDecoration(
                                     color: colorPrimary,
-                                    shape: BoxShape.circle),
-                                child: Center(
-                                    child: Icon(
-                                  Icons.account_box,
-                                  size: 24,
-                                  color: colorWhite,
-                                )),
+                                    shape: BoxShape.circle),*/
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.perm_identity_outlined,
+                                        size: 24,
+                                        color: colorPrimary,
+                                      )),
+                                    ),
+                                  ),
+                                  Text("Info.",
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorPrimary,
+                                          fontSize: 7,
+                                          fontWeight: FontWeight.bold))
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                              width: 20,
                             ),
                           ]),
                     ),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
                     Container(
                       child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () async {
-                              print("jdlfdjf" +
-                                  SiteURL +
-                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                  LoginUserID +
-                                  "&password=" +
-                                  Password +
-                                  "&pQuotID=" +
-                                  model.pkID.toString());
-
-                              String URLPDFF = SiteURL +
-                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                  LoginUserID +
-                                  "&password=" +
-                                  Password +
-                                  "&pQuotID=" +
-                                  model.pkID.toString();
-
-                              await _showMyDialog(model);
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  child: Image.asset(
-                                    PDF_ICON,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                ),
-                                Container(
-                                  child: Text(
-                                    "SO",
-                                    style: TextStyle(fontSize: 10),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              print("jdlfdjf" +
-                                  SiteURL +
-                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                  LoginUserID +
-                                  "&password=" +
-                                  Password +
-                                  "&pQuotID=" +
-                                  model.pkID.toString());
-
-                              String URLPDFF = SiteURL +
-                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                  LoginUserID +
-                                  "&password=" +
-                                  Password +
-                                  "&pQuotID=" +
-                                  model.pkID.toString();
-
-                              await _showMyDialogForPI(model);
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  child: Image.asset(
-                                    PDF_ICON,
-                                    width: 30,
-                                    height: 30,
-                                  ),
-                                ),
-                                Container(
-                                  child: Text(
-                                    "PI",
-                                    style: TextStyle(fontSize: 10),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Visibility(
-                            visible: true,
-                            child: GestureDetector(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            GestureDetector(
                               onTap: () async {
-                                String sendemailreq = SiteURL +
-                                    "Quotation.aspx?MobilePdf=yes&userid=" +
+                                print("jdlfdjf" +
+                                    SiteURL +
+                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
                                     LoginUserID +
                                     "&password=" +
                                     Password +
                                     "&pQuotID=" +
-                                    model.pkID.toString() +
-                                    "&CustomerID=" +
-                                    model.customerID.toString();
+                                    model.pkID.toString());
 
-                                print("webreqj" + sendemailreq);
-                                _showEmailSOMyDialog(model);
-                                /*
-                                  EmailTO.text = model.emailAddress;
-                                  showcustomdialogSendEmail(
-                                      context1: context,
-                                      Email: model.emailAddress)*/
+                                String URLPDFF = SiteURL +
+                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString();
+
+                                await _showMyDialog(model);
                               },
                               child: Column(
                                 children: [
-                                  Container(
-                                    width: 30,
-                                    height: 30,
-                                    decoration: const BoxDecoration(
+                                  Card(
+                                    color: colorBackGroundGray,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.picture_as_pdf_rounded,
+                                        size: 24,
                                         color: colorPrimary,
-                                        shape: BoxShape.circle),
-                                    child: Center(
-                                        child: Icon(
-                                      Icons.email,
-                                      size: 24,
-                                      color: colorWhite,
-                                    )),
-                                  ),
-                                  Container(
-                                    child: Text(
-                                      "SO",
-                                      style: TextStyle(fontSize: 10),
+                                      )),
                                     ),
                                   ),
+                                  Text("SO",
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorPrimary,
+                                          fontSize: 7,
+                                          fontWeight: FontWeight.bold))
                                 ],
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Visibility(
-                            visible: true,
-                            child: GestureDetector(
+                            SizedBox(
+                              width: 15,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                print("jdlfdjf" +
+                                    SiteURL +
+                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString());
+
+                                String URLPDFF = SiteURL +
+                                    "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                    LoginUserID +
+                                    "&password=" +
+                                    Password +
+                                    "&pQuotID=" +
+                                    model.pkID.toString();
+
+                                await _showMyDialogForPI(model);
+                              },
+                              child: Column(
+                                children: [
+                                  Card(
+                                    color: colorBackGroundGray,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      /*decoration: const BoxDecoration(
+                                    color: colorPrimary,
+                                    shape: BoxShape.circle),*/
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.picture_as_pdf_rounded,
+                                        size: 24,
+                                        color: colorPrimary,
+                                      )),
+                                    ),
+                                  ),
+                                  Text("PI",
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorPrimary,
+                                          fontSize: 7,
+                                          fontWeight: FontWeight.bold))
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Visibility(
+                              visible: true,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  String sendemailreq = SiteURL +
+                                      "Quotation.aspx?MobilePdf=yes&userid=" +
+                                      LoginUserID +
+                                      "&password=" +
+                                      Password +
+                                      "&pQuotID=" +
+                                      model.pkID.toString() +
+                                      "&CustomerID=" +
+                                      model.customerID.toString();
+
+                                  print("webreqj" + sendemailreq);
+                                  _showEmailSOMyDialog(model);
+                                },
+                                child: Column(
+                                  children: [
+                                    Card(
+                                      color: colorBackGroundGray,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Container(
+                                        width: 35,
+                                        height: 35,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.email,
+                                            size: 24,
+                                            color: colorPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Text("SO",
+                                        style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: colorPrimary,
+                                            fontSize: 7,
+                                            fontWeight: FontWeight.bold))
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            GestureDetector(
                               onTap: () async {
                                 String sendemailreq = SiteURL +
                                     "Quotation.aspx?MobilePdf=yes&userid=" +
@@ -737,254 +807,734 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
 
                                 print("webreqj" + sendemailreq);
                                 _showEmailPIMyDialog(model);
-                                /*
+                              },
+                              child: Column(
+                                children: [
+                                  Card(
+                                    color: colorBackGroundGray,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.email,
+                                        size: 24,
+                                        color: colorPrimary,
+                                      )),
+                                    ),
+                                  ),
+                                  Text("PI",
+                                      style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          color: colorPrimary,
+                                          fontSize: 7,
+                                          fontWeight: FontWeight.bold))
+                                ],
+                              ),
+                            ),
+                          ]),
+                    ),
+                    Visibility(
+                      visible: false,
+                      child: Column(
+                        children: [
+                          Container(
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onTap: () async {
+                                      //await _makePhoneCall(model.contactNo1);
+                                      MakeCall.callto(model.contactNo1);
+                                    },
+                                    child: Container(
+                                      child: Image.asset(
+                                        PHONE_CALL_IMAGE,
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      ShareMsg.msg(context, model.contactNo1);
+                                    },
+                                    child: Container(
+                                      child: Image.asset(
+                                        WHATSAPP_IMAGE,
+                                        width: 30,
+                                        height: 30,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      FetchCustomerDetails(model.customerID);
+                                    },
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      decoration: const BoxDecoration(
+                                          color: colorPrimary,
+                                          shape: BoxShape.circle),
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.account_box,
+                                        size: 24,
+                                        color: colorWhite,
+                                      )),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                ]),
+                          ),
+                          SizedBox(
+                            height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                          ),
+                          Container(
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    print("jdlfdjf" +
+                                        SiteURL +
+                                        "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                        LoginUserID +
+                                        "&password=" +
+                                        Password +
+                                        "&pQuotID=" +
+                                        model.pkID.toString());
+
+                                    String URLPDFF = SiteURL +
+                                        "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                        LoginUserID +
+                                        "&password=" +
+                                        Password +
+                                        "&pQuotID=" +
+                                        model.pkID.toString();
+
+                                    await _showMyDialog(model);
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        child: Image.asset(
+                                          PDF_ICON,
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                      ),
+                                      Container(
+                                        child: Text(
+                                          "SO",
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    print("jdlfdjf" +
+                                        SiteURL +
+                                        "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                        LoginUserID +
+                                        "&password=" +
+                                        Password +
+                                        "&pQuotID=" +
+                                        model.pkID.toString());
+
+                                    String URLPDFF = SiteURL +
+                                        "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                        LoginUserID +
+                                        "&password=" +
+                                        Password +
+                                        "&pQuotID=" +
+                                        model.pkID.toString();
+
+                                    await _showMyDialogForPI(model);
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        child: Image.asset(
+                                          PDF_ICON,
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                      ),
+                                      Container(
+                                        child: Text(
+                                          "PI",
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Visibility(
+                                  visible: true,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      String sendemailreq = SiteURL +
+                                          "Quotation.aspx?MobilePdf=yes&userid=" +
+                                          LoginUserID +
+                                          "&password=" +
+                                          Password +
+                                          "&pQuotID=" +
+                                          model.pkID.toString() +
+                                          "&CustomerID=" +
+                                          model.customerID.toString();
+
+                                      print("webreqj" + sendemailreq);
+                                      _showEmailSOMyDialog(model);
+                                      /*
                                   EmailTO.text = model.emailAddress;
                                   showcustomdialogSendEmail(
                                       context1: context,
                                       Email: model.emailAddress)*/
-                              },
-                              child: Column(
-                                children: [
-                                  Container(
-                                    width: 30,
-                                    height: 30,
-                                    decoration: const BoxDecoration(
-                                        color: colorPrimary,
-                                        shape: BoxShape.circle),
-                                    child: Center(
-                                        child: Icon(
-                                      Icons.email,
-                                      size: 24,
-                                      color: colorWhite,
-                                    )),
-                                  ),
-                                  Container(
-                                    child: Text(
-                                      "PI",
-                                      style: TextStyle(fontSize: 10),
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: const BoxDecoration(
+                                              color: colorPrimary,
+                                              shape: BoxShape.circle),
+                                          child: Center(
+                                              child: Icon(
+                                            Icons.email,
+                                            size: 24,
+                                            color: colorWhite,
+                                          )),
+                                        ),
+                                        Container(
+                                          child: Text(
+                                            "SO",
+                                            style: TextStyle(fontSize: 10),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                Visibility(
+                                  visible: true,
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      String sendemailreq = SiteURL +
+                                          "Quotation.aspx?MobilePdf=yes&userid=" +
+                                          LoginUserID +
+                                          "&password=" +
+                                          Password +
+                                          "&pQuotID=" +
+                                          model.pkID.toString() +
+                                          "&CustomerID=" +
+                                          model.customerID.toString();
+
+                                      print("webreqj" + sendemailreq);
+                                      _showEmailPIMyDialog(model);
+                                      /*
+                                  EmailTO.text = model.emailAddress;
+                                  showcustomdialogSendEmail(
+                                      context1: context,
+                                      Email: model.emailAddress)*/
+                                    },
+                                    child: Column(
+                                      children: [
+                                        Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: const BoxDecoration(
+                                              color: colorPrimary,
+                                              shape: BoxShape.circle),
+                                          child: Center(
+                                              child: Icon(
+                                            Icons.email,
+                                            size: 24,
+                                            color: colorWhite,
+                                          )),
+                                        ),
+                                        Container(
+                                          child: Text(
+                                            "PI",
+                                            style: TextStyle(fontSize: 10),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
-                    ),
-                    Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Order Date",
-                                model.orderDate.getFormattedDate(
-                                        fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                                        toFormat: "dd/MM/yyyy") ??
-                                    "-"),
-                          ),
-                          Expanded(
-                            child: _buildTitleWithValueView(
-                                "Order #", model.orderNo ?? "-"),
-                          ),
-                          /*Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () async {
-                                    await _showMyDialog(model);
-
-                                    */ /* var progesCount23;
-                               webViewController.getProgress().whenComplete(() async =>  {
-                                 progesCount23 = await webViewController.getProgress(),
-                                 print("PAgeLoaded" + progesCount23.toString())
-                               });*/ /*
-
-                                    */ /*  await _makePhoneCall(
-                                        model.contactNo1);*/ /*
-
-                                    // baseBloc.emit(ShowProgressIndicatorState(true));
-                                    */ /* setState(() {
-                                  urlRequest = URLRequest(url: Uri.parse(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+LoginUserID+"&password="+Password+"&pQuotID="+model.pkID.toString()));
-
-
-                                });*/ /*
-
-                                    // await Future.delayed(const Duration(milliseconds: 500), (){});
-                                    // baseBloc.emit(ShowProgressIndicatorState(false));
-                                    //_QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-                                  },
-                                  child: Container(
-                                    child: Image.asset(
-                                      PDF_ICON,
-                                      width: 48,
-                                      height: 48,
+                    Card(
+                      color: colorBackGroundGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            left: 10, right: 10, top: 5, bottom: 5),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.confirmation_num,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("OrderNo",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
                                     ),
-                                  ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model.orderNo.toString() == ""
+                                              ? "Not Available"
+                                              : model.orderNo
+                                                  .toString(), //put your own long text here.
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
                                 ),
-                              ])*/
-                        ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
+                              ),
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_outlined,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("Order",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model.orderDate.getFormattedDate(
+                                                  fromFormat:
+                                                      "yyyy-MM-ddTHH:mm:ss",
+                                                  toFormat: "dd-MM-yyyy") ??
+                                              "-",
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ]),
+                      ),
                     ),
-                    Row(children: [
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Quot.#", model.quotationNo ?? "-"),
+                    Card(
+                      color: colorBackGroundGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            left: 12, right: 10, top: 5, bottom: 5),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.confirmation_num,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("Qt.No",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model.quotationNo.toString() == ""
+                                              ? "Not Available"
+                                              : model.quotationNo
+                                                  .toString(), //put your own long text here.
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Icon(
+                                          Icons.dns_rounded,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("status",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model.approvalStatus.toString() == ""
+                                              ? "Not Available"
+                                              : model.approvalStatus.toString(),
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ]),
                       ),
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Lead.#", model.inquiryNo ?? "-"),
-                      ),
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
-                    Row(children: [
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Project Name",
-                            /*model.referenceName ?? "-" */ model.projectName ==
-                                        "" ||
-                                    model.projectName == null
-                                ? '-'
-                                : model.projectName),
+                    Card(
+                      color: colorBackGroundGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            left: 12, right: 10, top: 5, bottom: 5),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.currency_rupee,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("Amount",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model.basicAmt.toString() == ""
+                                              ? "Not Available"
+                                              : model.basicAmt
+                                                  .toString(), //put your own long text here.
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_outlined,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("Create",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model.createdDate.getFormattedDate(
+                                              fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                                              toFormat:
+                                                  "dd-MM-yyyy"), //put your own long text here.
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
                       ),
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Status", model.inquiryStatus ?? "-"),
-                      ),
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
-                    Row(children: [
-                      Expanded(
-                        child: _buildTitleWithValueView(
-                            "Order Amount.", model.basicAmt.toString() ?? "-"),
+                    Card(
+                      color: colorBackGroundGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            left: 12, right: 10, top: 5, bottom: 5),
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Icon(
+                                          Icons.perm_identity_outlined,
+                                          color: colorCardBG,
+                                        ),
+                                        Text("By",
+                                            style: TextStyle(
+                                              fontStyle: FontStyle.italic,
+                                              color: colorCardBG,
+                                              fontSize: 7,
+                                            ))
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 12,
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                          model
+                                              .createdBy, //put your own long text here.
+                                          maxLines: 3,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(
+                                              color: Color(title_color),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: _fontSize_Title)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
                       ),
-                      Expanded(
-                          child: _buildTitleWithValueView(
-                              "Sales Exec.", model.createdBy)),
-                      /* Expanded(
-                        child: _buildTitleWithValueView("NetAmt.", model.netAmt.toString() ?? "-"),
-                      ),*/
-                    ]),
-                    SizedBox(
-                      height: DEFAULT_HEIGHT_BETWEEN_WIDGET,
                     ),
-                    _buildTitleWithValueView(
-                        "Created Date",
-                        model.createdDate.getFormattedDate(
-                            fromFormat: "yyyy-MM-ddTHH:mm:ss",
-                            toFormat: "dd/MM/yyyy")),
-                    /*Row(children: [
-                        Expanded(
-                          child: getCommonButton(baseTheme, () {}, "Edit"),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Expanded(
-                          child: getCommonButton(baseTheme, () {}, "Delete"),
-                        ),
-                      ]),*/
                   ],
                 ),
               ),
             ),
           ),
-          ButtonBar(
-              alignment: MainAxisAlignment.center,
-              buttonHeight: 52.0,
-              buttonMinWidth: 90.0,
-              children: <Widget>[
-                IsEditRights == true
-                    ? GestureDetector(
-                        onTap: () {
-                          /*_SalesOrderBloc.add(
-                              SearchCustomerListByNumberCallEvent(
-                                  "0",
-                                  CustomerSearchByIdRequest(
-                                      companyId: CompanyID,
-                                      loginUserID: LoginUserID,
-                                      CustomerID:
-                                          model.customerID.toString())));*/
+          Divider(
+            thickness: 1.0,
+            height: 1.0,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          IsEditRights == false && IsDeleteRights == false
+              ? Container()
+              : Card(
+                  color: colorCardBG,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    width: 300,
+                    height: 50,
+                    child: ButtonBar(
+                        alignment: MainAxisAlignment.center,
+                        buttonHeight: 52.0,
+                        buttonMinWidth: 90.0,
+                        children: <Widget>[
+                          IsEditRights == true
+                              ? Container(
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          // _onTapOfEditCustomer(model);
 
-                          navigateTo(
-                                  context, SaleOrderNewAddEditScreen.routeName,
-                                  arguments:
-                                      AddUpdateSalesOrderNewScreenArguments(
-                                          model))
-                              .then((value) {
-                            _SalesOrderBloc.add(SalesOrderListCallEvent(
-                                1,
-                                SalesOrderListApiRequest(
-                                    CompanyId: CompanyID.toString(),
-                                    LoginUserID: LoginUserID)));
-                          });
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            Icon(
-                              Icons.edit,
-                              color: Colors.black,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2.0),
-                            ),
-                            Text(
-                              'Edit',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Container(),
-                SizedBox(
-                  width: 10,
+                                          navigateTo(
+                                                  context,
+                                                  SaleOrderNewAddEditScreen
+                                                      .routeName,
+                                                  arguments:
+                                                      AddUpdateSalesOrderNewScreenArguments(
+                                                          model))
+                                              .then((value) {
+                                            _SalesOrderBloc.add(
+                                                SalesOrderListCallEvent(
+                                                    1,
+                                                    SalesOrderListApiRequest(
+                                                        CompanyId: CompanyID
+                                                            .toString(),
+                                                        LoginUserID:
+                                                            LoginUserID)));
+                                          });
+                                        },
+                                        child: Row(
+                                          children: <Widget>[
+                                            Image.asset(
+                                              CUSTOM_UPDATE,
+                                              height: 24,
+                                              width: 24,
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 2.0),
+                                            ),
+                                            Text(
+                                              'Update',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: colorWhite),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          IsDeleteRights == true
+                              ? GestureDetector(
+                                  onTap: () {
+                                    showCommonDialogWithTwoOptions(context,
+                                        "Are you sure you want to delete this SalesOrder ?",
+                                        negativeButtonTitle: "No",
+                                        positiveButtonTitle: "Yes",
+                                        onTapOfPositiveButton: () {
+                                      Navigator.of(context).pop();
+                                      //_collapse();
+                                      _SalesOrderBloc.add(
+                                          SalesOrderDeleteRequestEvent(
+                                              model.pkID.toString(),
+                                              SalesOrderDeleteRequest(
+                                                  CompanyID:
+                                                      CompanyID.toString())));
+                                    });
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Image.asset(
+                                        CUSTOM_DELETE,
+                                        height: 29,
+                                        width: 29,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                      ),
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: colorWhite),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          SizedBox(
+                            width: 10,
+                          ),
+                        ]),
+                  ),
                 ),
-                IsDeleteRights == true
-                    ? GestureDetector(
-                        onTap: () {
-                          //  cardA.currentState?.collapse();
-                          //new ExpansionTileCardState().collapse();
-
-                          showCommonDialogWithTwoOptions(context,
-                              "Are you sure you want to delete this SalesOrder ?",
-                              negativeButtonTitle: "No",
-                              positiveButtonTitle: "Yes",
-                              onTapOfPositiveButton: () {
-                            Navigator.of(context).pop();
-                            //_collapse();
-                            _SalesOrderBloc.add(SalesOrderDeleteRequestEvent(
-                                model.pkID.toString(),
-                                SalesOrderDeleteRequest(
-                                    CompanyID: CompanyID.toString())));
-                          });
-                        },
-                        child: Column(
-                          children: <Widget>[
-                            Icon(
-                              Icons.delete,
-                              color: Colors.black,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 2.0),
-                            ),
-                            Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Container(),
-              ]),
+          SizedBox(
+            height: 10,
+          )
         ],
       ),
     );

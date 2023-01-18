@@ -1051,7 +1051,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     if(_isForUpdate==true)
     {
      // Navigator.pop(context);
-      Navigator.of(context).pop(_FollowupStatus);
+      Navigator.of(context).pop(widget.arguments.FollowupStatus);
     }
     else
     {
@@ -1549,7 +1549,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
              if(_isForUpdate==true)
                {
                  Navigator.pop(context);
-                 Navigator.of(state.context).pop(_FollowupStatus);
+                 Navigator.of(state.context).pop(widget.arguments.FollowupStatus);
                }
              else
                {
@@ -2356,7 +2356,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           if(_isForUpdate==true)
           {
             Navigator.pop(context);
-            Navigator.of(state.context).pop(_FollowupStatus);
+            Navigator.of(state.context).pop(widget.arguments.FollowupStatus);
           }
           else
           {
@@ -2550,7 +2550,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           // navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
           //isTaptoEvent = true;
           Navigator.pop(context);
-          Navigator.of(state.context).pop(_FollowupStatus);
+          Navigator.of(state.context).pop(widget.arguments.FollowupStatus);
 
         });
 

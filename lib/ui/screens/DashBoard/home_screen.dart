@@ -2770,10 +2770,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
         arr_ALL_Name_ID_For_Office.add(all_name_id);
 
-        /*ALL_Name_ID all_name_id2 = ALL_Name_ID();
+        ALL_Name_ID all_name_id2 = ALL_Name_ID();
         all_name_id2.Name = "Activity Summary";
         all_name_id2.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
-        arr_ALL_Name_ID_For_Office.add(all_name_id2);*/
+        arr_ALL_Name_ID_For_Office.add(all_name_id2);
 
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() ==
             "si08-sb94-my45-ry15") {

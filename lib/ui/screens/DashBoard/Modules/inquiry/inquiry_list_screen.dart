@@ -218,7 +218,6 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
           actions: <Widget>[
             GestureDetector(
               onTap: () {
-                // _buildSearchView();
                 _onTaptoSearchInquiryView();
               },
               child: Image.asset(
@@ -546,26 +545,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                 "indiamart"
             ? Color(0xFFFAF6C3)
             : colorTileBG,
-
-        //Colors.deepOrange[50],ADD8E6
-        /* leading: CircleAvatar(
-            backgroundColor: Color(0xFF504F4F),
-            child: */ /*Image.asset(IC_USERNAME,height: 25,width: 25,)*/ /*
-                Image.network(
-              "http://demo.sharvayainfotech.in/images/profile.png",
-              height: 35,
-              fit: BoxFit.fill,
-              width: 35,
-            )),*/
-
-        title: /*Text(
-          model.customerName,
-          style: TextStyle(
-              color: model.InquirySourceName == "India Mart"
-                  ? Color(0xFF8A2CE2)
-                  : Color(0xFF8A2CE2)), //8A2CE2)),
-        ),*/
-            Row(
+        title: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -600,17 +580,16 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             Flexible(
               child: Text(
                 model.customerName,
-                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: model.InquirySourceName.replaceAll(" ", "")
-                              .toLowerCase()
-                              .toString()
-                              .trim() ==
-                          "indiamart"
-                      ? Color(0xFF8A2CE2)
-                      : Colors.black,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                    color: model.InquirySourceName.replaceAll(" ", "")
+                                .toLowerCase()
+                                .toString()
+                                .trim() ==
+                            "indiamart"
+                        ? Color(0xFF8A2CE2)
+                        : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12),
               ),
             ),
           ],
@@ -640,7 +619,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                 model.inquiryNo,
                 style: TextStyle(
                   color: Color(0xFF504F4F),
-                  fontSize: _fontSize_Title,
+                  fontSize: 10,
                 ),
               ),
               SizedBox(

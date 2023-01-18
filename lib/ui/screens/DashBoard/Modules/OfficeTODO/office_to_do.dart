@@ -191,6 +191,8 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+    edt_FollowupEmployeeUserID.text = _offlineLoggedInData.details[0].userID;
+    edt_FollowupEmployeeList.text = _offlineLoggedInData.details[0].employeeName;
 
     _officeToDoScreenBloc = ToDoBloc(baseBloc);
 
@@ -228,7 +230,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         "Todays",
         FollowupFilterListRequest(
             CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID,
+            LoginUserID: edt_FollowupEmployeeUserID.text,
             PageNo: 1,
             PageSize: 10000)));
 
@@ -236,7 +238,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         "Missed",
         FollowupFilterListRequest(
             CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID,
+            LoginUserID: edt_FollowupEmployeeUserID.text,
             PageNo: 1,
             PageSize: 10000)));
 
@@ -245,11 +247,12 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         "Future",
         FollowupFilterListRequest(
             CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID,
+            LoginUserID: edt_FollowupEmployeeUserID.text,
             PageNo: 1,
             PageSize: 10000)));
 
 //
+
 
     edt_FollowupEmployeeUserID.addListener(followupStatusListener);
 
@@ -618,6 +621,27 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                                 child: RefreshIndicator(
                                   onRefresh: () async {
                                     //  navigateTo(context, OfficeToDoScreen.routeName,clearAllStack: true);
+                                    _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                                        "Todays",
+                                        FollowupFilterListRequest(
+                                            CompanyId: CompanyID.toString(),
+                                            LoginUserID: edt_FollowupEmployeeUserID.text,
+                                            PageNo: 1,
+                                            PageSize: 10000)));
+                                    _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                                        "Missed",
+                                        FollowupFilterListRequest(
+                                            CompanyId: CompanyID.toString(),
+                                            LoginUserID: edt_FollowupEmployeeUserID.text,
+                                            PageNo: 1,
+                                            PageSize: 10000)));
+                                    _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                                        "Future",
+                                        FollowupFilterListRequest(
+                                            CompanyId: CompanyID.toString(),
+                                            LoginUserID: edt_FollowupEmployeeUserID.text,
+                                            PageNo: 1,
+                                            PageSize: 10000)));
                                   },
                                   child: Container(
                                     padding: EdgeInsets.only(
@@ -2242,6 +2266,109 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
                   String TimeHour =
                       beforZeroHour + ":" + beforZerominute + " " + AM_PM;
+
+
+
+                 /* return showDialog(
+                      context: context,
+                      builder: (context) {
+                        bool isChecked = false;
+                        // timeChangesEvent();
+
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.all(Radius.circular(30.0))),
+                          title: Column(
+                            children: [
+                              Text(
+                                "Update Follow-Up",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorPrimary),
+                              ),
+                              Divider(
+                                thickness: 2,
+                              ),
+                            ],
+                          ),
+                          content: Container(
+                              height: 400,
+                              width: double.infinity,
+                              child: OfficeFollowUpAddEditScreen(OfficeFollowupScreenArguments(editModel:model,FollowupStatus:"Todays")
+                              )),
+                          actions: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.all(5),
+                                child: *//*getCommonButton(baseTheme, () {
+                                  Navigator.pop(context);
+                                }, "Close"),*//*
+                                Column(
+                                  children: [
+                                    Divider(
+                                      thickness: 2,
+                                    ),
+                                    getCommonButton(baseTheme, () {
+                                      Navigator.pop(context);
+                                    }, "Close", radius: 25.0),
+                                    *//*Text(
+                                      "Close",
+                                      style: TextStyle(
+                                          color: colorPrimary,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),*//*
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        );
+                      });*/
+
+
+                  navigateTo(context,
+                      OfficeFollowUpAddEditScreen.routeName,
+                      arguments:
+                      OfficeFollowupScreenArguments(editModel:model,FollowupStatus:"Todays"))
+                      .then((value) {
+                    setState(() {
+                      // followerEmployeeList();
+
+                      _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                          "Todays",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+                      _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                          "Missed",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+                      _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                          "Future",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+
+                      print("dfjhdjh" + value);
+
+                    });
+                  });
                 },
 
                 //Color(0xff39c3aa) Green = Color(0xff39c3aa)
@@ -2551,6 +2678,41 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
                   String TimeHour =
                       beforZeroHour + ":" + beforZerominute + " " + AM_PM;
+
+                  navigateTo(context,
+                      OfficeFollowUpAddEditScreen.routeName,
+                      arguments:
+                      OfficeFollowupScreenArguments(editModel:model,FollowupStatus:"Missed"))
+                      .then((value) {
+                    setState(() {
+                      // followerEmployeeList();
+
+                      _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                          "Todays",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+                      _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                          "Missed",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+                      _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                          "Future",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+
+                      print("dfjhdjh" + value);
+
+                    });
+                  });
                 },
 
                 //Color(0xff39c3aa) Green = Color(0xff39c3aa)
@@ -2636,7 +2798,40 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                       beforZeroHour + ":" + beforZerominute + " " + AM_PM;
 
 
+                  navigateTo(context,
+                      OfficeFollowUpAddEditScreen.routeName,
+                      arguments:
+                      OfficeFollowupScreenArguments(editModel:model,FollowupStatus:"Future"))
+                      .then((value) {
+                    setState(() {
+                      // followerEmployeeList();
 
+                      _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                          "Todays",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+                      _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                          "Missed",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+                      _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                          "Future",
+                          FollowupFilterListRequest(
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: edt_FollowupEmployeeUserID.text,
+                              PageNo: 1,
+                              PageSize: 10000)));
+
+                      print("dfjhdjh" + value);
+
+                    });
+                  });
 
                 },
 
@@ -3242,8 +3437,43 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
               InkWell(
 
                   onTap: () {
-                     navigateTo(context, OfficeFollowUpAddEditScreen.routeName,clearAllStack: true);
+                     //navigateTo(context, OfficeFollowUpAddEditScreen.routeName,clearAllStack: true);
 
+
+
+                     navigateTo(context,
+                         OfficeFollowUpAddEditScreen.routeName,
+                         arguments:
+                         OfficeFollowupScreenArguments(FollowupStatus:"Todays"))
+                         .then((value) {
+                       setState(() {
+                         // followerEmployeeList();
+                         _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                             "Todays",
+                             FollowupFilterListRequest(
+                                 CompanyId: CompanyID.toString(),
+                                 LoginUserID: edt_FollowupEmployeeUserID.text,
+                                 PageNo: 1,
+                                 PageSize: 10000)));
+                         _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                             "Missed",
+                             FollowupFilterListRequest(
+                                 CompanyId: CompanyID.toString(),
+                                 LoginUserID: edt_FollowupEmployeeUserID.text,
+                                 PageNo: 1,
+                                 PageSize: 10000)));
+                         _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                             "Future",
+                             FollowupFilterListRequest(
+                                 CompanyId: CompanyID.toString(),
+                                 LoginUserID: edt_FollowupEmployeeUserID.text,
+                                 PageNo: 1,
+                                 PageSize: 10000)));
+
+                         print("dfjhdjh" + value);
+
+                       });
+                     });
                   },
                   child: Icon(Icons.add, color: Colors.white,)),
             ],
@@ -3340,7 +3570,39 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
                   onTap: () {
                     // navigateTo(context, OfficeToDoAddEditScreen.routeName,clearAllStack: true);
+                    navigateTo(context,
+                        OfficeFollowUpAddEditScreen.routeName,
+                        arguments:
+                        OfficeFollowupScreenArguments(FollowupStatus:"Missed"))
+                        .then((value) {
+                      setState(() {
+                        // followerEmployeeList();
+                        _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                            "Todays",
+                            FollowupFilterListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: edt_FollowupEmployeeUserID.text,
+                                PageNo: 1,
+                                PageSize: 10000)));
+                        _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                            "Missed",
+                            FollowupFilterListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: edt_FollowupEmployeeUserID.text,
+                                PageNo: 1,
+                                PageSize: 10000)));
+                        _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                            "Future",
+                            FollowupFilterListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: edt_FollowupEmployeeUserID.text,
+                                PageNo: 1,
+                                PageSize: 10000)));
 
+                        print("dfjhdjh" + value);
+
+                      });
+                    });
 
                   },
                   child: Icon(Icons.add, color: Colors.white)),
@@ -3391,7 +3653,39 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                   onTap: () {
                     // navigateTo(context, OfficeToDoAddEditScreen.routeName,clearAllStack: true);
 
+                    navigateTo(context,
+                        OfficeFollowUpAddEditScreen.routeName,
+                        arguments:
+                        OfficeFollowupScreenArguments(FollowupStatus:"Future"))
+                        .then((value) {
+                      setState(() {
+                        // followerEmployeeList();
+                        _officeToDoScreenBloc.add(FollowupFilterListCallEvent(
+                            "Todays",
+                            FollowupFilterListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: edt_FollowupEmployeeUserID.text,
+                                PageNo: 1,
+                                PageSize: 10000)));
+                        _officeToDoScreenBloc.add(FollowupMissedFilterListCallEvent(
+                            "Missed",
+                            FollowupFilterListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: edt_FollowupEmployeeUserID.text,
+                                PageNo: 1,
+                                PageSize: 10000)));
+                        _officeToDoScreenBloc.add(FollowupFutureFilterListCallEvent(
+                            "Future",
+                            FollowupFilterListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: edt_FollowupEmployeeUserID.text,
+                                PageNo: 1,
+                                PageSize: 10000)));
 
+                        print("dfjhdjh" + value);
+
+                      });
+                    });
                   },
                   child: Icon(Icons.add, color: Colors.white)),
             ],
