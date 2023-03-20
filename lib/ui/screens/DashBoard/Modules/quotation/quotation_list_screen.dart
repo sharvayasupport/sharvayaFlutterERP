@@ -417,8 +417,14 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
       child: Column(
         children: [
           _quotationListResponse.details.length != 0
-              ? OneTimeGenerateQT(
-                  _quotationListResponse.details[0], context, "new")
+              ? _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                          "DHSI-09RY-BATH-ACCU" ||
+                      _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                          "TEST-0000-ACBF-0214"
+                  ? OneTimeGenerateQTWithDiscount(
+                      _quotationListResponse.details[0], context, "new")
+                  : OneTimeGenerateQT(
+                      _quotationListResponse.details[0], context, "new")
               : Container(),
           Expanded(
             child: ListView.builder(
@@ -724,27 +730,53 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                               ],
                             ),
                           ),
+                          /* GestureDetector(
+                            onTap: () async {
+                              FetchCustomerDetails(model.customerID);
+                            },
+                            child: Column(
+                              children: [
+                                Card(
+                                  color: colorBackGroundGray,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Container(
+                                    width: 35,
+                                    height: 35,
+                                    */ /*decoration: const BoxDecoration(
+                                    color: colorPrimary,
+                                    shape: BoxShape.circle),*/ /*
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.perm_identity_outlined,
+                                      size: 24,
+                                      color: colorPrimary,
+                                    )),
+                                  ),
+                                ),
+                                Text("Info.",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: colorPrimary,
+                                        fontSize: 7,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                          ),*/
                           SizedBox(
                             width: 15,
                           ),
                           GestureDetector(
                             onTap: () async {
-                              print("jdlfdjf" +
+                              print("Acurabath_non_dis" +
+                                  "  PDF : " +
                                   SiteURL +
-                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
+                                  "/Quotation.aspx?QuotationType=nondis&PrintHeader=yes&MobilePdf=yes&userid=" +
                                   LoginUserID +
                                   "&password=" +
                                   Password +
                                   "&pQuotID=" +
                                   model.pkID.toString());
-
-                              String URLPDFF = SiteURL +
-                                  "/Quotation.aspx?MobilePdf=yes&userid=" +
-                                  LoginUserID +
-                                  "&password=" +
-                                  Password +
-                                  "&pQuotID=" +
-                                  model.pkID.toString();
 
                               await _showMyDialog(model, "new");
                             },
@@ -774,6 +806,58 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                               ],
                             ),
                           ),
+                          _offlineLoggedInData.details[0].serialKey
+                                          .toUpperCase() ==
+                                      "DHSI-09RY-BATH-ACCU" ||
+                                  _offlineLoggedInData.details[0].serialKey
+                                          .toUpperCase() ==
+                                      "TEST-0000-ACBF-0214"
+                              ? GestureDetector(
+                                  onTap: () async {
+                                    print("Acurabath_dis" +
+                                        " PDF : " +
+                                        SiteURL +
+                                        "/Quotation.aspx?QuotationType=dis&PrintHeader=yes&MobilePdf=yes&userid=" +
+                                        LoginUserID +
+                                        "&password=" +
+                                        Password +
+                                        "&pQuotID=" +
+                                        model.pkID.toString());
+
+                                    await _showMyDialogAccurabathWithDiscount(
+                                        model, "new");
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 5, right: 5),
+                                    child: Column(
+                                      children: [
+                                        Card(
+                                          color: colorBackGroundGray,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Container(
+                                            width: 35,
+                                            height: 35,
+                                            child: Center(
+                                                child: Icon(
+                                              Icons.picture_as_pdf_rounded,
+                                              size: 24,
+                                              color: colorPrimary,
+                                            )),
+                                          ),
+                                        ),
+                                        Text("pdf %",
+                                            style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: colorPrimary,
+                                                fontSize: 7,
+                                                fontWeight: FontWeight.bold))
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : Container(),
                           SizedBox(
                             width: 15,
                           ),
@@ -1423,7 +1507,40 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               children: <Widget>[
                 Visibility(
                   visible: true,
-                  child: GenerateQT(model, context123, GenerateMode),
+                  child: _offlineLoggedInData.details[0].serialKey
+                                  .toUpperCase() ==
+                              "DHSI-09RY-BATH-ACCU" ||
+                          _offlineLoggedInData.details[0].serialKey
+                                  .toUpperCase() ==
+                              "TEST-0000-ACBF-0214"
+                      ? ACCURABATHGenerateQTWithoutDiscount(
+                          model, context123, GenerateMode)
+                      : GenerateQT(model, context123, GenerateMode),
+                )
+                //GetCircular123(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showMyDialogAccurabathWithDiscount(
+      QuotationDetails model, String GenerateMode) async {
+    return showDialog<int>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context123) {
+        return AlertDialog(
+          title: Text('Please wait..! '),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: ACCURABATHGenerateQTWithDiscount(
+                      model, context123, GenerateMode),
                 )
                 //GetCircular123(),
               ],
@@ -1688,6 +1805,348 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     );
   }
 
+  ACCURABATHGenerateQTWithoutDiscount(
+      QuotationDetails model, BuildContext context123, String GenerateMode1) {
+    return Center(
+      child: Container(
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/Quotation.aspx?QuotationType=nondis&PrintHeader=yes&MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        print("sdf567" + pageTitle);
+
+                        if (pageTitle != "E-Office-Desk") {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Quotation Generated Successfully ",
+                              onTapOfPositiveButton: () {
+                            Navigator.of(context).pop();
+                            _QuotationBloc.add(QuotationPDFGenerateCallEvent(
+                                QuotationPDFGenerateRequest(
+                                    CompanyId: CompanyID.toString(),
+                                    QuotationNo: model.quotationNo)));
+                            //Navigator.pop(context);
+                          });
+                        } else {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Please Try Again !");
+                        }
+                      });
+                    });
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  ACCURABATHGenerateQTWithDiscount(
+      QuotationDetails model, BuildContext context123, String GenerateMode1) {
+    return Center(
+      child: Container(
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/Quotation.aspx?QuotationType=dis&PrintHeader=yes&MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        print("sdf567" + pageTitle);
+
+                        if (pageTitle != "E-Office-Desk") {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Quotation Generated Successfully ",
+                              onTapOfPositiveButton: () {
+                            Navigator.of(context).pop();
+                            _QuotationBloc.add(QuotationPDFGenerateCallEvent(
+                                QuotationPDFGenerateRequest(
+                                    CompanyId: CompanyID.toString(),
+                                    QuotationNo: model.quotationNo)));
+                            //Navigator.pop(context);
+                          });
+                        } else {
+                          Navigator.pop(context123);
+                          showCommonDialogWithSingleOption(
+                              context, "Please Try Again !");
+                        }
+                      });
+                    });
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   OneTimeGenerateQT(
       QuotationDetails model, BuildContext context123, String GenerateMode) {
     return Center(
@@ -1706,6 +2165,163 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                   initialUrlRequest: URLRequest(
                       url: Uri.parse(SiteURL +
                           "/Quotation.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&pQuotID=" +
+                          model.pkID.toString())),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    baseBloc.emit(ShowProgressIndicatorState(true));
+
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+
+                    return NavigationActionPolicy.ALLOW;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      isLoading = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+
+                        print("sdf567" + pageTitle);
+                      });
+                    });
+                    baseBloc.emit(ShowProgressIndicatorState(false));
+
+                    /*showCommonDialogWithSingleOption(
+                                context, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              //Navigator.pop(context);
+                              navigateTo(context, HomeScreen.routeName,
+                                  clearAllStack: true);
+                            });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            /*Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )*/
+          ],
+        ),
+      ),
+    );
+  }
+
+  OneTimeGenerateQTWithDiscount(
+      QuotationDetails model, BuildContext context123, String GenerateMode) {
+    return Center(
+      child: Container(
+        alignment: Alignment.topLeft,
+        child: Stack(
+          children: [
+            Container(
+              height: 5,
+              width: 5,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
+                  // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/Quotation.aspx?QuotationType=dis&PrintHeader=yes&MobilePdf=yes&userid=" +
                           LoginUserID +
                           "&password=" +
                           Password +

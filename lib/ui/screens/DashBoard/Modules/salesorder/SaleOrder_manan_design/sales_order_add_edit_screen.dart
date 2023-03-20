@@ -275,10 +275,6 @@ class _SaleOrderNewAddEditScreenState
         QuotationProjectListRequest(
             CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
 
-    _salesOrderBloc.add(QuotationTermsConditionCallEvent(
-        QuotationTermsConditionRequest(
-            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
-
     _salesOrderBloc.add(PaymentScheduleListEvent());
 
     _salesOrderBloc.add(GenericOtherChargeCallEvent(
@@ -404,9 +400,7 @@ class _SaleOrderNewAddEditScreenState
           if (state is QuotationProjectListResponseState) {
             _OnProjectList(state);
           }
-          if (state is QuotationTermsCondtionResponseState) {
-            _OnTermsAndConditionResponse(state);
-          }
+
           if (state is BankDetailsListResponseState) {
             _onBankDetailsList(state);
           }
@@ -440,7 +434,6 @@ class _SaleOrderNewAddEditScreenState
           //return true for state for which builder method should be called
           if (currentState is BankDetailsListResponseState ||
               currentState is QuotationProjectListResponseState ||
-              currentState is QuotationTermsCondtionResponseState ||
               currentState is PaymentScheduleListResponseState ||
               currentState is AddGenericAddditionalChargesState ||
               currentState is DeleteAllGenericAddditionalChargesState ||
@@ -488,6 +481,10 @@ class _SaleOrderNewAddEditScreenState
           if (state is SaleBillEmailContentResponseState) {
             _OnEmailContentResponse(state);
           }
+
+          if (state is QuotationTermsCondtionResponseState) {
+            _OnTermsAndConditionResponse(state);
+          }
           return super.build(context);
           //handle states
         },
@@ -503,7 +500,8 @@ class _SaleOrderNewAddEditScreenState
               currentState is SaleOrderProductSaveResponseState ||
               currentState is SOCurrencyListResponseState ||
               currentState is SaveEmailContentResponseState ||
-              currentState is SaleBillEmailContentResponseState) {
+              currentState is SaleBillEmailContentResponseState ||
+              currentState is QuotationTermsCondtionResponseState) {
             return true;
           }
           return false;
@@ -1254,13 +1252,12 @@ class _SaleOrderNewAddEditScreenState
       child: Column(
         children: [
           InkWell(
-            onTap: () => showcustomdialogWithMultipleID(
-                values: arr_ALL_Name_ID_For_Terms_And_Condition,
-                context1: context,
-                controller: _contrller_select_terms_and_condition,
-                controllerID: _contrller_select_terms_and_conditionID,
-                controller2: _contrller_terms_and_condition,
-                lable: "Select Term & Condition "),
+            onTap: () {
+              _salesOrderBloc.add(QuotationTermsConditionCallEvent(
+                  QuotationTermsConditionRequest(
+                      CompanyId: CompanyID.toString(),
+                      LoginUserID: LoginUserID)));
+            },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -3743,25 +3740,35 @@ class _SaleOrderNewAddEditScreenState
   }
 
   void _OnTermsAndConditionResponse(QuotationTermsCondtionResponseState state) {
-    if (state.response.details.length != 0) {
-      arr_ALL_Name_ID_For_Terms_And_Condition.clear();
-      for (var i = 0; i < state.response.details.length; i++) {
-        print("InquiryStatus : " + state.response.details[i].tNCHeader);
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = state.response.details[i].tNCHeader;
-        all_name_id.pkID = state.response.details[i].pkID;
-        all_name_id.Name1 = state.response.details[i].tNCContent;
+    /*if (state.response.details.length != 0) {
 
-        arr_ALL_Name_ID_For_Terms_And_Condition.add(all_name_id);
-      }
-      /* showcustomdialogWithMultipleID(
+      */ /* showcustomdialogWithMultipleID(
           values: arr_ALL_Name_ID_For_Terms_And_Condition,
           context1: context,
           controller: edt_TermConditionHeader,
           controllerID: edt_TermConditionHeaderID,
           controller2: edt_TermConditionFooter,
-          lable: "Select Term & Condition ");*/
+          lable: "Select Term & Condition ");*/ /*
+    }*/
+
+    arr_ALL_Name_ID_For_Terms_And_Condition.clear();
+    for (var i = 0; i < state.response.details.length; i++) {
+      print("InquiryStatus : " + state.response.details[i].tNCHeader);
+      ALL_Name_ID all_name_id = ALL_Name_ID();
+      all_name_id.Name = state.response.details[i].tNCHeader;
+      all_name_id.pkID = state.response.details[i].pkID;
+      all_name_id.Name1 = state.response.details[i].tNCContent;
+
+      arr_ALL_Name_ID_For_Terms_And_Condition.add(all_name_id);
     }
+
+    showcustomdialogWithMultipleID(
+        values: arr_ALL_Name_ID_For_Terms_And_Condition,
+        context1: context,
+        controller: _contrller_select_terms_and_condition,
+        controllerID: _contrller_select_terms_and_conditionID,
+        controller2: _contrller_terms_and_condition,
+        lable: "Select Term & Condition ");
   }
 
   Widget QualifiedCountry() {

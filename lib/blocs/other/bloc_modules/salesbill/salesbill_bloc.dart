@@ -622,7 +622,7 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      print("dlddd" + event.arrsbProductsaveRequest.length.toString());
+      //  print("dlddd" + event.arrsbProductsaveRequest.length.toString());
       SBProductSaveResponse response =
           await userRepository.salesBillProductSaveDetails(
               event.InvoiceNo, event.arrsbProductsaveRequest);

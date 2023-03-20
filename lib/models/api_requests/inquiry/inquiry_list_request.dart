@@ -2,13 +2,16 @@ class InquiryListApiRequest {
   String CompanyId;
   String LoginUserID;
   String PkId;
+  String EmployeeID;
 
-  InquiryListApiRequest({this.CompanyId,this.LoginUserID,this.PkId});
+  InquiryListApiRequest(
+      {this.CompanyId, this.LoginUserID, this.PkId, this.EmployeeID});
 
   InquiryListApiRequest.fromJson(Map<String, dynamic> json) {
     CompanyId = json['CompanyId'];
     LoginUserID = json['LoginUserID'];
-    PkId= json['PkID'];
+    PkId = json['PkID'];
+    EmployeeID = json['EmployeeID'];
   }
 
   Map<String, dynamic> toJson() {
@@ -16,7 +19,7 @@ class InquiryListApiRequest {
     data['CompanyId'] = this.CompanyId;
     data['LoginUserID'] = this.LoginUserID;
     data['PkID'] = this.PkId;
-
+    data['EmployeeID'] = this.EmployeeID;
     return data;
   }
 }

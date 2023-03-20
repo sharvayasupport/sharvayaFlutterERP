@@ -25,6 +25,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dashboard/dashboard_user_rights_screen_bloc.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
@@ -58,6 +59,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_lis
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/QuickAttendance/quick_attendance.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
+import 'package:soleoserp/ui/screens/authentication/serial_key_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
@@ -302,10 +304,13 @@ class _HomeScreenState extends BaseState<HomeScreen>
     ImgFromTextFiled.text = "https://img.icons8.com/color/2x/no-image.png";
 
     checkPermissionStatus();
-    FirebaseMessaging.instance.getToken().then((token) {
+    FirebaseMessaging.instance.getToken().then((token) async {
       final tokenStr = token.toString();
       // do whatever you want with the token here
       print("sfjsdfj" + tokenStr);
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      await preferences.setString("TokenSP", tokenStr);
+
       _dashBoardScreenBloc
         ..add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
             CompanyId: CompanyID.toString(),
@@ -347,8 +352,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
     if (_offlineLoggedInData.details[0].EmployeeImage != "" ||
         _offlineLoggedInData.details[0].EmployeeImage != null) {
       setState(() {
-        ImgFromTextFiled.text = _offlineCompanyData.details[0].siteURL +
-            _offlineLoggedInData.details[0].EmployeeImage.toString();
+        ImgFromTextFiled.text =
+            _offlineLoggedInData.details[0].EmployeeImage == null ||
+                    _offlineLoggedInData.details[0].EmployeeImage == ""
+                ? ""
+                : _offlineCompanyData.details[0].siteURL +
+                    _offlineLoggedInData.details[0].EmployeeImage.toString();
       });
     } else {
       ImgFromTextFiled.text = "https://img.icons8.com/color/2x/no-image.png";
@@ -2319,12 +2328,24 @@ class _HomeScreenState extends BaseState<HomeScreen>
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  if (Platform.isAndroid) {
-                    SystemNavigator.pop();
+                onTap: () async {
+                  /* if (Platform.isAndroid) {
+                   /// SystemNavigator.pop();
                   } else if (Platform.isIOS) {
                     exit(0);
-                  }
+                  }*/
+                  await SharedPrefHelper.instance
+                      .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
+                  _dashBoardScreenBloc
+                    ..add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
+                        CompanyId: CompanyID.toString(),
+                        UserID: LoginUserID,
+                        TokenNo: "")));
+                  SharedPrefHelper.instance
+                      .putBool(SharedPrefHelper.IS_REGISTERED, false);
+                  //SharedPrefHelper.instance.setBaseURL("");
+                  navigateTo(context, SerialKeyScreen.routeName,
+                      clearAllStack: true);
                 },
                 child: Card(
                     color: colorPrimary,
@@ -2334,7 +2355,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
                       padding: EdgeInsets.only(top: 10, bottom: 10),
                       child: Center(
                         child: Text(
-                          "Close App",
+                          "Close",
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -2381,6 +2402,11 @@ class _HomeScreenState extends BaseState<HomeScreen>
           response.menuRightsResponse.details[i].menuName);
 
       ///-----------------------------------------Leads----------------------------------------
+
+      if (i == 0) {
+        //ProductMasterListScreen
+      }
+
       if (response.menuRightsResponse.details[i].menuName == "pgInquiry") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = "Inquiry";
@@ -2400,10 +2426,14 @@ class _HomeScreenState extends BaseState<HomeScreen>
             "http://demo.sharvayainfotech.in/images/contact.png";
         arr_ALL_Name_ID_For_Lead.add(all_name_id);*/
 
-        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+        if (_offlineLoggedInData
+                    .details[0].serialKey
+                    .toUpperCase() ==
                 "SW0T-GLA5-IND7-AS71" ||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SI08-SB94-MY45-RY15") {
+                "SI08-SB94-MY45-RY15" ||
+            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id1 = ALL_Name_ID();
           all_name_id1.Name = "Quick Follow-up";
           all_name_id1.Name1 =
@@ -2487,6 +2517,11 @@ class _HomeScreenState extends BaseState<HomeScreen>
               "http://demo.sharvayainfotech.in/images/invoice.png";
           arr_ALL_Name_ID_For_Sales.add(all_name_id);
         }
+
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = "Sales Target";
+        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/Target.png";
+        arr_ALL_Name_ID_For_Sales.add(all_name_id);
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgSalesBill") {
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
@@ -2832,6 +2867,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
               "http://demo.sharvayainfotech.in/images/profile.png";
           arr_ALL_Name_ID_For_Dealer.add(all_name_id0);
 
+          ALL_Name_ID all_name_id2 = ALL_Name_ID();
+          all_name_id2.Name = "Product";
+          all_name_id2.Name1 =
+              "http://demo.sharvayainfotech.in/images/searchproduct.png";
+          arr_ALL_Name_ID_For_Lead.add(all_name_id2);
+
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "SalesBill";
           all_name_id.Name1 = "http://122.169.111.101:308/images/sale.png";
@@ -2860,6 +2901,12 @@ class _HomeScreenState extends BaseState<HomeScreen>
       all_name_id.Name = "Customer";
       all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/profile.png";
       arr_ALL_Name_ID_For_Lead.add(all_name_id);
+
+      ALL_Name_ID all_name_id1 = ALL_Name_ID();
+      all_name_id1.Name = "Product";
+      all_name_id1.Name1 =
+          "http://demo.sharvayainfotech.in/images/searchproduct.png";
+      arr_ALL_Name_ID_For_Lead.add(all_name_id1);
     }
 
     if (_offlineLoggedInData.details[0].serialKey.toLowerCase() ==
@@ -4363,8 +4410,45 @@ class _HomeScreenState extends BaseState<HomeScreen>
                         child: SizedBox.fromSize(
                           size: Size.fromRadius(80), // Image radius
                           child: ImageFullScreenWrapperWidget(
-                            child: Image.network(ImgFromTextFiled.text,
-                                fit: BoxFit.cover),
+                            child: /*Image.network(ImgFromTextFiled.text,
+                                fit: BoxFit.cover)*/
+                                ImgFromTextFiled.text != ""
+                                    ? Image.network(
+                                        ImgFromTextFiled.text,
+                                        fit: BoxFit.cover,
+                                        frameBuilder: (context, child, frame,
+                                            wasSynchronouslyLoaded) {
+                                          return child;
+                                        },
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          } else {
+                                            return Image.asset(
+                                              LOADDER,
+                                              height: 100,
+                                              width: 100,
+                                            );
+                                          }
+                                        },
+                                        errorBuilder: (BuildContext context,
+                                            Object exception,
+                                            StackTrace stackTrace) {
+                                          return Image.asset(
+                                            NO_IMAGE_FOUND,
+                                            height: 100,
+                                            width: 100,
+                                          );
+                                        },
+
+                                        // fit: BoxFit.fill,
+                                      )
+                                    : Image.asset(
+                                        NO_IMAGE_FOUND,
+                                        height: 100,
+                                        width: 100,
+                                      ),
                           ),
                         ),
                       ),
@@ -4493,8 +4577,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
     int mobileAPIVersion = int.parse(APIMobileVersion);
     int CurrentMobileVersion = int.parse(_packageInfo.buildNumber);
-
-    if (CurrentMobileVersion > mobileAPIVersion) {
+//15
+    if (mobileAPIVersion > CurrentMobileVersion) {
       if (Platform.isAndroid == true) {
         await showDialog(
           barrierDismissible: false,

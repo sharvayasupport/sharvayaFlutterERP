@@ -67,6 +67,8 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Folowup_EmplyeeList = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Folowup_Status = [];
   final TextEditingController edt_FollowupStatus = TextEditingController();
+  final TextEditingController edt_FollowupStatus_ID = TextEditingController();
+
   final TextEditingController edt_FollowupEmployeeList =
       TextEditingController();
   final TextEditingController edt_FollowupEmployeeUserID =
@@ -353,7 +355,10 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
   ExpantionCustomer(BuildContext context, int index) {
     // Details model = _leaveRequestListResponse.details[index];
 
-    print("EmployeeName:" + edt_FollowupEmployeeList.text.toString());
+    print("EmployeeName:" +
+        edt_FollowupEmployeeList.text.toString() +
+        " APIEMPNAME : " +
+        _expenseListResponse.details[index].employeeName);
 
     if (_expenseListResponse.details[index].employeeName ==
         edt_FollowupEmployeeList.text) {
@@ -1457,11 +1462,18 @@ class _ExpenseListScreenState extends BaseState<ExpenseListScreen>
         arr_ALL_Name_ID_For_Folowup_Status.add(all_name_id);
       }
 
-      showcustomdialogWithOnlyName(
+      /* showcustomdialogWithOnlyName(
           values: arr_ALL_Name_ID_For_Folowup_Status,
           context1: context,
           controller: edt_FollowupStatus,
-          lable: "Select Status");
+          lable: "Select Status");*/
+
+      showcustomdialogWithID(
+          values: arr_ALL_Name_ID_For_Folowup_Status,
+          context1: context,
+          controller: edt_FollowupStatus,
+          controllerID: edt_FollowupStatus_ID,
+          lable: "Select Expense Type");
     }
   }
 

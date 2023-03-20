@@ -167,8 +167,7 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Attendance'),
-          gradient:
-              LinearGradient(colors: [
+          gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
             Color(0xff62bb47),
@@ -223,7 +222,9 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                           endDay: DateTime.now(),
                           weekendDays: [DateTime.sunday],
                           initialCalendarFormat: CalendarFormat.month,
-                          availableCalendarFormats:const {CalendarFormat.month : 'Month'},
+                          availableCalendarFormats: const {
+                            CalendarFormat.month: 'Month'
+                          },
                           calendarStyle: CalendarStyle(
                               canEventMarkersOverflow: true,
                               todayColor: colorPrimary,
@@ -388,6 +389,11 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                 GestureDetector(
                                                   onTap: () {
                                                     String ImageURL = "";
+                                                    print("AddressPunch" +
+                                                        _selectedEvents[9]
+                                                            .toString());
+
+                                                    // String AddressOut = _selectedEvents[9].toString();
 
                                                     bool isImageExist = false;
                                                     if (_selectedEvents[5]
@@ -416,7 +422,10 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                                 'Punch-In Image',
                                                                 ImageURL,
                                                                 context,
-                                                                isImageExist));
+                                                                isImageExist,
+                                                                _selectedEvents[
+                                                                        9]
+                                                                    .toString()));
                                                   },
                                                   child: Container(
                                                     padding: EdgeInsets.all(5),
@@ -496,7 +505,10 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                                   'Punch-Out Image',
                                                                   ImageURL,
                                                                   context,
-                                                                  isImageExist));
+                                                                  isImageExist,
+                                                                  _selectedEvents[
+                                                                          10]
+                                                                      .toString()));
                                                     },
                                                     child: Container(
                                                       padding:
@@ -591,7 +603,8 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                                   'Lunch-In Image',
                                                                   ImageURL,
                                                                   context,
-                                                                  isImageExist));
+                                                                  isImageExist,
+                                                                  ""));
                                                     },
                                                     child: Container(
                                                       padding:
@@ -672,7 +685,8 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
                                                                   'Lunch-Out Image',
                                                                   ImageURL,
                                                                   context,
-                                                                  isImageExist));
+                                                                  isImageExist,
+                                                                  ""));
                                                     },
                                                     child: Container(
                                                       padding:
@@ -894,6 +908,8 @@ class _AttendanceListScreenState extends BaseState<AttendanceListScreen>
         /*6*/ state.response.details[i].ImageURL_OUT.toString(),
         /*7*/ state.response.details[i].LunchIMageURL_in.toString(),
         /*8*/ state.response.details[i].LunchIMageURL_Out.toString(),
+        /*9*/ state.response.details[i].LocationAddress_IN.toString(),
+        /*10*/ state.response.details[i].LocationAddress_OUT.toString(),
       ];
 
       prefs.setString("events", json.encode(encodeMap(_events)));

@@ -59,12 +59,14 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/maintenance/maintenance_l
 import 'package:soleoserp/ui/screens/DashBoard/Modules/missed_punch/missed_punch_list/missed_punch_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/missed_punch_approval/missed_punch_approval_list/missed_punch_approval_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/packing_checklist/packing_checklist_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/product_master/product_master_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/production_activity/production_activity_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_followup_list/quick_followup_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_inquiry/quick_inquiry_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salary_upad/salary_upad_list/salary_upad_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sale_bill_list/sales_bill_list_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/sales_target/sales_target_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_pagintion.dart';
@@ -1193,6 +1195,12 @@ makeDashboardItem(
         SharedPrefHelper.instance.prefs.getString("Is_Dealer") == "Dealer"
             ? navigateTo(context, DCustomerListScreen.routeName)
             : navigateTo(context, CustomerListScreen.routeName);
+      } else if (title == "Product") {
+        // navigateTo(context, CustomerPaginationListScreen .routeName);
+        navigateTo(context, ProductMasterListScreen.routeName,
+            clearAllStack: true);
+
+        //Navigator.pushReplacementNamed(context, "/Inquiry");
       } else if (title == "Inquiry") {
         // navigateTo(context, CustomerPaginationListScreen .routeName);
         navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
@@ -1270,17 +1278,11 @@ makeDashboardItem(
           navigateTo(context, AttendVisitListScreen.routeName,
               clearAllStack: true);
         } else if (SharedPrefHelper.instance
-                    .getLoginUserData()
-                    .details[0]
-                    .serialKey
-                    .toUpperCase() ==
-                "HEMA-AUTO-SI08-NVRL" ||
-            SharedPrefHelper.instance
-                    .getLoginUserData()
-                    .details[0]
-                    .serialKey
-                    .toUpperCase() ==
-                "TEST-0000-SI0F-0208") {
+                .getLoginUserData()
+                .details[0]
+                .serialKey
+                .toUpperCase() ==
+            "HEMA-AUTO-SI08-NVRL") {
           navigateTo(context, HemaAttendVisitListScreen.routeName,
               clearAllStack: true);
         } else {
@@ -1390,6 +1392,9 @@ makeDashboardItem(
             clearAllStack: true);
       } else if (title == "Site Survey") {
         navigateTo(context, SiteSurveyAddEditScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "Sales Target") {
+        navigateTo(context, SalesTargetListScreen.routeName,
             clearAllStack: true);
       }
 
@@ -1912,6 +1917,10 @@ getLeadList(List<ALL_Name_ID> sale, BuildContext context) {
             if (sale[i].Name == "Customer")
               navigateTo(context, CustomerListScreen.routeName,
                   clearAllStack: true);
+            if (sale[i].Name == "Product")
+              navigateTo(context, ProductMasterListScreen.routeName,
+                  clearAllStack: true);
+            //Product
             if (sale[i].Name == "Inquiry")
               navigateTo(context, InquiryListScreen.routeName,
                   clearAllStack: true);
@@ -2002,6 +2011,9 @@ getSalesList(List<ALL_Name_ID> leads, BuildContext context) {
                   clearAllStack: true);
             if (leads[i].Name == "SalesOrder")
               navigateTo(context, SalesOrderListScreen.routeName,
+                  clearAllStack: true);
+            else if (leads[i].Name == "Sales Target")
+              navigateTo(context, SalesTargetListScreen.routeName,
                   clearAllStack: true);
           });
     },

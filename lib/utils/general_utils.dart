@@ -329,7 +329,7 @@ pickImage(
                     onTap: () async {
                       Navigator.of(context).pop();
                       XFile capturedFile = await ImagePicker().pickImage(
-                          source: ImageSource.gallery, imageQuality: 100);
+                          source: ImageSource.gallery, imageQuality: 85);
 
                       if (capturedFile != null) {
                         onImageSelection(File(capturedFile.path));
@@ -341,7 +341,7 @@ pickImage(
                   onTap: () async {
                     Navigator.of(context).pop();
                     XFile capturedFile = await ImagePicker().pickImage(
-                        source: ImageSource.camera, imageQuality: 100);
+                        source: ImageSource.camera, imageQuality: 85);
                     if (capturedFile != null) {
                       onImageSelection(File(capturedFile.path));
                     }
@@ -449,7 +449,4 @@ pickMultipleImage(
           ),
         );
       });
-
-
-
 }

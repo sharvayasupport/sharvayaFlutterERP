@@ -128,3 +128,8 @@ class UserMenuRightsRequestEvent extends CustomerEvents {
   final UserMenuRightsRequest userMenuRightsRequest;
   UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
 }
+
+class BTCountryListRequestEvent extends CustomerEvents {
+  final BTCountryListRequest btCountryListRequest;
+  BTCountryListRequestEvent(this.btCountryListRequest);
+}

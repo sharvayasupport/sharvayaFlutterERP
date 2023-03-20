@@ -14,20 +14,34 @@ class ToDoListCallResponseState extends ToDoStates {
 }
 
 class ToDoTodayListCallResponseState extends ToDoStates {
-  final ToDoListResponse response;
-  final int newPage;
+  final OfficeToDoListResponse response;
+  int newPage;
   ToDoTodayListCallResponseState(this.response, this.newPage);
 }
 
+class ToDoPendingOverDueListResponseState extends ToDoStates {
+  final OfficeToDoListResponse response;
+  int newPage;
+  ToDoPendingOverDueListResponseState(this.response, this.newPage);
+}
+
+class ToDoFutureListCallResponseState extends ToDoStates {
+  final OfficeToDoListResponse response;
+  int newPage;
+
+  ToDoFutureListCallResponseState(this.response, this.newPage);
+}
+
 class ToDoOverDueListCallResponseState extends ToDoStates {
-  final ToDoListResponse response;
-  final int newPage;
+  final OfficeToDoListResponse response;
+  int newPage;
+
   ToDoOverDueListCallResponseState(this.response, this.newPage);
 }
 
 class ToDoCompletedListCallResponseState extends ToDoStates {
-  final ToDoListResponse response;
-  final int newPage;
+  final OfficeToDoListResponse response;
+  int newPage;
   ToDoCompletedListCallResponseState(this.response, this.newPage);
 }
 
@@ -90,24 +104,24 @@ class FollowupFilterListCallResponseState extends ToDoStates {
   final FollowupFilterListResponse followupFilterListResponse;
   final int newPage;
 
-  FollowupFilterListCallResponseState(this.newPage,
-       this.followupFilterListResponse);
+  FollowupFilterListCallResponseState(
+      this.newPage, this.followupFilterListResponse);
 }
 
 class FollowupMissedFilterListCallResponseState extends ToDoStates {
   final FollowupFilterListResponse followupFilterListResponse;
   final int newPage;
 
-  FollowupMissedFilterListCallResponseState(this.newPage,
-      this.followupFilterListResponse);
+  FollowupMissedFilterListCallResponseState(
+      this.newPage, this.followupFilterListResponse);
 }
 
 class FollowupFutureFilterListCallResponseState extends ToDoStates {
   final FollowupFilterListResponse followupFilterListResponse;
   final int newPage;
 
-  FollowupFutureFilterListCallResponseState(this.newPage,
-      this.followupFilterListResponse);
+  FollowupFutureFilterListCallResponseState(
+      this.newPage, this.followupFilterListResponse);
 }
 
 class AttendanceListCallResponseState extends ToDoStates {

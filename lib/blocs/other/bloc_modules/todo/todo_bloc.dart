@@ -16,6 +16,7 @@ import 'package:soleoserp/models/api_requests/toDo_request/to_do_header_save_req
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_save_sub_details_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_worklog_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dart';
+import 'package:soleoserp/models/api_requests/to_do_office/to_do_office_list_request.dart';
 import 'package:soleoserp/models/api_responses/attendance/attendance_response_list.dart';
 import 'package:soleoserp/models/api_responses/attendance/attendance_save_response.dart';
 import 'package:soleoserp/models/api_responses/attendance/punch_attendence_save_response.dart';
@@ -29,6 +30,7 @@ import 'package:soleoserp/models/api_responses/to_do/to_do_header_save_response.
 import 'package:soleoserp/models/api_responses/to_do/to_do_save_sub_details_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/to_do_worklog_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do_office/to_do_office_list_response.dart';
 import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/models/common/menu_rights/response/user_menu_rights_response.dart';
 import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart';
@@ -76,6 +78,14 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
     if (event is ToDoTodayListCallEvent) {
       yield* _mapToDoTodayListCallEventToState(event);
     }
+
+    if (event is ToDoFutureListCallEvent) {
+      yield* _mapToDoFutureListCallEventToState(event);
+    }
+    if (event is ToDoPendingOverDueListCallEvent) {
+      yield* _mapToDoPendingOverDueListCallEventToState(event);
+    }
+    //
     if (event is ToDoOverDueListCallEvent) {
       yield* _mapToDoOverDueListCallEventToState(event);
     }
@@ -142,12 +152,15 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
     }
   }
 
+  //ToDoFutureListCallEvent
+
   Stream<ToDoStates> _mapToDoTodayListCallEventToState(
       ToDoTodayListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      ToDoListResponse response =
-          await userRepository.getToDoList(event.toDoListApiRequest);
+      OfficeToDoListResponse response =
+          await userRepository.getOfficeTodoList(event.toDoListApiRequest);
+
       yield ToDoTodayListCallResponseState(
           response, event.toDoListApiRequest.PageNo);
     } catch (error, stacktrace) {
@@ -158,12 +171,45 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
     }
   }
 
+  Stream<ToDoStates> _mapToDoFutureListCallEventToState(
+      ToDoFutureListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      OfficeToDoListResponse response =
+          await userRepository.getOfficeTodoList(event.toDoListApiRequest);
+      yield ToDoFutureListCallResponseState(
+          response, event.toDoListApiRequest.PageNo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<ToDoStates> _mapToDoPendingOverDueListCallEventToState(
+      ToDoPendingOverDueListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      OfficeToDoListResponse response =
+          await userRepository.getOfficeTodoList(event.toDoListApiRequest);
+      yield ToDoPendingOverDueListResponseState(
+          response, event.toDoListApiRequest.PageNo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  //ToDoFutureListCallEvent
   Stream<ToDoStates> _mapToDoOverDueListCallEventToState(
       ToDoOverDueListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      ToDoListResponse response =
-          await userRepository.getToDoList(event.toDoListApiRequest);
+      OfficeToDoListResponse response =
+          await userRepository.getOfficeTodoList(event.toDoListApiRequest);
       yield ToDoOverDueListCallResponseState(
           response, event.toDoListApiRequest.PageNo);
     } catch (error, stacktrace) {
@@ -178,8 +224,8 @@ class ToDoBloc extends Bloc<ToDoEvents, ToDoStates> {
       ToDoTComplitedListCallEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
-      ToDoListResponse response =
-          await userRepository.getToDoList(event.toDoListApiRequest);
+      OfficeToDoListResponse response =
+          await userRepository.getOfficeTodoList(event.toDoListApiRequest);
       yield ToDoCompletedListCallResponseState(
           response, event.toDoListApiRequest.PageNo);
     } catch (error, stacktrace) {

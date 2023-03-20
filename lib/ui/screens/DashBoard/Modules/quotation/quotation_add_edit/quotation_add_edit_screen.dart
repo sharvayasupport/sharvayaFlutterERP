@@ -2898,7 +2898,10 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       returnPKID = state.response.details[i].column3;
       retrunQT_No = state.response.details[i].column4;
     }
+
+    _inquiryBloc.add(GetQuotationSpecificationwithQTNOTableEvent(retrunQT_No));
     updateRetrunInquiryNoToDB(state.context, returnPKID, retrunQT_No);
+
     String notiTitle = "Quotation";
     String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
 
@@ -2930,7 +2933,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
   void _OnQuotationProductSaveSucessResponse(
       QuotationProductSaveResponseState state) async {
-    /*String Msg = _isForUpdate == true
+    String Msg = _isForUpdate == true
         ? "Quotation Updated Successfully"
         : "Quotation Added Successfully";
 
@@ -2938,10 +2941,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
       navigateTo(state.context, QuotationListScreen.routeName,
           clearAllStack: true);
-    });*/
-
-    _inquiryBloc
-        .add(GetQuotationSpecificationwithQTNOTableEvent(state.RetrunQtNo));
+    });
   }
 
   void updateRetrunInquiryNoToDB(
@@ -5646,13 +5646,14 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   }
 
   void _onQTSpecificationSaveResponse(QTSpecSaveResponseState state) {
-    String Msg = _isForUpdate == true
+    /* String Msg = _isForUpdate == true
         ? "Quotation Updated Successfully"
         : "Quotation Added Successfully";
 
     showCommonDialogWithSingleOption(context, Msg, positiveButtonTitle: "OK",
         onTapOfPositiveButton: () {
       navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
-    });
+    });*/
+    print("dljjdf434" + state.qTSpecSaveResponse.details[0].column2);
   }
 }

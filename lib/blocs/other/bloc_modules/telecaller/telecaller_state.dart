@@ -109,3 +109,9 @@ class UserMenuRightsResponseState extends TeleCallerStates {
   final UserMenuRightsResponse userMenuRightsResponse;
   UserMenuRightsResponseState(this.userMenuRightsResponse);
 }
+
+class ProductBrandResponseState extends TeleCallerStates {
+  final ProductBrandResponse productBrandResponse;
+
+  ProductBrandResponseState(this.productBrandResponse);
+}

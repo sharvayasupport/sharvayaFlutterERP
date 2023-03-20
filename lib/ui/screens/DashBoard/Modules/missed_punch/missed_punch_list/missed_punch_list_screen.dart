@@ -118,7 +118,7 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          title: Text('Missed Punch List'),
+          title: Text(localizations.inquiry),
           gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
@@ -169,7 +169,7 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
             ],
           ),
         ),
-        floatingActionButton: IsAddRights == true
+        /* floatingActionButton: IsAddRights == true
             ? FloatingActionButton(
                 onPressed: () {
                   // Add your onPressed code here!
@@ -177,7 +177,7 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
                 child: const Icon(Icons.add),
                 backgroundColor: colorPrimary,
               )
-            : Container(),
+            : Container(),*/
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: LoginUserID),
       ),
@@ -521,7 +521,7 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
                   ),
                 ),*/
 
-                IsEditRights == true
+                /*IsEditRights == true
                     ? GestureDetector(
                         onTap: () {
                           //  cardA.currentState?.collapse();
@@ -548,7 +548,7 @@ class _MissedPunchListScreenState extends BaseState<MissedPunchListScreen>
                     : Container(),
                 SizedBox(
                   width: 10,
-                ),
+                ),*/
                 IsDeleteRights == true
                     ? GestureDetector(
                         onTap: () {

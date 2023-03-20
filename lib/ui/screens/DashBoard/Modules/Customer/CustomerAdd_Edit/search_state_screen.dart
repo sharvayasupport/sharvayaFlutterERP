@@ -51,13 +51,14 @@ class _SearchStateScreen extends BaseState<SearchStateScreen>
 
     if (widget.arguments != null) {
       //for update
+
       // print("objectOfState" + widget.arguments.countryCode );
       _CustomerBloc
         ..add(StateCallEvent(StateListRequest(
             CountryCode: widget.arguments.countryCode,
             CompanyId: CompanyID.toString(),
             word: "",
-            Search: "1")));
+            Search: "0")));
     }
   }
 
@@ -264,7 +265,8 @@ class _SearchStateScreen extends BaseState<SearchStateScreen>
 
   void _onSearchInquiryListCallSuccess(StateListEventResponseState state) {
     arr_ALL_Name_ID_For_Country.clear();
-    // _listFilteredCountry.clear();
+
+    _listFilteredCountry.clear();
     for (var i = 0; i < state.statelistresponse.details.length; i++) {
       print("CustomerCategoryResponse2 : " +
           state.statelistresponse.details[i].label);

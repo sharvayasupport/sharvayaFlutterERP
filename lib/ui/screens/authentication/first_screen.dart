@@ -1,5 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
@@ -17,6 +24,8 @@ import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
+
+import '../../../main.dart';
 
 class FirstScreen extends BaseStatefulWidget {
   static const routeName = '/firstScreen';
@@ -52,6 +61,8 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
   String ConstantMAster = "";
 
+  String text = "Stop Service";
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -63,6 +74,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
     super.initState();
     screenStatusBarColor = colorWhite;
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
     _selectedIndex = 0;
     SiteUrl = _offlineCompanyData.details[0].siteURL;
     CompanyID = _offlineCompanyData.details[0].pkId;
@@ -165,6 +177,51 @@ class _FirstScreenState extends BaseState<FirstScreen>
                 _buildTopView(),
                 SizedBox(height: 20),
                 _buildDelaerLoginForm(),
+                SizedBox(
+                  height: 20,
+                ),
+                Visibility(
+                  visible: false,
+                  child: ElevatedButton(
+                    child: Text("Start"),
+                    onPressed: () async {
+                      /*final service = FlutterBackgroundService();
+                      var isRunning = await service.isRunning();
+                      if (isRunning) {
+                        service.invoke("stopService");
+                      } else {
+                        service.startService();
+                      }
+
+                      if (!isRunning) {
+                        text = 'Stop Service';
+                      } else {
+                        text = 'Start Service';
+                      }*/
+                      setState(() {});
+                    },
+                  ),
+                ),
+                Visibility(
+                  visible: false,
+                  child: SizedBox(
+                    height: 20,
+                  ),
+                ),
+                Visibility(
+                  visible: false,
+                  child: ElevatedButton(
+                    child: Text("Stop"),
+                    onPressed: () async {
+                      final service = FlutterBackgroundService();
+                      service.invoke("stopService");
+                      setState(() {});
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
@@ -245,6 +302,24 @@ class _FirstScreenState extends BaseState<FirstScreen>
             _offlineCompanyData.details[0].pkId.toString() +
             "LoginUserID : " +
             _offlineLoggedInDetailsData.details[0].userID);
+
+        if (_offlineCompanyData.details[0].pkId ==
+                7189 /* ||
+            _offlineCompanyData.details[0].pkId == 4132*/
+            ) {
+          FirebaseMessaging.instance.getToken().then((token) async {
+            final tokenStr = token.toString();
+            // do whatever you want with the token here
+            print("tokenStr" + tokenStr);
+            SharedPreferences preferences =
+                await SharedPreferences.getInstance();
+            await preferences.setString("TokenSP", tokenStr);
+
+            await initializeService(
+                _offlineCompanyData.details[0].pkId.toString(),
+                _offlineLoggedInDetailsData.details[0].userID);
+          });
+        }
 
         navigateTo(context, HomeScreen.routeName, clearAllStack: true);
       } else {
@@ -558,6 +633,14 @@ class _FirstScreenState extends BaseState<FirstScreen>
               Expanded(
                 child: getCommonButton(baseTheme, () async {
                   _onTapOfRegister();
+
+                  SharedPreferences preferences =
+                      await SharedPreferences.getInstance();
+                  await preferences.setString("TokenSP", "");
+
+                  final service = FlutterBackgroundService();
+                  service.invoke("stopService");
+                  setState(() {});
                 }, "LogOut",
                     radius: 15,
                     backGroundColor:
@@ -697,6 +780,20 @@ class _FirstScreenState extends BaseState<FirstScreen>
           userID: _userNameController.text.toString(),
           password: _passwordController.text.toString(),
           companyId: _offlineCompanyData.details[0].pkId)));
+
+      /* if (_offlineCompanyData.details[0].pkId == 7189 ||
+          _offlineCompanyData.details[0].pkId == 4132) {
+        FirebaseMessaging.instance.getToken().then((token) async {
+          final tokenStr = token.toString();
+          // do whatever you want with the token here
+          print("tokenStr" + tokenStr);
+          SharedPreferences preferences = await SharedPreferences.getInstance();
+          await preferences.setString("TokenSP", tokenStr);
+
+          await initializeService(
+              _offlineCompanyData.details[0].pkId.toString());
+        });
+      }*/
     }
     //TODO
   }
@@ -705,7 +802,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
     //TODO
   }
 
-  void _onTapOfRegister() {
+  void _onTapOfRegister() async {
     SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, false);
     //SharedPrefHelper.instance.setBaseURL("");
     navigateTo(context, SerialKeyScreen.routeName, clearAllStack: true);
@@ -717,4 +814,77 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
     ConstantMAster = state.response.details[0].value.toString();
   }
+
+  Future<void> initializeService(String companyID123, String userID) async {
+    print("Comapdkff" + " CompanyDI : " + companyID123);
+
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString("companyID", companyID123);
+    await preferences.setString("userID", userID);
+    final service = FlutterBackgroundService();
+    ServiceInstance service1;
+
+    /// OPTIONAL, using custom notification channel id
+    /* AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'my_foreground', // id
+      'MY FOREGROUND SERVICE', // title
+      description:
+      'This channel is used for important notifications.', // description
+      importance: Importance.low, // importance must be at low or higher level
+    );*/
+
+    AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'my_foreground', // id
+      'MY FOREGROUND SERVICE', // title
+      'This channel is used for important notifications.',
+      importance: Importance.low,
+    );
+
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
+    if (Platform.isIOS) {
+      await flutterLocalNotificationsPlugin.initialize(
+        InitializationSettings(
+          iOS: IOSInitializationSettings(),
+        ),
+      );
+    }
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+
+    await service.configure(
+      androidConfiguration: AndroidConfiguration(
+        // this will be executed when app is in foreground or background in separated isolate
+        onStart: onStart,
+
+        // auto start service
+        autoStart: true,
+        isForegroundMode: true,
+
+        notificationChannelId: 'my_foreground',
+        initialNotificationTitle: 'AWESOME SERVICE',
+        initialNotificationContent: 'Initializing',
+        foregroundServiceNotificationId: 888,
+      ),
+      iosConfiguration: IosConfiguration(
+        // auto start service
+        autoStart: true,
+
+        // this will be executed when app is in foreground in separated isolate
+        onForeground: onStart,
+
+        // you have to enable background fetch capability on xcode project
+        onBackground: onIosBackground,
+      ),
+    );
+
+    service.startService();
+  }
+
+// to ensure this is executed
+// run app from xcode, then from xcode menu, select Simulate Background Fetch
 }

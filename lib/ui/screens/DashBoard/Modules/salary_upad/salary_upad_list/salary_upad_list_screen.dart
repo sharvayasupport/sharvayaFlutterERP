@@ -269,7 +269,7 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
             ],
           ),
         ),
-        floatingActionButton: IsAddRights == true
+        /*floatingActionButton: IsAddRights == true
             ? FloatingActionButton(
                 onPressed: () async {
                   // Add your onPressed code here!
@@ -279,7 +279,7 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
                 child: const Icon(Icons.add),
                 backgroundColor: colorPrimary,
               )
-            : Container(),
+            : Container(),*/
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
       ),
@@ -661,35 +661,7 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  /* ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          fixedSize: Size(90, 15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(24.0),
-            ),
-          ),
-        ),
-                    onPressed: () {
-                      //_onTapOfEditCustomer(model);
-                    },
-                    child: Column(
-                      children: <Widget>[
-                        Icon(
-                          Icons.edit,
-                          color: colorPrimary,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        ),
-                        Text(
-                          'Edit',
-                          style: TextStyle(color: colorPrimary),
-                        ),
-                      ],
-                    ),
-                  ),*/
-                  IsEditRights == true
+                  /*IsEditRights == true
                       ? GestureDetector(
                           onTap: () {
                             //_onTapOfDeleteInquiry(model.pkID);
@@ -714,7 +686,7 @@ class _SalaryUpadListScreenState extends BaseState<SalaryUpadListScreen>
                       : Container(),
                   SizedBox(
                     width: 10,
-                  ),
+                  ),*/
                   IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {

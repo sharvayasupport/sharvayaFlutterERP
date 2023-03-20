@@ -170,8 +170,7 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Attend Visit List'),
-          gradient:
-              LinearGradient(colors: [
+          gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
             Color(0xff62bb47),
@@ -275,7 +274,7 @@ class _AttendVisitListScreenState extends BaseState<AttendVisitListScreen>
           ),
           InkWell(
             onTap: () {
-              showcustomdialogWithID(
+              showcustomdialog(
                   values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
                   context1: context,
                   controller: edt_FollowupEmployeeList,

@@ -66,6 +66,7 @@ class TeleCallerListDetails {
   String DisqualifedRemarks;
   String Latitude;
   String Longitude;
+  String Brand;
 
   TeleCallerListDetails(
       {this.pkId,
@@ -108,7 +109,9 @@ class TeleCallerListDetails {
       this.image,
       this.DisqualifedRemarks,
       this.Latitude,
-      this.Longitude});
+      this.Longitude,
+      this.Brand,
+      });
 
   TeleCallerListDetails.fromJson(Map<String, dynamic> json) {
     pkId = json['pkId'] == null ? 0 : json['pkId'];
@@ -161,6 +164,11 @@ class TeleCallerListDetails {
     Longitude = json['Longitude'] == null || json['Longitude'] == 'null'
         ? ""
         : json['Longitude'];
+
+    Brand = json['Brand'] == null || json['Brand'] == 'null'
+        ? ""
+        : json['Brand'];
+
   }
 
   Map<String, dynamic> toJson() {
@@ -206,6 +214,7 @@ class TeleCallerListDetails {
     data['DisqualifedRemarks'] = this.DisqualifedRemarks;
     data['Latitude'] = this.Latitude;
     data['Longitude'] = this.Longitude;
+    data['Brand'] = this.Brand;
     return data;
   }
 }

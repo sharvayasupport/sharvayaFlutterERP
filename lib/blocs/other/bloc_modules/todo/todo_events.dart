@@ -10,17 +10,32 @@ class ToDoListCallEvent extends ToDoEvents {
 }
 
 class ToDoTodayListCallEvent extends ToDoEvents {
-  final ToDoListApiRequest toDoListApiRequest;
+  final OfficeToListRequest toDoListApiRequest;
   ToDoTodayListCallEvent(this.toDoListApiRequest);
 }
 
+/*class Today_To_Do_List_Event extends ToDoEvents {
+  final OfficeToListRequest request;
+  Today_To_Do_List_Event(this.request);
+}*/
+
+class ToDoPendingOverDueListCallEvent extends ToDoEvents {
+  final OfficeToListRequest toDoListApiRequest;
+  ToDoPendingOverDueListCallEvent(this.toDoListApiRequest);
+}
+
+class ToDoFutureListCallEvent extends ToDoEvents {
+  final OfficeToListRequest toDoListApiRequest;
+  ToDoFutureListCallEvent(this.toDoListApiRequest);
+}
+
 class ToDoOverDueListCallEvent extends ToDoEvents {
-  final ToDoListApiRequest toDoListApiRequest;
+  final OfficeToListRequest toDoListApiRequest;
   ToDoOverDueListCallEvent(this.toDoListApiRequest);
 }
 
 class ToDoTComplitedListCallEvent extends ToDoEvents {
-  final ToDoListApiRequest toDoListApiRequest;
+  final OfficeToListRequest toDoListApiRequest;
   ToDoTComplitedListCallEvent(this.toDoListApiRequest);
 }
 
@@ -35,7 +50,7 @@ class ToDoSaveHeaderEvent extends ToDoEvents {
   final ToDoHeaderSaveRequest toDoHeaderSaveRequest;
   final int pkID;
 
-  ToDoSaveHeaderEvent(this.context,this.pkID, this.toDoHeaderSaveRequest);
+  ToDoSaveHeaderEvent(this.context, this.pkID, this.toDoHeaderSaveRequest);
 }
 
 class ToDoSaveSubDetailsEvent extends ToDoEvents {
@@ -43,7 +58,8 @@ class ToDoSaveSubDetailsEvent extends ToDoEvents {
   final ToDoSaveSubDetailsRequest toDoSaveSubDetailsRequest;
   final int pkID;
 
-  ToDoSaveSubDetailsEvent(this.context,this.pkID, this.toDoSaveSubDetailsRequest);
+  ToDoSaveSubDetailsEvent(
+      this.context, this.pkID, this.toDoSaveSubDetailsRequest);
 }
 
 class ToDoWorkLogListEvent extends ToDoEvents {
@@ -70,18 +86,19 @@ class FCMNotificationRequestEvent extends ToDoEvents {
   var request123;
   FCMNotificationRequestEvent(this.request123);
 }
+
 class GetReportToTokenRequestEvent extends ToDoEvents {
   final GetReportToTokenRequest request;
 
   GetReportToTokenRequestEvent(this.request);
 }
+
 class UserMenuRightsRequestEvent extends ToDoEvents {
   String MenuID;
 
   final UserMenuRightsRequest userMenuRightsRequest;
   UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
 }
-
 
 class FollowupFilterListCallEvent extends ToDoEvents {
   String filtername;
@@ -90,21 +107,21 @@ class FollowupFilterListCallEvent extends ToDoEvents {
   FollowupFilterListCallEvent(this.filtername, this.followupFilterListRequest);
 }
 
-
 class FollowupMissedFilterListCallEvent extends ToDoEvents {
   String filtername;
   final FollowupFilterListRequest followupFilterListRequest;
 
-  FollowupMissedFilterListCallEvent(this.filtername, this.followupFilterListRequest);
+  FollowupMissedFilterListCallEvent(
+      this.filtername, this.followupFilterListRequest);
 }
 
 class FollowupFutureFilterListCallEvent extends ToDoEvents {
   String filtername;
   final FollowupFilterListRequest followupFilterListRequest;
 
-  FollowupFutureFilterListCallEvent(this.filtername, this.followupFilterListRequest);
+  FollowupFutureFilterListCallEvent(
+      this.filtername, this.followupFilterListRequest);
 }
-
 
 class AttendanceCallEvent extends ToDoEvents {
   final AttendanceApiRequest attendanceApiRequest;
@@ -129,8 +146,7 @@ class AttendanceSaveCallEvent extends ToDoEvents {
   AttendanceSaveCallEvent(this.attendanceSaveApiRequest);
 }
 
-class PunchWithoutImageAttendanceSaveRequestEvent
-    extends ToDoEvents {
+class PunchWithoutImageAttendanceSaveRequestEvent extends ToDoEvents {
   final PunchWithoutImageAttendanceSaveRequest request;
 
   PunchWithoutImageAttendanceSaveRequestEvent(this.request);

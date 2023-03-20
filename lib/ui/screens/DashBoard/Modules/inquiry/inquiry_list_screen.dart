@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:soleoserp/Clients/BlueTone/Inquiry/AddEdit/bluetone_inquiry_add_edit.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/inquiry/inquiry_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
@@ -104,6 +105,17 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
   bool IsEditRights = true;
   bool IsDeleteRights = true;
 
+  List<ALL_Name_ID> arr_EmployeeList = [];
+
+  final TextEditingController edt_loginUserID = TextEditingController();
+  final TextEditingController edt_employeeName = TextEditingController();
+  final TextEditingController edt_employeeID = TextEditingController();
+
+  final TextEditingController edt_customerName = TextEditingController();
+  final TextEditingController edt_customerpkID = TextEditingController();
+
+  //
+
   @override
   void initState() {
     super.initState();
@@ -119,6 +131,9 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
 
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+
+    edt_employeeName.text = _offlineLoggedInData.details[0].employeeName;
+    edt_employeeID.text = _offlineLoggedInData.details[0].employeeID.toString();
     _inquiryBloc = InquiryBloc(baseBloc);
 
     getUserRights(_menuRightsResponse);
@@ -126,6 +141,29 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
     isDeleteVisible = viewvisiblitiyAsperClient(
         SerailsKey: _offlineLoggedInData.details[0].serialKey,
         RoleCode: _offlineLoggedInData.details[0].roleCode);
+
+    edt_loginUserID.text = LoginUserID;
+    edt_customerName.text = "";
+    edt_customerpkID.text = "";
+
+    edt_employeeID.addListener(() {
+      /* if (arr_EmployeeList.isNotEmpty) {
+        for (int i = 0; i < arr_EmployeeList.length; i++) {
+          if (edt_employeeID.text == arr_EmployeeList[i].Name1) {
+            LoginUserID = arr_EmployeeList[i].MenuName;
+            break;
+          }
+        }
+      }
+*/
+      _inquiryBloc.add(InquiryListCallEvent(
+          1,
+          InquiryListApiRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              PkId: "",
+              EmployeeID: edt_employeeID.text)));
+    });
   }
 
   @override
@@ -137,7 +175,8 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             InquiryListApiRequest(
                 CompanyId: CompanyID.toString(),
                 LoginUserID: LoginUserID.toString(),
-                PkId: ""))),
+                PkId: "",
+                EmployeeID: edt_employeeID.text))),
       child: BlocConsumer<InquiryBloc, InquiryStates>(
         builder: (BuildContext context, InquiryStates state) {
           if (state is InquiryListCallResponseState) {
@@ -251,8 +290,9 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                         1,
                         InquiryListApiRequest(
                             CompanyId: CompanyID.toString(),
-                            LoginUserID: LoginUserID.toString(),
-                            PkId: "")));
+                            LoginUserID: LoginUserID,
+                            PkId: "",
+                            EmployeeID: edt_employeeID.text)));
 
                     getUserRights(_menuRightsResponse);
                   },
@@ -269,7 +309,10 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
                     ),
                     margin: EdgeInsets.only(bottom: 10),
                     child: Column(
-                      children: [Expanded(child: _buildInquiryList())],
+                      children: [
+                        _buildEmplyeeListView(),
+                        Expanded(child: _buildInquiryList())
+                      ],
                     ),
                   ),
                 ),
@@ -281,8 +324,15 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             ? FloatingActionButton(
                 onPressed: () async {
                   await _onTapOfDeleteALLProduct();
-
-                  navigateTo(context, InquiryAddEditScreen.routeName);
+                  await _onTapOfDeleteALLPrice();
+                  if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                          "BLG3-AF78-TO5F-NW16" ||
+                      _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                          "TEST-0000-SI0F-0208") {
+                    navigateTo(context, BlueToneInquiryAddEditScreen.routeName);
+                  } else {
+                    navigateTo(context, InquiryAddEditScreen.routeName);
+                  }
                 },
                 child: Icon(Icons.add),
                 heroTag: "fab2",
@@ -305,54 +355,66 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
 
         _onTaptoSearchInquiryView();
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.only(left: 10, right: 20),
-            child: Text("Search Inquiry",
-                style: TextStyle(
-                    fontSize: 12,
-                    color: colorPrimary,
-                    fontWeight: FontWeight
-                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+      child: Container(
+        margin: EdgeInsets.only(left: 10, right: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text("Search Inquiry",
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: colorPrimary,
+                      fontWeight: FontWeight
+                          .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                ),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Card(
-            elevation: 5,
-            color: colorLightGray,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: Container(
-              height: 60,
-              padding: EdgeInsets.only(left: 20, right: 20),
-              width: double.maxFinite,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      _searchDetails == null
-                          ? "Tap to search inquiry"
-                          : _searchDetails.customerName,
-                      style: baseTheme.textTheme.headline3.copyWith(
-                          color: _searchDetails == null
-                              ? colorGrayDark
-                              : colorBlack),
-                    ),
                   ),
-                  Icon(
-                    Icons.search,
-                    color: colorGrayDark,
-                  )
-                ],
+              Icon(
+                Icons.filter_list_alt,
+                color: colorPrimary,
               ),
+            ]),
+            SizedBox(
+              height: 5,
             ),
-          )
-        ],
+            Card(
+              elevation: 5,
+              color: colorLightGray,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: Container(
+                // padding: EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                width: double.maxFinite,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: edt_customerName,
+                        enabled: false,
+                        style: TextStyle(fontSize: 15),
+                        decoration: new InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.only(
+                              left: 15, bottom: 11, top: 11, right: 15),
+                          hintText: "Select",
+                        ),
+                      ),
+                      // dropdown()
+                    ),
+                    /*  Icon(
+                      Icons.arrow_drop_down,
+                      color: colorGrayDark,
+                    )*/
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -503,8 +565,9 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
         _pageNo + 1,
         InquiryListApiRequest(
             CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID.toString(),
-            PkId: "")));
+            LoginUserID: LoginUserID,
+            PkId: "",
+            EmployeeID: edt_employeeID.text)));
 
     /* if (_inquiryListResponse.details.length < _inquiryListResponse.totalCount) {
     }*/
@@ -1355,17 +1418,36 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
   }
 
   void _onTapOfEditInquiry(InquiryDetails model) {
-    navigateTo(context, InquiryAddEditScreen.routeName,
-            arguments: AddUpdateInquiryScreenArguments(model))
-        .then((value) {
-      _inquiryBloc
-        ..add(InquiryListCallEvent(
-            1,
-            InquiryListApiRequest(
-                CompanyId: CompanyID.toString(),
-                LoginUserID: LoginUserID.toString(),
-                PkId: "")));
-    });
+    if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "BLG3-AF78-TO5F-NW16" ||
+        _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
+      navigateTo(context, BlueToneInquiryAddEditScreen.routeName,
+              arguments: AddUpdateBlueToneInquiryScreenArguments(model))
+          .then((value) {
+        _inquiryBloc
+          ..add(InquiryListCallEvent(
+              1,
+              InquiryListApiRequest(
+                  CompanyId: CompanyID.toString(),
+                  LoginUserID: LoginUserID,
+                  PkId: "",
+                  EmployeeID: edt_employeeID.text)));
+      });
+    } else {
+      navigateTo(context, InquiryAddEditScreen.routeName,
+              arguments: AddUpdateInquiryScreenArguments(model))
+          .then((value) {
+        _inquiryBloc
+          ..add(InquiryListCallEvent(
+              1,
+              InquiryListApiRequest(
+                  CompanyId: CompanyID.toString(),
+                  LoginUserID: LoginUserID,
+                  PkId: "",
+                  EmployeeID: edt_employeeID.text)));
+      });
+    }
   }
 
   void _onTapOfSahreInquiry(
@@ -1379,8 +1461,9 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
             1,
             InquiryListApiRequest(
                 CompanyId: CompanyID.toString(),
-                LoginUserID: LoginUserID.toString(),
-                PkId: "")));
+                LoginUserID: LoginUserID,
+                PkId: "",
+                EmployeeID: edt_employeeID.text)));
     });
   }
 
@@ -1412,6 +1495,15 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
     await OfflineDbHelper.getInstance().deleteALLInquiryProduct();
   }
 
+  Future<void> _onTapOfDeleteALLPrice() async {
+    await OfflineDbHelper.getInstance().deleteAllBlueToneProductItems();
+
+    await OfflineDbHelper.getInstance().deleteAllProductPriceList();
+
+    //
+  }
+
+//
   Widget ColorCombination(
       String value, String inquirySource, InquiryDetails model) {
     if (inquirySource == "Close - Success") {
@@ -1497,8 +1589,9 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
               1,
               InquiryListApiRequest(
                   CompanyId: CompanyID.toString(),
-                  LoginUserID: LoginUserID.toString(),
-                  PkId: "")));
+                  LoginUserID: LoginUserID,
+                  PkId: "",
+                  EmployeeID: edt_employeeID.text)));
       });
     } else {
       if (state.inquiryDetails != 0) {
@@ -1550,6 +1643,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
   void _onFollowerEmployeeListByStatusCallSuccess(
       FollowerEmployeeListResponse state) {
     arr_ALL_Name_ID_For_Folowup_EmplyeeList.clear();
+    arr_EmployeeList.clear();
 
     if (state.details != null) {
       for (var i = 0; i < state.details.length; i++) {
@@ -1564,6 +1658,12 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
         all_name_id.Name1 = state.details[i].userID;
         all_name_id.isChecked = false;*/
         arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
+
+        ALL_Name_ID all_name_id1 = ALL_Name_ID();
+        all_name_id1.Name = state.details[i].employeeName;
+        all_name_id1.Name1 = state.details[i].pkID.toString();
+        all_name_id1.MenuName = state.details[i].userID;
+        arr_EmployeeList.add(all_name_id1);
       }
     }
   }
@@ -1778,17 +1878,23 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
   }
 
   void _onTaptoSearchInquiryView() {
-    navigateTo(context, SearchInquiryScreen.routeName).then((value) {
+    navigateTo(context, SearchInquiryScreen.routeName,
+            arguments: AddUpdateSearchInquiryScreenArguments(
+                edt_employeeID.text, edt_employeeName.text))
+        .then((value) {
       if (value != null) {
         SearchInquiryDetails model = value;
-
-        /* _inquiryBloc.add(SearchInquiryListByNumberCallEvent(
-            SearchInquiryListByNumberRequest(
-                searchKey: _searchDetails.label,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString())));*/
+        edt_customerpkID.text = model.pkID.toString();
+        edt_customerName.text = model.customerName.toString();
         _inquiryBloc.add(InquirySearchByPkIDCallEvent(
             model.pkID.toString(),
             InquirySearchByPkIdRequest(
                 CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+        setState(() {});
+
+        /* _inquiryBloc.add(SearchInquiryListByNumberCallEvent(
+            SearchInquiryListByNumberRequest(
+                searchKey: _searchDetails.label,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString())));*/
       }
     });
   }
@@ -2527,5 +2633,81 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
           ? true
           : false;
     }
+  }
+
+  Widget _buildEmplyeeListView() {
+    return InkWell(
+      onTap: () {
+        // _onTapOfSearchView(context);
+
+        showcustomdialogWithTWOName(
+            values: arr_EmployeeList,
+            context1: context,
+            controller: edt_employeeName,
+            controller1: edt_employeeID,
+            lable: "Select Employee");
+      },
+      child: Container(
+        margin: EdgeInsets.only(left: 10, right: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text("Select Employee",
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: colorPrimary,
+                      fontWeight: FontWeight
+                          .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                  ),
+              Icon(
+                Icons.filter_list_alt,
+                color: colorPrimary,
+              ),
+            ]),
+            SizedBox(
+              height: 5,
+            ),
+            Card(
+              elevation: 5,
+              color: colorLightGray,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: Container(
+                // padding: EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                width: double.maxFinite,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: edt_employeeName,
+                        enabled: false,
+                        style: TextStyle(fontSize: 15),
+                        decoration: new InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.only(
+                              left: 15, bottom: 11, top: 11, right: 15),
+                          hintText: "Select",
+                        ),
+                      ),
+                      // dropdown()
+                    ),
+                    /*  Icon(
+                      Icons.arrow_drop_down,
+                      color: colorGrayDark,
+                    )*/
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -8,6 +8,7 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:soleoserp/Clients/BlueTone/Customer/blue_tone_customer_add_edit.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_fetch_document_api_request.dart';
@@ -242,7 +243,15 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
             FloatingActionButton(
               onPressed: () async {
                 await _onTapOfDeleteALLContact();
-                navigateTo(context, Customer_ADD_EDIT.routeName);
+
+                if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                        "BLG3-AF78-TO5F-NW16" ||
+                    _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                        "TEST-0000-SI0F-0208") {
+                  navigateTo(context, BlueToneCustomer_ADD_EDIT.routeName);
+                } else {
+                  navigateTo(context, Customer_ADD_EDIT.routeName);
+                }
               },
               child: Image.asset(
                 CUSTOM_INSERT,
@@ -414,9 +423,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
             height: 35,
             width: 35,
           ),*/
-          title:
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          title: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
@@ -459,52 +467,71 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
             ],
           ),
 
-          subtitle: Container(
-            margin: EdgeInsets.only(top: 5, bottom: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 200,
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(8.0),
-                    ),
-                    color: colorPresentDay,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            Icons.mobile_friendly,
-                            color: colorWhite,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 5),
-                        child: Row(
+          subtitle: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Card(
+                  color: colorBackGroundGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.mobile_friendly,
+                              color: Color(0xff108dcf),
+                              size: 24,
+                            ),
+                          ],
+                        ),
+                        Row(
                           children: [
                             Text(
                               model.contactNo1,
                               style: TextStyle(
-                                  color: colorWhite,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold),
+                                color: colorPrimary,
+                                fontSize: _fontSize_Title,
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Flexible(
+                child: Card(
+                  color: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Closing",
+                          style: TextStyle(color: Colors.white, fontSize: 8),
+                        ),
+                        Text(
+                          model.Closing.toString(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           children: <Widget>[
             Divider(
@@ -513,6 +540,91 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
             ),
             SizedBox(
               height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                    child: Card(
+                  color: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Opening",
+                          style: TextStyle(color: Colors.white, fontSize: 8),
+                        ),
+                        Text(
+                          model.Opening.toString(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+                Flexible(
+                    child: Card(
+                  color: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 20, right: 20, top: 5, bottom: 5),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Debit",
+                          style: TextStyle(color: Colors.white, fontSize: 8),
+                        ),
+                        Text(
+                          model.Debit.toString(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+                Flexible(
+                    child: Card(
+                  color: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Container(
+                    padding:
+                        EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Credit ",
+                          style: TextStyle(color: Colors.white, fontSize: 8),
+                        ),
+                        Text(
+                          model.Credit.toString(),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+              ],
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 5, bottom: 5, left: 30, right: 30),
+              height: 1,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1195,20 +1307,40 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
 
   void _onTapOfEditCustomer(CustomerDetails model,
       List<CustomerFetchDocumentResponseDetails> documentAPIList1) {
-    navigateTo(context, Customer_ADD_EDIT.routeName,
-            arguments:
-                AddUpdateCustomerScreenArguments(model, documentAPIList1))
-        .then((value) {
-      _CustomerBloc
-        ..add(CustomerListCallEvent(
-            1,
-            CustomerPaginationRequest(
-                companyId: CompanyID,
-                loginUserID: LoginUserID,
-                CustomerID: "",
-                ListMode: "L",
-                lstcontact: _contactsList)));
-    });
+    if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "BLG3-AF78-TO5F-NW16" ||
+        _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
+      navigateTo(context, BlueToneCustomer_ADD_EDIT.routeName,
+              arguments: AddUpdateBlueToneCustomerScreenArguments(
+                  model, documentAPIList1))
+          .then((value) {
+        _CustomerBloc
+          ..add(CustomerListCallEvent(
+              1,
+              CustomerPaginationRequest(
+                  companyId: CompanyID,
+                  loginUserID: LoginUserID,
+                  CustomerID: "",
+                  ListMode: "L",
+                  lstcontact: _contactsList)));
+      });
+    } else {
+      navigateTo(context, Customer_ADD_EDIT.routeName,
+              arguments:
+                  AddUpdateCustomerScreenArguments(model, documentAPIList1))
+          .then((value) {
+        _CustomerBloc
+          ..add(CustomerListCallEvent(
+              1,
+              CustomerPaginationRequest(
+                  companyId: CompanyID,
+                  loginUserID: LoginUserID,
+                  CustomerID: "",
+                  ListMode: "L",
+                  lstcontact: _contactsList)));
+      });
+    }
   }
 
   Future<void> getContacts() async {
@@ -1327,7 +1459,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                 state.customerFetchDocumentResponse.details[i].customerID;
             customerFetchDocumentResponseDetails.name =
                 state.customerFetchDocumentResponse.details[i].name;
-            ;
+
             customerFetchDocumentResponseDetails.customerName =
                 state.customerFetchDocumentResponse.details[i].customerName;
             customerFetchDocumentResponseDetails.createdBy =
@@ -1344,8 +1476,10 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
         }
       }
     } else {
-      showCommonDialogWithSingleOption(context, "No Attachments Found !",
-          positiveButtonTitle: "OK");
+      /*  showCommonDialogWithSingleOption(context, "No Attachments Found !",
+          positiveButtonTitle: "OK");*/
+
+      _onTapOfEditCustomer(state.customerDetails, documentAPIList);
     }
   }
 

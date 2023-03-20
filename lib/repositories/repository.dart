@@ -2,6 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/SizedList/size_list_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/SizedList/size_list_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/SizedList_INS_UPD_API/sized_list_ins_update_api_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Sized_multi_delete_API/sized_multi_delete_api_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/inquiry_no_to_fetch_product_sized_list_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/SizedList_INS_UPD_API/sized_list_ins_update_api_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/inquiry_no_to_fetch_product_sized_list_response.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_history_list_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_image_upload_request.dart';
@@ -51,6 +58,7 @@ import 'package:soleoserp/models/api_requests/complaint/complaint_save_request.d
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
+import 'package:soleoserp/models/api_requests/customer/bt_country_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_category_request.dart';
@@ -158,6 +166,8 @@ import 'package:soleoserp/models/api_requests/packing/packing_checklist_list.dar
 import 'package:soleoserp/models/api_requests/packing/packing_productassambly_list_request.dart';
 import 'package:soleoserp/models/api_requests/packing/packing_save_request.dart';
 import 'package:soleoserp/models/api_requests/packing/search_packingchecklist_request.dart';
+import 'package:soleoserp/models/api_requests/product/product_brand_list_request.dart';
+import 'package:soleoserp/models/api_requests/product/product_master_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/productionActivity_save_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_delete_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_list_request.dart';
@@ -196,6 +206,7 @@ import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
+import 'package:soleoserp/models/api_requests/sales_target/sales_target_list_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/new_telecaller_save_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/telecaller_new_pagination_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
@@ -209,6 +220,7 @@ import 'package:soleoserp/models/api_requests/toDo_request/to_do_save_sub_detail
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_worklog_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/transection_mode_list_request.dart';
+import 'package:soleoserp/models/api_requests/to_do_office/to_do_office_list_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
@@ -254,6 +266,7 @@ import 'package:soleoserp/models/api_responses/complaint/complaint_no_list_respo
 import 'package:soleoserp/models/api_responses/complaint/complaint_save_response.dart';
 import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
+import 'package:soleoserp/models/api_responses/customer/bt_country_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/cust_id_to_inq_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
@@ -362,6 +375,8 @@ import 'package:soleoserp/models/api_responses/packing/packing_no_list_response.
 import 'package:soleoserp/models/api_responses/packing/packing_product_assambly_list_response.dart';
 import 'package:soleoserp/models/api_responses/packing/packing_save_response.dart';
 import 'package:soleoserp/models/api_responses/packing/search_packingchecklist_label_response.dart';
+import 'package:soleoserp/models/api_responses/product_master/product_brand_list_response.dart';
+import 'package:soleoserp/models/api_responses/product_master/product_master_list_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/productactivity_typeofwork_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/productionActivity_save_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_delete_reponse.dart';
@@ -398,6 +413,7 @@ import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_del
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
+import 'package:soleoserp/models/api_responses/sales_target/sales_target_list_response.dart';
 import 'package:soleoserp/models/api_responses/swastik_telecaller_response/telecaller_new_pagination_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_delete_image_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
@@ -410,6 +426,7 @@ import 'package:soleoserp/models/api_responses/to_do/to_do_save_sub_details_resp
 import 'package:soleoserp/models/api_responses/to_do/to_do_worklog_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do_office/to_do_office_list_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
@@ -433,6 +450,8 @@ import 'error_response_exception.dart';
 class Repository {
   SharedPrefHelper prefs = SharedPrefHelper.instance;
   final ApiClient apiClient;
+
+  CompanyDetailsResponse _offlineCompanyData;
 
   Repository({@required this.apiClient});
 
@@ -996,6 +1015,29 @@ class Repository {
           inquiryNoToProductListRequest.toJson());
       InquiryNoToProductResponse response =
           InquiryNoToProductResponse.fromJson(json);
+
+      /* for (int i = 0; i < response.details.length; i++) {
+        SizeListRequest sizeListRequest = SizeListRequest();
+        sizeListRequest.ProductID = response.details[i].productID.toString();
+        sizeListRequest.LoginUserID = inquiryNoToProductListRequest.LoginUserID;
+        sizeListRequest.CompanyId = inquiryNoToProductListRequest.CompanyId;
+
+        Map<String, dynamic> json1 = await apiClient.apiCallPost(
+            ApiClient.END_POINT_SIZED_LIST_FROM_PRODUCTID,
+            sizeListRequest.toJson());
+        SizeListResponse response1 = SizeListResponse.fromJson(json1);
+
+        for (int j = 0; j < response1.details.length; j++) {
+          print("ProductIDtoSizedList" + response1.details[j].sizeName);
+
+          await OfflineDbHelper.getInstance().insertProductPriceList(PriceModel(
+              response.details[j].productID.toString(),
+              response.details[j].productName.toString(),
+              response1.details[j].sizeID.toString(),
+              response1.details[j].sizeName.toString(),
+              "false"));
+        }
+      }*/
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -2089,6 +2131,21 @@ class Repository {
     }
   }
 
+  Future<SalesTargetListResponse> getSalesTargetList(
+      int pageNo, SalaryTargetListRequest salaryTargetListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SALES_TARGET_PAGINATION}/$pageNo-10",
+          salaryTargetListRequest.toJson());
+      SalesTargetListResponse response = SalesTargetListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<SearchSalesOrderListResponse> getSalesOrderListSearchByName(
       SearchSalesOrderListByNameRequest request) async {
     try {
@@ -3161,7 +3218,7 @@ class Repository {
     //todo due to one api bug temporary adding following key
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          "${ApiClient.END_POINT_EXPENSE_PAGINATION_FILTER}/$pageNo-10",
+          "${ApiClient.END_POINT_EXPENSE_PAGINATION_FILTER}/$pageNo-10000",
           expenseListAPIRequest.toJson());
       ExpenseListResponse response = ExpenseListResponse.fromJson(json);
 
@@ -3787,6 +3844,24 @@ class Repository {
     }
   }
 
+  Future<TypeOfWorkResponse> ProductionTypeofwork123() async {
+    _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
+
+    print("djkjfsd" + _offlineCompanyData.details[0].pkId.toString());
+    TypeOfWorkRequest request = TypeOfWorkRequest(
+        pkID: "", CompanyId: _offlineCompanyData.details[0].pkId.toString());
+    try {
+      /// API Client Class Here Declare Value
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_Production_Typeofwork, request.toJson());
+      TypeOfWorkResponse response = TypeOfWorkResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<ProductionActivityResponse> ProductionActivityListCall(
       ProductionActivityRequest request) async {
     try {
@@ -3795,6 +3870,23 @@ class Repository {
           ApiClient.END_POINT_Production_Activity_List, request.toJson());
       ProductionActivityResponse response =
           ProductionActivityResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<ProductMasterResponse> productmasterListAPi(
+      int pageNo, ProductMasterListRequest request) async {
+    try {
+      /// API Client Class Here Declare Value
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_PRODUCT_MASTER_LIST_API +
+              pageNo.toString() +
+              "-10",
+          request.toJson());
+      ProductMasterResponse response = ProductMasterResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -4428,6 +4520,20 @@ class Repository {
     }
   }
 
+  Future<ProductBrandResponse> productBrandListAPI(
+      ProductBrandListRequest productBrandListRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_PRODUCT_BRAND_LIST,
+          productBrandListRequest.toJson());
+      ProductBrandResponse designationApiResponse =
+          ProductBrandResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<AssignToNotificationResponse> assignToNotificationAPI(
       AssignToNotificationRequest userMenuRightsRequest) async {
     try {
@@ -4462,6 +4568,7 @@ class Repository {
       Map<String, dynamic> json = await apiClient.apiCallPostforMultipleJSONArray(
           "${ApiClient.END_POINT_SALES_BILL_PRODUCT_SAVE + InvoiceNo + "/ProductSaveByProdId"}",
           arrSBProductList);
+
       SBProductSaveResponse inquiryProductSaveResponse =
           SBProductSaveResponse.fromJson(json);
       return inquiryProductSaveResponse;
@@ -4532,6 +4639,97 @@ class Repository {
           ApiClient.END_POINT_SB_HEADER_DELETE + pkID.toString() + "/delete",
           request.toJson());
       SBDeleteResponse response = SBDeleteResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<BTCountryListResponse> bt_country_list_api(
+      BTCountryListRequest userMenuRightsRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_BT_CUSTOMER_COUNTRY,
+          userMenuRightsRequest.toJson());
+      BTCountryListResponse designationApiResponse =
+          BTCountryListResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SizeListResponse> getSizeListFromProductID(
+      SizeListRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SIZED_LIST_FROM_PRODUCTID, request.toJson());
+      SizeListResponse response = SizeListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<InquiryNoToFetchProductSizedListResponse>
+      getproductSizedListfromInquiryNo(
+          InquiryNoToFetchProductSizedListRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_INQ_NO_TO_PRODUCT_SIZED_LIST, request.toJson());
+      InquiryNoToFetchProductSizedListResponse response =
+          InquiryNoToFetchProductSizedListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  //SizedListInsUpdateApiResponse
+
+  Future<SizedListInsUpdateApiResponse> insert_update_sizedListAPI(
+      SizedListInsUpdateApiRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SIZEDLIST_INS_UPDATE_API +
+              request.ProductID +
+              "/ProductSize-Save",
+          request.toJson());
+      SizedListInsUpdateApiResponse response =
+          SizedListInsUpdateApiResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> multi_delete_sizedListAPI(
+      SizedMultiDeleteApiRequest request, String inqNo) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_SIZEDLIST_MULTI_DELETE_API +
+              inqNo +
+              "/MultiProductSizeDelete",
+          request.toJson());
+      String response = json.toString();
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<OfficeToDoListResponse> getOfficeTodoList(
+      OfficeToListRequest toDoListApiRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_OFFICE_TODO_LIST, toDoListApiRequest.toJson());
+      OfficeToDoListResponse response = OfficeToDoListResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {

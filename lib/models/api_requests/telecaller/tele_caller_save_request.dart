@@ -88,6 +88,8 @@ class TeleCallerSaveRequest {
 
   String Image;
 
+  String Brand;
+
 
   TeleCallerSaveRequest({
       this.LeadID,
@@ -125,7 +127,8 @@ class TeleCallerSaveRequest {
       this.CompanyId,
       this.Latitude,
       this.Longitude,
-      this.Image
+      this.Image,
+    this.Brand,
   });
 
 
@@ -167,6 +170,7 @@ class TeleCallerSaveRequest {
     Latitude = json['Latitude'];
     Longitude = json['Longitude'];
     Image = json['Image'];
+    Brand = json['Brand'];
 
   }
 
@@ -208,6 +212,7 @@ class TeleCallerSaveRequest {
     data['Latitude']=this.Latitude;
     data['Longitude']=this.Longitude;
     data['Image']=this.Image;
+    data['Brand']=this.Brand;
 
     return data;
   }

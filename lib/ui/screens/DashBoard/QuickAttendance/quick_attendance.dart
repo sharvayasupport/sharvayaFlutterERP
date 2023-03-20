@@ -70,6 +70,12 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
 
   TextEditingController EmailTO = TextEditingController();
   TextEditingController EmailBCC = TextEditingController();
+
+  TextEditingController FromDate = TextEditingController();
+  TextEditingController ReverseFromDate = TextEditingController();
+
+  TextEditingController ToDate = TextEditingController();
+
   String SiteURL = "";
   String Password = "";
 
@@ -102,7 +108,7 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
   @override
   void initState() {
     super.initState();
-
+    checkCameraPermissionStatus();
     _dashBoardScreenBloc = DashBoardScreenBloc(baseBloc);
 
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
@@ -111,7 +117,8 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
     LoginUserID = _offlineLoggedInData.details[0].userID;
 
     SiteURL = _offlineCompanyData.details[0].siteURL;
-    Password = _offlineLoggedInData.details[0].userPassword;
+    Password =
+        _offlineLoggedInData.details[0].userPassword.replaceAll("#", "%23");
     MapAPIKey = _offlineCompanyData.details[0].MapApiKey;
 
     contextMenu = ContextMenu(
@@ -320,6 +327,18 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
                                             CompanyId: CompanyID.toString())));
                               } else {
                                 final imagepicker = ImagePicker();
+
+                                /*try {
+                                  final file = await imagepicker.pickImage(
+                                    source: ImageSource.camera,
+                                    imageQuality: 85,
+                                  );
+                                  if (file == null) {
+                                    throw Exception('File is not available');
+                                  }
+                                } catch (e) {
+                                  print(e);
+                                }*/
 
                                 XFile file = await imagepicker.pickImage(
                                   source: ImageSource.camera,
@@ -1067,6 +1086,29 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
     if (granted == true) {}
   }
 
+  void checkCameraPermissionStatus() async {
+    bool granted = await Permission.camera.isGranted;
+    bool Denied = await Permission.camera.isDenied;
+    bool PermanentlyDenied = await Permission.camera.isPermanentlyDenied;
+    print("PermissionStatus" +
+        "Granted : " +
+        granted.toString() +
+        " Denied : " +
+        Denied.toString() +
+        " PermanentlyDenied : " +
+        PermanentlyDenied.toString());
+    if (Denied == true) {
+      await Permission.camera.request();
+    }
+    if (await Permission.camera.isRestricted) {
+      openAppSettings();
+    }
+    if (PermanentlyDenied == true) {
+      openAppSettings();
+    }
+    if (granted == true) {}
+  }
+
   Future<File> testCompressAndGetFile(File file, String targetPath) async {
     print('testCompressAndGetFile');
     final result = await FlutterImageCompress.compressAndGetFile(
@@ -1557,9 +1599,28 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
           googleMapApiKey: MapAPIKey);
 
       Address = data.address;
+
+      print("data1232332" +
+          "Address : " +
+          data.address.toString() +
+          "MAP API KEY " +
+          MapAPIKey);
     }
 
-    print("sfjsdf" + Address);
+    /*
+
+    Garediya
+Kuva Road,
+Raghuveer Para,
+Lohana Para, Rajkot,
+Gujarat 360001, India
+
+    * */
+
+    print("sfjsdf" +
+        Address +
+        "Latitude : " +
+        SharedPrefHelper.instance.getLatitude());
   }
 
   SendEmailOnlyImg({BuildContext context1, String Email}) async {
@@ -1649,56 +1710,113 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
                         ],
                       ),
                     ),
-                    /*  Container(
-                      margin: EdgeInsets.all(5),
+                    /*  InkWell(
+                      onTap: () {
+
+
+                      },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Text("Email BCC",
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Text("From Date",
                                 style: TextStyle(
                                     fontSize: 12,
                                     color: colorPrimary,
                                     fontWeight: FontWeight
                                         .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                                ),
+                            ),
                           ),
                           SizedBox(
                             height: 5,
                           ),
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Card(
-                              elevation: 5,
-                              color: colorLightGray,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                padding: EdgeInsets.only(left: 25, right: 20),
-                                width: double.maxFinite,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                          controller: EmailBCC,
-                                          decoration: InputDecoration(
-                                            hintText: "Tap to enter email BCC",
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFF000000),
-                                            ),
-                                            border: InputBorder.none,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF000000),
-                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                          ),
+                          Card(
+                            elevation: 5,
+                            color: colorLightGray,
+                            shape:
+                            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: 60,
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              width: double.maxFinite,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      edt_InquiryDate.text == null || edt_InquiryDate.text == ""
+                                          ? "DD-MM-YYYY"
+                                          : edt_InquiryDate.text,
+                                      style: baseTheme.textTheme.headline3.copyWith(
+                                          color: edt_InquiryDate.text == null ||
+                                              edt_InquiryDate.text == ""
+                                              ? colorGrayDark
+                                              : colorBlack),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  Icon(
+                                    Icons.calendar_today_outlined,
+                                    color: colorGrayDark,
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+
+
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Text("From Date",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorPrimary,
+                                    fontWeight: FontWeight
+                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Card(
+                            elevation: 5,
+                            color: colorLightGray,
+                            shape:
+                            RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                            child: Container(
+                              height: 60,
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              width: double.maxFinite,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      edt_InquiryDate.text == null || edt_InquiryDate.text == ""
+                                          ? "DD-MM-YYYY"
+                                          : edt_InquiryDate.text,
+                                      style: baseTheme.textTheme.headline3.copyWith(
+                                          color: edt_InquiryDate.text == null ||
+                                              edt_InquiryDate.text == ""
+                                              ? colorGrayDark
+                                              : colorBlack),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.calendar_today_outlined,
+                                    color: colorGrayDark,
+                                  )
+                                ],
                               ),
                             ),
                           )
@@ -1729,7 +1847,19 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
                                       "&password=" +
                                       Password +
                                       "&emailaddress=" +
-                                      EmailTO.text;
+                                      EmailTO.text +
+                                      "&date1=" +
+                                      DateTime.now().year.toString() +
+                                      "-" +
+                                      DateTime.now().month.toString() +
+                                      "-" +
+                                      DateTime.now().day.toString() +
+                                      "&date2=" +
+                                      DateTime.now().year.toString() +
+                                      "-" +
+                                      DateTime.now().month.toString() +
+                                      "-" +
+                                      DateTime.now().day.toString();
 
                                   print("webreq" + webreq);
 
@@ -1738,7 +1868,12 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
 
                                   //APITokenUpdateRequestEvent
 
-                                  _showMyDialog(context123, EmailTO.text);
+                                  _offlineLoggedInData.details[0].serialKey
+                                              .toUpperCase() ==
+                                          "MYA6-G9EC-VS3P-H4PL"
+                                      ? _showMyDialogForMyGec(
+                                          context123, EmailTO.text)
+                                      : _showMyDialog(context123, EmailTO.text);
                                 } else {
                                   showCommonDialogWithSingleOption(
                                       context, "Email is not valid !",
@@ -1818,6 +1953,42 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
     );
   }
 
+  Future<void> _showMyDialogForMyGec(
+      BuildContext dailogContext, String textEmaill) async {
+    return showDialog<int>(
+      context: dailogContext,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext dailogContextsub) {
+        return AlertDialog(
+          title: Text('Please wait ...!'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Visibility(
+                  visible: true,
+                  child: MyGecGenerateQT(dailogContext, textEmaill),
+                ),
+
+                //GetCircular123(),
+              ],
+            ),
+          ),
+          /*actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context)
+                    .pop(), //  We can return any object from here
+                child: Text('NO')),
+            */ /* prgresss!=100 ? CircularProgressIndicator() :*/ /* FlatButton(
+                onPressed: () => {
+                      Navigator.of(context).pop(),
+                    }, //  We can return any object from here
+                child: Text('YES'))
+          ],*/
+        );
+      },
+    );
+  }
+
   GenerateQT(BuildContext dailogContext, String emailTOstr) {
     return Center(
       child: Container(
@@ -1837,6 +2008,197 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
                           Password +
                           "&emailaddress=" +
                           emailTOstr)),
+                  // initialFile: "assets/index.html",
+                  initialUserScripts: UnmodifiableListView<UserScript>([]),
+                  initialOptions: options,
+                  pullToRefreshController: pullToRefreshController,
+
+                  onWebViewCreated: (controller) {
+                    webViewController = controller;
+                  },
+
+                  onLoadStart: (controller, url) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+
+                  androidOnPermissionRequest:
+                      (controller, origin, resources) async {
+                    return PermissionRequestResponse(
+                        resources: resources,
+                        action: PermissionRequestResponseAction.GRANT);
+                  },
+                  shouldOverrideUrlLoading:
+                      (controller, navigationAction) async {
+                    var uri = navigationAction.request.url;
+                    if (![
+                      "http",
+                      "https",
+                      "file",
+                      "chrome",
+                      "data",
+                      "javascript",
+                      "about"
+                    ].contains(uri.scheme)) {
+                      if (await canLaunch(url)) {
+                        // Launch the App
+                        await launch(
+                          url,
+                        );
+                        //  islodding = false;
+
+                        // and cancel the request
+                        return NavigationActionPolicy.CANCEL;
+                      }
+                    }
+                    //islodding = false;
+
+                    return NavigationActionPolicy.CANCEL;
+                  },
+                  onLoadStop: (controller, url) async {
+                    pullToRefreshController.endRefreshing();
+                    setState(() {
+                      onWebLoadingStop = true;
+                      islodding = false;
+                    });
+                    print("OnLoad" +
+                        "On Loading Complted" +
+                        onWebLoadingStop.toString());
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                    //Navigator.pop(context123);
+
+                    String pageTitle = "";
+
+                    controller.getTitle().then((value) {
+                      setState(() {
+                        pageTitle = value;
+                        print("dfkpageTitle" + value);
+
+                        if (pageTitle == "E-Office-Desk") {
+                          Navigator.pop(dailogContext);
+                          showCommonDialogWithSingleOption(
+                              dailogContext, "Email Sent Successfully ",
+                              onTapOfPositiveButton: () {
+                            Navigator.pop(dailogContext);
+                            Navigator.pop(context);
+                          });
+                        } else {
+                          Navigator.pop(dailogContext);
+                          showCommonDialogWithSingleOption(
+                              dailogContext, "Please Try Again !");
+                        }
+                      });
+                    });
+
+                    /*showCommonDialogWithSingleOption(
+                        context, "Email Sent Successfully ",
+                        onTapOfPositiveButton: () {
+                      //Navigator.pop(context);
+                      navigateTo(context, HomeScreen.routeName,
+                          clearAllStack: true);
+                    });*/
+                  },
+                  onLoadError: (controller, url, code, message) {
+                    pullToRefreshController.endRefreshing();
+                    isLoading = false;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    if (progress == 100) {
+                      pullToRefreshController.endRefreshing();
+                      this.prgresss = progress;
+
+                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
+                    }
+
+                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
+
+                    setState(() {
+                      this.progress = progress / 100;
+                      this.prgresss = progress;
+
+                      urlController.text = this.url;
+                    });
+                  },
+                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
+                    setState(() {
+                      this.url = url.toString();
+                      urlController.text = this.url;
+                    });
+                  },
+                  onConsoleMessage: (controller, consoleMessage) {
+                    print("LoadWeb" + consoleMessage.message.toString());
+                  },
+                  /*  onPageFinished: (String url) {
+                    print('Page finished loading: $url');
+                    //hide you progressbar here
+                    setState(() {
+                      islodding = false;
+                    });
+                  },*/
+                  onPageCommitVisible: (controller, url) {
+                    setState(() {
+                      islodding = false;
+                    });
+                  },
+                ),
+              ),
+            ),
+            //CircularProgressIndicator(),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              color: Colors.white,
+              child: Lottie.asset('assets/lang/sample_kishan_two.json',
+                  width: 100, height: 100),
+            )
+            // LinearProgressIndicator(value: this.progress)
+            /* this.progress < 1.0
+                ? LinearProgressIndicator(value: this.progress)
+                : Container(),*/
+            //
+          ],
+        ),
+      ),
+    );
+  }
+
+  MyGecGenerateQT(BuildContext dailogContext, String emailTOstr) {
+    return Center(
+      child: Container(
+        child: Stack(
+          children: [
+            Container(
+              height: 20,
+              width: 20,
+              child: Visibility(
+                visible: true,
+                child: InAppWebView(
+                  initialUrlRequest: URLRequest(
+                      url: Uri.parse(SiteURL +
+                          "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
+                          LoginUserID +
+                          "&password=" +
+                          Password +
+                          "&emailaddress=" +
+                          emailTOstr +
+                          "&date1=" +
+                          DateTime.now().year.toString() +
+                          "-" +
+                          DateTime.now().month.toString() +
+                          "-" +
+                          DateTime.now().day.toString() +
+                          "&date2=" +
+                          DateTime.now().year.toString() +
+                          "-" +
+                          DateTime.now().month.toString() +
+                          "-" +
+                          DateTime.now().day.toString())),
                   // initialFile: "assets/index.html",
                   initialUserScripts: UnmodifiableListView<UserScript>([]),
                   initialOptions: options,

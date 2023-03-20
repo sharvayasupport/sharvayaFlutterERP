@@ -163,8 +163,10 @@ class FireBaseMessagingServices : FirebaseMessagingService() {
                     .build()
             //  mNotificationManager.deleteNotificationChannel(NOTIFICATION_CHANNEL_ID);
             val notificationChannel = NotificationChannel(NOTIFICATION_CHANNEL_ID1, title123, importance)
-            notificationChannel.setSound(null, null)
-            // notificationChannel.setSound(uri,null);
+
+            //notificationChannel.setSound(null, null)
+          //var uri123 =  Uri.parse("android.resource://com.sharvayainfotech.eofficedesk/" + R.raw.you_have_a_new);
+             notificationChannel.setSound(null,null);
             // RingtoneManager.getRingtone(this, Uri.parse("android.resource://dhruveni.crm.dhruvenicrmNative/raw/bell_in_temple.mp3")).play();
             //Log.d("ksdjf123", Constant.notificationUri.getPath())
 

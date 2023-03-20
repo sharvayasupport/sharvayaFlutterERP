@@ -776,7 +776,7 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
       for (var i = 0; i < state.details.length; i++) {
         ALL_Name_ID all_name_id = ALL_Name_ID();
         all_name_id.Name = state.details[i].employeeName;
-        all_name_id.Name1 = state.details[i].pkID.toString();
+        all_name_id.pkID = state.details[i].pkID;
         arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
       }
     }
@@ -802,11 +802,12 @@ class _LeaveRequestListScreenState extends BaseState<LeaveRequestListScreen>
     return InkWell(
       onTap: () {
         // _onTapOfSearchView(context);
-        showcustomdialogWithID(
+
+        showcustomdialog(
             values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
             context1: context,
             controller: edt_FollowupEmployeeList,
-            controllerID: edt_FollowupEmployeeUserID,
+            controller2: edt_FollowupEmployeeUserID,
             lable: "Select Employee");
       },
       child: Column(

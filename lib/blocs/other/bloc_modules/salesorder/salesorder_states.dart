@@ -256,3 +256,10 @@ class SOAssemblyTableDeleteALLState extends SalesOrderStates {
   String response;
   SOAssemblyTableDeleteALLState(this.response);
 }
+
+
+class SalesTargetListCallResponseState extends SalesOrderStates {
+  final SalesTargetListResponse response;
+  final int newPage;
+  SalesTargetListCallResponseState(this.response, this.newPage);
+}

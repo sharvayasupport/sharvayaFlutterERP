@@ -110,6 +110,7 @@ class _ExternalLeadAddEditScreenState
   final TextEditingController edt_QualifiedEmplyeeID = TextEditingController();
   final TextEditingController edt_DisQualifiedName = TextEditingController();
   final TextEditingController edt_DisQualifiedID = TextEditingController();
+  final TextEditingController edt_InProcess_Details = TextEditingController();
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_LeaveType = [];
 
@@ -224,7 +225,9 @@ class _ExternalLeadAddEditScreenState
       edt_QualifiedCity.text = _offlineLoggedInData.details[0].CityName;
       edt_QualifiedCityCode.text =
           _offlineLoggedInData.details[0].CityCode.toString();
+      edt_InProcess_Details.text ="";
       setState(() {});
+
     }
 
     is_visibleLocation = false;
@@ -2292,6 +2295,7 @@ class _ExternalLeadAddEditScreenState
         edt_QualifiedPinCode.text = expenseDetails.pincode;
         edt_DisQualifiedName.text = "";
         edt_DisQualifiedID.text = "0";
+        edt_InProcess_Details.text ="";
 
       }
     if(edt_LeadStatus.text=="Disqualified")
@@ -2314,6 +2318,7 @@ class _ExternalLeadAddEditScreenState
         edt_QualifiedCity.text = "";
         edt_QualifiedCityCode.text = "";
         edt_QualifiedPinCode.text ="";
+        edt_InProcess_Details.text ="";
       }
     if(edt_LeadStatus.text=="InProcess")
       {
@@ -2336,6 +2341,7 @@ class _ExternalLeadAddEditScreenState
         edt_QualifiedCity.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityName:expenseDetails.cityName;
         edt_QualifiedCityCode.text = expenseDetails.cityCode==0?_offlineLoggedInData.details[0].CityCode.toString():expenseDetails.cityCode.toString();
         edt_QualifiedPinCode.text ="";
+        edt_InProcess_Details.text = "";
       }
 
     if(edt_LeadStatus.text=="")
@@ -2357,6 +2363,7 @@ class _ExternalLeadAddEditScreenState
       edt_QualifiedPinCode.text = expenseDetails.pincode;
       edt_DisQualifiedName.text = expenseDetails.exLeadClosureReason;
       edt_DisQualifiedID.text = expenseDetails.exLeadClosure.toString();
+      edt_InProcess_Details.text = "";
     }
 
     _expenseBloc.add(RegionCodeRequestEvent(expenseDetails,RegionCodeRequest(
@@ -3271,7 +3278,48 @@ class _ExternalLeadAddEditScreenState
             width: 20,
             height: 10,
           ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 10, right: 10),
+                child: Text("In-Process Details",
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: colorPrimary,
+                        fontWeight: FontWeight
+                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 7, right: 7, top: 10),
+                child: TextFormField(
+                  enabled: false,
+                  controller: edt_InProcess_Details,
+                  minLines: 2,
+                  maxLines: 5,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10.0),
+                      hintText: 'Enter Details',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(
+                        borderSide:
+                        new BorderSide(color: colorPrimary),
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(10)),
+                      )),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(
+            width: 20,
+            height: 10,
+          ),
         ],
       ),
     );

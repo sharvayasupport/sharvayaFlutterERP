@@ -60,5 +60,6 @@ const CUSTOM_INSERT = "assets/images/listing_res/insert.png";
 const CUSTOM_UPDATE = "assets/images/listing_res/ic_update.png";
 const CUSTOM_DELETE = "assets/images/listing_res/ic_delete.png";
 const CUSTOM_SETTING = "assets/images/listing_res/setting.png";
-
-//setting.png
+const NO_IMAGE_FOUND = "assets/images/noimage.png";
+const LOADDER = "assets/images/loader.gif";
+//assets/images/loader.gif

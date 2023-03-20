@@ -123,6 +123,11 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
       TextEditingController();
   final TextEditingController edt_sourceID = TextEditingController();
 
+  final TextEditingController edt_openingBalance = TextEditingController();
+  final TextEditingController edt_debitBalance = TextEditingController();
+  final TextEditingController edt_creditBalance = TextEditingController();
+  final TextEditingController edt_closingBalance = TextEditingController();
+
   String dropdownValue = 'One';
   List<String> drop = ['One', 'Two', 'Free', 'Four'];
   CustomerCategoryResponse arrcustomerCategory;
@@ -229,6 +234,10 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
       fillData();
     } else {
       _searchStateDetails = SearchStateDetails();
+      edt_openingBalance.text = "0.00";
+      edt_debitBalance.text = "0.00";
+      edt_creditBalance.text = "0.00";
+      edt_closingBalance.text = "0.00";
 
       edt_QualifiedCountry.text = "India";
       edt_QualifiedCountryCode.text = "IND";
@@ -244,6 +253,29 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
 
       setState(() {});
     }
+
+    /* edt_openingBalance.addListener(() {
+      double opening = 0.00;
+      double debit = 0.00;
+      double credit = 0.00;
+      double closing = 0.00;
+
+      opening = edt_openingBalance.text.toString() != ""
+          ? 0.00
+          : double.parse(edt_openingBalance.text);
+      debit = edt_debitBalance.text.toString() != ""
+          ? 0.00
+          : double.parse(edt_debitBalance.text);
+      credit = edt_creditBalance.text.toString() != ""
+          ? 0.00
+          : double.parse(edt_creditBalance.text);
+      closing = edt_closingBalance.text.toString() != ""
+          ? 0.00
+          : double.parse(edt_closingBalance.text);
+
+      closing = (opening + debit) - credit;
+      edt_closingBalance.text = closing.toStringAsFixed(2);
+    });*/
   }
 
   ///listener to multiple states of bloc to handles api responses
@@ -445,32 +477,6 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                     SizedBox(height: Constant.SIZEBOXHEIGHT),
                     Area(),
                     SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    /*   CustomDropDown1("City", "State",enable1: false,enable2: false,icon: Icon(Icons.arrow_drop_down)
-                        ,controllerForLeft: edt_City,controllerForRight: edt_State,Custom_values1 : _listFilteredCountry,Custom_values2: arr_ALL_Name_ID_For_Source
-                    ),*/
-                    /* CustomDropDownCountry("Country", "State",
-                        enable1: false,
-                        enable2: false,
-                        icon: Icon(Icons.arrow_drop_down),
-                        controllerForLeft: edt_Country,
-                        controllerForRight: edt_State,
-                        Custom_values1: _listFilteredCountry,
-                        Custom_values2: _listFilteredState),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    */ /* CustomDropDownDistrictTaluka("District", "Taluka",
-                        enable1: false,
-                        enable2: false,
-                        icon: Icon(Icons.pin_drop_sharp),
-                        controllerForLeft: edt_District,
-                        controllerForRight: edt_Taluka),*/ /*
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    CustomDropDown("City", "PinCode",
-                        enable1: false,
-                        enable2: true,
-                        icon: Icon(Icons.pin_drop_sharp),
-                        controllerForLeft: edt_City,
-                        controllerForRight: edt_Pincode),*/
-
                     Row(
                       children: [
                         Expanded(flex: 1, child: QualifiedCountry()),
@@ -552,21 +558,35 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                     SizedBox(
                       height: Constant.SIZEBOXHEIGHT,
                     ),
-                    SizedBox(
-                      height: Constant.SIZEBOXHEIGHT,
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      alignment: Alignment.bottomCenter,
-                      child: getCommonButton(baseTheme, () {
-                        //  _onTapOfDeleteALLContact();
-
+                    // Ladger(),
+                    InkWell(
+                      onTap: () {
                         navigateTo(context, ContactsListScreen.routeName);
-                      }, "Add Contact + ",
-                          width: 600, backGroundColor: Color(0xff4d62dc)),
-                    ),
-                    SizedBox(
-                      height: Constant.SIZEBOXHEIGHT,
+                      },
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                            color: Color(0xff362d8b),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20))),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(left: 3, right: 25),
+                              child: Icon(
+                                Icons.person_add_alt_1,
+                                color: colorWhite,
+                              ),
+                            ),
+                            Text(
+                              "Add Contact",
+                              style: TextStyle(color: colorWhite, fontSize: 16),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                     Attachments(),
                     SizedBox(
@@ -2457,6 +2477,11 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
     _searchStateDetails.label = _editModel.stateName;
     _isSwitched = _editModel.blockCustomer;
 
+    edt_openingBalance.text = _editModel.Opening.toStringAsFixed(2);
+    edt_debitBalance.text = _editModel.Debit.toStringAsFixed(2);
+    edt_creditBalance.text = _editModel.Credit.toStringAsFixed(2);
+    edt_closingBalance.text = _editModel.Closing.toStringAsFixed(2);
+
     if (_editModel.gSTNO.length == 15) {
       edt_PAN_Name.text =
           _editModel.gSTNO.substring(2, _editModel.gSTNO.length - 3);
@@ -2975,6 +3000,299 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                             radius: 20,
                             backGroundColor: Color(0xff02b1fc),
                             textColor: colorWhite)
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  Ladger() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Ledger Balance",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                leading: Container(child: Icon(Icons.currency_rupee)),
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                child: Text("Opening",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorPrimary,
+                                        fontWeight: FontWeight
+                                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                    ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Container(
+                                  height: CardViewHieght,
+                                  padding: EdgeInsets.only(left: 20, right: 20),
+                                  width: double.maxFinite,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                            controller: edt_openingBalance,
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                    decimal: true),
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(bottom: 10),
+                                              counterText: "",
+                                              hintText: "0.00",
+                                              labelStyle: TextStyle(
+                                                color: Color(0xFF000000),
+                                              ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Color(0xFF000000),
+                                            ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                child: Text("Debit",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorPrimary,
+                                        fontWeight: FontWeight
+                                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                    ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Container(
+                                  height: CardViewHieght,
+                                  padding: EdgeInsets.only(left: 20, right: 20),
+                                  width: double.maxFinite,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                            enabled: false,
+                                            controller: edt_debitBalance,
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                    decimal: true),
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(bottom: 10),
+                                              counterText: "",
+                                              hintText: "0.00",
+                                              labelStyle: TextStyle(
+                                                color: Color(0xFF000000),
+                                              ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Color(0xFF000000),
+                                            ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                child: Text("Credit",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorPrimary,
+                                        fontWeight: FontWeight
+                                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                    ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Container(
+                                  height: CardViewHieght,
+                                  padding: EdgeInsets.only(left: 20, right: 20),
+                                  width: double.maxFinite,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                            enabled: false,
+                                            controller: edt_creditBalance,
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                    decimal: true),
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(bottom: 10),
+                                              counterText: "",
+                                              hintText: "0.00",
+                                              labelStyle: TextStyle(
+                                                color: Color(0xFF000000),
+                                              ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Color(0xFF000000),
+                                            ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(left: 10, right: 10),
+                                child: Text("Closing",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: colorPrimary,
+                                        fontWeight: FontWeight
+                                            .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                                    ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Card(
+                                elevation: 5,
+                                color: colorLightGray,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Container(
+                                  height: CardViewHieght,
+                                  padding: EdgeInsets.only(left: 20, right: 20),
+                                  width: double.maxFinite,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                            enabled: false,
+                                            controller: edt_closingBalance,
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                    decimal: true),
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(bottom: 10),
+                                              counterText: "",
+                                              hintText: "0.00",
+                                              labelStyle: TextStyle(
+                                                color: Color(0xFF000000),
+                                              ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Color(0xFF000000),
+                                            ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

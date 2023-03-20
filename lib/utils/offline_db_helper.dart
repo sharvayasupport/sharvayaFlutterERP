@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:path/path.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/bluetone_inquiry_product.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/price_model.dart';
 import 'package:soleoserp/models/common/assembly/qt_assembly_table.dart';
 import 'package:soleoserp/models/common/assembly/sb_assembly_table.dart';
 import 'package:soleoserp/models/common/assembly/so_assembly_table.dart';
@@ -58,6 +60,8 @@ class OfflineDbHelper {
   static const TABLE_QT_ASSEMBLY = "quotation_assembly_table";
   static const TABLE_SO_ASSEMBLY = "salesOrder_assembly_table";
   static const TABLE_SB_ASSEMBLY = "salesBill_assembly_table";
+  static const TABLE_BLUETON_PRODUCT = "BlueToneProductModel";
+  static const TABLE_BLUETON_PRICE = "pricetable";
 
   //GenericAddditionalCharges
 
@@ -84,7 +88,7 @@ class OfflineDbHelper {
     database = await openDatabase(
         join(await getDatabasesPath(), 'soleoserp_database.db'),
         onCreate: (db, version) => _createDb(db),
-        version: 14);
+        version: 16);
   }
 
   static void _createDb(Database db) {
@@ -160,7 +164,14 @@ class OfflineDbHelper {
     db.execute(
       'CREATE TABLE $TABLE_SB_ASSEMBLY(id INTEGER PRIMARY KEY AUTOINCREMENT,FinishProductID TEXT, ProductID TEXT, ProductName TEXT, Quantity TEXT, Unit TEXT, InvoiceNo TEXT)',
     );
-    //
+
+    db.execute(
+      'CREATE TABLE $TABLE_BLUETON_PRODUCT(id INTEGER PRIMARY KEY AUTOINCREMENT,InquiryNo TEXT, LoginUserID TEXT, CompanyId TEXT, ProductName TEXT, ProductID TEXT, UnitPrice TEXT)',
+    );
+
+    db.execute(
+      'CREATE TABLE $TABLE_BLUETON_PRICE(id INTEGER PRIMARY KEY AUTOINCREMENT,ProductID TEXT, ProductName TEXT, SizeID TEXT , SizeName TEXT , isChecked TEXT )',
+    );
   }
 
   static OfflineDbHelper getInstance() {
@@ -1713,5 +1724,114 @@ class OfflineDbHelper {
     final db = await database;
 
     db.delete(TABLE_SB_ASSEMBLY);
+  }
+
+  /// BlueTonProduct CRUD TABLE_BLUETON_PRODUCT SBAssemblyTable
+
+  Future<int> insertBlueTonProductItems(BlueToneProductModel model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_BLUETON_PRODUCT,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<BlueToneProductModel>> getBlueTonProductList() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps =
+        await db.query(TABLE_BLUETON_PRODUCT);
+
+    return List.generate(maps.length, (i) {
+      return BlueToneProductModel(
+          maps[i]['InquiryNo'],
+          maps[i]['LoginUserID'],
+          maps[i]['CompanyId'],
+          maps[i]['ProductName'],
+          maps[i]['ProductID'],
+          maps[i]['UnitPrice'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<void> updateBlueToneProductItems(BlueToneProductModel model) async {
+    final db = await database;
+
+    await db.update(TABLE_BLUETON_PRODUCT, model.toJson(),
+        where: 'id = ?', whereArgs: [model.id]);
+  }
+
+  Future<void> deleteBlueToneProductItem(int id) async {
+    final db = await database;
+    await db.delete(TABLE_BLUETON_PRODUCT, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllBlueToneProductItems() async {
+    final db = await database;
+
+    db.delete(TABLE_BLUETON_PRODUCT);
+  }
+
+  ///BlueTone Price CRUD
+  Future<int> insertProductPriceList(PriceModel model) async {
+    final db = await database;
+
+    return await db.insert(
+      TABLE_BLUETON_PRICE,
+      model.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<PriceModel>> getProductPriceList(String FinishProductID) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_BLUETON_PRICE,
+        where: 'ProductID = ? ', whereArgs: [FinishProductID]);
+    return List.generate(maps.length, (i) {
+      /* String ProductID;
+  String ProductName;
+  String SizeID;
+  String SizeName;*/
+      return PriceModel(maps[i]['ProductID'], maps[i]['ProductName'],
+          maps[i]['SizeID'], maps[i]['SizeName'], maps[i]['isChecked'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<List<PriceModel>> getAllProductPriceList() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(TABLE_BLUETON_PRICE);
+    return List.generate(maps.length, (i) {
+      /* String ProductID;
+  String ProductName;
+  String SizeID;
+  String SizeName;*/
+      return PriceModel(maps[i]['ProductID'], maps[i]['ProductName'],
+          maps[i]['SizeID'], maps[i]['SizeName'], maps[i]['isChecked'],
+          id: maps[i]['id']);
+    });
+  }
+
+  Future<void> updateProductPriceItem(PriceModel model) async {
+    final db = await database;
+
+    await db.update(TABLE_BLUETON_PRICE, model.toJson(),
+        where: 'id = ?', whereArgs: [model.id]);
+  }
+
+  Future<void> deleteProductPriceList(String id) async {
+    final db = await database;
+    await db
+        .delete(TABLE_BLUETON_PRICE, where: 'ProductID = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllProductPriceList() async {
+    final db = await database;
+
+    db.delete(TABLE_BLUETON_PRICE);
   }
 }

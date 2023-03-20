@@ -349,6 +349,25 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_SB_HEADER_DELETE = 'SalesBill/';
   static const END_POINT_QT_SPECIFICATION_SAVE = 'Quatation/Product/Spec-Save/';
 
+  static const END_POINT_PRODUCT_MASTER_LIST_API = 'Product/';
+
+  static const END_POINT_PRODUCT_BRAND_LIST = 'ProductBrand/Brand';
+  static const END_POINT_SALES_TARGET_PAGINATION = 'SalesTarget';
+
+  static const END_POINT_BT_CUSTOMER_COUNTRY = 'BTCustomer/Country';
+
+  static const END_POINT_SIZED_LIST_FROM_PRODUCTID = "InquiryBlue/ProductSize";
+  static const END_POINT_INQ_NO_TO_PRODUCT_SIZED_LIST =
+      "InquiryBlue/InquiryProductSize";
+
+  static const END_POINT_OFFICE_TODO_LIST = 'Todo/SearchByRole';
+
+  static const END_POINT_SIZEDLIST_INS_UPDATE_API = 'Inquiry/';
+
+  static const END_POINT_SIZEDLIST_MULTI_DELETE_API = 'Inquiry/';
+
+  //Inquiry
+
   //Quatation/Product/Spec-Save
 
   //DailyAttendanceMode/0/Save
@@ -417,7 +436,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     //String asd = json.encode(jsontemparray);
     var BASE_URL = "";
     BASE_URL = SharedPrefHelper.instance.getBaseURL();
-    log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+    //log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     print(
         "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     try {

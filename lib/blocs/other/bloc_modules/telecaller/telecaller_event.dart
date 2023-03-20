@@ -130,3 +130,9 @@ class UserMenuRightsRequestEvent extends TeleCallerEvents {
   final UserMenuRightsRequest userMenuRightsRequest;
   UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
 }
+
+class ProductBrandListRequestEvent extends TeleCallerEvents {
+  final ProductBrandListRequest productBrandListRequest;
+
+  ProductBrandListRequestEvent(this.productBrandListRequest);
+}

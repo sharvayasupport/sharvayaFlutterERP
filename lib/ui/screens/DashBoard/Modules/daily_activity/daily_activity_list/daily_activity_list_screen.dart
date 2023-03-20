@@ -1,6 +1,8 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dailyactivity/dailyactivity_bloc.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_delete_request.dart';
@@ -254,6 +256,49 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
                   //_onTapOfLogOut();
                   navigateTo(context, HomeScreen.routeName,
                       clearAllStack: true);
+                }),
+            IconButton(
+                icon: Icon(
+                  Icons.email,
+                  color: colorWhite,
+                ),
+                onPressed: () async {
+                  //_onTapOfLogOut();
+
+                  // final smtpServer = gmail(username, password);
+                  // Use the SmtpServer class to configure an SMTP server:
+                  final smtpServer = SmtpServer('smtp.yandex.com',
+                      port: 587,
+                      ssl: true,
+                      username: 'support@sharvayainfotech.com',
+                      password: "sharvayasupport@2020\$");
+                  // See the named arguments of SmtpServer for further configuration
+                  // options.
+                  // Create our message.
+
+                  final message = Message()
+                    ..from = Address(
+                        "kishan.rathod@sharvayainfotech.com", 'Kishan Rathod')
+                    ..recipients.add('Ashish.rathod@sharvayainfotech.com')
+                    /*..ccRecipients
+                        .addAll(['destCc1@example.com', 'destCc2@example.com'])
+                    ..bccRecipients.add(Address('bccAddress@example.com'))*/
+                    ..subject =
+                        'Test Dart Mailer library :: 😀 :: ${DateTime.now()}'
+                    ..text =
+                        'This is the plain text.\nThis is line 2 of the text part.'
+                    ..html =
+                        "<h1>Test</h1>\n<p>Hey! Here's some HTML content</p>";
+
+                  try {
+                    final sendReport = await send(message, smtpServer);
+                    print('Message sent: ' + sendReport.toString());
+                  } on MailerException catch (e) {
+                    print('Message not sent.');
+                    for (var p in e.problems) {
+                      print('Problem: ${p.code}: ${p.msg}');
+                    }
+                  }
                 })
           ],
         ),
@@ -763,11 +808,11 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
       onTap: () {
         // _onTapOfSearchView(context);
 
-        showcustomdialogWithID(
+        showcustomdialogWithTWOName(
             values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
             context1: context,
             controller: edt_FollowupEmployeeList,
-            controllerID: edt_FollowupEmployeeUserID,
+            controller1: edt_FollowupEmployeeUserID,
             lable: "Select Employee");
       },
       child: Column(

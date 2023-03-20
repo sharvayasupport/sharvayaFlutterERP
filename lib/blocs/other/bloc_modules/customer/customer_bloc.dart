@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
+import 'package:soleoserp/models/api_requests/customer/bt_country_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_category_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_document_request.dart';
@@ -21,6 +22,7 @@ import 'package:soleoserp/models/api_requests/other/designation_list_request.dar
 import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
+import 'package:soleoserp/models/api_responses/customer/bt_country_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_contact_save_response.dart';
@@ -123,7 +125,12 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
     if (event is UserMenuRightsRequestEvent) {
       yield* _mapUserMenuRightsRequestEventState(event);
     }
-    //
+
+    if (event is BTCountryListRequestEvent) {
+      yield* _mapBTCountryListRequestEventState(event);
+    }
+
+    //BTCountryListRequestEvent
   }
 
   ///event functions to states implementation
@@ -451,6 +458,22 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
       UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
           event.MenuID, event.userMenuRightsRequest);
       yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<CustomerStates> _mapBTCountryListRequestEventState(
+      BTCountryListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      BTCountryListResponse response =
+          await userRepository.bt_country_list_api(event.btCountryListRequest);
+      yield BTCountryListResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

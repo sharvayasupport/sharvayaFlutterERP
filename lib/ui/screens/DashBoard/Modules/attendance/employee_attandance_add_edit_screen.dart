@@ -524,8 +524,22 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                   print("Valid");
                                   baseBloc
                                       .emit(ShowProgressIndicatorState(true));
-
-                                  if (is_LocationService_Permission == true) {
+                                  _FollowupBloc.add(AttendanceSaveCallEvent(
+                                      AttendanceSaveApiRequest(
+                                          EmployeeID: _EmployeeID,
+                                          PresenceDate: _PresentDate,
+                                          TimeIn: _eventControllerIn_Time.text,
+                                          TimeOut:
+                                              _eventControllerOut_Time.text,
+                                          Latitude: SharedPrefHelper.instance
+                                              .getLatitude(),
+                                          Longitude: SharedPrefHelper.instance
+                                              .getLongitude(),
+                                          LocationAddress: Address,
+                                          Notes: _eventControllerNotes.text,
+                                          LoginUserID: LoginUserID,
+                                          CompanyId: CompanyID.toString())));
+                                  /*if (is_LocationService_Permission == true) {
                                     bool serviceLocation = await Permission
                                         .locationWhenInUse
                                         .serviceStatus
@@ -575,7 +589,7 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                     }
                                   } else {
                                     checkPermissionStatus();
-                                  }
+                                  }*/
                                 } else {
                                   print("Invalid");
                                   showCommonDialogWithSingleOption(context,
@@ -586,7 +600,22 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                 print("bothDate Not Inserted");
                                 baseBloc.emit(ShowProgressIndicatorState(true));
 
-                                if (is_LocationService_Permission == true) {
+                                _FollowupBloc.add(AttendanceSaveCallEvent(
+                                    AttendanceSaveApiRequest(
+                                        EmployeeID: _EmployeeID,
+                                        PresenceDate: _PresentDate,
+                                        TimeIn: _eventControllerIn_Time.text,
+                                        TimeOut: _eventControllerOut_Time.text,
+                                        Latitude: SharedPrefHelper.instance
+                                            .getLatitude(),
+                                        Longitude: SharedPrefHelper.instance
+                                            .getLongitude(),
+                                        LocationAddress: Address,
+                                        Notes: _eventControllerNotes.text,
+                                        LoginUserID: LoginUserID,
+                                        CompanyId: CompanyID.toString())));
+
+                                /*if (is_LocationService_Permission == true) {
                                   bool serviceLocation = await Permission
                                       .locationWhenInUse
                                       .serviceStatus
@@ -632,7 +661,7 @@ class _AttendanceAdd_EditScreenState extends BaseState<AttendanceAdd_EditScreen>
                                   }
                                 } else {
                                   checkPermissionStatus();
-                                }
+                                }*/
                               }
                             } else {
                               showCommonDialogWithSingleOption(context,

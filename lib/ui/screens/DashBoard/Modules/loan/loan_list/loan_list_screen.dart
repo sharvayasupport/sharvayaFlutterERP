@@ -205,8 +205,7 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Loan List'),
-          gradient:
-              LinearGradient(colors: [
+          gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
             Color(0xff62bb47),
@@ -271,7 +270,7 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
           ),
         ),
         floatingActionButton: IsAddRights == true
-            ? FloatingActionButton(
+            ? /*FloatingActionButton(
                 onPressed: () async {
                   // Add your onPressed code here!
                   // await _onTapOfDeleteALLContact();
@@ -279,7 +278,8 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                 },
                 child: const Icon(Icons.add),
                 backgroundColor: colorPrimary,
-              )
+              )*/
+            Container()
             : Container(),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: "Admin"),
@@ -700,7 +700,7 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                 buttonHeight: 52.0,
                 buttonMinWidth: 90.0,
                 children: <Widget>[
-                  IsAddRights == true
+                  /*IsAddRights == true
                       ? GestureDetector(
                           onTap: () {
                             // _onTapOfDeleteInquiry(model.pkID);
@@ -725,7 +725,7 @@ class _LoanListScreenState extends BaseState<LoanListScreen>
                       : Container(),
                   SizedBox(
                     width: 10,
-                  ),
+                  ),*/
                   IsDeleteRights == true
                       ? GestureDetector(
                           onTap: () {

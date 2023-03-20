@@ -20,6 +20,7 @@ import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
+import 'package:soleoserp/models/api_requests/sales_target/sales_target_list_request.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/bank_details_list_response.dart';
@@ -38,6 +39,7 @@ import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_del
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
+import 'package:soleoserp/models/api_responses/sales_target/sales_target_list_response.dart';
 import 'package:soleoserp/models/common/assembly/so_assembly_table.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
@@ -204,6 +206,10 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
     }
     if (event is SOAssemblyTableALLDeleteEvent) {
       yield* _mapSOAssemblyTableALLDeleteEventToState(event);
+    }
+
+    if (event is SalesTargetListCallEvent) {
+      yield* _mapSalesTargetListCallEventToState(event);
     }
   }
 
@@ -956,6 +962,21 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       await OfflineDbHelper.getInstance().deleteAllSOAssemblyItems();
       yield SOAssemblyTableDeleteALLState(
           "SalesOrder Assembly All Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSalesTargetListCallEventToState(
+      SalesTargetListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SalesTargetListResponse response = await userRepository
+          .getSalesTargetList(event.pageNo, event.salaryTargetListRequest);
+      yield SalesTargetListCallResponseState(response, event.pageNo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

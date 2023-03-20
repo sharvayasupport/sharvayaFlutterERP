@@ -25,12 +25,13 @@ import 'package:soleoserp/models/api_requests/attendance/punch_without_image_req
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/to_do_header_save_request.dart';
-import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dart';
+import 'package:soleoserp/models/api_requests/to_do_office/to_do_office_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/follower_employee_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do_office/to_do_office_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
@@ -82,10 +83,16 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
   bool pressFAttention = true;
 
   bool pressAttention1 = true;
-  ToDoListResponse _FollowupTodayListResponse;
-  ToDoListResponse _FollowupListOverDueResponse;
-  ToDoListResponse _FollowupListCompletedResponse;
+  //List<OfficeToDoListResponseDetails> TODOTODAYSLIST=[];
 
+
+  OfficeToDoListResponse _FollowupTodayListResponse;
+  OfficeToDoListResponse _FollowupListPending_OverDueResponse;
+
+  OfficeToDoListResponse _FollowupListOverDueResponse;
+  OfficeToDoListResponse _FollowupFutureListResponse;
+
+  OfficeToDoListResponse _FollowupListCompletedResponse;
 
   FollowupFilterListResponse _FTodaysListResponse;
   FollowupFilterListResponse _FMissedListResponse;
@@ -102,6 +109,10 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
   int _pageNo = 0;
   int TotalTodayCount = 0;
   int TotalOverDueCount = 0;
+  int TotalPendingOverDueCount = 0;
+
+  int TotalTodoFutureCount = 0;
+
   int TotalCompltedCount = 0;
 
 
@@ -114,6 +125,10 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
   bool IsExpandedTodays = false;
   bool IsExpandedOverDue = false;
+  bool IsExpandedPendingOverDue = false;
+
+  bool IsExpandedTodoFuture = false;
+
   bool IsExpandedCompleted = false;
 
 
@@ -196,32 +211,49 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
     _officeToDoScreenBloc = ToDoBloc(baseBloc);
 
-    _officeToDoScreenBloc.add(ToDoTodayListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoTodayListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Todays",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
-        PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
+        PageSize: 10000
+        )));
+    /*_officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Today",
         EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
+        PageSize: 10000)));*/
+
+
+    _officeToDoScreenBloc.add(ToDoFutureListCallEvent(OfficeToListRequest(
+        CompanyId: CompanyID.toString(),
+        LoginUserID: LoginUserID,
+        TaskStatus: "Future",
+        PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
+    //
+    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Pending",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoTComplitedListCallEvent(ToDoListApiRequest(
+
+
+    _officeToDoScreenBloc.add(ToDoPendingOverDueListCallEvent(OfficeToListRequest(
+        CompanyId: CompanyID.toString(),
+        LoginUserID: LoginUserID,
+        TaskStatus: "Pending-OverDue",
+        PageNo: 1,
+        PageSize: 10000)));
+
+    //
+    _officeToDoScreenBloc.add(ToDoTComplitedListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Completed",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
 
@@ -353,6 +385,12 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
             _onFollowupTodayListCallSuccess(state);
           }
 
+          if (state is ToDoFutureListCallResponseState) {
+            _onTODOFutureListResponse(state);
+          }
+          if (state is ToDoPendingOverDueListResponseState) {
+            _onTo_Do_PendingOverDueListCallSuccess(state);
+          }
           if (state is ToDoOverDueListCallResponseState) {
             _onFollowupOverDueListCallSuccess(state);
           }
@@ -379,13 +417,15 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         },
         buildWhen: (oldState, currentState) {
           if (currentState is ToDoTodayListCallResponseState ||
+              currentState is ToDoPendingOverDueListResponseState ||
               currentState is ToDoOverDueListCallResponseState ||
               currentState is ToDoCompletedListCallResponseState ||
               currentState is FollowupFilterListCallResponseState ||
               currentState is FollowupMissedFilterListCallResponseState ||
               currentState is FollowupFutureFilterListCallResponseState ||
               currentState is AttendanceListCallResponseState ||
-              currentState is ConstantResponseState
+              currentState is ConstantResponseState ||
+              currentState is ToDoFutureListCallResponseState
 
 
           ) {
@@ -595,6 +635,30 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                                             ? _buildFollowupOverDueList()
                                             : Container()
                                             : Container(),
+
+
+                                        ///Pending OverDue
+                                        pressAttention == true
+                                            ? PENDING_OVER_DUEU()
+                                            : Container(),
+                                        IsExpandedPendingOverDue == true
+                                            ? pressAttention == true
+                                            ? _buildPendingOverDueList()
+                                            : Container()
+                                            : Container(),
+
+                                        ///========
+                                        //IsExpandedPendingOverDue
+                                        //TodoFuture
+                                        pressAttention == true
+                                            ? TODO_FUTURE()
+                                            : Container(),
+                                        IsExpandedTodoFuture == true
+                                            ? pressAttention == true
+                                            ? _buildFollowupTodoFutureList()
+                                            : Container()
+                                            : Container(),
+
                                         pressAttention == false
                                             ? TodayCompleted()
                                             : Container(),
@@ -1593,8 +1657,24 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
     );
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   TaskStatus() {
-    int TotalTodoCount = TotalTodayCount + TotalOverDueCount;
+    int TotalTodoCount = TotalTodayCount + TotalOverDueCount + TotalTodoFutureCount + TotalPendingOverDueCount;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       //mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1802,6 +1882,153 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
     }
   }
 
+
+  Widget _buildPendingOverDueList() {
+    if (_FollowupListPending_OverDueResponse == null) {
+      return Container();
+    } else {
+      return NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo) {
+          if (shouldPaginate(
+            scrollInfo,
+          )) {
+            _onFollowupOverDueListPagination();
+            return true;
+          } else {
+            return false;
+          }
+        },
+        child: Flexible(
+          child: ListView.builder(
+            itemBuilder: (context, index) {
+              return _FollowupListPending_OverDueResponse.details[index].taskStatus ==
+                  "Pending1" /*&&
+                      _FollowupListResponse.details[index].taskStatus ==
+                          "Completed-OverDue"*/
+                  ? Slidable(
+                // Specify a key if the Slidable is dismissible.
+                key: const ValueKey(0),
+
+                startActionPane: ActionPane(
+                  // A motion is a widget used to control how the pane animates.
+                  motion: const ScrollMotion(),
+
+                  // A pane can dismiss the Slidable.
+
+                  // All actions are defined in the children parameter.
+                  children: [
+                    // A SlidableAction can have an icon and/or a label.
+
+                    SlidableAction(
+                      // padding: EdgeInsets.only(left: 10),
+                      onPressed: (c) {
+                        /*  showcustomdialog123(
+                                    context1: context,
+                                    finalCheckingItems:
+                                        _FollowupListResponse.details[index],
+                                    index1: index);*/
+                      },
+                      backgroundColor: colorGreen,
+                      foregroundColor: Colors.white,
+                      icon: Icons.done,
+                      label: 'Complete',
+                    ),
+                  ],
+                ),
+
+                // The end action pane is the one at the right or the bottom side.
+
+                // The child of the Slidable is what the user sees when the
+                // component is not dragged.
+                child: _buildPendingOverDueListItem(index),
+              )
+                  : _buildPendingOverDueListItem(index);
+
+              // return _buildFollowupListItem(index);
+            },
+            shrinkWrap: true,
+            itemCount: _FollowupListPending_OverDueResponse.details.length,
+          ),
+        ),
+      );
+    }
+  }
+
+
+  Widget _buildFollowupTodoFutureList() {
+
+
+    if (_FollowupFutureListResponse == null) {
+      return Container();
+    } else {
+      return NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo) {
+          if (shouldPaginate(
+            scrollInfo,
+          )) {
+            _onFollowupTODOFutureListPagination();
+            return true;
+          } else {
+            return false;
+          }
+        },
+        child: Flexible(
+          child: ListView.builder(
+            itemBuilder: (context, index) {
+              return _FollowupFutureListResponse.details[index].taskStatus ==
+                  "Pending1" /*&&
+                      _FollowupListResponse.details[index].taskStatus ==
+                          "Completed-OverDue"*/
+                  ? Slidable(
+                // Specify a key if the Slidable is dismissible.
+                key: const ValueKey(0),
+
+                startActionPane: ActionPane(
+                  // A motion is a widget used to control how the pane animates.
+                  motion: const ScrollMotion(),
+
+                  // A pane can dismiss the Slidable.
+
+                  // All actions are defined in the children parameter.
+                  children: [
+                    // A SlidableAction can have an icon and/or a label.
+
+                    SlidableAction(
+                      // padding: EdgeInsets.only(left: 10),
+                      onPressed: (c) {
+                        /*  showcustomdialog123(
+                                    context1: context,
+                                    finalCheckingItems:
+                                        _FollowupListResponse.details[index],
+                                    index1: index);*/
+                      },
+                      backgroundColor: colorGreen,
+                      foregroundColor: Colors.white,
+                      icon: Icons.done,
+                      label: 'Complete',
+                    ),
+                  ],
+                ),
+
+                // The end action pane is the one at the right or the bottom side.
+
+                // The child of the Slidable is what the user sees when the
+                // component is not dragged.
+                child: _buildFollowupTODOFUTUREListItem(index),
+              )
+                  : _buildFollowupTODOFUTUREListItem(index);
+
+              // return _buildFollowupListItem(index);
+            },
+            shrinkWrap: true,
+            itemCount: _FollowupFutureListResponse.details.length,
+          ),
+        ),
+      );
+    }
+  }
+
+
   Widget _buildFollowupMissedList() {
     if (_FMissedListResponse == null) {
       return Container();
@@ -1948,6 +2175,14 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
     }
   }
 
+  void _onFollowupTODOFutureListPagination() {
+    if (_FollowupFutureListResponse.details.length <
+        _FollowupFutureListResponse.totalCount) {
+
+    }
+  }
+
+  //_FollowupFutureListResponse
   void _onFollowupCompletedListPagination() {
     if (_FollowupListCompletedResponse.details.length <
         _FollowupListCompletedResponse.totalCount) {
@@ -2016,6 +2251,56 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
       ],
     );
   }
+  Widget _buildPendingOverDueListItem(int index) {
+    // ToDoDetails model = _FollowupListResponse.details[index];
+    return Column(
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        InkWell(onTap: () {
+          /* showcustomdialog123(
+              context1: context,
+              finalCheckingItems:
+              _FollowupListOverDueResponse.details[index],
+              index1: index);*/
+          navigateTo(context, OfficeToDoAddEditScreen.routeName,
+              arguments: AddUpdateOfficeTODOScreenArguments(
+                  _FollowupListPending_OverDueResponse.details[index]))
+              .then((value) {
+
+          });
+        }, child: ExpantionPendingOverDueCustomer(context, index),)
+
+      ],
+    );
+  }
+
+  Widget _buildFollowupTODOFUTUREListItem(int index) {
+    // ToDoDetails model = _FollowupListResponse.details[index];
+    return Column(
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        InkWell(onTap: () {
+          /* showcustomdialog123(
+              context1: context,
+              finalCheckingItems:
+              _FollowupListOverDueResponse.details[index],
+              index1: index);*/
+          navigateTo(context, OfficeToDoAddEditScreen.routeName,
+              arguments: AddUpdateOfficeTODOScreenArguments(
+                  _FollowupFutureListResponse.details[index]))
+              .then((value) {
+
+          });
+        }, child: ExpantionTODOFUTURECustomer(context, index),)
+
+      ],
+    );
+  }
+
 
   Widget _buildFollowupMissedListItem(int index) {
     // ToDoDetails model = _FollowupListResponse.details[index];
@@ -2063,7 +2348,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
   }
 
   ExpantionTodayCustomer(BuildContext context, int index) {
-    ToDoDetails model = _FollowupTodayListResponse.details[index];
+    OfficeToDoListResponseDetails model = _FollowupTodayListResponse.details[index];
     var colorwe = model.taskStatus == "Pending" ? Color(0xFFFCFCFC) : Color(
         0xFFC1E0FA);
     return Container(
@@ -2101,12 +2386,12 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                       _FollowupTodayListResponse.details[index].pkID,
                       ToDoHeaderSaveRequest(
                           Priority: "Medium",
-                          TaskDescription: _FollowupTodayListResponse
-                              .details[index].taskDescription,
-                          Location: _FollowupTodayListResponse
-                              .details[index].location,
-                          TaskCategoryID: _FollowupTodayListResponse
-                              .details[index].taskCategoryId
+                          TaskDescription: _FollowupTodayListResponse.details
+                              [index].taskDescription,
+                          Location: _FollowupTodayListResponse.details
+                              [index].location,
+                          TaskCategoryID: _FollowupTodayListResponse.details
+                              [index].taskCategoryId
                               .toString(),
                           StartDate: _FollowupTodayListResponse.details[index]
                               .startDate.getFormattedDate(
@@ -2121,8 +2406,8 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                               toFormat: "yyyy-MM-dd") +
                               " " +
                               TimeHour,
-                          CompletionDate: _FollowupTodayListResponse
-                              .details[index].startDate
+                          CompletionDate: _FollowupTodayListResponse.details
+                              [index].startDate
                               .getFormattedDate(
                               fromFormat: "yyyy-MM-ddTHH:mm:ss",
                               toFormat: "yyyy-MM-dd"),
@@ -2133,8 +2418,8 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                           ReminderMonth: "",
                           Latitude: "",
                           Longitude: "",
-                          ClosingRemarks: _FollowupTodayListResponse
-                              .details[index].closingRemarks,
+                          ClosingRemarks: _FollowupTodayListResponse.details
+                              [index].closingRemarks,
                           CompanyId: CompanyID.toString())));
                 },
 
@@ -2421,7 +2706,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
 
   ExpantionOverDueCustomer(BuildContext context, int index) {
-    ToDoDetails model = _FollowupListOverDueResponse.details[index];
+    OfficeToDoListResponseDetails model = _FollowupListOverDueResponse.details[index];
     return Container(
       /*width: double.infinity,
         padding: EdgeInsets.all(10),
@@ -2644,6 +2929,458 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
           ),
         ));
   }
+
+  ExpantionPendingOverDueCustomer(BuildContext context, int index) {
+    OfficeToDoListResponseDetails model = _FollowupListPending_OverDueResponse.details[index];
+    return Container(
+      /*width: double.infinity,
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+
+
+          border: Border.all(
+              color: colorWhite, // Set border color
+              width: 1.0),   // Set border width
+          borderRadius: BorderRadius.all(
+              Radius.circular(10.0)), // Set rounded corner radius
+          // Make rounded corner of border
+        ),*/
+      // padding: EdgeInsets.only(left: 10, right: 10),
+        child: _FollowupListPending_OverDueResponse.details[index].taskStatus ==
+            "Pending-OverDue"
+            ? Slidable(
+          // Specify a key if the Slidable is dismissible.
+          key: const ValueKey(0),
+
+          startActionPane: ActionPane(
+            // A motion is a widget used to control how the pane animates.
+            motion: const ScrollMotion(),
+
+            // A pane can dismiss the Slidable.
+
+            // All actions are defined in the children parameter.
+            children: [
+              // A SlidableAction can have an icon and/or a label.
+              /* SlidableAction(
+                onPressed: (c){
+                 // print("Dleif" + "Delete Itme");
+                  _officeToDoScreenBloc.add(ToDoDeleteEvent(model.pkID,
+                      ToDoDeleteRequest(CompanyId: CompanyID.toString())));
+                },
+                backgroundColor: Color(0xFFFE4A49),
+                foregroundColor: Colors.white,
+                icon: Icons.delete,
+
+              ),*/
+              SlidableAction(
+                // padding: EdgeInsets.only(left: 10),
+                onPressed: (c) {
+                  /*showcustomdialog123(
+                                  context1: context,
+                                  finalCheckingItems:
+                                      _FollowupListResponse.details[index],
+                                  index1: index);*/
+                  String AM_PM =
+                  selectedTime.periodOffset.toString() == "12"
+                      ? "PM"
+                      : "AM";
+                  String beforZeroHour = selectedTime.hourOfPeriod <= 9
+                      ? "0" + selectedTime.hourOfPeriod.toString()
+                      : selectedTime.hourOfPeriod.toString();
+                  String beforZerominute = selectedTime.minute <= 9
+                      ? "0" + selectedTime.minute.toString()
+                      : selectedTime.minute.toString();
+
+                  String TimeHour =
+                      beforZeroHour + ":" + beforZerominute + " " + AM_PM;
+
+                  DateTime selectedDate = DateTime.now();
+
+
+                  _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(context,
+                      _FollowupListPending_OverDueResponse.details[index].pkID,
+                      ToDoHeaderSaveRequest(
+                          Priority: "Medium",
+                          TaskDescription: _FollowupListPending_OverDueResponse
+                              .details[index].taskDescription,
+                          Location: _FollowupListPending_OverDueResponse
+                              .details[index].location,
+                          TaskCategoryID: _FollowupListPending_OverDueResponse
+                              .details[index].taskCategoryId
+                              .toString(),
+                          StartDate: _FollowupListPending_OverDueResponse.details[index]
+                              .startDate.getFormattedDate(
+                              fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                              toFormat: "yyyy-MM-dd") +
+                              " " +
+                              TimeHour,
+                          DueDate: _FollowupListPending_OverDueResponse.details[index]
+                              .dueDate
+                              .getFormattedDate(
+                              fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                              toFormat: "yyyy-MM-dd") +
+                              " " +
+                              TimeHour,
+                          CompletionDate: selectedDate.year.toString() + "-" +
+                              selectedDate.month.toString() + "-" +
+                              selectedDate.day.toString(),
+                          LoginUserID: LoginUserID,
+                          EmployeeID: _FollowupListPending_OverDueResponse
+                              .details[index].employeeID.toString(),
+                          Reminder: "",
+                          ReminderMonth: "",
+                          Latitude: "",
+                          Longitude: "",
+                          ClosingRemarks: _FollowupListPending_OverDueResponse
+                              .details[index].closingRemarks,
+                          CompanyId: CompanyID.toString())));
+                },
+                backgroundColor: Color(0xff39c3aa),
+
+                foregroundColor: Colors.white,
+                icon: Icons.done,
+              ),
+            ],
+          ),
+
+          // The end action pane is the one at the right or the bottom side.
+
+          // The child of the Slidable is what the user sees when the
+          // component is not dragged.
+          child: IgnorePointer(
+            child: InkWell(
+                onTap: () {
+                  /*  showcustomdialog123(
+                                  context1: context,
+                                  finalCheckingItems:
+                                  _FollowupListOverDueResponse.details[index],
+                                  index1: index);*/
+
+                  navigateTo(context, OfficeToDoAddEditScreen.routeName,
+                      arguments: AddUpdateOfficeTODOScreenArguments(model))
+                      .then((value) {
+
+                  });
+                },
+                child: /*ExpansionTileCard(
+                elevationCurve: Curves.easeInOut,
+                trailing: SizedBox(height: 1,width: 1,),
+                shadowColor: Color(0xFF504F4F),
+                baseColor: Color(0xFFFCFCFC),
+                expandedColor:
+                Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
+                leading: Container(
+                    height: 35, width: 35, child: Icon(Icons.access_alarm)),
+
+                title: Text(
+                  model.taskDescription,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.black),
+                ),*/
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+
+
+                    border: Border.all(
+                        color: colorWhite, // Set border color
+                        width: 1.0), // Set border width
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(10.0)), // Set rounded corner radius
+                    // Make rounded corner of border
+                  ),
+                  child: Row(
+
+                    children: [
+                      Container(
+                          height: 35,
+                          width: 35,
+                          child: Icon(Icons.access_alarm, color: colorWhite,)),
+                      SizedBox(width: 2,),
+                      Expanded(
+                        child: Text(model.taskDescription,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colorWhite),),
+                      )
+                    ],),
+                )
+
+            ),
+          ),
+        )
+            : IgnorePointer(
+          child: InkWell(
+              onTap: () {
+                /* showcustomdialog123(
+                  context1: context,
+                  finalCheckingItems:
+                  _FollowupListOverDueResponse.details[index],
+                  index1: index);*/
+              },
+              child: /* ExpansionTileCard(
+              elevationCurve: Curves.easeInOut,
+              trailing: SizedBox(
+                height: 1,
+                width: 1,
+              ),
+              shadowColor: Color(0xFF504F4F),
+              baseColor: Color(0xFFFCFCFC),
+              expandedColor:
+              Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
+              leading: Container(
+                  height: 35, width: 35, child: Icon(Icons.access_alarm)),
+
+              title: Text(
+                model.taskDescription,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.black),
+              ),
+
+            ),*/ Row(
+
+                children: [
+                  Container(
+                      height: 35,
+                      width: 35,
+                      child: Icon(Icons.access_alarm, color: colorWhite,)),
+                  SizedBox(width: 2,),
+                  Expanded(
+                    child: Text(model.taskDescription,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: colorWhite),),
+                  )
+                ],)
+          ),
+        ));
+  }
+
+
+  ExpantionTODOFUTURECustomer(BuildContext context, int index) {
+    OfficeToDoListResponseDetails model = _FollowupFutureListResponse.details[index];
+    return Container(
+      /*width: double.infinity,
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+
+
+          border: Border.all(
+              color: colorWhite, // Set border color
+              width: 1.0),   // Set border width
+          borderRadius: BorderRadius.all(
+              Radius.circular(10.0)), // Set rounded corner radius
+          // Make rounded corner of border
+        ),*/
+      // padding: EdgeInsets.only(left: 10, right: 10),
+        child: _FollowupFutureListResponse.details[index].taskStatus ==
+            "Future"
+            ? Slidable(
+          // Specify a key if the Slidable is dismissible.
+          key: const ValueKey(0),
+
+          startActionPane: ActionPane(
+            // A motion is a widget used to control how the pane animates.
+            motion: const ScrollMotion(),
+
+            // A pane can dismiss the Slidable.
+
+            // All actions are defined in the children parameter.
+            children: [
+              // A SlidableAction can have an icon and/or a label.
+              /* SlidableAction(
+                onPressed: (c){
+                 // print("Dleif" + "Delete Itme");
+                  _officeToDoScreenBloc.add(ToDoDeleteEvent(model.pkID,
+                      ToDoDeleteRequest(CompanyId: CompanyID.toString())));
+                },
+                backgroundColor: Color(0xFFFE4A49),
+                foregroundColor: Colors.white,
+                icon: Icons.delete,
+
+              ),*/
+              SlidableAction(
+                // padding: EdgeInsets.only(left: 10),
+                onPressed: (c) {
+                  /*showcustomdialog123(
+                                  context1: context,
+                                  finalCheckingItems:
+                                      _FollowupListResponse.details[index],
+                                  index1: index);*/
+                  String AM_PM =
+                  selectedTime.periodOffset.toString() == "12"
+                      ? "PM"
+                      : "AM";
+                  String beforZeroHour = selectedTime.hourOfPeriod <= 9
+                      ? "0" + selectedTime.hourOfPeriod.toString()
+                      : selectedTime.hourOfPeriod.toString();
+                  String beforZerominute = selectedTime.minute <= 9
+                      ? "0" + selectedTime.minute.toString()
+                      : selectedTime.minute.toString();
+
+                  String TimeHour =
+                      beforZeroHour + ":" + beforZerominute + " " + AM_PM;
+
+                  DateTime selectedDate = DateTime.now();
+
+
+                  _officeToDoScreenBloc.add(ToDoSaveHeaderEvent(context,
+                      _FollowupFutureListResponse.details[index].pkID,
+                      ToDoHeaderSaveRequest(
+                          Priority: "Medium",
+                          TaskDescription: _FollowupFutureListResponse
+                              .details[index].taskDescription,
+                          Location: _FollowupFutureListResponse
+                              .details[index].location,
+                          TaskCategoryID: _FollowupFutureListResponse
+                              .details[index].taskCategoryId
+                              .toString(),
+                          StartDate: _FollowupFutureListResponse.details[index]
+                              .startDate.getFormattedDate(
+                              fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                              toFormat: "yyyy-MM-dd") +
+                              " " +
+                              TimeHour,
+                          DueDate: _FollowupFutureListResponse.details[index]
+                              .dueDate
+                              .getFormattedDate(
+                              fromFormat: "yyyy-MM-ddTHH:mm:ss",
+                              toFormat: "yyyy-MM-dd") +
+                              " " +
+                              TimeHour,
+                          CompletionDate: selectedDate.year.toString() + "-" +
+                              selectedDate.month.toString() + "-" +
+                              selectedDate.day.toString(),
+                          LoginUserID: LoginUserID,
+                          EmployeeID: _FollowupFutureListResponse
+                              .details[index].employeeID.toString(),
+                          Reminder: "",
+                          ReminderMonth: "",
+                          Latitude: "",
+                          Longitude: "",
+                          ClosingRemarks: _FollowupFutureListResponse
+                              .details[index].closingRemarks,
+                          CompanyId: CompanyID.toString())));
+                },
+                backgroundColor: Color(0xff39c3aa),
+
+                foregroundColor: Colors.white,
+                icon: Icons.done,
+              ),
+            ],
+          ),
+
+          // The end action pane is the one at the right or the bottom side.
+
+          // The child of the Slidable is what the user sees when the
+          // component is not dragged.
+          child: IgnorePointer(
+            child: InkWell(
+                onTap: () {
+                  /*  showcustomdialog123(
+                                  context1: context,
+                                  finalCheckingItems:
+                                  _FollowupListOverDueResponse.details[index],
+                                  index1: index);*/
+
+                  navigateTo(context, OfficeToDoAddEditScreen.routeName,
+                      arguments: AddUpdateOfficeTODOScreenArguments(model))
+                      .then((value) {
+
+                  });
+                },
+                child: /*ExpansionTileCard(
+                elevationCurve: Curves.easeInOut,
+                trailing: SizedBox(height: 1,width: 1,),
+                shadowColor: Color(0xFF504F4F),
+                baseColor: Color(0xFFFCFCFC),
+                expandedColor:
+                Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
+                leading: Container(
+                    height: 35, width: 35, child: Icon(Icons.access_alarm)),
+
+                title: Text(
+                  model.taskDescription,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.black),
+                ),*/
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+
+
+                    border: Border.all(
+                        color: colorWhite, // Set border color
+                        width: 1.0), // Set border width
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(10.0)), // Set rounded corner radius
+                    // Make rounded corner of border
+                  ),
+                  child: Row(
+
+                    children: [
+                      Container(
+                          height: 35,
+                          width: 35,
+                          child: Icon(Icons.access_alarm, color: colorWhite,)),
+                      SizedBox(width: 2,),
+                      Expanded(
+                        child: Text(model.taskDescription,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colorWhite),),
+                      )
+                    ],),
+                )
+
+            ),
+          ),
+        )
+            : IgnorePointer(
+          child: InkWell(
+              onTap: () {
+                /* showcustomdialog123(
+                  context1: context,
+                  finalCheckingItems:
+                  _FollowupListOverDueResponse.details[index],
+                  index1: index);*/
+              },
+              child: /* ExpansionTileCard(
+              elevationCurve: Curves.easeInOut,
+              trailing: SizedBox(
+                height: 1,
+                width: 1,
+              ),
+              shadowColor: Color(0xFF504F4F),
+              baseColor: Color(0xFFFCFCFC),
+              expandedColor:
+              Color(0xFFC1E0FA), //Colors.deepOrange[50],ADD8E6
+              leading: Container(
+                  height: 35, width: 35, child: Icon(Icons.access_alarm)),
+
+              title: Text(
+                model.taskDescription,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.black),
+              ),
+
+            ),*/ Row(
+
+                children: [
+                  Container(
+                      height: 35,
+                      width: 35,
+                      child: Icon(Icons.access_alarm, color: colorWhite,)),
+                  SizedBox(width: 2,),
+                  Expanded(
+                    child: Text(model.taskDescription,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: colorWhite),),
+                  )
+                ],)
+          ),
+        ));
+  }
+
 
   ExpantionMissedCustomer(BuildContext context, int index) {
     FilterDetails model = _FMissedListResponse.details[index];
@@ -2884,7 +3621,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
   }
 
   ExpantionCompletedCustomer(BuildContext context, int index) {
-    ToDoDetails model = _FollowupListCompletedResponse.details[index];
+    OfficeToDoListResponseDetails model = _FollowupListCompletedResponse.details[index];
 
     return Container(
         width: double.infinity,
@@ -3073,23 +3810,35 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
   }
 
 
-  void _onFollowupTodayListCallSuccess(ToDoTodayListCallResponseState state) {
-    if (_pageNo != state.newPage || state.newPage == 1) {
-      //checking if new data is arrived
-      if (state.newPage == 1) {
-        //resetting search
-        _FollowupTodayListResponse = state.response;
-      } else {
-        _FollowupTodayListResponse.details.addAll(state.response.details);
-      }
-      if (_FollowupTodayListResponse.details.length != 0) {
-        TotalTodayCount = state.response.totalCount;
-      } else {
-        TotalTodayCount = 0;
-      }
+   _onFollowupTodayListCallSuccess(ToDoTodayListCallResponseState state) {
 
-      _pageNo = state.newPage;
-    }
+
+
+
+
+
+
+
+
+     if (_pageNo != state.newPage || state.newPage == 1) {
+       //checking if new data is arrived
+       if (state.newPage == 1) {
+         //resetting search
+         _FollowupTodayListResponse = state.response;
+       } else {
+         _FollowupTodayListResponse.details.addAll(state.response.details);
+       }
+       if (_FollowupTodayListResponse.details.length != 0) {
+         TotalTodayCount = state.response.totalCount;
+       } else {
+         TotalTodayCount = 0;
+       }
+
+       _pageNo = state.newPage;
+     }
+
+
+
   }
 
   void _onFollowupOverDueListCallSuccess(
@@ -3108,6 +3857,28 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         TotalOverDueCount = state.response.totalCount;
       } else {
         TotalOverDueCount = 0;
+      }
+
+      _pageNo = state.newPage;
+    }
+  }
+
+  void _onTo_Do_PendingOverDueListCallSuccess(
+      ToDoPendingOverDueListResponseState state) {
+    print("sdfjf45" + state.response.details.length.toString());
+
+    if (_pageNo != state.newPage || state.newPage == 1) {
+      //checking if new data is arrived
+      if (state.newPage == 1) {
+        //resetting search
+        _FollowupListPending_OverDueResponse = state.response;
+      } else {
+        _FollowupListPending_OverDueResponse.details.addAll(state.response.details);
+      }
+      if (_FollowupListPending_OverDueResponse.details.length != 0) {
+        TotalPendingOverDueCount = state.response.totalCount;
+      } else {
+        TotalPendingOverDueCount = 0;
       }
 
       _pageNo = state.newPage;
@@ -3512,7 +4283,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
                     width: 5,
                   ),
                   Text(
-                    "Over-Due " + " (" + TotalOverDueCount.toString() + ")",
+                    "Pending " + " (" + TotalOverDueCount.toString() + ")",
                     style: TextStyle(color: Colors.white),
                   )
                 ],
@@ -3530,6 +4301,111 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
       ),
     );
   }
+
+  PENDING_OVER_DUEU() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          IsExpandedTodays = false;
+          IsExpandedOverDue = false;
+          IsExpandedPendingOverDue = !IsExpandedPendingOverDue;
+        });
+      },
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+
+        color: Color(0xffef6f6c),
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  IsExpandedPendingOverDue == true
+                      ? Icon(
+                      Icons.keyboard_arrow_up_outlined, color: Colors.white)
+                      : Icon(
+                      Icons.keyboard_arrow_down_rounded, color: Colors.white),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "Pending-OverDue " + " (" + TotalPendingOverDueCount.toString() + ")",
+                    style: TextStyle(color: Colors.white),
+                  )
+                ],
+              ),
+              InkWell(
+
+                  onTap: () {
+                    navigateTo(context, OfficeToDoAddEditScreen.routeName,
+                        clearAllStack: true);
+                  },
+                  child: Icon(Icons.add, color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+  TODO_FUTURE() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+         /* IsExpandedTodays = false;
+          IsExpandedOverDue = !IsExpandedOverDue;*/
+
+          IsExpandedTodays = false;
+          IsExpandedOverDue = false;
+          IsExpandedPendingOverDue = false;
+          IsExpandedTodoFuture = !IsExpandedTodoFuture;
+        });
+      },
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+
+        color: Color(0xffef6f6c),
+        child: Container(
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  IsExpandedTodoFuture == true
+                      ? Icon(
+                      Icons.keyboard_arrow_up_outlined, color: Colors.white)
+                      : Icon(
+                      Icons.keyboard_arrow_down_rounded, color: Colors.white),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "Future " + " (" + TotalTodoFutureCount.toString() + ")",
+                    style: TextStyle(color: Colors.white),
+                  )
+                ],
+              ),
+              InkWell(
+
+                  onTap: () {
+                    navigateTo(context, OfficeToDoAddEditScreen.routeName,
+                        clearAllStack: true);
+                  },
+                  child: Icon(Icons.add, color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
 
   Missed() {
     return InkWell(
@@ -3696,6 +4572,7 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
   }
 
 
+
   TodayCompleted() {
     return InkWell(
       onTap: () {
@@ -3739,64 +4616,69 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
 
   void _OnTODOSaveResponse(ToDoSaveHeaderState state) {
     print("TodoSave" + state.toDoSaveHeaderResponse.details[0].column2);
-    _officeToDoScreenBloc.add(ToDoTodayListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoTodayListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Todays",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
-        TaskStatus: "Today",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
+        TaskStatus: "Todays",
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Pending",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoTComplitedListCallEvent(ToDoListApiRequest(
+
+    _officeToDoScreenBloc.add(ToDoPendingOverDueListCallEvent(OfficeToListRequest(
+        CompanyId: CompanyID.toString(),
+        LoginUserID: LoginUserID,
+        TaskStatus: "Pending-OverDue",
+        PageNo: 1,
+        PageSize: 10000)));
+    _officeToDoScreenBloc.add(ToDoTComplitedListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Completed",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
   }
 
   void _OnTaptoDeleteTodo(ToDoDeleteResponseState state) {
     print("TodoDelete" + state.toDoDeleteResponse.details[0].column1);
-    _officeToDoScreenBloc.add(ToDoTodayListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoTodayListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Todays",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
-        TaskStatus: "Today",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
+        TaskStatus: "Todays",
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoOverDueListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Pending",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
-    _officeToDoScreenBloc.add(ToDoTComplitedListCallEvent(ToDoListApiRequest(
+    _officeToDoScreenBloc.add(ToDoPendingOverDueListCallEvent(OfficeToListRequest(
+        CompanyId: CompanyID.toString(),
+        LoginUserID: LoginUserID,
+        TaskStatus: "Pending-OverDue",
+        PageNo: 1,
+        PageSize: 10000)));
+    _officeToDoScreenBloc.add(ToDoTComplitedListCallEvent(OfficeToListRequest(
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID,
         TaskStatus: "Completed",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         PageNo: 1,
         PageSize: 10000)));
   }
@@ -4835,6 +5717,27 @@ class _OfficeToDoScreenState extends BaseState<OfficeToDoScreen>
         all_name_id.Name1 = state.details[i].userID;
         arr_ALL_Name_ID_For_Folowup_EmplyeeList.add(all_name_id);
       }
+    }
+  }
+
+  void _onTODOFutureListResponse(ToDoFutureListCallResponseState state) {
+
+    if (_pageNo != state.newPage || state.newPage == 1) {
+      //checking if new data is arrived
+      if (state.newPage == 1) {
+        //resetting search
+        _FollowupFutureListResponse = state.response;
+      } else {
+        _FollowupFutureListResponse.details.addAll(state.response.details);
+      }
+
+      if (_FollowupFutureListResponse.details.length != 0) {
+        TotalTodoFutureCount = state.response.totalCount;
+      } else {
+        TotalTodoFutureCount = 0;
+      }
+
+      _pageNo = state.newPage;
     }
   }
 

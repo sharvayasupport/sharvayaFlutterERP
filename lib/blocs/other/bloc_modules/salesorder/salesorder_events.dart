@@ -256,3 +256,8 @@ class SOAssemblyTableOneItemDeleteEvent extends SalesOrderEvents {
 class SOAssemblyTableALLDeleteEvent extends SalesOrderEvents {
   SOAssemblyTableALLDeleteEvent();
 }
+class SalesTargetListCallEvent extends SalesOrderEvents {
+  final int pageNo;
+  final SalaryTargetListRequest salaryTargetListRequest;
+  SalesTargetListCallEvent(this.pageNo, this.salaryTargetListRequest);
+}

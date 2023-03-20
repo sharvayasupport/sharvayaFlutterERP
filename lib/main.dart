@@ -1,18 +1,35 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geolocator/geolocator.dart'
     as geolocator; // or whatever name you want
+import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soleoserp/Clients/BlueTone/Customer/blue_tone_customer_add_edit.dart';
+import 'package:soleoserp/Clients/BlueTone/Customer/bt_country_list_screen.dart';
+import 'package:soleoserp/Clients/BlueTone/Inquiry/AddEdit/bluetone_inquiry_add_edit.dart';
+import 'package:soleoserp/Clients/BlueTone/Inquiry/Product/bluetone_inquiry_product_list.dart';
+import 'package:soleoserp/Clients/BlueTone/Inquiry/Product/product_price_list_screen.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response_service.dart';
+import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/repositories/api_client.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/ui/res/style_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Dealer/bank_voucher/add_edit_screen.dart';
@@ -81,6 +98,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/activity_summa
 import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_Followup/office_followup_add_edit.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_to_do.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_to_do_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/task_category_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/to_do_employee_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_pagination_screen.dart';
@@ -145,6 +164,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/packing_checklist/packing
 import 'package:soleoserp/ui/screens/DashBoard/Modules/packing_checklist/packing_checklist_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/packing_checklist/region/country_list_for_packing.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/packing_checklist/search_packingchecklist_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/product_master/product_master_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/production_activity/production_activity_add.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/production_activity/production_activity_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/quick_followup/quick_followup_add_edit/quick_followup_add_edit_screen.dart';
@@ -172,6 +192,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_e
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sales_bill_db_details/sb_add_edit_product_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sales_bill_db_details/sb_product_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salebill/sales_bill_add_edit/sb_assembly/sb_assembly_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/sales_target/sales_target_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/addtional_charges/sales_order_summary_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/products/so_product_add_edit_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/SaleOrder_manan_design/products/so_product_list_screen.dart';
@@ -209,6 +230,10 @@ String Longitude;
 bool is_LocationService_Permission;
 final Geolocator geolocator123 = Geolocator()..forceAndroidLocationManager;
 Location location = new Location();
+
+ApiClient apiClient;
+
+CompanyDetailsResponse _offlineCompanyData;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -377,6 +402,11 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(CountryListScreen());
       case Customer_ADD_EDIT.routeName:
         return getMaterialPageRoute(Customer_ADD_EDIT(settings.arguments));
+      case BlueToneCustomer_ADD_EDIT.routeName:
+        return getMaterialPageRoute(
+            BlueToneCustomer_ADD_EDIT(settings.arguments));
+      //
+
       case ContactsCrudDemo.routeName:
         return getMaterialPageRoute(ContactsCrudDemo());
       case PaginationDemoScreen.routeName:
@@ -388,8 +418,7 @@ class MyApp extends StatefulWidget {
       case FollowupListScreen.routeName:
         return getMaterialPageRoute(FollowupListScreen(settings.arguments));
       case FollowUpAddEditScreen.routeName:
-        return getMaterialPageRoute(
-            FollowUpAddEditScreen(settings.arguments));
+        return getMaterialPageRoute(FollowUpAddEditScreen(settings.arguments));
       case ToDoPaginationListScreen.routeName:
         return getMaterialPageRoute(ToDoPaginationListScreen());
       case ToDoAddEditScreen.routeName:
@@ -401,7 +430,7 @@ class MyApp extends StatefulWidget {
       case InquiryListScreen.routeName:
         return getMaterialPageRoute(InquiryListScreen(settings.arguments));
       case SearchInquiryScreen.routeName:
-        return getMaterialPageRoute(SearchInquiryScreen());
+        return getMaterialPageRoute(SearchInquiryScreen(settings.arguments));
       case CustomerListScreen.routeName:
         return getMaterialPageRoute(CustomerListScreen());
       case SearchCustomerScreen.routeName:
@@ -442,6 +471,19 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(LeaveRequestApprovalListScreen());
       case InquiryAddEditScreen.routeName:
         return getMaterialPageRoute(InquiryAddEditScreen(settings.arguments));
+
+      case BlueToneInquiryAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            BlueToneInquiryAddEditScreen(settings.arguments));
+
+      case BlueToneInquiryProductListScreen.routeName:
+        return getMaterialPageRoute(
+            BlueToneInquiryProductListScreen(settings.arguments));
+      case ProductPriceListScreen.routeName:
+        return getMaterialPageRoute(ProductPriceListScreen(settings.arguments));
+
+      //
+
       case ExpenseListScreen.routeName:
         return getMaterialPageRoute(ExpenseListScreen());
       case ExpenseAddEditScreen.routeName:
@@ -816,9 +858,26 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(SBAssemblyScreen(settings.arguments));
 
       case OfficeFollowUpAddEditScreen.routeName:
-        return getMaterialPageRoute(OfficeFollowUpAddEditScreen(settings.arguments));
+        return getMaterialPageRoute(
+            OfficeFollowUpAddEditScreen(settings.arguments));
       case ActivitySummary.routeName:
         return getMaterialPageRoute(ActivitySummary());
+      case ProductMasterListScreen.routeName:
+        return getMaterialPageRoute(ProductMasterListScreen());
+
+      case SalesTargetListScreen.routeName:
+        return getMaterialPageRoute(SalesTargetListScreen());
+
+      case TaskCategoryScreen.routeName:
+        return getMaterialPageRoute(TaskCategoryScreen(settings.arguments));
+
+      case ToDoEmployeeListScreen.routeName:
+        return getMaterialPageRoute(ToDoEmployeeListScreen());
+      //BTSearchCountryScreen
+
+      case BTSearchCountryScreen.routeName:
+        return getMaterialPageRoute(BTSearchCountryScreen(settings.arguments));
+
       default:
         return null;
     }
@@ -890,4 +949,217 @@ class _MyAppState extends State<MyApp> {
 
     return SerialKeyScreen.routeName;
   }
+}
+
+@pragma('vm:entry-point')
+Future<bool> onIosBackground(ServiceInstance service) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
+
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.reload();
+  final log = preferences.getStringList('log') ?? <String>[];
+  log.add(DateTime.now().toIso8601String());
+  await preferences.setStringList('log', log);
+
+  return true;
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  // Only available for flutter 3.0.0 and later
+  DartPluginRegistrant.ensureInitialized();
+
+  // For flutter prior to version 3.0.0
+  // We have to register the plugin manually
+
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString("hello", "world");
+
+  print("sjsdfsdj" +
+      preferences.getString("hello").toString() +
+      " ComapnyID :" +
+      preferences.getString("companyID").toString());
+
+  /// OPTIONAL when use custom notification
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  if (service is AndroidServiceInstance) {
+    service.on('setAsForeground').listen((event) {
+      service.setAsForegroundService();
+    });
+
+    service.on('setAsBackground').listen((event) {
+      service.setAsBackgroundService();
+    });
+  }
+
+  service.on('stopService').listen((event) {
+    service.stopSelf();
+  });
+
+  // bring to foreground
+  Timer.periodic(const Duration(seconds: 20), (timer) async {
+    if (service is AndroidServiceInstance) {
+      if (await service.isForegroundService()) {
+        /// OPTIONAL for use custom notification
+        /// the notification id must be equals with AndroidConfiguration when you call configure() method.
+        ///
+        // print("compnayDataaaa" + " CompnayID : " + data.toString());
+
+        /* Repository userRepository = Repository.getInstance();
+
+        TypeOfWorkResponse respo =
+            await userRepository.ProductionTypeofwork123();
+
+        flutterLocalNotificationsPlugin.show(
+          888,
+          'COOL SERVICE',
+          'Awesome ${respo.details[0].taskCategoryName}' +
+              DateTime.now().toString(),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+                */ /* 'my_foreground',
+                'MY FOREGROUND SERVICE',
+                icon: 'ic_bg_service_small',
+                category: AndroidNotificationCategory.message,
+                ongoing: true,*/ /*
+                "my_foreground",
+                "MY FOREGROUND SERVICE",
+                "This channel is used for important notifications.",
+                icon: 'ic_bg_service_small',
+                channelShowBadge: true,
+                importance: Importance.min,
+                priority: Priority.low,
+                styleInformation: DefaultStyleInformation(true, true),
+                playSound: true,
+                ongoing: true,
+                visibility: NotificationVisibility.public),
+          ),
+        );
+*/
+        Future<dynamic> callapi1(String companyID, String userid123) async {
+          try {
+            Map<String, String> headers = {
+              'Content-Type': 'application/json; charset=UTF-8',
+            };
+
+            final response = await http
+                .post(Uri.parse("http://122.169.111.101:108/LogOutCount/Count"),
+                    headers: headers,
+                    body: json.encode(
+                        {"LoginUserID": userid123, "CompanyId": companyID}))
+                .timeout(const Duration(seconds: 60));
+            var responseJson = json.decode(response.body);
+            Map<String, dynamic> json1 = responseJson['Data'];
+            return json1;
+          } catch (e) {
+            print("kjj" + e.toString());
+          }
+        }
+
+        String cmpid = await preferences.get("companyID");
+        String userid = await preferences.get("userID");
+
+//userID
+        print("dsdffds" + cmpid);
+        Map<String, dynamic> json1 = await callapi1(cmpid, userid);
+        API_Response apiresponse = API_Response.fromJson(json1);
+
+        service.setForegroundNotificationInfo(
+          title: "API Service",
+          content:
+              "Updated at ${apiresponse.details[0].MissedCount.toString() + " Time : " + DateTime.now().toString()}",
+        );
+
+        Future<dynamic> callapiNotification(
+            String token123, API_Response apiresponsemodel) async {
+          try {
+            Map<String, String> headers = {
+              'Content-Type': 'application/json; charset=UTF-8',
+              "Authorization":
+                  "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
+            };
+
+            var request123 = {
+              "to": token123,
+              "notification": {
+                "body": "Todays (" +
+                    apiresponsemodel.details[0].TodayCount.toString() +
+                    ") " +
+                    "\nMissed (" +
+                    apiresponsemodel.details[0].MissedCount.toString() +
+                    ") " +
+                    "\nFuture (" +
+                    apiresponsemodel.details[0].FutureCount.toString() +
+                    ") ",
+                "title": "Followup"
+              },
+              "data": {
+                "body": "Todays (" +
+                    apiresponsemodel.details[0].TodayCount.toString() +
+                    ") " +
+                    "\nMissed (" +
+                    apiresponsemodel.details[0].MissedCount.toString() +
+                    ") " +
+                    "\nFuture (" +
+                    apiresponsemodel.details[0].FutureCount.toString() +
+                    ") ",
+                "title": "Followup",
+                "click_action": "FLUTTER_NOTIFICATION_CLICK"
+              }
+            };
+
+            final response = await http
+                .post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+                    headers: headers, body: json.encode(request123))
+                .timeout(const Duration(seconds: 60));
+            var responseJson = json.decode(response.body);
+            //Map<String, dynamic> json1 = responseJson['Data'];
+            return responseJson;
+          } catch (e) {
+            print("kjj" + e.toString());
+          }
+        }
+
+        String tokenNo = await preferences.get("TokenSP");
+
+        print("getTone" + "Token : " + tokenNo);
+
+        Map<String, dynamic> json123 =
+            await callapiNotification(tokenNo, apiresponse);
+
+        print("sdfdsf" + json123.toString());
+
+        // await LocalRandomNotification(apiresponse.details[0].taskCategoryName);
+
+        // if you don't using custom notification, uncomment this
+      }
+    }
+
+    /// you can see this log in logcat
+    print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
+
+    // test using external plugin
+    final deviceInfo = DeviceInfoPlugin();
+    String device;
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      device = androidInfo.model;
+    }
+
+    if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      device = iosInfo.model;
+    }
+
+    service.invoke(
+      'update',
+      {
+        "current_date": DateTime.now().toIso8601String(),
+        "device": device,
+      },
+    );
+  });
 }

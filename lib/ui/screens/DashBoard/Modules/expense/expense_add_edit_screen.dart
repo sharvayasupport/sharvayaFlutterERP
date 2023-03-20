@@ -1015,6 +1015,9 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
         state.expsenseSaveResponse.details[0].column3.toString());
 
     String expnPKID = state.expsenseSaveResponse.details[0].column3.toString();
+
+    _expenseBloc.add(ExpenseDeleteImageNameCallEvent(int.parse(expnPKID),
+        ExpenseDeleteImageRequest(CompanyId: CompanyID.toString())));
     /* List lst123 = "Expense Added Successfully !10047".split("!");
     String RetrunPkID = lst123[1].toString();
     print("SaveReturnPKID : " + RetrunPkID);
@@ -1382,8 +1385,24 @@ class _ExpenseAddEditScreenState extends BaseState<ExpenseAddEditScreen>
             checkPhotoPermissionStatus();
           } else {
             pickImage(context, onImageSelection: (file) {
-              _selectedImageFile = file;
-              multiple_selectedImageFile.add(_selectedImageFile);
+              final bytes = file.readAsBytesSync().lengthInBytes;
+              final kb = bytes / 1024;
+              final mb = kb / 1024;
+              print("imgsizedd" + " ImageSize in MB" + mb.toString());
+
+              if (mb >= 4) {
+                showCommonDialogWithSingleOption(
+                    context,
+                    "Image Size Should not be Greater than 5 MB ! \nHere File Size is " +
+                        " (" +
+                        mb.toStringAsFixed(2) +
+                        "MB ) ",
+                    positiveButtonTitle: "OK");
+              } else {
+                _selectedImageFile = file;
+                multiple_selectedImageFile.add(_selectedImageFile);
+              }
+
               baseBloc.refreshScreen();
             });
           }

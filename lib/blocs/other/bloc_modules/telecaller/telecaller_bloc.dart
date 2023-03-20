@@ -14,6 +14,7 @@ import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
+import 'package:soleoserp/models/api_requests/product/product_brand_list_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_save_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_search_by_name_request.dart';
@@ -29,6 +30,7 @@ import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/closer_reason_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/country_list_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
+import 'package:soleoserp/models/api_responses/product_master/product_brand_list_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_delete_image_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/telecaller/tele_caller_search_by_name_response.dart';
@@ -112,6 +114,10 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
     }
     if (event is UserMenuRightsRequestEvent) {
       yield* _mapUserMenuRightsRequestEventState(event);
+    }
+
+    if (event is ProductBrandListRequestEvent) {
+      yield* _mapProductBrandListRequestEventState(event);
     }
   }
 
@@ -397,6 +403,22 @@ class TeleCallerBloc extends Bloc<TeleCallerEvents, TeleCallerStates> {
       UserMenuRightsResponse respo = await userRepository.user_menurightsapi(
           event.MenuID, event.userMenuRightsRequest);
       yield UserMenuRightsResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<TeleCallerStates> _mapProductBrandListRequestEventState(
+      ProductBrandListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      ProductBrandResponse respo = await userRepository
+          .productBrandListAPI(event.productBrandListRequest);
+      yield ProductBrandResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

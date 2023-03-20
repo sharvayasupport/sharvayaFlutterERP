@@ -119,4 +119,9 @@ class UserMenuRightsResponseState extends CustomerStates {
   final UserMenuRightsResponse userMenuRightsResponse;
   UserMenuRightsResponseState(this.userMenuRightsResponse);
 }
+
+class BTCountryListResponseState extends CustomerStates {
+  final BTCountryListResponse btCountryListResponse;
+  BTCountryListResponseState(this.btCountryListResponse);
+}
 //UserMenuRightsResponse

@@ -180,31 +180,37 @@ class _SearchCityScreen extends BaseState<SearchCityScreen>
     return StatefulBuilder(
       builder: (BuildContext context, void Function(void Function()) myState) {
         refreshList = myState;
-        return ListView.builder(
-          itemBuilder: (context, index) {
-            SearchCityDetails _model = SearchCityDetails();
-            _model.cityName = _listFilteredCountry[index].Name;
-            _model.cityCode = _listFilteredCountry[index].pkID;
+        return _listFilteredCountry.length != 0
+            ? ListView.builder(
+                itemBuilder: (context, index) {
+                  SearchCityDetails _model = SearchCityDetails();
+                  _model.cityName = _listFilteredCountry[index].Name;
+                  _model.cityCode = _listFilteredCountry[index].pkID;
 
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              padding: EdgeInsets.symmetric(vertical: 5),
-              child: getCommonButton(baseTheme, () {
-                /* // filterList(_searchController.text.toString().trim());
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    child: getCommonButton(baseTheme, () {
+                      /* // filterList(_searchController.text.toString().trim());
                 // _onTapOfEditContact(index);
                 edt_Country.text = _model.Name;
                 CallStateListAPI(_model.Name1);*/
-                Navigator.of(context).pop(_model);
-              }, _model.cityName,
-                  width: 130,
-                  textSize: 15,
-                  backGroundColor: Colors.white,
-                  textColor: Colors.black),
-            );
-          },
-          shrinkWrap: true,
-          itemCount: _listFilteredCountry.length,
-        );
+                      Navigator.of(context).pop(_model);
+                    }, _model.cityName,
+                        width: 130,
+                        textSize: 15,
+                        backGroundColor: Colors.white,
+                        textColor: Colors.black),
+                  );
+                },
+                shrinkWrap: true,
+                itemCount: _listFilteredCountry.length,
+              )
+            : Center(
+                child: Container(
+                  child: Text("No City Found"),
+                ),
+              );
       },
     );
   }
@@ -264,7 +270,7 @@ class _SearchCityScreen extends BaseState<SearchCityScreen>
 
   void _onSearchInquiryListCallSuccess(CityListEventResponseState state) {
     arr_ALL_Name_ID_For_Country.clear();
-    // _listFilteredCountry.clear();
+    _listFilteredCountry.clear();
 
     for (var i = 0; i < state.cityApiRespose.details.length; i++) {
       print("CustomerCategoryResponse2 : " +

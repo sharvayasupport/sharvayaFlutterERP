@@ -40,27 +40,32 @@ class AttendanceList {
   String LunchIMageURL_in;
   String ImageURL_In;
   String ImageURL_OUT;
+  String LocationAddress_IN;
+  String LocationAddress_OUT;
 
   /* "LunchIMageURL_Out": null,
                 "LunchIMageURL_in": null,
                 "ImageURL_In": "47_18_11_2022_1668745318864.jpg",
                 "ImageURL_OUT": null,*/
 
-  AttendanceList(
-      {this.pkID,
-      this.employeeID,
-      this.employeeName,
-      this.presenceDate,
-      this.timeIn,
-      this.timeOut,
-      this.LunchIn,
-      this.LunchOut,
-      this.workingHrs,
-      this.notes,
-      this.LunchIMageURL_Out,
-      this.LunchIMageURL_in,
-      this.ImageURL_In,
-      this.ImageURL_OUT});
+  AttendanceList({
+    this.pkID,
+    this.employeeID,
+    this.employeeName,
+    this.presenceDate,
+    this.timeIn,
+    this.timeOut,
+    this.LunchIn,
+    this.LunchOut,
+    this.workingHrs,
+    this.notes,
+    this.LunchIMageURL_Out,
+    this.LunchIMageURL_in,
+    this.ImageURL_In,
+    this.ImageURL_OUT,
+    this.LocationAddress_IN,
+    this.LocationAddress_OUT,
+  });
 
   AttendanceList.fromJson(Map<String, dynamic> json) {
     pkID = json['pkID'];
@@ -79,6 +84,10 @@ class AttendanceList {
         json['LunchIMageURL_in'] == null ? "" : json['LunchIMageURL_in'];
     ImageURL_In = json['ImageURL_In'] == null ? "" : json['ImageURL_In'];
     ImageURL_OUT = json['ImageURL_OUT'] == null ? "" : json['ImageURL_OUT'];
+    LocationAddress_IN =
+        json['LocationAddress_IN'] == null ? "" : json['LocationAddress_IN'];
+    LocationAddress_OUT =
+        json['LocationAddress_OUT'] == null ? "" : json['LocationAddress_OUT'];
   }
 
   Map<String, dynamic> toJson() {
@@ -97,6 +106,8 @@ class AttendanceList {
     data['LunchIMageURL_in'] = this.LunchIMageURL_in;
     data['ImageURL_In'] = this.ImageURL_In;
     data['ImageURL_OUT'] = this.ImageURL_OUT;
+    data['LocationAddress_IN'] = this.LocationAddress_IN;
+    data['LocationAddress_OUT'] = this.LocationAddress_OUT;
 
     return data;
   }

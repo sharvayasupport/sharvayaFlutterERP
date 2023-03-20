@@ -11,8 +11,19 @@ import 'package:soleoserp/ui/res/dimen_resources.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
+class AddUpdateSearchInquiryScreenArguments {
+  String EmployeeID;
+  String EmployeeName;
+
+  AddUpdateSearchInquiryScreenArguments(this.EmployeeID, this.EmployeeName);
+}
+
 class SearchInquiryScreen extends BaseStatefulWidget {
   static const routeName = '/searchInquiryScreen';
+
+  final AddUpdateSearchInquiryScreenArguments arguments;
+
+  SearchInquiryScreen(this.arguments);
 
   @override
   _SearchInquiryScreenState createState() => _SearchInquiryScreenState();
@@ -27,6 +38,9 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
   int CompanyID = 0;
   String LoginUserID = "";
 
+  String _EmployeeID = "";
+  String _EmployeeName = "";
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +49,13 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+    _EmployeeID = widget.arguments.EmployeeID;
+    _EmployeeName = widget.arguments.EmployeeName;
+    print("EmployeeIDFromInq" +
+        " EmployeeID : " +
+        _EmployeeID +
+        " EmployeeName : " +
+        _EmployeeName);
 
     _inquiryBloc = InquiryBloc(baseBloc);
   }

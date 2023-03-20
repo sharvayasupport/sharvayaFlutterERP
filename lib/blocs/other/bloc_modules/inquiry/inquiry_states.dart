@@ -55,9 +55,26 @@ class InquiryProductSaveResponseState extends InquiryStates {
   InquiryProductSaveResponseState(this.inquiryProductSaveResponse);
 }
 
+class BluetoneInquiryProductSaveResponseState extends InquiryStates {
+  final InquiryProductSaveResponse inquiryProductSaveResponse;
+  final SizedListInsUpdateApiResponse sizedListInsUpdateApiResponse;
+  BluetoneInquiryProductSaveResponseState(
+      this.inquiryProductSaveResponse, this.sizedListInsUpdateApiResponse);
+}
+
 class InquiryNotoProductResponseState extends InquiryStates {
   final InquiryNoToProductResponse inquiryNoToProductResponse;
+
   InquiryNotoProductResponseState(this.inquiryNoToProductResponse);
+}
+
+class BluetoneInquiryNotoProductResponseState extends InquiryStates {
+  final InquiryNoToProductResponse inquiryNoToProductResponse;
+  final List<InquiryProductWithSizedListDetails>
+      inquiryProductWithTwoSizedListDetails;
+
+  BluetoneInquiryNotoProductResponseState(this.inquiryNoToProductResponse,
+      this.inquiryProductWithTwoSizedListDetails);
 }
 
 class InquiryNotoDeleteProductResponseState extends InquiryStates {
@@ -160,4 +177,57 @@ class GetReportToTokenResponseState extends InquiryStates {
 class UserMenuRightsResponseState extends InquiryStates {
   final UserMenuRightsResponse userMenuRightsResponse;
   UserMenuRightsResponseState(this.userMenuRightsResponse);
+}
+
+///---------------------Blueton Inquiry Product
+
+class BlueToneProductModelListState extends InquiryStates {
+  /*final List<BlueToneProductModel> response;
+  final List<PriceModel> pricelist;*/
+
+  final List<ProductWithSizedList> response;
+
+  BlueToneProductModelListState(this.response);
+}
+
+class BlueToneProductModelInsertState extends InquiryStates {
+  BuildContext context;
+  String response;
+  BlueToneProductModelInsertState(this.context, this.response);
+}
+
+class BlueToneProductModelUpdateState extends InquiryStates {
+  BuildContext context;
+  String response;
+  BlueToneProductModelUpdateState(this.context, this.response);
+}
+
+class BlueToneProductModelOneItemDeleteState extends InquiryStates {
+  String response;
+  BlueToneProductModelOneItemDeleteState(this.response);
+}
+
+class BlueToneProductModelDeleteALLState extends InquiryStates {
+  String response;
+  BlueToneProductModelDeleteALLState(this.response);
+}
+
+//SizeListResponse
+class SizeListResponseState extends InquiryStates {
+  List<PriceModel> arrSizeList;
+  SizeListResponseState(this.arrSizeList);
+}
+//
+
+class InquiryNoToFetchProductSizedListResponseState extends InquiryStates {
+  final InquiryNoToFetchProductSizedListResponse response;
+
+  InquiryNoToFetchProductSizedListResponseState(this.response);
+}
+//
+
+class SizedListInsUpdateApiResponseState extends InquiryStates {
+  final SizedListInsUpdateApiResponse response;
+
+  SizedListInsUpdateApiResponseState(this.response);
 }

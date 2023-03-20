@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/SizedList/size_list_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/SizedList/size_list_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/SizedList_INS_UPD_API/sized_list_ins_update_api_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Sized_multi_delete_API/sized_multi_delete_api_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/inquiry_no_to_fetch_product_sized_list_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/SizedList_INS_UPD_API/sized_list_ins_update_api_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/inq_no_to_customized_sizedList_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/inquiry_no_to_fetch_product_sized_list_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/bluetone_inquiry_product.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/price_model.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/product_with_sized_list_model.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
@@ -50,6 +61,7 @@ import 'package:soleoserp/models/pushnotification/fcm_notification_response.dart
 import 'package:soleoserp/models/pushnotification/get_report_to_token_request.dart';
 import 'package:soleoserp/models/pushnotification/get_report_to_token_response.dart';
 import 'package:soleoserp/repositories/repository.dart';
+import 'package:soleoserp/utils/offline_db_helper.dart';
 
 part 'inquiry_events.dart';
 part 'inquiry_states.dart';
@@ -90,8 +102,16 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     if (event is InquiryProductSaveCallEvent) {
       yield* _mapInquiryProductSaveEventToState(event);
     }
+
+    if (event is BluetoneInquiryProductSaveCallEvent) {
+      yield* _mapBlueToneInquiryProductSaveEventToState(event);
+    }
     if (event is InquiryNotoProductCallEvent) {
       yield* _mapInquryNoToProductEventToState(event);
+    }
+
+    if (event is BluetoneInquiryNotoProductCallEvent) {
+      yield* _mapBlueToneInquryNoToProductEventToState(event);
     }
     if (event is InquiryNotoDeleteProductCallEvent) {
       yield* _mapInquryNoToDeleteProductEventToState(event);
@@ -158,6 +178,39 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
     if (event is UserMenuRightsRequestEvent) {
       yield* _mapUserMenuRightsRequestEventState(event);
     }
+
+    if (event is BlueToneProductModelListEvent) {
+      yield* _mapBlueToneProductModelListEventState(event);
+    }
+
+    if (event is BlueToneProductModelInsertEvent) {
+      yield* mapBlueToneProductModelInsertEventState(event);
+    }
+
+    if (event is BlueToneProductModelUpdateEvent) {
+      yield* mapBlueToneProductModelUpdateEventState(event);
+    }
+
+    if (event is BlueToneProductModelOneItemDeleteEvent) {
+      yield* _mapBlueToneProductModelOneItemDeleteEventToState(event);
+    }
+
+    if (event is BlueToneProductModelALLDeleteEvent) {
+      yield* _mapBlueToneProductModelALLDeleteEventToState(event);
+    }
+
+    if (event is SizeListRequestEvent) {
+      yield* _mapSizeListRequestEventState(event);
+    }
+
+    if (event is InquiryNoToFetchProductSizedListRequestEvent) {
+      yield* _mapInquiryNoToFetchProductSizedListRequestEventState(event);
+    }
+
+    if (event is SizedListInsUpdateApiRequestEvent) {
+      yield* _mapSizedListInsUpdateApiRequestEventState(event);
+    }
+    //
   }
 
   ///event functions to states implementation
@@ -278,7 +331,61 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
 
       InquiryProductSaveResponse respo = await userRepository
           .inquiryProductSaveDetails(event.inquiryProductModel);
+
       yield InquiryProductSaveResponseState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapBlueToneInquiryProductSaveEventToState(
+      BluetoneInquiryProductSaveCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      InquiryProductSaveResponse respo = await userRepository
+          .inquiryProductSaveDetails(event.inquiryProductModel);
+
+      ///multi_delete_sizedListAPI
+      SizedMultiDeleteApiRequest sizedMultiDeleteApiRequest =
+          SizedMultiDeleteApiRequest();
+      sizedMultiDeleteApiRequest.CompanyId =
+          event.inquiryProductModel[0].CompanyId;
+      String responsemultidelete =
+          await userRepository.multi_delete_sizedListAPI(
+              sizedMultiDeleteApiRequest,
+              event.inquiryProductModel[0].InquiryNo);
+      print("multideleteSizedList" + responsemultidelete.toString());
+
+      ///ProductSizedList Ins_Upd
+      SizedListInsUpdateApiResponse tempresponse;
+
+      for (int i = 0; i < event.dbarraysizedlist.length; i++) {
+        if (event.dbarraysizedlist[i].isChecked == "true") {
+          SizedListInsUpdateApiRequest sizedListInsUpdateApiRequest =
+              SizedListInsUpdateApiRequest();
+          sizedListInsUpdateApiRequest.ProductID =
+              event.dbarraysizedlist[i].ProductID;
+          sizedListInsUpdateApiRequest.SizeID =
+              event.dbarraysizedlist[i].SizeID;
+          sizedListInsUpdateApiRequest.InquiryNo =
+              event.inquiryProductModel[0].InquiryNo;
+          sizedListInsUpdateApiRequest.CompanyId =
+              event.inquiryProductModel[0].CompanyId;
+          sizedListInsUpdateApiRequest.LoginUserID =
+              event.inquiryProductModel[0].LoginUserID;
+
+          SizedListInsUpdateApiResponse response = await userRepository
+              .insert_update_sizedListAPI(sizedListInsUpdateApiRequest);
+
+          tempresponse = response;
+        }
+      }
+
+      yield BluetoneInquiryProductSaveResponseState(respo, tempresponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -293,7 +400,188 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       InquiryNoToProductResponse response = await userRepository
           .getInquiryNoToProductList(event.inquiryNoToProductListRequest);
+
       yield InquiryNotoProductResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapBlueToneInquryNoToProductEventToState(
+      BluetoneInquiryNotoProductCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      InquiryNoToProductResponse response = await userRepository
+          .getInquiryNoToProductList(event.inquiryNoToProductListRequest);
+
+      List<InquiryProductWithSizedListDetails>
+          inquiryNotoProductAndTwoSizedList = [];
+
+      for (int i = 0; i < response.details.length; i++) {
+        List<InquiryNoToFetchProductSizedListResponseDetails>
+            productIDtoSizedList = [];
+        List<InquiryNoToFetchProductSizedListResponseDetails>
+            inquiryNotoSizedList = [];
+
+        InquiryNoToFetchProductSizedListRequest
+            inquiryNoToFetchProductSizedListRequest =
+            InquiryNoToFetchProductSizedListRequest();
+        inquiryNoToFetchProductSizedListRequest.InquiryNo =
+            event.inquiryNoToProductListRequest.InquiryNo;
+        inquiryNoToFetchProductSizedListRequest.ProductID =
+            response.details[i].productID.toString();
+        inquiryNoToFetchProductSizedListRequest.LoginUserID =
+            event.inquiryNoToProductListRequest.LoginUserID;
+        inquiryNoToFetchProductSizedListRequest.CompanyId =
+            event.inquiryNoToProductListRequest.CompanyId;
+
+        SizeListRequest sizeListRequest = SizeListRequest();
+        sizeListRequest.ProductID = response.details[i].productID.toString();
+        sizeListRequest.LoginUserID =
+            event.inquiryNoToProductListRequest.LoginUserID;
+        sizeListRequest.CompanyId =
+            event.inquiryNoToProductListRequest.CompanyId;
+
+        ///InquiryNo to ProductSized List
+        InquiryNoToFetchProductSizedListResponse sizedresponsefromINQNo =
+            await userRepository.getproductSizedListfromInquiryNo(
+                inquiryNoToFetchProductSizedListRequest);
+
+        ///ProductID to ProductSized List
+        SizeListResponse sizedresponsefromProductID =
+            await userRepository.getSizeListFromProductID(sizeListRequest);
+
+        for (int j = 0; j < sizedresponsefromProductID.details.length; j++) {
+          print("ASDsdo" + sizedresponsefromProductID.details[j].sizeName);
+
+          InquiryNoToFetchProductSizedListResponseDetails sizedModel =
+              InquiryNoToFetchProductSizedListResponseDetails();
+          sizedModel.inquiryNo = event.inquiryNoToProductListRequest.InquiryNo;
+          sizedModel.productID =
+              sizedresponsefromProductID.details[j].productID;
+          sizedModel.productName =
+              sizedresponsefromProductID.details[j].productName;
+          sizedModel.sizeID = sizedresponsefromProductID.details[j].sizeID;
+          sizedModel.sizeName = sizedresponsefromProductID.details[j].sizeName;
+          productIDtoSizedList.add(sizedModel);
+        }
+
+        for (int k = 0; k < sizedresponsefromINQNo.details.length; k++) {
+          InquiryNoToFetchProductSizedListResponseDetails sizedModel =
+              InquiryNoToFetchProductSizedListResponseDetails();
+          sizedModel.inquiryNo = event.inquiryNoToProductListRequest.InquiryNo;
+          sizedModel.productID = sizedresponsefromINQNo.details[k].productID;
+          sizedModel.productName =
+              sizedresponsefromINQNo.details[k].productName;
+          sizedModel.sizeID = sizedresponsefromINQNo.details[k].sizeID;
+          sizedModel.sizeName = sizedresponsefromINQNo.details[k].sizeName;
+          inquiryNotoSizedList.add(sizedModel);
+        }
+
+        InquiryProductWithSizedListDetails inquiryProductWithSizedListDetails =
+            InquiryProductWithSizedListDetails();
+        inquiryProductWithSizedListDetails.rowNum = response.details[i].rowNum;
+        inquiryProductWithSizedListDetails.pkID = response.details[i].pkID;
+        inquiryProductWithSizedListDetails.inquiryNo =
+            response.details[i].inquiryNo;
+        inquiryProductWithSizedListDetails.unitPrice =
+            response.details[i].unitPrice;
+        inquiryProductWithSizedListDetails.taxRate =
+            response.details[i].taxRate;
+        inquiryProductWithSizedListDetails.unit = response.details[i].unit;
+        inquiryProductWithSizedListDetails.productID =
+            response.details[i].productID;
+        inquiryProductWithSizedListDetails.productName =
+            response.details[i].productName;
+        inquiryProductWithSizedListDetails.quantity =
+            response.details[i].quantity;
+        inquiryProductWithSizedListDetails.productNameLong =
+            response.details[i].productNameLong;
+        inquiryProductWithSizedListDetails.productAlias =
+            response.details[i].productAlias;
+        inquiryProductWithSizedListDetails.taxType =
+            response.details[i].taxType;
+
+        inquiryProductWithSizedListDetails.all_sized_with_productID =
+            productIDtoSizedList;
+        inquiryProductWithSizedListDetails.custom_sized_with_InquiryNo =
+            inquiryNotoSizedList;
+        inquiryNotoProductAndTwoSizedList
+            .add(inquiryProductWithSizedListDetails);
+      }
+
+      /* for (int i = 0; i < response.details.length; i++) {
+        //
+
+        InquiryNoToFetchProductSizedListRequest
+            inquiryNoToFetchProductSizedListRequest =
+            InquiryNoToFetchProductSizedListRequest();
+        inquiryNoToFetchProductSizedListRequest.InquiryNo =
+            event.inquiryNoToProductListRequest.InquiryNo;
+        inquiryNoToFetchProductSizedListRequest.ProductID =
+            response.details[i].productID.toString();
+        inquiryNoToFetchProductSizedListRequest.LoginUserID =
+            event.inquiryNoToProductListRequest.LoginUserID;
+        inquiryNoToFetchProductSizedListRequest.CompanyId =
+            event.inquiryNoToProductListRequest.CompanyId;
+
+        SizeListRequest sizeListRequest = SizeListRequest();
+        sizeListRequest.ProductID = response.details[i].productID.toString();
+        sizeListRequest.LoginUserID =
+            event.inquiryNoToProductListRequest.LoginUserID;
+        sizeListRequest.CompanyId =
+            event.inquiryNoToProductListRequest.CompanyId;
+
+        ///InquiryNo to ProductSized List
+        InquiryNoToFetchProductSizedListResponse sizedresponsefromINQNo =
+            await userRepository.getproductSizedListfromInquiryNo(
+                inquiryNoToFetchProductSizedListRequest);
+
+        ///ProductID to ProductSized List
+        SizeListResponse sizedresponsefromProductID =
+            await userRepository.getSizeListFromProductID(sizeListRequest);
+
+        List<PriceModel> arrrdbsizedList = [];
+
+
+
+        for (int j = 0; j < sizedresponsefromProductID.details.length; j++) {
+          print("sjkfj43erdr" + sizedresponsefromProductID.details[j].sizeName);
+
+           await  OfflineDbHelper.getInstance().insertProductPriceList(PriceModel(
+              response.details[j].productID.toString(),
+              response.details[j].productName.toString(),
+              sizedresponsefromProductID.details[j].sizeID.toString(),
+              sizedresponsefromProductID.details[j].sizeName.toString(),
+              "false"));
+
+          arrrdbsizedList = await OfflineDbHelper.getInstance()
+              .getProductPriceList(response.details[j].productID.toString());
+        }
+        for (int k = 0; k < arrrdbsizedList.length; k++) {
+          print("sjkfj43erdr" + sizedresponsefromProductID.details[k].sizeName);
+
+             for (int l = 0; l < sizedresponsefromINQNo.details.length; l++) {
+            if (arrrdbsizedList[k].SizeID ==
+                sizedresponsefromINQNo.details[l].sizeID.toString()) {
+              await OfflineDbHelper.getInstance().updateProductPriceItem(
+                  PriceModel(
+                      arrrdbsizedList[k].ProductID.toString(),
+                      arrrdbsizedList[k].ProductName.toString(),
+                      arrrdbsizedList[k].SizeID.toString(),
+                      arrrdbsizedList[k].SizeName.toString(),
+                      "true",
+                      id: arrrdbsizedList[k].id));
+            }
+          }
+        }
+      }*/
+
+      yield BluetoneInquiryNotoProductResponseState(
+          response, inquiryNotoProductAndTwoSizedList);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -574,6 +862,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
   //SearchInquiryListFillterByNameRequestEvent
 
   Stream<InquiryStates> _mapUserMenuRightsRequestEventState(
@@ -588,6 +877,204 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
     } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  /// Blueton Inquiry Product CRUD
+  Stream<InquiryStates> _mapBlueToneProductModelListEventState(
+      BlueToneProductModelListEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      List<BlueToneProductModel> response =
+          await OfflineDbHelper.getInstance().getBlueTonProductList();
+
+      List<ProductWithSizedList> productwithsizedmodel = [];
+      List<PriceModel> temparraylist = [];
+      List<PriceModel> finalSizedList = [];
+
+      for (int i = 0; i < response.length; i++) {
+        temparraylist = await OfflineDbHelper.getInstance()
+            .getProductPriceList(response[i].ProductID);
+
+        for (int j = 0; j < temparraylist.length; j++) {
+          if (temparraylist[j].isChecked == "true") {
+            finalSizedList.add(temparraylist[j]);
+          }
+        }
+
+        /* int id;
+  String InquiryNo;
+  String LoginUserID;
+  String CompanyId;
+  String ProductName;
+  String ProductID;
+  String UnitPrice;*/
+
+        ProductWithSizedList productWithSizedList = ProductWithSizedList();
+        productWithSizedList.id = response[i].id;
+        productWithSizedList.InquiryNo = response[i].InquiryNo;
+        productWithSizedList.LoginUserID = response[i].LoginUserID;
+        productWithSizedList.CompanyId = response[i].CompanyId;
+        productWithSizedList.ProductName = response[i].ProductName;
+        productWithSizedList.ProductID = response[i].ProductID;
+        productWithSizedList.UnitPrice = response[i].UnitPrice;
+        productWithSizedList.SizedList = finalSizedList;
+        productwithsizedmodel.add(productWithSizedList);
+      }
+
+      // await userRepository.getQuotationTermConditionList(event.all_name_id.Name,event.all_name_id.PresentDate);
+      yield BlueToneProductModelListState(productwithsizedmodel);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> mapBlueToneProductModelInsertEventState(
+      BlueToneProductModelInsertEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+/*String InquiryNo,   String LoginUserID,   String CompanyId,   String ProductName,   String ProductID,   String UnitPrice, */
+      await OfflineDbHelper.getInstance()
+          .insertBlueTonProductItems(BlueToneProductModel(
+        event.blueToneProductModel.InquiryNo,
+        event.blueToneProductModel.LoginUserID,
+        event.blueToneProductModel.CompanyId,
+        event.blueToneProductModel.ProductName,
+        event.blueToneProductModel.ProductID,
+        event.blueToneProductModel.UnitPrice,
+      ));
+
+      yield BlueToneProductModelInsertState(
+          event.context, "Product Added SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> mapBlueToneProductModelUpdateEventState(
+      BlueToneProductModelUpdateEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      await OfflineDbHelper.getInstance().updateBlueToneProductItems(
+          BlueToneProductModel(
+              event.blueToneProductModel.InquiryNo,
+              event.blueToneProductModel.LoginUserID,
+              event.blueToneProductModel.CompanyId,
+              event.blueToneProductModel.ProductName,
+              event.blueToneProductModel.ProductID,
+              event.blueToneProductModel.UnitPrice,
+              id: event.blueToneProductModel.id));
+
+      yield BlueToneProductModelInsertState(
+          event.context, "Product Updated SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapBlueToneProductModelOneItemDeleteEventToState(
+      BlueToneProductModelOneItemDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance()
+          .deleteBlueToneProductItem(event.tableid);
+      yield BlueToneProductModelOneItemDeleteState(
+          "Product Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapBlueToneProductModelALLDeleteEventToState(
+      BlueToneProductModelALLDeleteEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      await OfflineDbHelper.getInstance().deleteAllBlueToneProductItems();
+      yield BlueToneProductModelDeleteALLState(
+          "Product All Item Deleted SuccessFully");
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapSizeListRequestEventState(
+      SizeListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SizeListResponse response =
+          await userRepository.getSizeListFromProductID(event.request);
+      await OfflineDbHelper.getInstance()
+          .deleteProductPriceList(event.request.ProductID);
+      for (int i = 0; i < response.details.length; i++) {
+        //deleteProductPriceList
+        await OfflineDbHelper.getInstance().insertProductPriceList(PriceModel(
+            response.details[i].productID.toString(),
+            response.details[i].productName.toString(),
+            response.details[i].sizeID.toString(),
+            response.details[i].sizeName.toString(),
+            "false"));
+      }
+
+      List<PriceModel> arrSizeList = await OfflineDbHelper.getInstance()
+          .getProductPriceList(event.request.ProductID);
+
+      yield SizeListResponseState(arrSizeList);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapInquiryNoToFetchProductSizedListRequestEventState(
+      InquiryNoToFetchProductSizedListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      InquiryNoToFetchProductSizedListResponse response =
+          await userRepository.getproductSizedListfromInquiryNo(event.request);
+      yield InquiryNoToFetchProductSizedListResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      // await Future.delayed(const Duration(milliseconds: 500), () {});
+
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<InquiryStates> _mapSizedListInsUpdateApiRequestEventState(
+      SizedListInsUpdateApiRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SizedListInsUpdateApiResponse response =
+          await userRepository.insert_update_sizedListAPI(event.request);
+      yield SizedListInsUpdateApiResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      // await Future.delayed(const Duration(milliseconds: 500), () {});
+
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }

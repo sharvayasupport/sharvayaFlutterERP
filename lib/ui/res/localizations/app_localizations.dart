@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 class AppLocalizations {
   final Locale locale;
   static const LocalizationsDelegate<AppLocalizations> delegate =
-  _AppLocalizationsDelegate();
+      _AppLocalizationsDelegate();
 
   AppLocalizations(this.locale);
 
@@ -19,7 +19,7 @@ class AppLocalizations {
 
   Future<bool> load() async {
     String jsonString =
-    await rootBundle.loadString('assets/lang/${locale.languageCode}.json');
+        await rootBundle.loadString('assets/lang/${locale.languageCode}.json');
     Map<String, dynamic> jsonMap = json.decode(jsonString);
 
     _localizedStrings = jsonMap.map((key, value) {
@@ -60,7 +60,7 @@ class _AppLocalizationsDelegate
   @override
   bool isSupported(Locale locale) {
     // Include all of your supported language codes here
-    return ['en'].contains(locale.languageCode);
+    return ['hi'].contains(locale.languageCode);
   }
 
   @override

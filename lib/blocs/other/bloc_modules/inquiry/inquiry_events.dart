@@ -54,10 +54,23 @@ class InquiryProductSaveCallEvent extends InquiryEvents {
   InquiryProductSaveCallEvent(this.inquiryProductModel);
 }
 
+class BluetoneInquiryProductSaveCallEvent extends InquiryEvents {
+  final List<InquiryProductModel> inquiryProductModel;
+  List<PriceModel> dbarraysizedlist;
+  BluetoneInquiryProductSaveCallEvent(
+      this.inquiryProductModel, this.dbarraysizedlist);
+}
+
 class InquiryNotoProductCallEvent extends InquiryEvents {
   final InquiryNoToProductListRequest inquiryNoToProductListRequest;
 
   InquiryNotoProductCallEvent(this.inquiryNoToProductListRequest);
+}
+
+class BluetoneInquiryNotoProductCallEvent extends InquiryEvents {
+  final InquiryNoToProductListRequest inquiryNoToProductListRequest;
+
+  BluetoneInquiryNotoProductCallEvent(this.inquiryNoToProductListRequest);
 }
 
 class InquiryNotoDeleteProductCallEvent extends InquiryEvents {
@@ -167,4 +180,52 @@ class UserMenuRightsRequestEvent extends InquiryEvents {
 
   final UserMenuRightsRequest userMenuRightsRequest;
   UserMenuRightsRequestEvent(this.MenuID, this.userMenuRightsRequest);
+}
+
+///-------------------Inquiry BlueTone Product CRUD Event
+
+class BlueToneProductModelListEvent extends InquiryEvents {
+  BlueToneProductModelListEvent();
+}
+
+class BlueToneProductModelInsertEvent extends InquiryEvents {
+  BuildContext context;
+  final BlueToneProductModel blueToneProductModel;
+
+  BlueToneProductModelInsertEvent(this.context, this.blueToneProductModel);
+}
+
+class BlueToneProductModelUpdateEvent extends InquiryEvents {
+  BuildContext context;
+  final BlueToneProductModel blueToneProductModel;
+  BlueToneProductModelUpdateEvent(this.context, this.blueToneProductModel);
+}
+
+class BlueToneProductModelOneItemDeleteEvent extends InquiryEvents {
+  int tableid;
+  BlueToneProductModelOneItemDeleteEvent(this.tableid);
+}
+
+class BlueToneProductModelALLDeleteEvent extends InquiryEvents {
+  BlueToneProductModelALLDeleteEvent();
+}
+
+//SizeListRequest
+class SizeListRequestEvent extends InquiryEvents {
+  final SizeListRequest request;
+
+  SizeListRequestEvent(this.request);
+}
+
+class InquiryNoToFetchProductSizedListRequestEvent extends InquiryEvents {
+  final InquiryNoToFetchProductSizedListRequest request;
+
+  InquiryNoToFetchProductSizedListRequestEvent(this.request);
+}
+//
+
+class SizedListInsUpdateApiRequestEvent extends InquiryEvents {
+  final SizedListInsUpdateApiRequest request;
+
+  SizedListInsUpdateApiRequestEvent(this.request);
 }

@@ -8,11 +8,12 @@ import 'package:soleoserp/models/api_responses/company_details/company_details_r
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/all_employee_List_response.dart';
-import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
+import 'package:soleoserp/models/api_responses/to_do_office/to_do_office_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
-import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/office_to_do.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/task_category_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/OfficeTODO/to_do_employee_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/ToDo/to_do_serach_customer_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -23,7 +24,7 @@ import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateOfficeTODOScreenArguments {
-  ToDoDetails editModel;
+  OfficeToDoListResponseDetails editModel;
 
   AddUpdateOfficeTODOScreenArguments(this.editModel);
 }
@@ -109,7 +110,7 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
   String LoginUserID = "";
   int pkID = 0;
   bool _isForUpdate;
-  ToDoDetails _editModel;
+  OfficeToDoListResponseDetails _editModel;
 
   bool ISCHECKED = false;
   SearchDetails _searchDetails;
@@ -207,6 +208,9 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
     });
     _toDoBloc = ToDoBloc(baseBloc);
     _isForUpdate = widget.arguments != null;
+
+    _toDoBloc.add(TaskCategoryListCallEvent(
+        TaskCategoryListRequest(pkID: "", CompanyId: CompanyID.toString())));
 
     if (_isForUpdate) {
       _editModel = widget.arguments.editModel;
@@ -404,8 +408,7 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
       child: Scaffold(
         appBar: NewGradientAppBar(
           title: Text('Add Task Details'),
-          gradient:
-              LinearGradient(colors: [
+          gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
             Color(0xff62bb47),
@@ -533,7 +536,7 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
                                     Navigator.of(context).pop();
 
                                     _toDoBloc.add(ToDoSaveHeaderEvent(
-                                      context,
+                                        context,
                                         pkID,
                                         ToDoHeaderSaveRequest(
                                             Priority: "Medium",
@@ -1165,8 +1168,8 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
                 controller: controllerForLeft,
                 controllerID: controllerpkID,
                 lable: "Select $Category")*/
-                    CreateDialogDropdown(Category),
-
+                    // CreateDialogDropdown(Category),
+                    _onTaptoSearchInquiryView(),
             /* _toDoBloc.add(TaskCategoryListCallEvent(
                 TaskCategoryListRequest(pkID:"",CompanyId: CompanyID.toString()))),*/
 
@@ -1267,12 +1270,12 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
         all_name_id.pkID = state.taskCategoryResponse.details[i].pkID;
         arr_ALL_Name_ID_For_Category.add(all_name_id);
       }
-      showcustomdialogWithID(
+      /* showcustomdialogWithID(
           values: arr_ALL_Name_ID_For_Category,
           context1: context,
           controller: edt_Category,
           controllerID: edt_CategoryID,
-          lable: "Select Task Category");
+          lable: "Select Task Category");*/
     }
   }
 
@@ -1359,12 +1362,18 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
     return InkWell(
       onTap: () {
         // _onTapOfSearchView(context);
-        showcustomdialogWithID(
+        /* showcustomdialogWithID(
             values: arr_ALL_Name_ID_For_Folowup_EmplyeeList,
             context1: context,
             controller: edt_EmployeeName,
             controllerID: edt_EmployeeID,
-            lable: "Assign To");
+            lable: "Assign To");*/
+        navigateTo(context, ToDoEmployeeListScreen.routeName).then((value) {
+          ALL_Name_ID model = value;
+          edt_EmployeeName.text = model.Name;
+          edt_EmployeeID.text = model.pkID.toString();
+          setState(() {});
+        });
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1875,11 +1884,12 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
   }
 
   void _OnSaveToDoHeaderResponse(ToDoSaveHeaderState state) async {
-    await showCommonDialogWithSingleOption(
+    /* await showCommonDialogWithSingleOption(
         Globals.context, state.toDoSaveHeaderResponse.details[0].column2,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
       navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
-    });
+    });*/
+    navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
   }
 
   void _OnSaveToDoSubResponse(ToDoSaveSubDetailsState state) async {
@@ -1887,13 +1897,13 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
         ? "Task Updated Successfully !"
         : "Task Added Successfully !";
 
-    await showCommonDialogWithSingleOption(Globals.context, Msg,
+    /* await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-      navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
-    });
+    });*/
+    navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
   }
 
-  void fillData(ToDoDetails editModel) {
+  void fillData(OfficeToDoListResponseDetails editModel) {
     pkID = editModel.pkID;
     edt_TaskDetails.text = editModel.taskDescription;
     edt_Category.text = editModel.taskCategory;
@@ -2078,6 +2088,33 @@ class _OfficeToDoAddEditScreenState extends BaseState<OfficeToDoAddEditScreen>
         }
       });
     }
+  }
+
+  void _onTaptoSearchInquiryView() {
+    //arr_ALL_Name_ID_For_Category
+
+    navigateTo(context, TaskCategoryScreen.routeName,
+            arguments: TaskCategoryScreenArgument(arr_ALL_Name_ID_For_Category))
+        .then((value) {
+      ALL_Name_ID model = value;
+      edt_Category.text = model.Name;
+      edt_CategoryID.text = model.pkID.toString();
+      setState(() {});
+    });
+
+    /*   navigateTo(context, TaskCategoryScreen.routeName, arguments: TaskCategoryScreenArgument(
+   ).then((value) {
+      if (value != null) {
+        ALL_Name_ID model = value;
+        edt_Category.text = model.Name;
+        edt_CategoryID.text = model.pkID.toString();
+        setState(() {});
+
+        */ /* _inquiryBloc.add(SearchInquiryListByNumberCallEvent(
+            SearchInquiryListByNumberRequest(
+                searchKey: _searchDetails.label,CompanyId:CompanyID.toString(),LoginUserID: LoginUserID.toString())));*/ /*
+      }
+    });*/
   }
 }
 /* if(edt_TransferTo.text =="Complete Task")

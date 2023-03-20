@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geolocator/geolocator.dart'
-    as geolocator; // or whatever name you want
+import 'package:geolocator/geolocator.dart' as geolocator; // or whatever name you want
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
@@ -20,6 +19,7 @@ import 'package:soleoserp/models/api_requests/general_telecaller_img_upload_requ
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
+import 'package:soleoserp/models/api_requests/product/product_brand_list_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/tele_caller_save_request.dart';
 import 'package:soleoserp/models/api_requests/telecaller/telecaller_delete_image_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
@@ -92,6 +92,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   final TextEditingController edt_SenderName = TextEditingController();
   final TextEditingController edt_CompanyName = TextEditingController();
   final TextEditingController edt_Email = TextEditingController();
+  final TextEditingController edt_Brand = TextEditingController();
+
   final TextEditingController edt_Address = TextEditingController();
 
   final TextEditingController edt_CountryHeader = TextEditingController();
@@ -126,6 +128,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   final TextEditingController edt_FollowupNotes = TextEditingController();
   final TextEditingController edt_NextFollowupDate = TextEditingController();
   final TextEditingController edt_ReverseNextFollowupDate = TextEditingController();
+
+  final TextEditingController edt_Cust_ID_OF_CompanyName = TextEditingController();
 
   final TextEditingController edt_PreferedTime = TextEditingController();
   TimeOfDay selectedTime = TimeOfDay.now();
@@ -208,9 +212,13 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
   String MapAPIKey="";
   String ReportToToken = "";
 
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Brand = [];
+
+
   @override
   void initState() {
     super.initState();
+    edt_Cust_ID_OF_CompanyName.text ="";
     _expenseBloc = TeleCallerBloc(baseBloc);
     AmountFocusNode = FocusNode();
     FromLocationFocusNode = FocusNode();
@@ -307,6 +315,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
 
     } else {
       _searchStateDetails = SearchStateDetails();
+      edt_Cust_ID_OF_CompanyName.text ="";
       edt_QualifiedCountry.text = "India";
       edt_QualifiedCountryCode.text = "IND";
       _searchStateDetails.value = _offlineLoggedInData.details[0].stateCode;
@@ -425,6 +434,10 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
           if (state is FCMNotificationResponseState) {
             _onRecevedNotification(state);
           }
+          if (state is ProductBrandResponseState) {
+            _onBrandListResponse(state);
+          }
+
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -435,7 +448,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
               currentState is ExternalLeadSaveResponseState ||
               currentState is TeleCallerUploadImgApiResponseState ||
               currentState is TeleCallerImageDeleteResponseState ||
-              currentState is FCMNotificationResponseState
+              currentState is FCMNotificationResponseState ||
+              currentState is ProductBrandResponseState
 
           ) {
             return true;
@@ -452,7 +466,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          title: Text('TeleCaller Details123'),
+          title: Text('TeleCaller Details'),
           gradient:
               LinearGradient(colors: [
             Color(0xff108dcf),
@@ -498,6 +512,10 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                           width: 20,
                           height: 10,
                         ),
+
+
+                        _offlineLoggedInData.details[0].serialKey.toUpperCase()=="MYA6-G9EC-VS3P-H4PL" || _offlineLoggedInData.details[0].serialKey.toUpperCase()=="TEST-0000-SI0F-0208"?Brand():Container(),
+
                         Container(
                           margin: EdgeInsets.only(left: 10, right: 10),
                           child: Text("Details *",
@@ -820,8 +838,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                     StateCode: _offlineLoggedInData.details[0].stateCode.toString(),
                                                                     CityCode: _offlineLoggedInData.details[0].CityCode.toString(),
                                                                     CountryCode: "IND",
-                                                                    CustomerID:
-                                                                    "",
+                                                                    CustomerID:edt_Cust_ID_OF_CompanyName.text ,
                                                                     ExLeadClosure: edt_DisQualifiedID
                                                                         .text ==
                                                                         null
@@ -850,7 +867,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                     SharedPrefHelper.instance.getLatitude().toString(),
                                                                     Longitude:
                                                                     SharedPrefHelper.instance.getLongitude().toString(),
-                                                                    Image: fileName
+                                                                    Image: fileName,
+                                                                    Brand: edt_Brand.text.toString()
                                                                 )));
                                                       });
                                                 } else {
@@ -1009,7 +1027,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                               StateCode: _offlineLoggedInData.details[0].stateCode.toString(),
                                                               CityCode: _offlineLoggedInData.details[0].CityCode.toString(),
                                                               CountryCode: "IND",
-                                                              CustomerID: "",
+                                                              CustomerID: edt_Cust_ID_OF_CompanyName.text,
                                                               ExLeadClosure:
                                                               edt_DisQualifiedID
                                                                   .text ==
@@ -1036,8 +1054,10 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                               SharedPrefHelper.instance.getLatitude().toString(),
                                                               Longitude:
                                                               SharedPrefHelper.instance.getLongitude().toString(),
-                                                              Image: fileName
-                                                          )));
+                                                              Image: fileName,
+                                                              Brand: edt_Brand.text.toString()
+
+                                                      )));
                                                 });
                                           } else {
                                             showCommonDialogWithSingleOption(
@@ -1162,7 +1182,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                               StateCode: _offlineLoggedInData.details[0].stateCode.toString(),
                                                               CityCode: _offlineLoggedInData.details[0].CityCode.toString(),
                                                               CountryCode: "IND",
-                                                              CustomerID: "",
+                                                              CustomerID: edt_Cust_ID_OF_CompanyName.text,
                                                               ExLeadClosure:
                                                               edt_DisQualifiedID
                                                                   .text ==
@@ -1189,7 +1209,9 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                               SharedPrefHelper.instance.getLatitude().toString(),
                                                               Longitude:
                                                               SharedPrefHelper.instance.getLongitude().toString(),
-                                                              Image: fileName
+                                                              Image: fileName,
+                                                              Brand: edt_Brand.text.toString()
+
                                                           )));
                                                 });
                                           } else {
@@ -1428,7 +1450,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                           : edt_QualifiedCountryCode
                                                                           .text,
                                                                       CustomerID:
-                                                                      "",
+                                                                      edt_Cust_ID_OF_CompanyName.text,
                                                                       ExLeadClosure: edt_DisQualifiedID
                                                                           .text ==
                                                                           null
@@ -1457,7 +1479,9 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                       SharedPrefHelper.instance.getLatitude().toString(),
                                                                       Longitude:
                                                                       SharedPrefHelper.instance.getLongitude().toString(),
-                                                                      Image: fileName
+                                                                      Image: fileName,
+                                                                      Brand: edt_Brand.text.toString()
+
                                                                   )));
                                                         });
                                                   } else {
@@ -1646,7 +1670,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                     ? ""
                                                                     : edt_QualifiedCountryCode
                                                                     .text,
-                                                                CustomerID: "",
+                                                                CustomerID: edt_Cust_ID_OF_CompanyName.text,
                                                                 ExLeadClosure:
                                                                 edt_DisQualifiedID
                                                                     .text ==
@@ -1673,7 +1697,9 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                 SharedPrefHelper.instance.getLatitude().toString(),
                                                                 Longitude:
                                                                 SharedPrefHelper.instance.getLongitude().toString(),
-                                                                Image: fileName
+                                                                Image: fileName,
+                                                                Brand: edt_Brand.text.toString()
+
                                                             )));
                                                   });
                                             } else {
@@ -1829,7 +1855,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                     ? ""
                                                                     : edt_QualifiedCountryCode
                                                                     .text,
-                                                                CustomerID: "",
+                                                                CustomerID: edt_Cust_ID_OF_CompanyName.text,
                                                                 ExLeadClosure:
                                                                 edt_DisQualifiedID
                                                                     .text ==
@@ -1856,7 +1882,9 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                                                                 SharedPrefHelper.instance.getLatitude().toString(),
                                                                 Longitude:
                                                                 SharedPrefHelper.instance.getLongitude().toString(),
-                                                                Image: fileName
+                                                                Image: fileName,
+                                                                Brand: edt_Brand.text.toString()
+
                                                             )));
                                                   });
                                             } else {
@@ -2358,11 +2386,85 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
         searchDetails123 = value;
         edt_CompanyName.text = searchDetails123.Name.toString();
         edt_PrimaryContact.text = searchDetails123.Name1.toString();
+        edt_Cust_ID_OF_CompanyName.text = searchDetails123.pkID ==0 || searchDetails123.pkID == null ?"":searchDetails123.pkID.toString();
         //  _CustomerBloc.add(CustomerListCallEvent(1,CustomerPaginationRequest(companyId: 8033,loginUserID: "admin",CustomerID: "",ListMode: "L")));
 
       }
     });
   }
+
+
+  Widget Brand() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.only(left: 10, right: 10),
+          child: Text("Brand",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight
+                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+          ),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Card(
+          elevation: 5,
+          color: colorLightGray,
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: InkWell(
+            onTap: (){
+              _expenseBloc.add(ProductBrandListRequestEvent(ProductBrandListRequest(
+                  LoginUserID:LoginUserID,
+                  CompanyId: CompanyID.toString()
+              )));
+            },
+            child: Container(
+              height: CardViewHeight,
+              padding: EdgeInsets.only(left: 20, right: 20),
+              width: double.maxFinite,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                        enabled: false,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        controller: edt_Brand,
+                        decoration: InputDecoration(
+                          //contentPadding: EdgeInsets.only(bottom: 10),
+
+                          hintText: "Tap to enter brand",
+                          labelStyle: TextStyle(
+                            color: Color(0xFF000000),
+                          ),
+                          border: InputBorder.none,
+                        ),
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF000000),
+                        ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 20,
+          height: 10,
+        ),
+      ],
+    );
+  }
+
 
   Widget Email() {
     return Column(
@@ -3063,6 +3165,8 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
     edt_AlternateContact.text = expenseDetails.secondaryMobileNo;
     edt_LeadStatus.text = expenseDetails.leadStatus;
     edt_DisqualifiedRemarks.text = expenseDetails.DisqualifedRemarks;
+
+    edt_Brand.text = expenseDetails.Brand;
 
     if (edt_LeadStatus.text == "Qualified") {
       isqualified = true;
@@ -4848,6 +4952,28 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
     print(result.lengthSync());
 
     return result;
+  }
+
+  void _onBrandListResponse(ProductBrandResponseState state) {
+
+    arr_ALL_Name_ID_For_Brand.clear();
+    for(int i=0;i<state.productBrandResponse.details.length;i++)
+      {
+        print("BrnadResponseFromAPI" + state.productBrandResponse.details[i].brandName);
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.productBrandResponse.details[i].brandName;
+
+        arr_ALL_Name_ID_For_Brand.add(all_name_id);
+      }
+
+
+    showcustomdialogWithOnlyName(
+        values: arr_ALL_Name_ID_For_Brand,
+        context1: context,
+        controller: edt_Brand,
+
+        lable: "Select DisQualified Reason ");
+
   }
 
 }

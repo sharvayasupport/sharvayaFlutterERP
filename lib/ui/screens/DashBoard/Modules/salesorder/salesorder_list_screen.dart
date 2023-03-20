@@ -159,7 +159,10 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
-    Password = _offlineLoggedInData.details[0].userPassword;
+
+    Password =
+        _offlineLoggedInData.details[0].userPassword.replaceAll("#", "%23");
+    print("PWDf" + Password.toString());
     _SalesOrderBloc = SalesOrderBloc(baseBloc);
 
     _SalesOrderBloc.add(PaymentScheduleDeleteAllItemEvent());
@@ -749,16 +752,17 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                               child: GestureDetector(
                                 onTap: () async {
                                   String sendemailreq = SiteURL +
-                                      "Quotation.aspx?MobilePdf=yes&userid=" +
+                                      "SalesOrder.aspx?MobilePdf=yes&userid=" +
                                       LoginUserID +
                                       "&password=" +
                                       Password +
                                       "&pQuotID=" +
                                       model.pkID.toString() +
                                       "&CustomerID=" +
-                                      model.customerID.toString();
+                                      model.customerID.toString() +
+                                      "&pageType=so";
 
-                                  print("webreqj" + sendemailreq);
+                                  print("SO_Email" + sendemailreq);
                                   _showEmailSOMyDialog(model);
                                 },
                                 child: Column(
@@ -796,16 +800,17 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                             GestureDetector(
                               onTap: () async {
                                 String sendemailreq = SiteURL +
-                                    "Quotation.aspx?MobilePdf=yes&userid=" +
+                                    "SalesOrder.aspx?MobilePdf=yes&userid=" +
                                     LoginUserID +
                                     "&password=" +
                                     Password +
                                     "&pQuotID=" +
                                     model.pkID.toString() +
                                     "&CustomerID=" +
-                                    model.customerID.toString();
+                                    model.customerID.toString() +
+                                    "&pageType=pro";
 
-                                print("webreqj" + sendemailreq);
+                                print("PI_Email" + sendemailreq);
                                 _showEmailPIMyDialog(model);
                               },
                               child: Column(
@@ -1783,7 +1788,8 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
         "&password=" +
         Password +
         "&pQuotID=" +
-        model.pkID.toString());
+        model.pkID.toString() +
+        "&pageType=so");
     return Center(
       child: Stack(
         children: [
@@ -1802,7 +1808,8 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                         "&password=" +
                         Password +
                         "&pQuotID=" +
-                        model.pkID.toString())),
+                        model.pkID.toString() +
+                        "&pageType=so")),
                 // initialFile: "assets/index.html",
                 initialUserScripts: UnmodifiableListView<UserScript>([]),
                 initialOptions: options,

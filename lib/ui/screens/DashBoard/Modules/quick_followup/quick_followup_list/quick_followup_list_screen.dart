@@ -83,10 +83,14 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
   final TextEditingController edt_FollowUpDate = TextEditingController();
   final TextEditingController edt_ReverseFollowUpDate = TextEditingController();
   final TextEditingController edt_Status = TextEditingController();
+  final TextEditingController edt_employeeName = TextEditingController();
+  final TextEditingController edt_employeeID = TextEditingController();
 
+  //
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Folowup_Priority = [];
+  List<ALL_Name_ID> arr_EmployeeList = [];
 
   @override
   void initState() {
@@ -99,6 +103,10 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
         SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+
+    edt_employeeName.text = _offlineLoggedInData.details[0].employeeName;
+    edt_employeeID.text = _offlineLoggedInData.details[0].employeeID.toString();
+
     FetchFollowupPriorityDetails();
 
     _FollowupBloc = FollowupBloc(baseBloc);
@@ -129,12 +137,12 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
         "-" +
         selectedDate.day.toString();
 
-    edt_Status.addListener(() {
+    /*  edt_Status.addListener(() {
       _FollowupBloc.add(QuickFollowupListRequestEvent(QuickFollowupListRequest(
           FollowupStatus: edt_Status.text,
-          /*FollowupDate:edt_ReverseFollowUpDate.text*/ CompanyId:
+          */ /*FollowupDate:edt_ReverseFollowUpDate.text*/ /* CompanyId:
               CompanyID.toString())));
-    });
+    });*/
   }
 
   @override
@@ -142,9 +150,11 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
     return BlocProvider(
       create: (BuildContext context) => _FollowupBloc
         ..add(QuickFollowupListRequestEvent(QuickFollowupListRequest(
-            FollowupStatus: edt_Status.text,
-            /*FollowupDate:edt_ReverseFollowUpDate.text*/ CompanyId:
-                CompanyID.toString()))),
+          FollowupStatus: edt_Status.text,
+          /*FollowupDate:edt_ReverseFollowUpDate.text*/ CompanyId:
+              CompanyID.toString(),
+          EmployeeID: edt_employeeID.text,
+        ))),
 
       // _FollowupBloc..add(FollowupFilterListCallEvent("todays",FollowupFilterListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID,PageNo: 1,PageSize: 10))),
       child: BlocConsumer<FollowupBloc, FollowupStates>(
@@ -211,7 +221,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                         QuickFollowupListRequest(
                             FollowupStatus: edt_Status.text,
                             /*FollowupDate:edt_ReverseFollowUpDate.text*/ CompanyId:
-                                CompanyID.toString())));
+                                CompanyID.toString(),
+                            EmployeeID: edt_employeeID.text)));
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -221,6 +232,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                     ),
                     child: Column(
                       children: [
+                        /* _buildEmplyeeListView(),
                         CustomDropDown1("Status",
                             enable1: false,
                             title: "Status",
@@ -228,7 +240,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                             icon: Icon(Icons.arrow_drop_down),
                             controllerForLeft: edt_Status,
                             Custom_values1:
-                                arr_ALL_Name_ID_For_Folowup_Priority),
+                                arr_ALL_Name_ID_For_Folowup_Priority),*/
                         Expanded(child: _buildFollowupList())
                       ],
                     ),
@@ -249,13 +261,133 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: /*FloatingActionButton(
           onPressed: () {
             // Add your onPressed code here!
             navigateTo(context, QuickFollowUpAddEditScreen.routeName);
           },
           child: const Icon(Icons.add),
           backgroundColor: colorPrimary,
+        )*/
+
+            Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: "btn1",
+              onPressed: () {
+                /* edt_FollowupEmployeeList.text = "";
+                _onTapOfSearchView();*/
+                return showModalBottomSheet(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  backgroundColor: Colors.white,
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: Wrap(
+                        children: [
+                          ListTile(
+                            // leading: Icon(Icons.share),
+                            title: Center(
+                              child: Text(
+                                "~~~Filter~~~",
+                                style: TextStyle(color: colorPrimary),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 2,
+                            color: colorLightGray,
+                          ),
+                          Container(
+                            height: 5,
+                          ),
+                          ListTile(title: _buildEmplyeeListView()),
+                          ListTile(
+                            title: CustomDropDown1("Status",
+                                enable1: false,
+                                title: "Status",
+                                hintTextvalue: "Tap to Select Status",
+                                icon: Icon(Icons.arrow_drop_down),
+                                controllerForLeft: edt_Status,
+                                Custom_values1:
+                                    arr_ALL_Name_ID_For_Folowup_Priority),
+                          ),
+                          Container(
+                            height: 10,
+                          ),
+                          ListTile(
+                            //leading: Icon(Icons.edit),
+                            title: Center(
+                                child: Row(
+                              children: [
+                                Flexible(
+                                  child: getCommonButton(baseTheme, () {
+                                    Navigator.pop(context);
+
+                                    _FollowupBloc.add(
+                                        QuickFollowupListRequestEvent(
+                                            QuickFollowupListRequest(
+                                      FollowupStatus: edt_Status.text,
+                                      /*FollowupDate:edt_ReverseFollowUpDate.text*/ CompanyId:
+                                          CompanyID.toString(),
+                                      EmployeeID: edt_employeeID.text,
+                                    )));
+                                  }, "Submit", radius: 15),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Flexible(
+                                  child: getCommonButton(baseTheme, () {
+                                    Navigator.pop(context);
+
+                                    _FollowupBloc.add(QuickFollowupListRequestEvent(
+                                        QuickFollowupListRequest(
+                                            FollowupStatus: edt_Status.text,
+                                            /*FollowupDate:edt_ReverseFollowUpDate.text*/ CompanyId:
+                                                CompanyID.toString(),
+                                            EmployeeID: edt_employeeID.text)));
+                                  }, "Close", radius: 15),
+                                ),
+                              ],
+                            )),
+                          ),
+                          Container(
+                            height: 10,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Image.asset(
+                CUSTOM_SETTING,
+                width: 32,
+                height: 32,
+              ),
+              backgroundColor: colorPrimary,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            FloatingActionButton(
+              heroTag: "btn2",
+              onPressed: () async {
+                // Add your onPressed code here!
+                navigateTo(context, QuickFollowUpAddEditScreen.routeName);
+                // navigateTo(context, TeleCallerAddEditScreen.routeName);
+              },
+              child: const Icon(Icons.add),
+              backgroundColor: colorPrimary,
+            ),
+          ],
         ),
         drawer: build_Drawer(
             context: context, UserName: "KISHAN", RolCode: LoginUserID),
@@ -355,7 +487,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
     );
   }
 
-  Widget _buildEmplyeeListView() {
+  Widget _buildEmplyeeListView123() {
     return InkWell(
       onTap: () {
         // _onTapOfSearchView(context);
@@ -548,6 +680,14 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
     QuickFollowupListResponseDetails model =
         _FollowupListResponse.details[index];
 
+    String CreatedEmployeeNAme = "";
+    for (int i = 0; i < arr_EmployeeList.length; i++) {
+      if (model.createdBy == arr_EmployeeList[i].MenuName) {
+        CreatedEmployeeNAme = arr_EmployeeList[i].Name;
+        break;
+      }
+    }
+
     //Totcount= _FollowupListResponse.totalCount;
     //  if(_FollowupListResponse.details[index].employeeName == edt_FollowupEmployeeList.text) {
     return Container(
@@ -561,78 +701,231 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
         baseColor: Color(0xFFFCFCFC),
         expandedColor: Color(0xFFC1E0FA),
         //Colors.deepOrange[50],ADD8E6
-        leading: CircleAvatar(
+        /* leading: CircleAvatar(
             backgroundColor: Color(0xFF504F4F),
             child: Image.network(
               "http://demo.sharvayainfotech.in/images/profile.png",
               height: 35,
               fit: BoxFit.fill,
               width: 35,
-            )),
-
-        title: Text(
-          model.customerName,
-          style: TextStyle(color: Colors.black, fontSize: 15),
-        ),
-        subtitle: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          //mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Text(
-              model.inquiryStatus,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
-            ),
-            model.timeIn != "" || model.timeOut != ""
-                ? Divider(
-                    thickness: 1,
-                  )
-                : Container(),
-            model.timeIn != "" || model.timeOut != ""
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Row(
+            )),*/
+        title: Column(
+          children: [
+            model.customerName.toString() == ""
+                ? Container()
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("In-Time : ",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 10)),
-                          Text(
-                            getTime(model.timeIn),
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
-                                color: colorPrimary),
+                          Container(
+                            margin: EdgeInsets.only(left: 8),
+                            child: Icon(
+                              Icons.home_work,
+                              color: Color(0xff0066b3),
+                              size: 22,
+                            ),
                           ),
+                          Text("Company",
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Color(0xff0066b3),
+                                fontSize: 7,
+                              ))
                         ],
                       ),
-                      model.timeOut != ""
-                          ? Row(
-                              children: [
-                                Text("Out-Time : ",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 10)),
-                                Text(
-                                  getTime(model.timeOut),
-                                  textAlign: TextAlign.left,
+                      Container(
+                        child: Icon(
+                          Icons.keyboard_arrow_right,
+                          color: Color(0xff0066b3),
+                          size: 24,
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          model.customerName,
+                          //overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+            model.customerName.toString() == ""
+                ? Container()
+                : Container(
+                    margin: EdgeInsets.symmetric(vertical: 5),
+                    height: 1,
+                  ),
+            model.createdBy.toString() == ""
+                ? Container()
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.emoji_people_sharp,
+                              color: Color(0xff0066b3),
+                              size: 22,
+                            ),
+                            Text("SALES REP",
+                                style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: Color(0xff0066b3),
+                                  fontSize: 7,
+                                ))
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Container(
+                        child: Icon(
+                          Icons.keyboard_arrow_right,
+                          color: Color(0xff0066b3),
+                          size: 24,
+                        ),
+                      ),
+                      Flexible(
+                        child: Text(
+                          CreatedEmployeeNAme,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              //mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                model.timeIn != "" || model.timeOut != ""
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              Text("In-Time : ",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 10,
-                                      color: colorPrimary),
-                                ),
-                              ],
-                            )
-                          : Container()
-                    ],
-                  )
-                : Container(),
-            SizedBox(
-              height: 10,
+                                      fontSize: 10)),
+                              Text(
+                                getTime(model.timeIn),
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                    color: colorPrimary),
+                              ),
+                            ],
+                          ),
+                          model.timeOut != ""
+                              ? Row(
+                                  children: [
+                                    Text("Out-Time : ",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 10)),
+                                    Text(
+                                      getTime(model.timeOut),
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10,
+                                          color: colorPrimary),
+                                    ),
+                                  ],
+                                )
+                              : Container()
+                        ],
+                      )
+                    : Container(),
+                SizedBox(
+                  height: 10,
+                )
+              ],
             )
           ],
+        ),
+        /*title: Text(
+          model.customerName,
+          style: TextStyle(color: Colors.black, fontSize: 15),
+        ),*/
+        subtitle: Visibility(
+          visible: false,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            //mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              /* Text(
+                model.inquiryStatus,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
+              ),*/
+              model.timeIn != "" || model.timeOut != ""
+                  ? Divider(
+                      thickness: 1,
+                    )
+                  : Container(),
+              model.timeIn != "" || model.timeOut != ""
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Row(
+                          children: [
+                            Text("In-Time : ",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 10)),
+                            Text(
+                              getTime(model.timeIn),
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10,
+                                  color: colorPrimary),
+                            ),
+                          ],
+                        ),
+                        model.timeOut != ""
+                            ? Row(
+                                children: [
+                                  Text("Out-Time : ",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10)),
+                                  Text(
+                                    getTime(model.timeOut),
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                        color: colorPrimary),
+                                  ),
+                                ],
+                              )
+                            : Container()
+                      ],
+                    )
+                  : Container(),
+              SizedBox(
+                height: 10,
+              )
+            ],
+          ),
         ),
 
         children: <Widget>[
@@ -930,7 +1223,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                                   _FollowupBloc.add(QuickFollowupListRequestEvent(
                                       QuickFollowupListRequest(
                                           /*FollowupDate:edt_ReverseFollowUpDate.text,*/ CompanyId:
-                                              CompanyID.toString())));
+                                              CompanyID.toString(),
+                                          EmployeeID: edt_employeeID.text)));
                                 });
                               },
                               child: Column(
@@ -967,7 +1261,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                                       QuickFollowupListRequest(
                                           /*FollowupDate:edt_ReverseFollowUpDate.text,*/ CompanyId:
                                               CompanyID.toString(),
-                                          FollowupStatus: edt_Status.text)));
+                                          FollowupStatus: edt_Status.text,
+                                          EmployeeID: edt_employeeID.text)));
                                 });
                               },
                               child: Column(
@@ -1008,7 +1303,8 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                             _FollowupBloc.add(QuickFollowupListRequestEvent(
                                 QuickFollowupListRequest(
                                     /*FollowupDate:edt_ReverseFollowUpDate.text,*/ CompanyId:
-                                        CompanyID.toString())));
+                                        CompanyID.toString(),
+                                    EmployeeID: edt_employeeID.text)));
                           });
                         },
                         child: Column(
@@ -1057,7 +1353,7 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
     }
   }
 
-  void _onFollowerEmployeeListByStatusCallSuccess(
+  void _onFollowerEmployeeListByStatusCallSuccess123(
       FollowerEmployeeListResponse state) {
     arr_ALL_Name_ID_For_Folowup_EmplyeeList.clear();
 
@@ -1433,65 +1729,161 @@ class _QuickFollowupListScreenState extends BaseState<QuickFollowupListScreen>
                 context1: context,
                 controller: controllerForLeft,
                 lable: "Select $Category"),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Text(title,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: colorPrimary,
-                          fontWeight: FontWeight
-                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+            child: Container(
+              margin: EdgeInsets.only(left: 10, right: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text("Select Status",
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: colorPrimary,
+                            fontWeight: FontWeight
+                                .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                      ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  elevation: 5,
-                  color: colorLightGray,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                              controller: controllerForLeft,
-                              enabled: false,
-                              decoration: InputDecoration(
-                                hintText: hintTextvalue,
-                                labelStyle: TextStyle(
-                                  color: Color(0xFF000000),
-                                ),
-                                border: InputBorder.none,
-                              ),
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF000000),
-                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                              ),
                         ),
-                        Icon(
-                          Icons.arrow_drop_down,
-                          color: colorGrayDark,
-                        )
-                      ],
+                    Icon(
+                      Icons.filter_list_alt,
+                      color: colorPrimary,
                     ),
+                  ]),
+                  SizedBox(
+                    height: 5,
                   ),
-                )
-              ],
+                  Card(
+                    elevation: 5,
+                    color: colorLightGray,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Container(
+                      // padding: EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                      width: double.maxFinite,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: edt_Status,
+                              enabled: false,
+                              style: TextStyle(fontSize: 15),
+                              decoration: new InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.only(
+                                    left: 15, bottom: 11, top: 11, right: 15),
+                                hintText: "Select",
+                              ),
+                            ),
+                            // dropdown()
+                          ),
+                          /*  Icon(
+                      Icons.arrow_drop_down,
+                      color: colorGrayDark,
+                    )*/
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildEmplyeeListView() {
+    return InkWell(
+      onTap: () {
+        // _onTapOfSearchView(context);
+
+        showcustomdialogWithTWOName(
+            values: arr_EmployeeList,
+            context1: context,
+            controller: edt_employeeName,
+            controller1: edt_employeeID,
+            lable: "Select Employee");
+      },
+      child: Container(
+        margin: EdgeInsets.only(left: 10, right: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text("Select Employee",
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: colorPrimary,
+                      fontWeight: FontWeight
+                          .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                  ),
+              Icon(
+                Icons.filter_list_alt,
+                color: colorPrimary,
+              ),
+            ]),
+            SizedBox(
+              height: 5,
+            ),
+            Card(
+              elevation: 5,
+              color: colorLightGray,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: Container(
+                // padding: EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 10),
+                width: double.maxFinite,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: edt_employeeName,
+                        enabled: false,
+                        style: TextStyle(fontSize: 15),
+                        decoration: new InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.only(
+                              left: 15, bottom: 11, top: 11, right: 15),
+                          hintText: "Select",
+                        ),
+                      ),
+                      // dropdown()
+                    ),
+                    /*  Icon(
+                      Icons.arrow_drop_down,
+                      color: colorGrayDark,
+                    )*/
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onFollowerEmployeeListByStatusCallSuccess(
+      FollowerEmployeeListResponse state) {
+    arr_EmployeeList.clear();
+
+    if (state.details != null) {
+      for (var i = 0; i < state.details.length; i++) {
+        ALL_Name_ID all_name_id1 = ALL_Name_ID();
+        all_name_id1.Name = state.details[i].employeeName;
+        all_name_id1.Name1 = state.details[i].pkID.toString();
+        all_name_id1.MenuName = state.details[i].userID;
+        arr_EmployeeList.add(all_name_id1);
+      }
+    }
   }
 }

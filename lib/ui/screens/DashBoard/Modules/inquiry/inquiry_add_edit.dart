@@ -518,7 +518,7 @@ class _InquiryAddEditScreenState extends BaseState<InquiryAddEditScreen>
         lastDate: DateTime(2101));
     if (picked != null && picked != selectedDate)
       setState(() {
-        selectedDate = picked;
+         selectedDate = picked;
         edt_InquiryDate.text = selectedDate.day.toString() +
             "-" +
             selectedDate.month.toString() +

@@ -4359,6 +4359,12 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
       retrunQT_No = state.sbHeaderSaveResponse.details[i].column3;
     }
 
+    if(_isForUpdate==true)
+      {
+        retrunQT_No = _editModel.invoiceNo;
+      }
+
+
     salesBillBloc.add(SBExportSaveRequestEvent(SBExportSaveRequest(
         InvoiceNo: retrunQT_No,
         PreCarrBy: _controller_transport_name.text.toString(),
@@ -4376,7 +4382,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
         LoginUserID: LoginUserID.toString(),
         CompanyId: CompanyID.toString())));
 
+
     updateRetrunInquiryNoToDB(state.context, returnPKID, retrunQT_No);
+
   }
 
   void updateRetrunInquiryNoToDB(
