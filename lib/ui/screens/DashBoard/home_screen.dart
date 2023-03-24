@@ -22,8 +22,8 @@ import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Logout_Count/logout_count_request.dart';
@@ -73,6 +73,7 @@ import '../../../main.dart';
 
 class HomeScreen extends BaseStatefulWidget {
   static const routeName = '/homeScreen';
+//From Office
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -3793,19 +3794,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
             final extension = p.extension(filerty.path);
 
             int timestamp1 = DateTime.now().millisecondsSinceEpoch;
-
-            /*String filenamepunchout =
-                _offlineLoggedInData.details[0].employeeID.toString() +
-                    "_" +
-                    DateTime.now().day.toString() +
-                    "_" +
-                    DateTime.now().month.toString() +
-                    "_" +
-                    DateTime.now().year.toString() +
-                    "_" +
-                    timestamp1.toString() +
-                    extension;
-            */
 
             if (file != null) {
               File file1 = File(file.path);

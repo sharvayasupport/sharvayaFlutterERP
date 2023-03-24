@@ -21,17 +21,12 @@ class _SplashScreenState extends BaseState<SplashScreen>
     super.initState();
     Timer(
         Duration(seconds: 3),
-            () => {
-        if (SharedPrefHelper.instance.isRegisteredIn())
-    {
-        navigateTo(context, HomeScreen.routeName, clearAllStack: true)
-  }else{
-    navigateTo(context, HomeScreen.routeName,clearAllStack: true)
-
-    }
-  }
-
-    );
+        () => {
+              if (SharedPrefHelper.instance.isRegisteredIn())
+                {navigateTo(context, HomeScreen.routeName, clearAllStack: true)}
+              else
+                {navigateTo(context, HomeScreen.routeName, clearAllStack: true)}
+            });
   }
 
   @override
