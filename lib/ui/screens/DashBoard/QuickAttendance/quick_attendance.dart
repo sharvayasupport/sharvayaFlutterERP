@@ -1871,8 +1871,8 @@ Gujarat 360001, India
                                   _offlineLoggedInData.details[0].serialKey
                                               .toUpperCase() ==
                                           "MYA6-G9EC-VS3P-H4PL"
-                                      ? _showMyDialogForMyGec(
-                                          context123, EmailTO.text)
+                                      ? _showMyDialogForMyGec(context123,
+                                          EmailTO.text.replaceAll(" ", ""))
                                       : _showMyDialog(context123, EmailTO.text);
                                 } else {
                                   showCommonDialogWithSingleOption(
@@ -2270,18 +2270,23 @@ Gujarat 360001, India
                         pageTitle = value;
                         print("dfkpageTitle" + value);
 
-                        if (pageTitle == "E-Office-Desk") {
-                          Navigator.pop(dailogContext);
-                          showCommonDialogWithSingleOption(
-                              dailogContext, "Email Sent Successfully ",
-                              onTapOfPositiveButton: () {
-                            Navigator.pop(dailogContext);
-                            Navigator.pop(context);
-                          });
+                        if (pageTitle == "") {
+                          _showMyDialogForMyGec(
+                              dailogContext, EmailTO.text.replaceAll(" ", ""));
                         } else {
-                          Navigator.pop(dailogContext);
-                          showCommonDialogWithSingleOption(
-                              dailogContext, "Please Try Again !");
+                          if (pageTitle == "E-Office-Desk") {
+                            Navigator.pop(dailogContext);
+                            showCommonDialogWithSingleOption(
+                                dailogContext, "Email Sent Successfully ",
+                                onTapOfPositiveButton: () {
+                              Navigator.pop(dailogContext);
+                              Navigator.pop(context);
+                            });
+                          } else {
+                            Navigator.pop(dailogContext);
+                            showCommonDialogWithSingleOption(
+                                dailogContext, "Please Try Again !");
+                          }
                         }
                       });
                     });

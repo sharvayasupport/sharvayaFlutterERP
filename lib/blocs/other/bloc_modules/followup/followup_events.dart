@@ -187,3 +187,10 @@ class TeleCallerFollowupSaveRequestEvent extends FollowupEvents {
   TeleCallerFollowupSaveRequestEvent(
       this.context, this.followuppkID, this.request);
 }
+
+class FollowupImageListRequestEvent extends FollowupEvents {
+  int pkID;
+
+  final FollowupImageListRequest request;
+  FollowupImageListRequestEvent(this.pkID, this.request);
+}

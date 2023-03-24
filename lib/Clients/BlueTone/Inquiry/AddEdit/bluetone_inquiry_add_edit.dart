@@ -1134,7 +1134,7 @@ class _BlueToneInquiryAddEditScreenState
     String updatemsg = _isForUpdate == true ? " Updated " : " Created ";
 
     updateRetrunInquiryNoToDB(
-        "MAR23-001" /*state.inquiryHeaderSaveResponse.details[0].column3*/);
+        state.inquiryHeaderSaveResponse.details[0].column3);
 
     String notiTitle = "Inquiry";
 
@@ -1177,9 +1177,21 @@ class _BlueToneInquiryAddEditScreenState
 
   Future<void> getInquiryProductDetails() async {
     _inquiryProductList.clear();
-    List<InquiryProductModel> temp =
-        await OfflineDbHelper.getInstance().getInquiryProduct();
-    _inquiryProductList.addAll(temp);
+    List<BlueToneProductModel> temp =
+        await OfflineDbHelper.getInstance().getBlueTonProductList();
+
+    for (int i = 0; i < temp.length; i++) {
+      _inquiryProductList.add(InquiryProductModel(
+          LoginUserID,
+          CompanyID.toString(),
+          "",
+          temp[i].ProductName,
+          temp[i].ProductID,
+          "1",
+          temp[i].UnitPrice,
+          temp[i].UnitPrice));
+    }
+    //_inquiryProductList.addAll(temp);
     setState(() {});
   }
 

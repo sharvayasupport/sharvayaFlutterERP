@@ -62,6 +62,7 @@ class ExternalLeadDetails {
   String countryCode;
   String countryName;
   String closureRemark;
+  String InProcessRemark;
 
   ExternalLeadDetails(
       {this.pkId,
@@ -100,7 +101,9 @@ class ExternalLeadDetails {
         this.cityName,
         this.countryCode,
         this.countryName,
-        this.closureRemark});
+        this.closureRemark,
+        this.InProcessRemark
+      });
 
   ExternalLeadDetails.fromJson(Map<String, dynamic> json) {
     pkId = json['pkId']== null ?0: json['pkId'];
@@ -140,6 +143,7 @@ class ExternalLeadDetails {
     countryCode = json['CountryCode']== null ?"": json['CountryCode'];
     countryName = json['CountryName']== null ?"": json['CountryName'];
     closureRemark = json['ClosureRemark']== null ?"": json['ClosureRemark'];
+    InProcessRemark = json['InProcessRemark']==null?"":json['InProcessRemark'];
   }
 
   Map<String, dynamic> toJson() {
@@ -181,6 +185,7 @@ class ExternalLeadDetails {
     data['CountryCode'] = this.countryCode;
     data['CountryName'] = this.countryName;
     data['ClosureRemark'] = this.closureRemark;
+    data['InProcessRemark'] = this.InProcessRemark;
     return data;
   }
 }

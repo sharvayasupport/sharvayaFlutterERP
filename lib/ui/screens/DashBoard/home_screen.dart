@@ -22,10 +22,11 @@ import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:path_provider/path_provider.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Logout_Count/logout_count_request.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dashboard/dashboard_user_rights_screen_bloc.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
@@ -457,13 +458,18 @@ class _HomeScreenState extends BaseState<HomeScreen>
           if (state is PunchWithoutAttendenceSaveResponseState) {
             _OnPunchOutWithoutImageSucess(state);
           }
+
+          if (state is LogOutCountResponseState) {
+            _OnLogoutCount(state);
+          }
           //handle states
         },
         listenWhen: (oldState, currentState) {
           if (currentState is AttendanceSaveCallResponseState ||
               currentState is PunchOutWebMethodState ||
               currentState is PunchAttendenceSaveResponseState ||
-              currentState is PunchWithoutAttendenceSaveResponseState) {
+              currentState is PunchWithoutAttendenceSaveResponseState ||
+              currentState is LogOutCountResponseState) {
             return true;
           }
           //return true for state for which listener method should be called
@@ -634,7 +640,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
                 GestureDetector(
                   onTap: () {
                     SharedPrefHelper.instance.prefs.setString("Is_Dealer", "");
-                    _onTapOfLogOut();
+                    CompanyID == 4132 || CompanyID == 7189
+                        ? _onTaptoLogOutBluetone()
+                        : _onTapOfLogOut();
                   },
                   child: Container(
                     padding: EdgeInsets.only(top: 20, right: 20),
@@ -2418,6 +2426,20 @@ class _HomeScreenState extends BaseState<HomeScreen>
             "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
         arr_ALL_Name_ID_For_Lead.add(all_name_id);
         arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+      }
+
+      if (response.menuRightsResponse.details[i].menuName ==
+          "pgInquiryInfoBlue") {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = "Inquiry";
+        all_name_id.Name1 =
+            "http://demo.sharvayainfotech.in/images/gen-lead.png";
+        ALL_Name_ID all_name_id1 = ALL_Name_ID();
+        all_name_id1.Name = "Quick Inquiry";
+        all_name_id1.Name1 =
+            "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
+        arr_ALL_Name_ID_For_Lead.add(all_name_id);
+        arr_ALL_Name_ID_For_Lead.add(all_name_id1);
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgFollowup") {
         /*ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -2805,10 +2827,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
         arr_ALL_Name_ID_For_Office.add(all_name_id);
 
-        ALL_Name_ID all_name_id2 = ALL_Name_ID();
+        /*ALL_Name_ID all_name_id2 = ALL_Name_ID();
         all_name_id2.Name = "Activity Summary";
         all_name_id2.Name1 = "http://demo.sharvayainfotech.in/images/Task.png";
-        arr_ALL_Name_ID_For_Office.add(all_name_id2);
+        arr_ALL_Name_ID_For_Office.add(all_name_id2);*/
 
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() ==
             "si08-sb94-my45-ry15") {
@@ -3788,7 +3810,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
             if (file != null) {
               File file1 = File(file.path);
 
-              final dir = await path_provider.getTemporaryDirectory();
+              final dir = await p.getTemporaryDirectory();
 
               final extension = p.extension(file1.path);
 
@@ -3989,7 +4011,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
             if (file != null) {
               File file1 = File(file.path);
 
-              final dir = await path_provider.getTemporaryDirectory();
+              final dir = await p.getTemporaryDirectory();
 
               final extension = p.extension(file1.path);
 
@@ -4182,6 +4204,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
           InquiryListScreen.routeName,
           arguments: MessageArguments(message, true),
         );
+      } else if (message.data['title'] == "Follow-up") {
+        navigateTo(Globals.context, FollowupListScreen.routeName,
+            clearAllStack: true);
       } else if (message.data['title'] == "FollowUp") {
         MovetoFollowupScreen(Globals.context, message.notification.title,
             message.notification.body);
@@ -4242,6 +4267,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
       if (intialMessage.data['title'] == "Inquiry") {
         navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+      } else if (intialMessage.data['title'] == "Follow-up") {
+        navigateTo(Globals.context, FollowupListScreen.routeName,
+            clearAllStack: true);
       } else if (intialMessage.data['title'] == "FollowUp") {
         MovetoFollowupScreen(
             context, intialMessage.data['title'], intialMessage.data['body']);
@@ -4801,5 +4829,57 @@ class _HomeScreenState extends BaseState<HomeScreen>
     print(state.companyDetailsResponse.details[0].mobileAppVersion);
     _initPackageInfo(
         state.companyDetailsResponse.details[0].mobileAppVersion.toString());
+  }
+
+  _onTaptoLogOutBluetone() {
+    _dashBoardScreenBloc.add(LogoutCountRequestEvent(LogoutCountRequest(
+        LoginUserID: LoginUserID, CompanyId: CompanyID.toString())));
+  }
+
+  void _OnLogoutCount(LogOutCountResponseState state) {
+    String msg = " Followup Important Task Missing \n\n" +
+        "Todays Count (" +
+        state.response.details[0].todayCount.toString() +
+        ")" +
+        "\n" +
+        "Missed Count (" +
+        state.response.details[0].missedCount.toString() +
+        ")" +
+        "\n" +
+        "Future Count (" +
+        state.response.details[0].futureCount.toString() +
+        ")" +
+        "\n";
+
+    bool isCompleted = false;
+
+    /* int i = 0;
+    int j = 0;
+    int k = 0;
+
+    if (i == 0 && j == 0 && k == 0)*/
+    if (state.response.details[0].todayCount == 0 &&
+        state.response.details[0].missedCount == 0 &&
+        state.response.details[0].futureCount == 0) {
+      isCompleted = true;
+    } else {
+      isCompleted = false;
+    }
+
+    showCommonDialogWithSingleOption(context, msg,
+        onTapOfPositiveButton: () async {
+      if (isCompleted == true) {
+        await SharedPrefHelper.instance
+            .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
+        _dashBoardScreenBloc
+          ..add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
+              CompanyId: CompanyID.toString(),
+              UserID: LoginUserID,
+              TokenNo: "")));
+        navigateTo(context, FirstScreen.routeName, clearAllStack: true);
+      } else {
+        navigateTo(context, FollowupListScreen.routeName);
+      }
+    });
   }
 }

@@ -1238,6 +1238,8 @@ makeDashboardItem(
       } else if (title == "To-Do") {
         navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
       } else if (title == "Activity Summary") {
+
+
         navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
       } else if (title == "Quotation") {
         navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);

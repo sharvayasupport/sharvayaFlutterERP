@@ -457,7 +457,7 @@ class _BlueToneInquiryProductListScreenState
                                         arrinquiryShareModel),
                                   ),
                                 );
-
+                                edt_SizedListController.text = "";
                                 var stringwe = sizedModelList.join(' | \n');
                                 edt_SizedListController.text =
                                     stringwe.toString();
@@ -713,14 +713,13 @@ class _BlueToneInquiryProductListScreenState
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
-              height: 40,
-              padding: EdgeInsets.only(left: 20, right: 20),
+              padding: EdgeInsets.only(left: 10, right: 20),
               width: double.maxFinite,
               child: Row(
                 children: [
                   Expanded(
                     child: TextFormField(
-                        validator: (value) {
+                        /*validator: (value) {
                           if (value.toString().trim().isEmpty) {
                             return "Please enter this field";
                           }
@@ -744,12 +743,25 @@ class _BlueToneInquiryProductListScreenState
                         style: TextStyle(
                           fontSize: 15,
                           color: Color(0xFF000000),
-                        ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                        ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),*/
 
-                        ),
+                        enabled: false,
+                        controller: _productNameController,
+                        maxLines: null,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.next,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.only(left: 10, bottom: 5),
+
+                          //  contentPadding: EdgeInsets.all(10.0),
+                          hintText: 'Select Product',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          labelStyle: TextStyle(fontSize: 12),
+                          border: InputBorder.none,
+                        )),
                   ),
                   Icon(
-                    Icons.search,
+                    Icons.arrow_drop_down,
                     color: colorGrayDark,
                   )
                 ],
@@ -929,14 +941,13 @@ class _BlueToneInquiryProductListScreenState
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Padding(
-            padding: EdgeInsets.only(left: 7, right: 7, top: 4),
+            padding: EdgeInsets.only(left: 10, right: 20),
             child: Container(
-              height: 40,
               child: TextFormField(
                 controller: edt_Unit,
                 minLines: 1,
                 maxLines: 5,
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
                 textInputAction: TextInputAction.next,
                 onTap: () => {
                   edt_Unit.selection = TextSelection(
@@ -988,6 +999,7 @@ class _BlueToneInquiryProductListScreenState
           child: Padding(
             padding: EdgeInsets.only(left: 7, right: 7, top: 4),
             child: Container(
+              padding: EdgeInsets.only(left: 10, right: 20),
               child: Row(
                 children: [
                   Expanded(
@@ -1014,7 +1026,7 @@ class _BlueToneInquiryProductListScreenState
                     ),
                   ),
                   Icon(
-                    Icons.arrow_circle_down_sharp,
+                    Icons.arrow_drop_down,
                     color: colorGrayDark,
                   )
                 ],
@@ -1136,10 +1148,15 @@ class _BlueToneInquiryProductListScreenState
 
   void SizedListFromProductID(SizeListResponseState state) {
     if (state.arrSizeList.isNotEmpty) {
+      List<String> sizedModelList = [];
       for (int i = 0; i < state.arrSizeList.length; i++) {
         print("sdjdsfj" + state.arrSizeList[i].SizeName);
         arrSizeList.add(state.arrSizeList[i]);
+        sizedModelList.add(state.arrSizeList[i].SizeName);
       }
+
+      var stringwe = sizedModelList.join(' | \n');
+      edt_SizedListController.text = stringwe.toString();
     }
   }
 
@@ -1252,14 +1269,16 @@ class _BlueToneInquiryProductListScreenState
                                       SizedBox(
                                         width: 15,
                                       ),
-                                      Text(
-                                        values[index].Name,
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: colorPrimary,
-                                          fontSize: 10,
+                                      Expanded(
+                                        child: Text(
+                                          values[index].Name,
+                                          softWrap: true,
                                           overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: colorPrimary,
+                                            fontSize: 10,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
                                       ),
                                     ],

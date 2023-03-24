@@ -3416,106 +3416,197 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   }
 
   void _OnChargID1Response(QuotationOtherCharge1ListResponseState state) {
-    edt_ChargeTaxType1.text =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    edt_ChargeGstPer1.text = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    edt_ChargeBeforGST1.text =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+    if (state.quotationOtherChargesListResponse.details.isNotEmpty) {
+      edt_ChargeTaxType1.text =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      edt_ChargeGstPer1.text = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      edt_ChargeBeforGST1.text = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType1.text.toString());
+      print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType1.text.toString());
 
-    OtherChargeGstPer1 = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    OtherChargeTaxType1 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    OtherChargeBeforGst1 =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+      OtherChargeGstPer1 = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      OtherChargeTaxType1 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      OtherChargeBeforGst1 = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    genericOtherChargeDetails.OtherChargeTaxType1 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      genericOtherChargeDetails.OtherChargeTaxType1 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
 
-    SharedPrefHelper.instance.setGenricTaxtype(
-        state.quotationOtherChargesListResponse.details[0].taxType.toString());
+      SharedPrefHelper.instance.setGenricTaxtype(state
+          .quotationOtherChargesListResponse.details[0].taxType
+          .toString());
+    } else {
+      edt_ChargeTaxType1.text = "0";
+      edt_ChargeGstPer1.text = "0.00";
+      edt_ChargeBeforGST1.text = "false";
+
+      print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType1.text.toString());
+
+      OtherChargeGstPer1 = "0.00";
+      OtherChargeTaxType1 = "0";
+      OtherChargeBeforGst1 = "false";
+
+      genericOtherChargeDetails.OtherChargeTaxType1 = "0";
+
+      SharedPrefHelper.instance.setGenricTaxtype("0");
+    }
   }
 
   void _OnChargID2Response(QuotationOtherCharge2ListResponseState state) {
-    edt_ChargeTaxType2.text =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    edt_ChargeGstPer2.text = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    edt_ChargeBeforGST2.text =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+    if (state.quotationOtherChargesListResponse.details.isNotEmpty) {
+      edt_ChargeTaxType2.text =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      edt_ChargeGstPer2.text = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      edt_ChargeBeforGST2.text = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    OtherChargeGstPer2 = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    OtherChargeTaxType2 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    OtherChargeBeforGst2 =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+      OtherChargeGstPer2 = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      OtherChargeTaxType2 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      OtherChargeBeforGst2 = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    genericOtherChargeDetails.OtherChargeTaxType2 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      genericOtherChargeDetails.OtherChargeTaxType2 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    } else {
+      edt_ChargeTaxType2.text = "0";
+      edt_ChargeGstPer2.text = "0.00";
+      edt_ChargeBeforGST2.text = "false";
+
+      print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType2.text.toString());
+
+      OtherChargeGstPer2 = "0.00";
+      OtherChargeTaxType2 = "0";
+      OtherChargeBeforGst2 = "false";
+
+      genericOtherChargeDetails.OtherChargeTaxType2 = "0";
+
+      SharedPrefHelper.instance.setGenricTaxtype("0");
+    }
   }
 
   void _OnChargID3Response(QuotationOtherCharge3ListResponseState state) {
-    edt_ChargeTaxType3.text =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    edt_ChargeGstPer3.text = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    edt_ChargeBeforGST3.text =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+    if (state.quotationOtherChargesListResponse.details.isNotEmpty) {
+      edt_ChargeTaxType3.text =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      edt_ChargeGstPer3.text = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      edt_ChargeBeforGST3.text = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    OtherChargeGstPer3 = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    OtherChargeTaxType3 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    OtherChargeBeforGst3 =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
-    genericOtherChargeDetails.OtherChargeTaxType3 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      OtherChargeGstPer3 = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      OtherChargeTaxType3 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      OtherChargeBeforGst3 = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
+      genericOtherChargeDetails.OtherChargeTaxType3 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+    } else {
+      edt_ChargeTaxType3.text = "0";
+      edt_ChargeGstPer3.text = "0.00";
+      edt_ChargeBeforGST3.text = "false";
+
+      print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType3.text.toString());
+
+      OtherChargeGstPer3 = "0.00";
+      OtherChargeTaxType3 = "0";
+      OtherChargeBeforGst3 = "false";
+
+      genericOtherChargeDetails.OtherChargeTaxType3 = "0";
+
+      SharedPrefHelper.instance.setGenricTaxtype("0");
+    }
   }
 
   void _OnChargID4Response(QuotationOtherCharge4ListResponseState state) {
-    edt_ChargeTaxType4.text =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    edt_ChargeGstPer4.text = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    edt_ChargeBeforGST4.text =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+    if (state.quotationOtherChargesListResponse.details.isNotEmpty) {
+      edt_ChargeTaxType4.text =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      edt_ChargeGstPer4.text = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      edt_ChargeBeforGST4.text = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    OtherChargeGstPer4 = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    OtherChargeTaxType4 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    OtherChargeBeforGst4 =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+      OtherChargeGstPer4 = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      OtherChargeTaxType4 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      OtherChargeBeforGst4 = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
+    } else {
+      edt_ChargeTaxType4.text = "0";
+      edt_ChargeGstPer4.text = "0.00";
+      edt_ChargeBeforGST4.text = "false";
+
+      print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType4.text.toString());
+
+      OtherChargeGstPer4 = "0.00";
+      OtherChargeTaxType4 = "0";
+      OtherChargeBeforGst4 = "false";
+
+      genericOtherChargeDetails.OtherChargeTaxType4 = "0";
+
+      SharedPrefHelper.instance.setGenricTaxtype("0");
+    }
   }
 
   void _OnChargID5Response(QuotationOtherCharge5ListResponseState state) {
-    edt_ChargeTaxType5.text =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    edt_ChargeGstPer5.text = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    edt_ChargeBeforGST5.text =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+    if (state.quotationOtherChargesListResponse.details.isNotEmpty) {
+      edt_ChargeTaxType5.text =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      edt_ChargeGstPer5.text = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      edt_ChargeBeforGST5.text = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
 
-    OtherChargeGstPer5 = state
-        .quotationOtherChargesListResponse.details[0].gSTPer
-        .toStringAsFixed(2);
-    OtherChargeTaxType5 =
-        state.quotationOtherChargesListResponse.details[0].taxType.toString();
-    OtherChargeBeforGst5 =
-        state.quotationOtherChargesListResponse.details[0].beforeGST.toString();
+      OtherChargeGstPer5 = state
+          .quotationOtherChargesListResponse.details[0].gSTPer
+          .toStringAsFixed(2);
+      OtherChargeTaxType5 =
+          state.quotationOtherChargesListResponse.details[0].taxType.toString();
+      OtherChargeBeforGst5 = state
+          .quotationOtherChargesListResponse.details[0].beforeGST
+          .toString();
+    } else {
+      edt_ChargeTaxType5.text = "0";
+      edt_ChargeGstPer5.text = "0.00";
+      edt_ChargeBeforGST5.text = "false";
+
+      print("sdsdkfin" + "TaxType : " + edt_ChargeTaxType5.text.toString());
+
+      OtherChargeGstPer5 = "0.00";
+      OtherChargeTaxType5 = "0";
+      OtherChargeBeforGst5 = "false";
+
+      genericOtherChargeDetails.OtherChargeTaxType5 = "0";
+
+      SharedPrefHelper.instance.setGenricTaxtype("0");
+    }
   }
 
   void _OnTaptoSave() async {

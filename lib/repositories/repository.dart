@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/SizedList/size_list_request.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/SizedList/size_list_response.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Logout_Count/logout_count_request.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/SizedList_INS_UPD_API/sized_list_ins_update_api_request.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Sized_multi_delete_API/sized_multi_delete_api_request.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/inquiry_no_to_fetch_product_sized_list_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/LogOut_Count/log_out_count_response.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/SizedList_INS_UPD_API/sized_list_ins_update_api_response.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/inquiry_no_to_fetch_product_sized_list_response.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_history_list_request.dart';
@@ -97,6 +99,7 @@ import 'package:soleoserp/models/api_requests/followup/followup_delete_image_req
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_history_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_image_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_no_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_list_request.dart';
@@ -306,6 +309,7 @@ import 'package:soleoserp/models/api_responses/followup/followup_delete_Image_re
 import 'package:soleoserp/models/api_responses/followup/followup_delete_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_history_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_image_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_inquiry_by_customer_id_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_inquiry_no_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_list_response.dart';
@@ -2253,6 +2257,20 @@ class Repository {
     }
   }
 
+  Future<LogOutCountResponse> getLogoutCount(
+      LogoutCountRequest logoutCountRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_LOGOUT_COUNT, logoutCountRequest.toJson());
+      LogOutCountResponse response = LogOutCountResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<DesignationApiResponse> designation_list_details(
       DesignationApiRequest designationApiRequest) async {
     try {
@@ -2354,6 +2372,20 @@ class Repository {
       rethrow;
     }
   }
+
+/*  Future<InquiryProductSaveResponse> inquiryBluetoneProductSaveDetails(
+      List<BlueToneProductModel> inquiryProductModel) async {
+    try {
+      Map<String, dynamic> json =
+      await apiClient.apiCallPostforMultipleJSONArray(
+          ApiClient.END_POINT_INQUIRY_PRODUCT_SAVE, inquiryProductModel);
+      InquiryProductSaveResponse inquiryProductSaveResponse =
+      InquiryProductSaveResponse.fromJson(json);
+      return inquiryProductSaveResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }*/
 
   Future<PackingAssamblySaveResponse> packingAssamblySaveAPI(
       List<PackingProductAssamblyTable> inquiryProductModel) async {
@@ -4459,6 +4491,20 @@ class Repository {
           teleCallerFollowupSaveRequest.toJson());
       TeleCallerFollowupSaveResponse cityApiRespose =
           TeleCallerFollowupSaveResponse.fromJson(json);
+      return cityApiRespose;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<FollowupImageListResponse> followupImageListAPI(
+      int followuppkID, FollowupImageListRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_FOLLOWUP_IMG_LIST + followuppkID.toString() + "/ImageList"}",
+          request.toJson());
+      FollowupImageListResponse cityApiRespose =
+          FollowupImageListResponse.fromJson(json);
       return cityApiRespose;
     } on ErrorResponseException catch (e) {
       rethrow;

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Logout_Count/logout_count_request.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/LogOut_Count/log_out_count_response.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
@@ -106,6 +108,10 @@ class DashBoardScreenBloc
 
     if (event is CompanyDetailsCallEvent) {
       yield* _mapCompanyDetailsCallEventToState(event);
+    }
+
+    if (event is LogoutCountRequestEvent) {
+      yield* _mapLogoutCountRequestEventState(event);
     }
 /*    if(event is CloserReasonTypeListByNameCallEvent)
     {
@@ -474,6 +480,21 @@ class DashBoardScreenBloc
           await userRepository.CompanyDetailsCallApi(
               event.companyDetailsApiRequest);
       yield ComapnyDetailsEventResponseState(companyDetailsResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<DashBoardScreenStates> _mapLogoutCountRequestEventState(
+      LogoutCountRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      LogOutCountResponse response =
+          await userRepository.getLogoutCount(event.request);
+      yield LogOutCountResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

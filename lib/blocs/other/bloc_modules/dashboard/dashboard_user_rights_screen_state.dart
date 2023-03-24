@@ -134,3 +134,9 @@ class UserMenuRightsResponseState extends DashBoardScreenStates {
   final UserMenuRightsResponse userMenuRightsResponse;
   UserMenuRightsResponseState(this.MenuName, this.userMenuRightsResponse);
 }
+
+class LogOutCountResponseState extends DashBoardScreenStates {
+  final LogOutCountResponse response;
+
+  LogOutCountResponseState(this.response);
+}

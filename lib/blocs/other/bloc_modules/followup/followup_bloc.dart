@@ -10,6 +10,7 @@ import 'package:soleoserp/models/api_requests/followup/followup_delete_image_req
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_history_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_image_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_no_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_list_request.dart';
@@ -31,6 +32,7 @@ import 'package:soleoserp/models/api_responses/followup/followup_delete_Image_re
 import 'package:soleoserp/models/api_responses/followup/followup_delete_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_filter_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_history_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_image_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_inquiry_by_customer_id_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_inquiry_no_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_list_response.dart';
@@ -155,12 +157,12 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
       yield* _mapUserMenuRightsRequestEventState(event);
     }
 
-    if(event is TeleCallerFollowupSaveRequestEvent)
-      {
-        yield* _mapTeleCallerSaveRequestEventToState(event);
-
-      }
-
+    if (event is TeleCallerFollowupSaveRequestEvent) {
+      yield* _mapTeleCallerSaveRequestEventToState(event);
+    }
+    if (event is FollowupImageListRequestEvent) {
+      yield* _mapFollowupImageListRequestEventToState(event);
+    }
     //
   }
 
@@ -594,16 +596,15 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     }
   }
 
-
-
   Stream<FollowupStates> _mapTeleCallerSaveRequestEventToState(
       TeleCallerFollowupSaveRequestEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
       TeleCallerFollowupSaveResponse respo =
-      await userRepository.teleCallerFollowupFromFollowupSaveDetails(event.followuppkID,event.request);
-      yield TeleCallerFollowupSaveResponseState(event.context,respo);
+          await userRepository.teleCallerFollowupFromFollowupSaveDetails(
+              event.followuppkID, event.request);
+      yield TeleCallerFollowupSaveResponseState(event.context, respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);
@@ -612,4 +613,19 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     }
   }
 
+  Stream<FollowupStates> _mapFollowupImageListRequestEventToState(
+      FollowupImageListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      FollowupImageListResponse respo =
+          await userRepository.followupImageListAPI(event.pkID, event.request);
+      yield FollowupImageListResponseState(event.pkID, respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
 }

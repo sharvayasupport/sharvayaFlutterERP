@@ -162,9 +162,14 @@ class UserMenuRightsResponseState extends FollowupStates {
 }
 
 class TeleCallerFollowupSaveResponseState extends FollowupStates {
-
-   BuildContext context;
+  BuildContext context;
   final TeleCallerFollowupSaveResponse response;
 
-  TeleCallerFollowupSaveResponseState(this.context,this.response);
+  TeleCallerFollowupSaveResponseState(this.context, this.response);
+}
+
+class FollowupImageListResponseState extends FollowupStates {
+  int followuppkID;
+  final FollowupImageListResponse response;
+  FollowupImageListResponseState(this.followuppkID,this.response);
 }

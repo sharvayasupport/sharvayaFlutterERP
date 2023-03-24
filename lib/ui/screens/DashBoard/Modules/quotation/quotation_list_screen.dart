@@ -163,7 +163,8 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
     SiteURL = _offlineCompanyData.details[0].siteURL;
-    Password = _offlineLoggedInData.details[0].userPassword;
+    Password =
+        _offlineLoggedInData.details[0].userPassword.replaceAll("#", "%23");
 
     getUserRights(_menuRightsResponse);
 
@@ -1646,6 +1647,13 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
               child: Visibility(
                 visible: true,
                 child: InAppWebView(
+                  //SiteURL +
+                  //                           "/Quotation.aspx?MobilePdf=yes&userid=" +
+                  //                           LoginUserID +
+                  //                           "&password=" +
+                  //                           Password +
+                  //                           "&pQuotID=" +
+                  //                           model.pkID.toString()
                   //                        webView.loadUrl(SiteURL+"/Quotation.aspx?MobilePdf=yes&userid="+userName123+"&password="+UserPassword+"&pQuotID="+contactListFiltered.get(position).getPkID() + "");
                   // initialUrlRequest:urlRequest == null ? URLRequest(url: Uri.parse("http://122.169.111.101:3346/Default.aspx")) :urlRequest ,
                   initialUrlRequest: URLRequest(

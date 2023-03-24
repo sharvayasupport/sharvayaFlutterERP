@@ -377,9 +377,6 @@ File fileFromDocsDir(String filename) {
   return File(pathName);
 }
 
-
-
-
 class MyApp extends StatefulWidget {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -1003,7 +1000,7 @@ void onStart(ServiceInstance service) async {
   });
 
   // bring to foreground
-  Timer.periodic(const Duration(seconds: 20), (timer) async {
+  Timer.periodic(const Duration(minutes: 15), (timer) async {
     if (service is AndroidServiceInstance) {
       if (await service.isForegroundService()) {
         /// OPTIONAL for use custom notification
@@ -1049,7 +1046,7 @@ void onStart(ServiceInstance service) async {
             };
 
             final response = await http
-                .post(Uri.parse("http://122.169.111.101:108/LogOutCount/Count"),
+                .post(Uri.parse("http://208.109.14.134:83/LogOutCount/Count"),
                     headers: headers,
                     body: json.encode(
                         {"LoginUserID": userid123, "CompanyId": companyID}))
@@ -1070,70 +1067,75 @@ void onStart(ServiceInstance service) async {
         Map<String, dynamic> json1 = await callapi1(cmpid, userid);
         API_Response apiresponse = API_Response.fromJson(json1);
 
-        service.setForegroundNotificationInfo(
-          title: "API Service",
-          content:
-              "Updated at ${apiresponse.details[0].MissedCount.toString() + " Time : " + DateTime.now().toString()}",
-        );
+        if (apiresponse.details[0].TodayCount == 0 &&
+            apiresponse.details[0].MissedCount == 0 &&
+            apiresponse.details[0].FutureCount == 0) {
+        } else {
+          service.setForegroundNotificationInfo(
+            title: "API Service",
+            content:
+                "Updated at ${apiresponse.details[0].MissedCount.toString() + " Time : " + DateTime.now().toString()}",
+          );
 
-        Future<dynamic> callapiNotification(
-            String token123, API_Response apiresponsemodel) async {
-          try {
-            Map<String, String> headers = {
-              'Content-Type': 'application/json; charset=UTF-8',
-              "Authorization":
-                  "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
-            };
+          Future<dynamic> callapiNotification(
+              String token123, API_Response apiresponsemodel) async {
+            try {
+              Map<String, String> headers = {
+                'Content-Type': 'application/json; charset=UTF-8',
+                "Authorization":
+                    "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
+              };
 
-            var request123 = {
-              "to": token123,
-              "notification": {
-                "body": "Todays (" +
-                    apiresponsemodel.details[0].TodayCount.toString() +
-                    ") " +
-                    "\nMissed (" +
-                    apiresponsemodel.details[0].MissedCount.toString() +
-                    ") " +
-                    "\nFuture (" +
-                    apiresponsemodel.details[0].FutureCount.toString() +
-                    ") ",
-                "title": "Followup"
-              },
-              "data": {
-                "body": "Todays (" +
-                    apiresponsemodel.details[0].TodayCount.toString() +
-                    ") " +
-                    "\nMissed (" +
-                    apiresponsemodel.details[0].MissedCount.toString() +
-                    ") " +
-                    "\nFuture (" +
-                    apiresponsemodel.details[0].FutureCount.toString() +
-                    ") ",
-                "title": "Followup",
-                "click_action": "FLUTTER_NOTIFICATION_CLICK"
-              }
-            };
+              var request123 = {
+                "to": token123,
+                "notification": {
+                  "body": "Todays (" +
+                      apiresponsemodel.details[0].TodayCount.toString() +
+                      ") " +
+                      "\nMissed (" +
+                      apiresponsemodel.details[0].MissedCount.toString() +
+                      ") " +
+                      "\nFuture (" +
+                      apiresponsemodel.details[0].FutureCount.toString() +
+                      ") ",
+                  "title": "Follow-up"
+                },
+                "data": {
+                  "body": "Todays (" +
+                      apiresponsemodel.details[0].TodayCount.toString() +
+                      ") " +
+                      "\nMissed (" +
+                      apiresponsemodel.details[0].MissedCount.toString() +
+                      ") " +
+                      "\nFuture (" +
+                      apiresponsemodel.details[0].FutureCount.toString() +
+                      ") ",
+                  "title": "Follow-up",
+                  "click_action": "FLUTTER_NOTIFICATION_CLICK"
+                }
+              };
 
-            final response = await http
-                .post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
-                    headers: headers, body: json.encode(request123))
-                .timeout(const Duration(seconds: 60));
-            var responseJson = json.decode(response.body);
-            //Map<String, dynamic> json1 = responseJson['Data'];
-            return responseJson;
-          } catch (e) {
-            print("kjj" + e.toString());
+              final response = await http
+                  .post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+                      headers: headers, body: json.encode(request123))
+                  .timeout(const Duration(seconds: 60));
+              var responseJson = json.decode(response.body);
+              //Map<String, dynamic> json1 = responseJson['Data'];
+              return responseJson;
+            } catch (e) {
+              print("kjj" + e.toString());
+            }
           }
+
+          String tokenNo = await preferences.get("TokenSP");
+
+          print("getTone" + "Token : " + tokenNo);
+
+          Map<String, dynamic> json123 =
+              await callapiNotification(tokenNo, apiresponse);
+
+          print("sdfdsf" + json123.toString());
         }
-
-        String tokenNo = await preferences.get("TokenSP");
-
-        print("getTone" + "Token : " + tokenNo);
-
-        Map<String, dynamic> json123 =
-            await callapiNotification(tokenNo, apiresponse);
-
-        print("sdfdsf" + json123.toString());
 
         // await LocalRandomNotification(apiresponse.details[0].taskCategoryName);
 

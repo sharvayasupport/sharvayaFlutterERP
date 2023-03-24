@@ -1030,7 +1030,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
             response.details[i].productName.toString(),
             response.details[i].sizeID.toString(),
             response.details[i].sizeName.toString(),
-            "false"));
+            "true"));
       }
 
       List<PriceModel> arrSizeList = await OfflineDbHelper.getInstance()

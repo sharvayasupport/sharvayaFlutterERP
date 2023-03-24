@@ -366,6 +366,10 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
   static const END_POINT_SIZEDLIST_MULTI_DELETE_API = 'Inquiry/';
 
+  static const END_POINT_LOGOUT_COUNT = 'LogOutCount/Count';
+
+  static const END_POINT_FOLLOWUP_IMG_LIST = 'FollowUp/';
+
   //Inquiry
 
   //Quatation/Product/Spec-Save
@@ -1017,7 +1021,9 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
         throw NotFoundException(message.toString());
       case 500:
         var responseJson = json.decode(response.body);
-        final message = responseJson["message"];
+        final message = responseJson["message"] == "An error has occurred."
+            ? "Something Went Wrong !"
+            : responseJson["message"];
         throw ServerErrorException(message.toString());
       default:
         throw FetchDataException(

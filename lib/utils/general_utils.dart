@@ -59,6 +59,14 @@ Future navigateTo(BuildContext context, String routeName,
   } else {
     return await Navigator.of(context, rootNavigator: useRootNavigator)
         .pushNamed(routeName, arguments: arguments);
+
+    /*return Navigator.push(
+        context,
+        PageTransition(alignment: Alignment.center,
+            duration: Duration(seconds: 3),
+            reverseDuration: Duration(seconds: 3),
+            curve: Curves.easeInOutCirc,
+            child: Deviceinfo(), type: PageTransitionType.scale));*/
   }
 }
 

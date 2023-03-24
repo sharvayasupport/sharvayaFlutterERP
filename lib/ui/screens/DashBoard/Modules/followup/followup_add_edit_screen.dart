@@ -8,10 +8,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_image_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
@@ -37,6 +39,7 @@ import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/image_full_screen.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
+
 
 class AddUpdateFollowupScreenArguments {
   FilterDetails editModel;
@@ -274,13 +277,21 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
           if (state is GetReportToTokenResponseState) {
             _onGetTokenfromReportopersonResult(state);
           }
+
+          if(state is FollowupImageListResponseState)
+            {
+              _onGetFollowupImage(state);
+            }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is FollowupCustomerListByNameCallResponseState ||
               currentState is FollowupInquiryStatusListCallResponseState ||
               currentState is FollowupInquiryNoListCallResponseState ||
-              currentState is GetReportToTokenResponseState) {
+              currentState is GetReportToTokenResponseState ||
+
+              currentState is FollowupImageListResponseState
+          ) {
             return true;
           }
           return false;
@@ -500,7 +511,9 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                           width: 20,
                           height: 10,
                         ),
-                        uploadImage(context),
+                        Visibility(
+                          visible: false,
+                          child: uploadImage(context)),
                         SizedBox(
                           width: 20,
                           height: 10,
@@ -529,9 +542,28 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                 if (edt_FollowupNotes.text != "") {
                                   if (edt_NextFollowupDate.text != "") {
                                     if (_selectedImageFile != null) {
-                                      fileName = _selectedImageFile.path
+                                      /*fileName = _selectedImageFile.path
                                           .split('/')
-                                          .last;
+                                          .last;*/
+
+                                      File filerty = File(_selectedImageFile.path);
+
+                                      final extension = p.extension(filerty.path);
+
+                                      int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+                                      fileName="";
+                                       fileName = "Follow_Up"+
+                                          "_" +
+                                          "0" + "_" +
+                                          DateTime.now().day.toString() +
+                                          "_" +
+                                          DateTime.now().month.toString() +
+                                          "_" +
+                                          DateTime.now().year.toString() +
+                                          "_" +
+                                          timestamp1.toString() +
+                                          extension;
+
                                     } else {
                                       fileName = GetImageNamefromEditMode;
                                     }
@@ -1520,6 +1552,26 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
 
     if (_selectedImageFile != null) {
+
+
+      File filerty = File(_selectedImageFile.path);
+
+      final extension = p.extension(filerty.path);
+
+      int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+
+      String followup_fileName = "Follow_Up"+
+          "_" +
+          state.followupSaveResponse.details[0].column3.toString() + "_" +
+          DateTime.now().day.toString() +
+          "_" +
+          DateTime.now().month.toString() +
+          "_" +
+          DateTime.now().year.toString() +
+          "_" +
+          timestamp1.toString() +
+          extension;
+
       _FollowupBloc.add(FollowupUploadImageNameFromMainFollowupCallEvent(
           state.context,
           _selectedImageFile,
@@ -1527,7 +1579,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
               CompanyId: CompanyID.toString(),
               LoginUserId: LoginUserID,
               pkID: "0",
-              fileName: _selectedImageFile.path.split('/').last,
+              fileName: followup_fileName,
               FollowupID:
                   state.followupSaveResponse.details[0].column3.toString(),
               InquiryNo: edt_InqNo.text.toString() != ""
@@ -2033,6 +2085,9 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
       CustomerID: edt_CustomerpkID.text,
     )));
 
+
+    _FollowupBloc.add(FollowupImageListRequestEvent(_editModel.pkID,FollowupImageListRequest(CompanyId: CompanyID.toString(),FollowUpID: "")));
+
     /*
     CompanyId: CompanyID.toString(),LoginUserID: "admin",pkID: savepkID.toString(),FollowupDate: edt_ReverseFollowUpDate.text ,
                                             CustomerID: edt_CustomerpkID.text,InquiryNo: edt_InqNo.text , MeetingNotes: edt_FollowupNotes.text,
@@ -2262,7 +2317,25 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
             checkPhotoPermissionStatus();
           } else {
             pickImage(context, onImageSelection: (file) {
-              _selectedImageFile = file;
+              /*_selectedImageFile = file;*/
+
+              final bytes = file.readAsBytesSync().lengthInBytes;
+              final kb = bytes / 1024;
+              final mb = kb / 1024;
+              print("imgsizedd" + " ImageSize in MB" + mb.toString());
+
+              if (mb >= 4) {
+                showCommonDialogWithSingleOption(
+                    context,
+                    "Image Size Should not be Greater than 5 MB ! \nHere File Size is " +
+                        " (" +
+                        mb.toStringAsFixed(2) +
+                        "MB ) ",
+                    positiveButtonTitle: "OK");
+              } else {
+                _selectedImageFile = file;
+                //multiple_selectedImageFile.add(_selectedImageFile);
+              }
               baseBloc.refreshScreen();
             });
           }
@@ -2576,6 +2649,21 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
     } else {
       Address = "";
     }
+  }
+
+  void _onGetFollowupImage(FollowupImageListResponseState state) {
+    if(state.response.details.isNotEmpty)
+      {
+        for(int i=0;i<state.response.details.length;i++)
+          {
+            if(state.followuppkID==state.response.details[i].followupID)
+              {
+                ImageURLFromListing =
+                    SiteURL + "FollowUpImages/" + state.response.details[i].name;
+                break;
+              }
+          }
+      }
   }
 
 }

@@ -130,6 +130,9 @@ class PushNotificationService {
           if (dataMap['title'] == "Inquiry") {
             navigateTo(Globals.context, InquiryListScreen.routeName,
                 clearAllStack: true);
+          } else if (dataMap['title'] == "Follow-up") {
+            navigateTo(Globals.context, FollowupListScreen.routeName,
+                clearAllStack: true);
           } else if (dataMap['title'] == "FollowUp") {
             List<String> SplitSTr = dataMap['body'].split("By");
             print("NotificationSplitedValue" +

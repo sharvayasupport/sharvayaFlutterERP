@@ -140,4 +140,12 @@ class UserMenuRightsRequestEvent extends DashBoardScreenEvents {
       this.MenuScreenName, this.MenuID, this.userMenuRightsRequest);
 }
 
+class LogoutCountRequestEvent extends DashBoardScreenEvents {
+  final LogoutCountRequest request;
+
+  LogoutCountRequestEvent(this.request);
+}
+
+//
+
 //ConstantRequest

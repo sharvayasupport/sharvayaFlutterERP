@@ -50,6 +50,7 @@ class ExternalLeadSaveRequest {
   String CountryCode;
   String ClosureRemark;
   String CompanyId;
+  String InProcessRemark;
 
   ExternalLeadSaveRequest(
       {this.CompanyName,
@@ -76,8 +77,8 @@ class ExternalLeadSaveRequest {
       this.CompanyId,
       this.SenderName,
       this.QueryDatetime,
-      this.SenderMail
-      });
+      this.SenderMail,
+      this.InProcessRemark});
 
   ExternalLeadSaveRequest.fromJson(Map<String, dynamic> json) {
     CompanyName = json['CompanyName'];
@@ -102,12 +103,10 @@ class ExternalLeadSaveRequest {
     CountryCode = json['CountryCode'];
     ClosureRemark = json['ClosureRemark'];
     CompanyId = json['CompanyId'];
-    SenderName= json['SenderName'];
-    QueryDatetime= json['QueryDatetime'];
-    SenderMail= json['SenderMail'];
-
-
-
+    SenderName = json['SenderName'];
+    QueryDatetime = json['QueryDatetime'];
+    SenderMail = json['SenderMail'];
+    InProcessRemark = json['InProcessRemark'];
   }
 
   Map<String, dynamic> toJson() {
@@ -135,14 +134,10 @@ class ExternalLeadSaveRequest {
     data['CountryCode'] = this.CountryCode;
     data['ClosureRemark'] = this.ClosureRemark;
     data['CompanyId'] = this.CompanyId;
-    data['SenderName']=this.SenderName;
-    data['QueryDatetime']=this.QueryDatetime;
-    data['SenderMail']=this.SenderMail;
-
-
-
-
-
+    data['SenderName'] = this.SenderName;
+    data['QueryDatetime'] = this.QueryDatetime;
+    data['SenderMail'] = this.SenderMail;
+    data['InProcessRemark'] = this.InProcessRemark;
 
     return data;
   }
