@@ -365,3 +365,9 @@ class InquiryProductSearchNameCallEvent extends QuotationEvents {
 
   InquiryProductSearchNameCallEvent(this.inquiryProductSearchRequest);
 }
+
+class QuotationOrganazationListRequestEvent extends QuotationEvents {
+  final QuotationOrganazationListRequest quotationOrganazationListRequest;
+
+  QuotationOrganazationListRequestEvent(this.quotationOrganazationListRequest);
+}

@@ -124,4 +124,9 @@ class BTCountryListResponseState extends CustomerStates {
   final BTCountryListResponse btCountryListResponse;
   BTCountryListResponseState(this.btCountryListResponse);
 }
+
+class CityCodeToCustomerListResponseState extends CustomerStates {
+  final CityCodeToCustomerListResponse response;
+  CityCodeToCustomerListResponseState(this.response);
+}
 //UserMenuRightsResponse

@@ -7,6 +7,7 @@ import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.
 import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/qt_Organization_drop_down_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/qt_spec_save_api_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_header_save_request.dart';
@@ -39,7 +40,6 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/quotation/quotation_list_
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/General_Constants.dart';
 import 'package:soleoserp/utils/calculation/additional_charges_calculation.dart';
 import 'package:soleoserp/utils/calculation/header_discount_calculation.dart';
 import 'package:soleoserp/utils/calculation/model/additonalChargeDetails.dart';
@@ -111,6 +111,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_LeadStatus = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_LeadSource = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_KindAttList = [];
+
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_OrganizationList = [];
+
   List<ALL_Name_ID> arr_ALL_Name_ID_For_ProjectList = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_TermConditionList = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_InqNoList = [];
@@ -118,6 +121,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
 
   final TextEditingController edt_KindAtt = TextEditingController();
   final TextEditingController edt_KindAttID = TextEditingController();
+
+  final TextEditingController edt_OrganizationName = TextEditingController();
+  final TextEditingController edt_OrganizationCode = TextEditingController();
   final TextEditingController edt_ProjectName = TextEditingController();
   final TextEditingController edt_ProjectID = TextEditingController();
   final TextEditingController edt_TermConditionHeader = TextEditingController();
@@ -318,6 +324,18 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   bool isUpdateCalculation = false;
 
   List<OtherChargeDetails> arrGenericOtheCharge = [];
+  bool ISQuotationDetails = false;
+  bool ISProductReference = false;
+  bool IsCurrencyDetails = false;
+
+  bool ISBasicDetails = false;
+
+  bool IsProductDetails = false;
+  bool IsTerms_and_ConditionDetails = false;
+  bool IsEmailContentDetails = false;
+  bool IsFolloUpDetails = false;
+  bool IsAssumptionOtherDetails = false;
+  bool IsAttachementsDetails = false;
 
   @override
   void initState() {
@@ -572,6 +590,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
           if (state is QTSpecSaveResponseState) {
             _onQTSpecificationSaveResponse(state);
           }
+          if (state is QuotationOrganizationListResponseState) {
+            _onQuotationOrganizationListResponse(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -590,7 +611,8 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                   currentState is SOCurrencyListResponseState ||
                   currentState is FollowupTypeListCallResponseState ||
                   currentState is GetQuotationSpecificationQTnoTableState ||
-                  currentState is QTSpecSaveResponseState
+                  currentState is QTSpecSaveResponseState ||
+                  currentState is QuotationOrganizationListResponseState
 /*
               currentState is QuotationOtherChargeListResponseState
 */
@@ -608,6 +630,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
+        backgroundColor: colorTileBG,
         appBar: NewGradientAppBar(
           title: Text('Quotation Details'),
           gradient: LinearGradient(colors: [
@@ -631,70 +654,85 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         ),
         body: SingleChildScrollView(
           child: Container(
-              margin: EdgeInsets.all(Constant.CONTAINERMARGIN),
+              margin: EdgeInsets.all(10),
               child: Form(
                   key: _formKey,
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildFollowupDate(),
-                        SizedBox(
-                          width: 20,
-                          height: 5,
-                        ),
-                        _buildSearchView(),
-                        edt_InquiryNoExist.text == "true"
-                            ? InqNoList("Inquiry No.",
-                                enable1: false,
-                                title: "Inquiry No.",
-                                hintTextvalue: "Tap to Select Inquiry No.",
-                                icon: Icon(Icons.arrow_drop_down),
-                                controllerForLeft: edt_InquiryNo,
-                                controllerpkID: edt_InquiryNoID,
-                                Custom_values1: arr_ALL_Name_ID_For_InqNoList)
-                            : Container(),
-                        SizedBox(
-                          width: 20,
-                          height: 5,
-                        ),
-                        BankDropDown("Bank Details *",
-                            enable1: false,
-                            title: "Bank Details *",
-                            hintTextvalue: "Tap to Select Bank Portal",
-                            icon: Icon(
-                              Icons.arrow_drop_down,
-                              color: colorPrimary,
-                            ),
-                            controllerForLeft: edt_Portal_details,
-                            controllerpkID: edt_Portal_details_ID,
-                            Custom_values1:
-                                arr_ALL_Name_ID_For_BankDropDownList),
+                        Quotation_Details(),
                         SizedBox(
                           width: 20,
                           height: 15,
                         ),
-                        basicInformation(),
-                        ProductAndAddtionalCharges(),
-                        termsAndCondition(),
-                        emailContent(),
-                        Visibility(visible: false, child: FollowupFiled()),
-                        AssumptionandOthers(),
+                        ProductReference(),
                         SizedBox(
                           width: 20,
                           height: 15,
                         ),
-                        Container(
-                          margin: EdgeInsets.all(10),
-                          alignment: Alignment.bottomCenter,
-                          child: getCommonButton(baseTheme, () {
-                            //  _onTapOfDeleteALLContact();
-                            //  navigateTo(context, InquiryProductListScreen.routeName);
+                        CurrencyDetails(),
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
+                        BasicDetails(),
 
+                        Container(
+                          height: 2,
+                          color: Colors.grey,
+                          margin: EdgeInsets.only(top: 10, bottom: 10),
+                        ),
+                        ProductsDetails(),
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
+                        Terms_Condition_Details(),
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
+                        Email_Content_Details(),
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
+                        Followup_Details(),
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
+                        Assuption_other_details(),
+
+                        OldDesign(),
+                        //
+                        SizedBox(
+                          width: 20,
+                          height: 15,
+                        ),
+
+                        InkWell(
+                          onTap: () {
                             _onTaptoSaveQuotationHeader(context);
-                          }, "Save  ",
-                              width: 600,
-                              radius: 30,
-                              backGroundColor: colorPrimary),
+                          },
+                          child: Card(
+                              elevation: 10,
+                              color: colorPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.only(
+                                    left: 20, right: 20, top: 10, bottom: 10),
+                                child: Center(
+                                  child: Text("Save",
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              )),
                         ),
                       ]))),
         ),
@@ -1568,6 +1606,32 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
     InquiryNo = _editModel.quotationNo;
     edt_StateCode.text = _editModel.stateCode.toString();
     int StateCode = _editModel.stateCode;
+
+    edt_OrganizationCode.text = _editModel.OrgCode;
+    edt_OrganizationName.text = _editModel.OrganizationName;
+    _controller_reference_no.text = _editModel.ReferenceNo;
+    _controller_reference_date.text = _editModel.ReferenceDate == ""
+        ? DateTime.now().day.toString() +
+            "-" +
+            DateTime.now().month.toString() +
+            "-" +
+            DateTime.now().year.toString()
+        : _editModel.ReferenceDate.getFormattedDate(
+            fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "dd-MM-yyyy");
+
+    _controller_rev_reference_date.text = _editModel.ReferenceDate == ""
+        ? DateTime.now().year.toString() +
+            "-" +
+            DateTime.now().month.toString() +
+            "-" +
+            DateTime.now().day.toString()
+        : _editModel.ReferenceDate.getFormattedDate(
+            fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
+
+    _controller_credit_days.text = _editModel.CreditDays;
+    _controller_currency.text = _editModel.CurrencyName;
+    _controller_currency_Symbol.text = _editModel.CurrencySymbol;
+    _controller_exchange_rate.text = _editModel.ExchangeRate.toString();
 
     print("sdlfjdfsj" +
         _offlineLoggedInData.details[0].stateCode.toString() +
@@ -2860,7 +2924,16 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                       CompanyId: CompanyID.toString(),
                       BankID: edt_Portal_details_ID.text,
                       AdditionalRemarks: _contrller_other_Remarks.text,
-                      AssumptionRemarks: _controller_Ref_Inquiry.text)));
+                      AssumptionRemarks: _controller_Ref_Inquiry.text,
+                      OrgCode: edt_OrganizationCode.text.toString() == "null"
+                          ? ""
+                          : edt_OrganizationCode.text,
+                      ReferenceNo: _controller_reference_no.text,
+                      ReferenceDate: _controller_rev_reference_date.text,
+                      CreditDays: _controller_credit_days.text,
+                      CurrencyName: _controller_currency.text,
+                      CurrencySymbol: _controller_currency_Symbol.text,
+                      ExchangeRate: _controller_exchange_rate.text)));
             });
           } else {
             showCommonDialogWithSingleOption(
@@ -5746,5 +5819,1714 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
       navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
     });*/
     print("dljjdf434" + state.qTSpecSaveResponse.details[0].column2);
+  }
+
+  OldDesign() {
+    return Visibility(
+        visible: false,
+        child: Column(
+          children: [
+            _buildFollowupDate(),
+            SizedBox(
+              width: 20,
+              height: 5,
+            ),
+            _buildSearchView(),
+            edt_InquiryNoExist.text == "true"
+                ? InqNoList("Inquiry No.",
+                    enable1: false,
+                    title: "Inquiry No.",
+                    hintTextvalue: "Tap to Select Inquiry No.",
+                    icon: Icon(Icons.arrow_drop_down),
+                    controllerForLeft: edt_InquiryNo,
+                    controllerpkID: edt_InquiryNoID,
+                    Custom_values1: arr_ALL_Name_ID_For_InqNoList)
+                : Container(),
+            SizedBox(
+              width: 20,
+              height: 5,
+            ),
+            BankDropDown("Bank Details *",
+                enable1: false,
+                title: "Bank Details *",
+                hintTextvalue: "Tap to Select Bank Portal",
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: colorPrimary,
+                ),
+                controllerForLeft: edt_Portal_details,
+                controllerpkID: edt_Portal_details_ID,
+                Custom_values1: arr_ALL_Name_ID_For_BankDropDownList),
+            SizedBox(
+              width: 20,
+              height: 15,
+            ),
+            basicInformation(),
+            ProductAndAddtionalCharges(),
+            termsAndCondition(),
+            emailContent(),
+            AssumptionandOthers(),
+            Visibility(visible: false, child: FollowupFiled()),
+          ],
+        ));
+  }
+
+  ProductsDetails() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsProductDetails = !IsProductDetails;
+                  ISBasicDetails = false;
+                  IsTerms_and_ConditionDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsAssumptionOtherDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Products & Additional Charges",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsProductDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsProductDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(10),
+                      alignment: Alignment.bottomCenter,
+                      child: getCommonButton(baseTheme, () async {
+                        if (edt_CustomerName.text != "") {
+                          print("INWWWE" + edt_HeaderDisc.text.toString());
+                          navigateTo(context,
+                                  OldQuotationProductListScreen.routeName,
+                                  arguments: OldAddQuotationProductListArgument(
+                                      InquiryNo,
+                                      edt_StateCode.text,
+                                      edt_HeaderDisc.text))
+                              .then((value) async {
+                            await getInquiryProductDetails();
+                          });
+                        } else {
+                          showCommonDialogWithSingleOption(context,
+                              "Customer name is required To view Product !",
+                              positiveButtonTitle: "OK");
+                        }
+                      }, "Products",
+                          width: 600,
+                          textColor: Colors.black,
+                          backGroundColor: Colors.amber,
+                          radius: 15.0),
+                    ),
+                    Visibility(
+                      visible: true,
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        alignment: Alignment.bottomCenter,
+                        child: getCommonButton(baseTheme, () async {
+                          await getInquiryProductDetails();
+
+                          if (_inquiryProductList.length != 0) {
+                            print("HeaderDiscll" +
+                                edt_HeaderDisc.text.toString());
+
+                            navigateTo(context,
+                                    NewQuotationOtherChargeScreen.routeName,
+                                    arguments:
+                                        NewQuotationOtherChargesScreenArguments(
+                                            int.parse(edt_StateCode.text == null
+                                                ? 0
+                                                : edt_StateCode.text),
+                                            _editModel,
+                                            edt_HeaderDisc.text,
+                                            "OtherCharge",
+                                            addditionalCharges))
+                                .then((value) {
+                              setState(() {
+                                addditionalCharges = value;
+
+                                isUpdateCalculation = true;
+
+                                edt_HeaderDisc.text =
+                                    addditionalCharges.DiscountAmt;
+
+                                print("jjff23kj" +
+                                    addditionalCharges.DiscountAmt);
+                              });
+                            });
+                          } else {
+                            showCommonDialogWithSingleOption(context,
+                                "Atleast one product is required to view other charges !",
+                                positiveButtonTitle: "OK");
+                          }
+                        }, "Additional Charges",
+                            width: 600,
+                            textColor: Colors.white,
+                            backGroundColor: Colors.pink,
+                            radius: 15.0),
+                      ),
+                    ),
+                    Visibility(
+                      visible: true,
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        alignment: Alignment.bottomCenter,
+                        child: getCommonButton(baseTheme, () async {
+                          await getInquiryProductDetails();
+
+                          if (_inquiryProductList.length != 0) {
+                            print("HeaderDiscll" +
+                                edt_HeaderDisc.text.toString());
+
+                            navigateTo(context,
+                                    NewQuotationOtherChargeScreen.routeName,
+                                    arguments:
+                                        NewQuotationOtherChargesScreenArguments(
+                                            int.parse(edt_StateCode.text == null
+                                                ? 0
+                                                : edt_StateCode.text),
+                                            _editModel,
+                                            edt_HeaderDisc.text,
+                                            "Calculation",
+                                            addditionalCharges))
+                                .then((value) {
+                              setState(() {
+                                addditionalCharges = value;
+
+                                isUpdateCalculation = true;
+
+                                edt_HeaderDisc.text =
+                                    addditionalCharges.DiscountAmt;
+
+                                print("jjff23kj" +
+                                    addditionalCharges.DiscountAmt);
+                              });
+                            });
+                          } else {
+                            showCommonDialogWithSingleOption(context,
+                                "Atleast one product is required to view other charges !",
+                                positiveButtonTitle: "OK");
+                          }
+                        }, "Final Summary",
+                            width: 600,
+                            textColor: Colors.white,
+                            backGroundColor: Colors.cyan,
+                            radius: 15.0),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsTerms_and_ConditionDetails =
+                              !IsTerms_and_ConditionDetails;
+                          ISBasicDetails = false;
+                          IsProductDetails = false;
+                          IsEmailContentDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Quotation_Details() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  ISQuotationDetails = !ISQuotationDetails;
+                  ISProductReference = false;
+                  ISBasicDetails = false;
+                  IsProductDetails = false;
+                  IsTerms_and_ConditionDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsAssumptionOtherDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Quotation Details",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    ISQuotationDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: ISQuotationDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        _selectDate(context, edt_InquiryDate);
+                      },
+                      child: TextFormField(
+                          controller: edt_InquiryDate,
+                          enabled: false,
+                          decoration: const InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Quotation Date',
+                              hintText: "DD-MM-YYYY"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        _onTapOfSearchView();
+                      },
+                      child: TextFormField(
+                          controller: edt_CustomerName,
+                          enabled: false,
+                          decoration: const InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Customer Name *',
+                              hintText: "Tap to select Name"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    edt_InquiryNoExist.text == "true"
+                        ? InkWell(
+                            onTap: () {
+                              // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                              showcustomdialogWithID(
+                                  values: arr_ALL_Name_ID_For_InqNoList,
+                                  context1: context,
+                                  controller: edt_InquiryNo,
+                                  controllerID: edt_InquiryNoID,
+                                  lable: "Select InquiryNo. ");
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 20),
+                              child: TextFormField(
+                                  controller: edt_InquiryNo,
+                                  enabled: false,
+                                  decoration: const InputDecoration(
+                                      suffixIcon:
+                                          Icon(Icons.arrow_drop_down_sharp),
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Inquiry No',
+                                      hintText: "Select Status"),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF000000),
+                                  )),
+                            ),
+                          )
+                        : Container(),
+
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        showcustomdialogWithID(
+                            values: arr_ALL_Name_ID_For_BankDropDownList,
+                            context1: context,
+                            controller: edt_Portal_details,
+                            controllerID: edt_Portal_details_ID,
+                            lable: "Select Bank Portal");
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_Portal_details,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Bank Details',
+                                hintText: "Select Bank"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        if (edt_CustomerpkID.text != "") {
+                          _inquiryBloc.add(QuotationKindAttListCallEvent(
+                              QuotationKindAttListApiRequest(
+                                  CompanyId: CompanyID.toString(),
+                                  CustomerID: edt_CustomerpkID.text)));
+                        } else {
+                          showCommonDialogWithSingleOption(
+                              context, "Customer Name is Required!",
+                              positiveButtonTitle: "OK",
+                              onTapOfPositiveButton: () {
+                            Navigator.pop(context);
+                          });
+                        }
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_KindAtt,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Kind Attn.',
+                                hintText: "Select Kind Attn."),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+
+                    Visibility(
+                      visible: _offlineLoggedInData.details[0].serialKey
+                                      .toUpperCase() ==
+                                  "TEST-0000-SI0F-0208" ||
+                              _offlineLoggedInData.details[0].serialKey
+                                      .toUpperCase() ==
+                                  "KKS1-RR30-LL80-AA89" ||
+                              _offlineLoggedInData.details[0].serialKey
+                                      .toUpperCase() ==
+                                  "GR5T-E7K3-EN2G-LAP4"
+                          ? true
+                          : false,
+                      child: InkWell(
+                        onTap: () {
+                          // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                          _inquiryBloc.add(
+                              QuotationOrganazationListRequestEvent(
+                                  QuotationOrganazationListRequest(
+                                      CompanyID: CompanyID.toString(),
+                                      LoginUserID: LoginUserID)));
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 20),
+                          child: TextFormField(
+                              controller: edt_OrganizationName,
+                              enabled: false,
+                              decoration: const InputDecoration(
+                                  suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                  border: UnderlineInputBorder(),
+                                  labelText: 'Organization Name',
+                                  hintText: "Select Organization"),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              )),
+                        ),
+                      ),
+                    ),
+
+                    ///
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          textInputAction: TextInputAction.next,
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          controller: _controller_credit_days,
+                          decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.today_sharp),
+                              border: UnderlineInputBorder(),
+                              labelText: 'Credit Days',
+                              hintText: "Enter Days"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+
+                    Container(
+                      //margin: EdgeInsets.only(left: 10, right: 10),
+                      child: Text("Details",
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: colorPrimary,
+                              fontWeight: FontWeight
+                                  .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                          ),
+                    ),
+                    TextFormField(
+                      controller: edt_Description,
+                      minLines: 2,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          hintText: 'Enter Details',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderSide: new BorderSide(color: colorPrimary),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          )),
+                    ),
+
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          ISProductReference = !ISProductReference;
+                          ISQuotationDetails = false;
+                          IsProductDetails = false;
+                          ISBasicDetails = false;
+                          IsTerms_and_ConditionDetails = false;
+                          IsEmailContentDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Terms_Condition_Details() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsTerms_and_ConditionDetails = !IsTerms_and_ConditionDetails;
+                  ISBasicDetails = false;
+                  IsProductDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsAssumptionOtherDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Terms & Condition",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsTerms_and_ConditionDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsTerms_and_ConditionDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _inquiryBloc.add(QuotationTermsConditionCallEvent(
+                            QuotationTermsConditionRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: LoginUserID)));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_TermConditionHeader,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Terms & Condition',
+                                hintText: "Select Terms & Condition"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    TextFormField(
+                      controller: edt_TermConditionFooter,
+                      minLines: 2,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          hintText: 'Enter Terms & Condition',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderSide: new BorderSide(color: colorPrimary),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsEmailContentDetails = !IsEmailContentDetails;
+                          ISBasicDetails = false;
+                          IsTerms_and_ConditionDetails = false;
+                          IsProductDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Email_Content_Details() {
+    return Visibility(
+      visible: _offlineCompanyData.details[0].pkId == 4132 ? true : false,
+      child: Card(
+          elevation: 20,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    IsEmailContentDetails = !IsEmailContentDetails;
+                    ISBasicDetails = false;
+                    IsProductDetails = false;
+                    IsTerms_and_ConditionDetails = false;
+                    IsFolloUpDetails = false;
+                    IsAssumptionOtherDetails = false;
+                    IsAttachementsDetails = false;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  margin: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Text("Email Content",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: colorPrimary,
+                              fontWeight: FontWeight.bold)),
+                      Spacer(),
+                      IsEmailContentDetails == true
+                          ? Icon(
+                              Icons.arrow_circle_up_rounded,
+                              color: colorPrimary,
+                            )
+                          : Icon(Icons.arrow_circle_down_rounded,
+                              color: colorPrimary)
+                    ],
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: IsEmailContentDetails,
+                child: Container(
+                  margin: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 4,
+                            child: InkWell(
+                              onTap: () {
+                                // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                                _inquiryBloc.add(
+                                    QuotationEmailContentRequestEvent(
+                                        QuotationEmailContentRequest(
+                                            CompanyId: CompanyID.toString(),
+                                            LoginUserID: LoginUserID)));
+                              },
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 20),
+                                child: TextFormField(
+                                    controller:
+                                        _controller_select_email_subject,
+                                    enabled: false,
+                                    decoration: const InputDecoration(
+                                        suffixIcon:
+                                            Icon(Icons.arrow_drop_down_sharp),
+                                        border: UnderlineInputBorder(),
+                                        labelText: "Subject",
+                                        hintText: "Select Subject"),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Color(0xFF000000),
+                                    )),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              height: 42,
+                              alignment: Alignment.topRight,
+                              child: FloatingActionButton(
+                                onPressed: () async {
+                                  // Add your onPressed code here!
+                                  //await _onTapOfDeleteALLProduct();
+
+                                  // navigateTo(context, QuotationAddEditScreen.routeName);
+                                  showcustomdialogSendEmail(
+                                      context1: context, Email: "sdfj");
+                                },
+                                child: const Icon(Icons.add),
+                                backgroundColor: Colors.pinkAccent,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: _controller_select_email_subject,
+                            keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                                counterText: "",
+                                suffixIcon: Icon(Icons.web),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Subject',
+                                hintText: "Enter Subject"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                      TextFormField(
+                        controller: _contrller_Email_Discription,
+                        minLines: 2,
+                        maxLines: 5,
+                        keyboardType: TextInputType.multiline,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            hintText: 'Email Introduction',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: OutlineInputBorder(
+                              borderSide: new BorderSide(color: colorPrimary),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            )),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            IsFolloUpDetails = !IsFolloUpDetails;
+                            ISBasicDetails = false;
+                            IsTerms_and_ConditionDetails = false;
+                            IsProductDetails = false;
+                            IsAssumptionOtherDetails = false;
+                            IsEmailContentDetails = false;
+                            IsAttachementsDetails = false;
+                          });
+                        },
+                        child: Card(
+                            elevation: 10,
+                            color: colorPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              margin: EdgeInsets.only(
+                                  left: 20, right: 20, top: 10, bottom: 10),
+                              child: Center(
+                                child: Text("Next",
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )),
+    );
+  }
+
+  Assuption_other_details() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsAssumptionOtherDetails = !IsAssumptionOtherDetails;
+                  ISBasicDetails = false;
+                  IsProductDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsTerms_and_ConditionDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Assumption & Others Details",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsAssumptionOtherDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsAssumptionOtherDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _controller_Ref_Inquiry,
+                      minLines: 2,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          hintText: 'Enter Reference Inquiry',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderSide: new BorderSide(color: colorPrimary),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      controller: _contrller_other_Remarks,
+                      minLines: 2,
+                      maxLines: 5,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          hintText: 'Other Remarks',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderSide: new BorderSide(color: colorPrimary),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsEmailContentDetails = false;
+                          ISBasicDetails = false;
+                          IsTerms_and_ConditionDetails = false;
+                          IsProductDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Followup_Details() {
+    return Visibility(
+      visible: _offlineCompanyData.details[0].pkId == 4132 ? true : false,
+      child: Card(
+          elevation: 20,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    IsFolloUpDetails = !IsFolloUpDetails;
+                    IsEmailContentDetails = false;
+                    ISBasicDetails = false;
+                    IsTerms_and_ConditionDetails = false;
+                    IsProductDetails = false;
+                    IsAssumptionOtherDetails = false;
+                    IsAttachementsDetails = false;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  margin: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Text("Followup Details ",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: colorPrimary,
+                              fontWeight: FontWeight.bold)),
+                      Spacer(),
+                      IsFolloUpDetails == true
+                          ? Icon(
+                              Icons.arrow_circle_up_rounded,
+                              color: colorPrimary,
+                            )
+                          : Icon(Icons.arrow_circle_down_rounded,
+                              color: colorPrimary)
+                    ],
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: IsFolloUpDetails,
+                child: Container(
+                  margin: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          _selectNextFollowupDate(
+                              context, edt_NextFollowupDate);
+                        },
+                        child: TextFormField(
+                            controller: edt_NextFollowupDate,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.calendar_today_outlined),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Next Followup Date *',
+                                hintText: "DD-MM-YYYY"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                          _inquiryBloc.add(FollowupTypeListByNameCallEvent(
+                              FollowupTypeListRequest(
+                                  CompanyId: CompanyID.toString(),
+                                  pkID: "",
+                                  StatusCategory: "FollowUp",
+                                  LoginUserID: LoginUserID,
+                                  SearchKey: "")));
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(top: 20, bottom: 20),
+                          child: TextFormField(
+                              controller: edt_FollowupType,
+                              enabled: false,
+                              decoration: const InputDecoration(
+                                  suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                  border: UnderlineInputBorder(),
+                                  labelText: 'Followup Type',
+                                  hintText: "Select Type"),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              )),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        //margin: EdgeInsets.only(left: 10, right: 10),
+                        child: Text("Followup Notes",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: colorPrimary,
+                                fontWeight: FontWeight
+                                    .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                            ),
+                      ),
+                      TextFormField(
+                        controller: edt_FollowupNotes,
+                        minLines: 2,
+                        maxLines: 5,
+                        keyboardType: TextInputType.multiline,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(10.0),
+                            hintText: 'Enter Notes',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            border: OutlineInputBorder(
+                              borderSide: new BorderSide(color: colorPrimary),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            )),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            IsAssumptionOtherDetails =
+                                !IsAssumptionOtherDetails;
+                            IsEmailContentDetails = false;
+                            ISBasicDetails = false;
+                            IsTerms_and_ConditionDetails = false;
+                            IsProductDetails = false;
+                            IsFolloUpDetails = false;
+                            IsAttachementsDetails = false;
+                          });
+                        },
+                        child: Card(
+                            elevation: 10,
+                            color: colorPrimary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              margin: EdgeInsets.only(
+                                  left: 20, right: 20, top: 10, bottom: 10),
+                              child: Center(
+                                child: Text("Next",
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )),
+    );
+  }
+
+  ProductReference() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  ISProductReference = !ISProductReference;
+                  ISQuotationDetails = false;
+                  ISBasicDetails = false;
+                  IsProductDetails = false;
+                  IsTerms_and_ConditionDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsAssumptionOtherDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Product Refrence",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    ISProductReference == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: ISProductReference,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        if (edt_CustomerName.text != "") {
+                          showcustomdialogWithID(
+                              values: arr_ALL_Name_ID_For_InqNoList,
+                              context1: context,
+                              controller: edt_InquiryNo,
+                              controllerID: edt_InquiryNoID,
+                              lable: "Select InquiryNo. ");
+                        } else {
+                          showCommonDialogWithSingleOption(
+                              context, "Customer Name is required !",
+                              positiveButtonTitle: "OK",
+                              onTapOfPositiveButton: () {
+                            Navigator.pop(context);
+                          });
+                        }
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_InquiryNo,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Inquiry No',
+                                hintText: "Select Status"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          ISBasicDetails = !ISBasicDetails;
+
+                          ISProductReference = false;
+                          ISQuotationDetails = false;
+                          IsProductDetails = false;
+                          IsTerms_and_ConditionDetails = false;
+                          IsEmailContentDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  CurrencyDetails() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsCurrencyDetails = !IsCurrencyDetails;
+                  ISQuotationDetails = false;
+                  ISProductReference = false;
+                  ISBasicDetails = false;
+                  IsProductDetails = false;
+                  IsTerms_and_ConditionDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsAssumptionOtherDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Currency Details",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsCurrencyDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsCurrencyDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _inquiryBloc.add(SOCurrencyListRequestEvent(
+                            SOCurrencyListRequest(
+                                LoginUserID: LoginUserID,
+                                CurrencyName: "",
+                                CompanyID: CompanyID.toString())));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: _controller_currency,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Currency',
+                                hintText: "Select Currency"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+
+                    ///
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: TextFormField(
+                                textInputAction: TextInputAction.next,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                                controller: _controller_exchange_rate,
+                                decoration: const InputDecoration(
+                                    suffixIcon: Icon(Icons.currency_exchange),
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'Exchange Rate',
+                                    hintText: "Enter Rate"),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF000000),
+                                )),
+                          ),
+                        ),
+                        /* SizedBox(
+                          width: 10,
+                        ),*/
+                        /*Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: TextFormField(
+                                textInputAction: TextInputAction.next,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                                controller: _controller_credit_days,
+                                decoration: const InputDecoration(
+                                    suffixIcon: Icon(Icons.today_sharp),
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'Credit Days',
+                                    hintText: "Enter Days"),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF000000),
+                                )),
+                          ),
+                        ),*/
+                      ],
+                    ),
+
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsCurrencyDetails = false;
+                          ISProductReference = false;
+                          ISQuotationDetails = false;
+                          IsProductDetails = false;
+                          ISBasicDetails = !ISBasicDetails;
+                          IsTerms_and_ConditionDetails = false;
+                          IsEmailContentDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  BasicDetails() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  ISBasicDetails = !ISBasicDetails;
+                  IsProductDetails = false;
+                  IsTerms_and_ConditionDetails = false;
+                  IsEmailContentDetails = false;
+                  IsFolloUpDetails = false;
+                  IsAssumptionOtherDetails = false;
+                  IsAttachementsDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Basic Details",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    ISBasicDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(Icons.arrow_circle_down_rounded,
+                            color: colorPrimary)
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: ISBasicDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _inquiryBloc.add(QuotationProjectListCallEvent(
+                            QuotationProjectListRequest(
+                                CompanyId: CompanyID.toString(),
+                                LoginUserID: LoginUserID)));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_ProjectName,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Project',
+                                hintText: "Select Project"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: TextFormField(
+                                textInputAction: TextInputAction.next,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                                controller: _controller_reference_no,
+                                decoration: const InputDecoration(
+                                    suffixIcon: Icon(Icons.mobile_friendly),
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'Refrence No.',
+                                    hintText: "Enter Number"),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF000000),
+                                )),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              _selectRefrenceFollowupDate(
+                                  context, _controller_reference_date);
+                            },
+                            child: TextFormField(
+                                controller: _controller_reference_date,
+                                enabled: false,
+                                decoration: const InputDecoration(
+                                    suffixIcon:
+                                        Icon(Icons.calendar_today_outlined),
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'Refrence Date',
+                                    hintText: "DD-MM-YYYY"),
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFF000000),
+                                )),
+                          ),
+                        ),
+                      ],
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsProductDetails = !IsProductDetails;
+                          ISBasicDetails = false;
+                          IsTerms_and_ConditionDetails = false;
+                          IsEmailContentDetails = false;
+                          IsFolloUpDetails = false;
+                          IsAssumptionOtherDetails = false;
+                          IsAttachementsDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  void _onQuotationOrganizationListResponse(
+      QuotationOrganizationListResponseState state) {
+    //state.quotationOrganizationListResponse.details
+    if (state.quotationOrganizationListResponse.details.length != 0) {
+      arr_ALL_Name_ID_For_OrganizationList.clear();
+      for (var i = 0;
+          i < state.quotationOrganizationListResponse.details.length;
+          i++) {
+        // print("InquiryStatus : " + state.quotationOrganizationListResponse.details[i].contactPerson1);
+        if (state.quotationOrganizationListResponse.details[i].activeFlag ==
+            true) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name =
+              state.quotationOrganizationListResponse.details[i].orgName;
+          all_name_id.Name1 =
+              state.quotationOrganizationListResponse.details[i].orgCode;
+          arr_ALL_Name_ID_For_OrganizationList.add(all_name_id);
+        }
+      }
+      showcustomdialogWithTWOName(
+          values: arr_ALL_Name_ID_For_OrganizationList,
+          context1: context,
+          controller: edt_OrganizationName,
+          controller1: edt_OrganizationCode,
+          lable: "Select Organization");
+    }
   }
 }

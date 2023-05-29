@@ -15,7 +15,6 @@ import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_co
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_image_upload_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_list_request.dart';
-import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_no_to_delete_image_video_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_save_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_emp_follower_list_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/fetch_accurabath_complaint_image_list_request.dart';
@@ -34,6 +33,10 @@ import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_search_by_id_
 import 'package:soleoserp/models/api_requests/SalesOrder/bank_details_list_request.dart';
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
 import 'package:soleoserp/models/api_requests/ToDo_request/to_do_delete_request.dart';
+import 'package:soleoserp/models/api_requests/accurabath_complaint/accurabath_complaint_no_to_delete_image_request.dart';
+import 'package:soleoserp/models/api_requests/accurabath_complaint/accurabath_complaint_no_to_delete_video_request.dart';
+import 'package:soleoserp/models/api_requests/accurabath_complaint/accurabath_complaint_no_to_upload_video_request.dart';
+import 'package:soleoserp/models/api_requests/accurabath_complaint/accurabath_complaint_videoList_request.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_employee_list_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
@@ -61,6 +64,7 @@ import 'package:soleoserp/models/api_requests/complaint/complaint_search_by_Id_r
 import 'package:soleoserp/models/api_requests/complaint/complaint_search_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/customer/bt_country_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/city_code_to_customer_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/cust_id_inq_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_category_request.dart';
@@ -95,6 +99,7 @@ import 'package:soleoserp/models/api_requests/external_leads/assign_to_notificat
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_list_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_save_request.dart';
 import 'package:soleoserp/models/api_requests/external_leads/external_lead_search_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_count_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_image_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
@@ -176,6 +181,7 @@ import 'package:soleoserp/models/api_requests/product_activity_request/productio
 import 'package:soleoserp/models/api_requests/product_activity_request/production_activity_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/production_packing_list_request.dart';
 import 'package:soleoserp/models/api_requests/product_activity_request/typeofwork_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/qt_Organization_drop_down_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/qt_spec_save_api_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
@@ -192,6 +198,7 @@ import 'package:soleoserp/models/api_requests/quotation/save_email_content_reque
 import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/search_quotation_list_by_number_request.dart';
 import 'package:soleoserp/models/api_requests/salary_upad/salary_upad_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/headerToDetailsRequest.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_delete_request.dart';
@@ -208,6 +215,9 @@ import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pd
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipment_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipment_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipmnet_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_requests/sales_target/sales_target_list_request.dart';
 import 'package:soleoserp/models/api_requests/swastick_telecaller_request/new_telecaller_save_request.dart';
@@ -224,12 +234,15 @@ import 'package:soleoserp/models/api_requests/toDo_request/to_do_worklog_list_re
 import 'package:soleoserp/models/api_requests/toDo_request/todo_list_request.dart';
 import 'package:soleoserp/models/api_requests/toDo_request/transection_mode_list_request.dart';
 import 'package:soleoserp/models/api_requests/to_do_office/to_do_office_list_request.dart';
+import 'package:soleoserp/models/api_requests/vk_sound_complaint/vk_complain_history_request.dart';
+import 'package:soleoserp/models/api_requests/vk_sound_complaint/vk_complain_pkid_to_details_request.dart';
+import 'package:soleoserp/models/api_requests/vk_sound_complaint/vk_sound_complain_delete_request.dart';
+import 'package:soleoserp/models/api_requests/vk_sound_complaint/vk_sound_complain_list_request.dart';
+import 'package:soleoserp/models/api_requests/vk_sound_complaint/vk_sound_complaint_save_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_followup_save_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
-import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_no_to_delete_image_video_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_save_response.dart';
-import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_emp_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabth_complaint_upload_image_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/complaint_image_list_response.dart';
 import 'package:soleoserp/models/api_responses/AttendVisit/attend_visit_delete_response.dart';
@@ -243,6 +256,11 @@ import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/bank_details_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleOrder/multi_no_to_product_details_response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/accurabath_complaint_no_to_delete_image_response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/accurabath_complaint_videoList_Response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/accurabath_emp_list_response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/acurabath_complaint_no_to_delete_video_response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/acurabath_complaint_no_to_upload_video_response.dart';
 import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_list_response.dart';
 import 'package:soleoserp/models/api_responses/attendVisit/attend_visit_save_response.dart';
 import 'package:soleoserp/models/api_responses/attendance/attendance_employee_list_response.dart';
@@ -270,6 +288,7 @@ import 'package:soleoserp/models/api_responses/complaint/complaint_save_response
 import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/constant_master/constant_response.dart';
 import 'package:soleoserp/models/api_responses/customer/bt_country_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/city_code_to_customer_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/cust_id_to_inq_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
@@ -386,6 +405,7 @@ import 'package:soleoserp/models/api_responses/production_activity_response/prod
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_delete_reponse.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_list_response.dart';
 import 'package:soleoserp/models/api_responses/production_activity_response/production_activity_packingno_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/qt_Organization_drop_down_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/qt_spec_save_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_delete_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_email_content_response.dart';
@@ -401,6 +421,7 @@ import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_
 import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/save_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/search_quotation_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/headerToDetailsResponse.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sales_bill_generate_pdf_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sb_delete_response.dart';
@@ -416,6 +437,8 @@ import 'package:soleoserp/models/api_responses/saleOrder/sales_order_pdf_generat
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_delete_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
 import 'package:soleoserp/models/api_responses/sales_target/sales_target_list_response.dart';
 import 'package:soleoserp/models/api_responses/swastik_telecaller_response/telecaller_new_pagination_response.dart';
@@ -431,6 +454,11 @@ import 'package:soleoserp/models/api_responses/to_do/to_do_worklog_list_response
 import 'package:soleoserp/models/api_responses/to_do/todo_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do/transection_mode_list_response.dart';
 import 'package:soleoserp/models/api_responses/to_do_office/to_do_office_list_response.dart';
+import 'package:soleoserp/models/api_responses/vk_sound_complaint/vk_complain_history_response.dart';
+import 'package:soleoserp/models/api_responses/vk_sound_complaint/vk_complain_pkid_to_details_response.dart';
+import 'package:soleoserp/models/api_responses/vk_sound_complaint/vk_sound_complain_list_response.dart';
+import 'package:soleoserp/models/api_responses/vk_sound_complaint/vk_sound_complaint_delete_response.dart';
+import 'package:soleoserp/models/api_responses/vk_sound_complaint/vk_sound_complaint_save_response.dart';
 import 'package:soleoserp/models/common/contact_model.dart';
 import 'package:soleoserp/models/common/final_checking_items.dart';
 import 'package:soleoserp/models/common/inquiry_product_model.dart';
@@ -971,6 +999,22 @@ class Repository {
           inquiryProductSearchRequest.toJson());
       InquiryProductSearchResponse response =
           InquiryProductSearchResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<QuotationOrganizationListResponse> getQuotationOrganizationListAPI(
+      QuotationOrganazationListRequest quotationOrganazationListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_QT_ORGANIZATION_DROP_DOWN_LIST + "1-100000",
+          quotationOrganazationListRequest.toJson());
+      QuotationOrganizationListResponse response =
+          QuotationOrganizationListResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -1539,7 +1583,7 @@ class Repository {
     //todo due to one api bug temporary adding following key
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          "${ApiClient.END_POINT_COMPLAINT_LIST_DETAILS}/$pageNo-10",
+          "${ApiClient.END_POINT_ACURABATH_OMPLAINT_LIST_DETAILS}/$pageNo-10",
           accuraBathComplaintListRequest
               .toJson() /*jsontemparray: customerPaginationRequest.lstcontact*/);
       print("ToJSONRESPONSFG : " +
@@ -1564,6 +1608,33 @@ class Repository {
       FetchAccuraBathComplaintImageListResponse cityApiRespose =
           FetchAccuraBathComplaintImageListResponse.fromJson(json);
       return cityApiRespose;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccurabathComplaintVideoListResponse>
+      AccuraBathComplaint_Video_list_details(
+          AccuraBathComplaintVideoListRequest
+              accuraBathComplaintVideoListRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_ACURABATH_COMPLAINT_VIDEO_LIST,
+          accuraBathComplaintVideoListRequest.toJson());
+      AccurabathComplaintVideoListResponse cityApiRespose =
+          AccurabathComplaintVideoListResponse.fromJson(json);
+      return cityApiRespose;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<File> AccurabathImageFileListAPI(
+      String fileUrl, String docName) async {
+    try {
+      File file = await apiClient.apiCallGetFile(fileUrl, docName);
+      // File cityApiRespose = AccurabathComplaintVideoListResponse.fromJson(json);
+      return file;
     } on ErrorResponseException catch (e) {
       rethrow;
     }
@@ -2143,6 +2214,54 @@ class Repository {
           "${ApiClient.END_POINT_SALES_TARGET_PAGINATION}/$pageNo-10",
           salaryTargetListRequest.toJson());
       SalesTargetListResponse response = SalesTargetListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SOShipmentlistResponse> getSoShipmentListAPI(
+      SOShipmentListRequest soShipmentListRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      String ORderNo = soShipmentListRequest.OrderNo;
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SO_SHIPMENT_LIST}/$ORderNo",
+          soShipmentListRequest.toJson());
+      SOShipmentlistResponse response = SOShipmentlistResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<SOShipmentSaveResponse> saveSoShipmentListAPI(
+      SOShipmentSaveRequest soShipmentSaveRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      String ORderNo = soShipmentSaveRequest.OrderNo;
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SO_SHIPMENT_LIST}/$ORderNo/Save",
+          soShipmentSaveRequest.toJson());
+      SOShipmentSaveResponse response = SOShipmentSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> deleteSoShipmentListAPI(
+      SOShipmentDeleteRequest soShipmentSaveRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      //String ORderNo = soShipmentSaveRequest.OrderNo;
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SO_SHIPMENT_LIST}/Delete",
+          soShipmentSaveRequest.toJson());
+      String response = json['Message'];
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -4209,7 +4328,9 @@ class Repository {
     //todo due to one api bug temporary adding following key
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          ApiClient.END_POINT_COMPLAINT_FOLLOWUP_HISTORY_LIST,
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_FOLLOWUP_HISTORY_LIST +
+              complaintFollowupHistoryListResponse.pkID.toString() +
+              "/FollowUplist",
           complaintFollowupHistoryListResponse.toJson());
       AccuraBathComplaintFollowupHistoryListResponse response =
           AccuraBathComplaintFollowupHistoryListResponse.fromJson(json);
@@ -4227,7 +4348,7 @@ class Repository {
     //todo due to one api bug temporary adding following key
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          ApiClient.END_POINT_COMPLAINT_SAVE_FOLLOWUP,
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_SAVE_FOLLOWUP,
           complaintFollowupSaveRequest.toJson());
       AccuraBathComplaintFollowupSaveResponse response =
           AccuraBathComplaintFollowupSaveResponse.fromJson(json);
@@ -4238,7 +4359,7 @@ class Repository {
     }
   }
 
-  Future<AccuraBathComplaintEmpFollowerListResponse>
+  Future<AccuraBathComplaintEmployeeListResponse>
       getComplaintEmployeeFollowerAPI(
           AccuraBathComplaintEmpFollowerListRequest
               complaintEmpFollowerListRequest) async {
@@ -4247,8 +4368,8 @@ class Repository {
       Map<String, dynamic> json = await apiClient.apiCallPost(
           ApiClient.END_POINT_ACCURABATH_COMPLAINT_EMPLOYEE_LIST,
           complaintEmpFollowerListRequest.toJson());
-      AccuraBathComplaintEmpFollowerListResponse response =
-          AccuraBathComplaintEmpFollowerListResponse.fromJson(json);
+      AccuraBathComplaintEmployeeListResponse response =
+          AccuraBathComplaintEmployeeListResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -4261,7 +4382,7 @@ class Repository {
     //todo due to one api bug temporary adding following key
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          "${ApiClient.END_POINT_COMPLAINT_SAVE_DETAILS}/$pkID/Save",
+          "${ApiClient.END_POINT_ACURABATH_OMPLAINT_SAVE__DETAILS}/$pkID/Save",
           complaintSaveRequest
               .toJson() /*jsontemparray: customerPaginationRequest.lstcontact*/);
       print("ToJSONRESPONSFG : " + complaintSaveRequest.toJson().toString());
@@ -4274,20 +4395,40 @@ class Repository {
     }
   }
 
-  Future<AccuraBathComplaintNoToDeleteImageVideoResponse>
-      getComplaintNoToDeleteImageVideoAPI(
+  Future<AccuraBathComplaintNoToDeleteImageResponse>
+      getComplaintNoToDeleteImageAPI(
           String complaintNo,
-          AccuraBathComplaintNoToDeleteImageVideoRequest
-              complaintNoToDeleteImageVideoRequest) async {
+          AccurabathComplaintImageDeleteRequest
+              accurabathComplaintImageDeleteRequest) async {
     //todo due to one api bug temporary adding following key
     try {
       Map<String, dynamic> json = await apiClient.apiCallPost(
-          ApiClient.END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG_VIDEO +
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG +
               complaintNo +
-              "/DeleteImageByComplaintNo",
-          complaintNoToDeleteImageVideoRequest.toJson());
-      AccuraBathComplaintNoToDeleteImageVideoResponse response =
-          AccuraBathComplaintNoToDeleteImageVideoResponse.fromJson(json);
+              "/DeleteModuleDocs",
+          accurabathComplaintImageDeleteRequest.toJson());
+      AccuraBathComplaintNoToDeleteImageResponse response =
+          AccuraBathComplaintNoToDeleteImageResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintDeleteVideoResponse> getComplaintNoToDeleteVideoAPI(
+      String complaintNo,
+      AccurabathComplaintVideoDeleteRequest
+          accurabathComplaintVideoDeleteRequest) async {
+    //todo due to one api bug temporary adding following key
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_VIDEO +
+              complaintNo +
+              "/DeleteVideoAttachments",
+          accurabathComplaintVideoDeleteRequest.toJson());
+      AccuraBathComplaintDeleteVideoResponse response =
+          AccuraBathComplaintDeleteVideoResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -4307,6 +4448,26 @@ class Repository {
 
       AccuraBathComplaintImageUploadResponse response =
           AccuraBathComplaintImageUploadResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<AccuraBathComplaintVideoUploadResponse>
+      getAccuraBathComplaintuploadVideo(File imagesfiles,
+          AccuraBathComplaintUploadVideoAPIRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPostMultipart(
+          ApiClient.END_ACCURABATH_POINT_COMPLAINT_UPLOAD_VIDEO,
+          request.toJson(),
+          imageFilesToUpload: [imagesfiles]);
+
+      print("response - ${json}");
+
+      AccuraBathComplaintVideoUploadResponse response =
+          AccuraBathComplaintVideoUploadResponse.fromJson(json);
 
       return response;
     } on ErrorResponseException catch (e) {
@@ -4652,6 +4813,20 @@ class Repository {
     }
   }
 
+  Future<HeaderToDetailsResponse> SalesBillHeaderIdToDetailsAPI(
+      int headerpkID, HeaderToDetailsRequest quotationDeleteRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_SB_HEADERIDTOLIST + headerpkID.toString() + "/HeaderDetails"}",
+          quotationDeleteRequest.toJson(),
+          showSuccessDialog: false);
+      HeaderToDetailsResponse response = HeaderToDetailsResponse.fromJson(json);
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
   Future<SBExportListResponse> getSBExportListAPI(
       SBExportListRequest request) async {
     try {
@@ -4700,6 +4875,23 @@ class Repository {
           userMenuRightsRequest.toJson());
       BTCountryListResponse designationApiResponse =
           BTCountryListResponse.fromJson(json);
+      return designationApiResponse;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<CityCodeToCustomerListResponse> cityCodetoCustomerListAPI(
+      String CityCode,
+      CityCodeToCustomerListRequest userMenuRightsRequest) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_CITY_CODE_TO_CUSTOMER_LIST +
+              CityCode +
+              "/CustomerDetails",
+          userMenuRightsRequest.toJson());
+      CityCodeToCustomerListResponse designationApiResponse =
+          CityCodeToCustomerListResponse.fromJson(json);
       return designationApiResponse;
     } on ErrorResponseException catch (e) {
       rethrow;
@@ -4778,6 +4970,96 @@ class Repository {
       OfficeToDoListResponse response = OfficeToDoListResponse.fromJson(json);
 
       return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<VkComplaintListResponse> vkComplaintListAPI(
+      int PageNo, VkComplaintListRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_VK_COMPLAIN_LIST + PageNo.toString() + "-10",
+          request.toJson());
+      VkComplaintListResponse response = VkComplaintListResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<VkComplaintSaveResponse> vkComplaintSaveAPI(
+      int pkID, VkComplaintSaveRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_VK_COMPLAIN_SAVE + pkID.toString() + "/Save",
+          request.toJson());
+      VkComplaintSaveResponse response = VkComplaintSaveResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<VkComplainPkIDtoDetailsResponse> vkComplaintpkIDtoDetailsAPI(
+      int pkID, VkComplaintpkIDtoDetailsRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_VK_COMPLAIN_PK_ID_TO_DETAILS + pkID.toString(),
+          request.toJson());
+      VkComplainPkIDtoDetailsResponse response =
+          VkComplainPkIDtoDetailsResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<VkComplaintDeleteResponse> vkComplaintDeleteAPI(
+      int pkID, VkComplaintDeleteRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_VK_COMPLAIN_DELETE + pkID.toString() + "/Delete",
+          request.toJson());
+      VkComplaintDeleteResponse response =
+          VkComplaintDeleteResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<VkComplaintHistoryResponse> vkComplaintHistroyAPI(
+      String pkID, VkComplaintHistoryRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          ApiClient.END_POINT_VK_COMPLAIN_HISTORY +
+              pkID.toString() +
+              "/History",
+          request.toJson());
+      VkComplaintHistoryResponse response =
+          VkComplaintHistoryResponse.fromJson(json);
+
+      return response;
+    } on ErrorResponseException catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> followupCount(
+      String status, FollowupCountRequest request) async {
+    try {
+      Map<String, dynamic> json = await apiClient.apiCallPost(
+          "${ApiClient.END_POINT_FOLLOWUP_IMG_LIST + status.toString() + "/Count"}",
+          request.toJson());
+      print("CountLogic" + "Count JSON " + json['TotalCount'].toString());
+      String cityApiRespose = json['TotalCount'].toString();
+      //FollowUpCountState.fromJson(json);
+      return cityApiRespose;
     } on ErrorResponseException catch (e) {
       rethrow;
     }

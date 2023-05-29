@@ -9,6 +9,7 @@ import 'package:soleoserp/models/api_requests/followup/followup_type_list_reques
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_no_to_product_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_product_search_request.dart';
 import 'package:soleoserp/models/api_requests/other/specification_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/qt_Organization_drop_down_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/qt_spec_save_api_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_delete_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_email_content_request.dart';
@@ -33,6 +34,7 @@ import 'package:soleoserp/models/api_responses/followup/followup_type_list_respo
 import 'package:soleoserp/models/api_responses/inquiry/inq_no_to_product_list_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
 import 'package:soleoserp/models/api_responses/other/specification_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/qt_Organization_drop_down_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/qt_spec_save_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_delete_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_email_content_response.dart';
@@ -273,6 +275,10 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
     }
     if (event is InquiryProductSearchNameCallEvent) {
       yield* _mapGeneralProductSearchCallEventToState(event);
+    }
+
+    if (event is QuotationOrganazationListRequestEvent) {
+      yield* _mapQuotationOrganazationListRequestEventToState(event);
     }
     //InquiryProductSearchNameCallEvent
   }
@@ -1327,6 +1333,22 @@ class QuotationBloc extends Bloc<QuotationEvents, QuotationStates> {
       InquiryProductSearchResponse response = await userRepository
           .getInquiryProductSearchList(event.inquiryProductSearchRequest);
       yield InquiryProductSearchResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<QuotationStates> _mapQuotationOrganazationListRequestEventToState(
+      QuotationOrganazationListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationOrganizationListResponse response =
+          await userRepository.getQuotationOrganizationListAPI(
+              event.quotationOrganazationListRequest);
+      yield QuotationOrganizationListResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

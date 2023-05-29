@@ -270,7 +270,7 @@ class _SearchCityScreen extends BaseState<SearchCityScreen>
 
   void _onSearchInquiryListCallSuccess(CityListEventResponseState state) {
     arr_ALL_Name_ID_For_Country.clear();
-    _listFilteredCountry.clear();
+    //_listFilteredCountry.clear();
 
     for (var i = 0; i < state.cityApiRespose.details.length; i++) {
       print("CustomerCategoryResponse2 : " +

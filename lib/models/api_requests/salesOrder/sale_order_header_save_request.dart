@@ -97,6 +97,9 @@ class SaleOrderHeaderSaveRequest {
 
   String RefType;
 
+  String EmailHeader;
+  String EmailContent;
+
   SaleOrderHeaderSaveRequest(
       {this.CompanyId,
       this.OrderNo,
@@ -146,7 +149,12 @@ class SaleOrderHeaderSaveRequest {
       this.CurrencyName,
       this.CurrencySymbol,
       this.ExchangeRate,
-      this.RefType});
+      this.RefType,
+      this.EmailHeader,
+      this.EmailContent});
+
+  //  String EmailHeader;
+  //   String EmailContent;
 
   SaleOrderHeaderSaveRequest.fromJson(Map<String, dynamic> json) {
     CompanyId = json['CompanyId'];
@@ -198,6 +206,9 @@ class SaleOrderHeaderSaveRequest {
     CurrencySymbol = json['CurrencySymbol'];
     ExchangeRate = json['ExchangeRate'];
     RefType = json['RefType'];
+
+    EmailHeader = json['EmailHeader'];
+    EmailContent = json['EmailContent'];
   }
 
   Map<String, dynamic> toJson() {
@@ -252,6 +263,9 @@ class SaleOrderHeaderSaveRequest {
     data['CurrencySymbol'] = this.CurrencySymbol;
     data['ExchangeRate'] = this.ExchangeRate;
     data['RefType'] = this.RefType;
+
+    data['EmailHeader'] = this.EmailHeader;
+    data['EmailContent'] = this.EmailContent;
     return data;
   }
 }

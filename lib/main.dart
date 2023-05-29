@@ -207,6 +207,8 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_lis
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_search_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_add.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_pagintion.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_add_edit/vk_sound_complain_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_list/vk_sound_complain_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/QuickAttendance/quick_attendance.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
@@ -217,6 +219,7 @@ import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/local_notification/local_notification_manager.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
+import 'ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_list/vk_complaint_history_screen.dart';
 import 'ui/screens/contactscrud/add_contact_screen.dart';
 import 'ui/screens/contactscrud/contacts_crud_demo.dart';
 import 'ui/screens/contactscrud/contacts_list_screen.dart';
@@ -877,6 +880,18 @@ class MyApp extends StatefulWidget {
 
       case BTSearchCountryScreen.routeName:
         return getMaterialPageRoute(BTSearchCountryScreen(settings.arguments));
+      case VkSoundComplaintPaginationListScreen.routeName:
+        return getMaterialPageRoute(VkSoundComplaintPaginationListScreen());
+
+      case VkComplaintAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            VkComplaintAddEditScreen(settings.arguments));
+
+
+      case VKComplaintHistoryScreen.routeName:
+        return getMaterialPageRoute(
+            VKComplaintHistoryScreen(settings.arguments));
+      //
 
       default:
         return null;
@@ -1000,148 +1015,111 @@ void onStart(ServiceInstance service) async {
   });
 
   // bring to foreground
-  Timer.periodic(const Duration(minutes: 15), (timer) async {
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        /// OPTIONAL for use custom notification
-        /// the notification id must be equals with AndroidConfiguration when you call configure() method.
-        ///
-        // print("compnayDataaaa" + " CompnayID : " + data.toString());
+  Timer.periodic(const Duration(minutes: 10), (timer) async {
+    //if (service is AndroidServiceInstance) {
+    // if (await service.isForegroundService()) {
+    /// OPTIONAL for use custom notification
+    /// the notification id must be equals with AndroidConfiguration when you call configure() method.
 
-        /* Repository userRepository = Repository.getInstance();
+    Future<dynamic> callapi1(String companyID, String userid123) async {
+      try {
+        Map<String, String> headers = {
+          'Content-Type': 'application/json; charset=UTF-8',
+        };
 
-        TypeOfWorkResponse respo =
-            await userRepository.ProductionTypeofwork123();
+        final response = await http
+            .post(Uri.parse("http://208.109.14.134:83/LogOutCount/Count"),
+                headers: headers,
+                body: json
+                    .encode({"LoginUserID": userid123, "CompanyId": companyID}))
+            .timeout(const Duration(seconds: 60));
+        var responseJson = json.decode(response.body);
+        Map<String, dynamic> json1 = responseJson['Data'];
+        return json1;
+      } catch (e) {
+        print("kjj" + e.toString());
+      }
+    }
 
-        flutterLocalNotificationsPlugin.show(
-          888,
-          'COOL SERVICE',
-          'Awesome ${respo.details[0].taskCategoryName}' +
-              DateTime.now().toString(),
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-                */ /* 'my_foreground',
-                'MY FOREGROUND SERVICE',
-                icon: 'ic_bg_service_small',
-                category: AndroidNotificationCategory.message,
-                ongoing: true,*/ /*
-                "my_foreground",
-                "MY FOREGROUND SERVICE",
-                "This channel is used for important notifications.",
-                icon: 'ic_bg_service_small',
-                channelShowBadge: true,
-                importance: Importance.min,
-                priority: Priority.low,
-                styleInformation: DefaultStyleInformation(true, true),
-                playSound: true,
-                ongoing: true,
-                visibility: NotificationVisibility.public),
-          ),
-        );
-*/
-        Future<dynamic> callapi1(String companyID, String userid123) async {
-          try {
-            Map<String, String> headers = {
-              'Content-Type': 'application/json; charset=UTF-8',
-            };
+    String cmpid = await preferences.get("companyID");
+    String userid = await preferences.get("userID");
 
-            final response = await http
-                .post(Uri.parse("http://208.109.14.134:83/LogOutCount/Count"),
-                    headers: headers,
-                    body: json.encode(
-                        {"LoginUserID": userid123, "CompanyId": companyID}))
-                .timeout(const Duration(seconds: 60));
-            var responseJson = json.decode(response.body);
-            Map<String, dynamic> json1 = responseJson['Data'];
-            return json1;
-          } catch (e) {
-            print("kjj" + e.toString());
-          }
-        }
+    print("dsdffds" + cmpid);
+    Map<String, dynamic> json1 = await callapi1(cmpid, userid);
+    API_Response apiresponse = API_Response.fromJson(json1);
 
-        String cmpid = await preferences.get("companyID");
-        String userid = await preferences.get("userID");
-
-//userID
-        print("dsdffds" + cmpid);
-        Map<String, dynamic> json1 = await callapi1(cmpid, userid);
-        API_Response apiresponse = API_Response.fromJson(json1);
-
-        if (apiresponse.details[0].TodayCount == 0 &&
-            apiresponse.details[0].MissedCount == 0 &&
-            apiresponse.details[0].FutureCount == 0) {
-        } else {
-          service.setForegroundNotificationInfo(
+    if (apiresponse.details[0].TodayCount == 0 &&
+        apiresponse.details[0].MissedCount == 0 &&
+        apiresponse.details[0].FutureCount == 0) {
+    } else {
+      /*service.setForegroundNotificationInfo(
             title: "API Service",
             content:
                 "Updated at ${apiresponse.details[0].MissedCount.toString() + " Time : " + DateTime.now().toString()}",
-          );
+          );*/
 
-          Future<dynamic> callapiNotification(
-              String token123, API_Response apiresponsemodel) async {
-            try {
-              Map<String, String> headers = {
-                'Content-Type': 'application/json; charset=UTF-8',
-                "Authorization":
-                    "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
-              };
+      Future<dynamic> callapiNotification(
+          String token123, API_Response apiresponsemodel) async {
+        try {
+          Map<String, String> headers = {
+            'Content-Type': 'application/json; charset=UTF-8',
+            "Authorization":
+                "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
+          };
 
-              var request123 = {
-                "to": token123,
-                "notification": {
-                  "body": "Todays (" +
-                      apiresponsemodel.details[0].TodayCount.toString() +
-                      ") " +
-                      "\nMissed (" +
-                      apiresponsemodel.details[0].MissedCount.toString() +
-                      ") " +
-                      "\nFuture (" +
-                      apiresponsemodel.details[0].FutureCount.toString() +
-                      ") ",
-                  "title": "Follow-up"
-                },
-                "data": {
-                  "body": "Todays (" +
-                      apiresponsemodel.details[0].TodayCount.toString() +
-                      ") " +
-                      "\nMissed (" +
-                      apiresponsemodel.details[0].MissedCount.toString() +
-                      ") " +
-                      "\nFuture (" +
-                      apiresponsemodel.details[0].FutureCount.toString() +
-                      ") ",
-                  "title": "Follow-up",
-                  "click_action": "FLUTTER_NOTIFICATION_CLICK"
-                }
-              };
-
-              final response = await http
-                  .post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
-                      headers: headers, body: json.encode(request123))
-                  .timeout(const Duration(seconds: 60));
-              var responseJson = json.decode(response.body);
-              //Map<String, dynamic> json1 = responseJson['Data'];
-              return responseJson;
-            } catch (e) {
-              print("kjj" + e.toString());
+          var request123 = {
+            "to": token123,
+            "notification": {
+              "body": "Todays (" +
+                  apiresponsemodel.details[0].TodayCount.toString() +
+                  ") " +
+                  "\nMissed (" +
+                  apiresponsemodel.details[0].MissedCount.toString() +
+                  ") " +
+                  "\nFuture (" +
+                  apiresponsemodel.details[0].FutureCount.toString() +
+                  ") ",
+              "title": "Follow-up"
+            },
+            "data": {
+              "body": "Todays (" +
+                  apiresponsemodel.details[0].TodayCount.toString() +
+                  ") " +
+                  "\nMissed (" +
+                  apiresponsemodel.details[0].MissedCount.toString() +
+                  ") " +
+                  "\nFuture (" +
+                  apiresponsemodel.details[0].FutureCount.toString() +
+                  ") ",
+              "title": "Follow-up",
+              "click_action": "FLUTTER_NOTIFICATION_CLICK"
             }
-          }
+          };
 
-          String tokenNo = await preferences.get("TokenSP");
-
-          print("getTone" + "Token : " + tokenNo);
-
-          Map<String, dynamic> json123 =
-              await callapiNotification(tokenNo, apiresponse);
-
-          print("sdfdsf" + json123.toString());
+          final response = await http
+              .post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+                  headers: headers, body: json.encode(request123))
+              .timeout(const Duration(seconds: 60));
+          var responseJson = json.decode(response.body);
+          //Map<String, dynamic> json1 = responseJson['Data'];
+          return responseJson;
+        } catch (e) {
+          print("kjj" + e.toString());
         }
-
-        // await LocalRandomNotification(apiresponse.details[0].taskCategoryName);
-
-        // if you don't using custom notification, uncomment this
       }
+
+      String tokenNo = await preferences.get("TokenSP");
+
+      print("getTone" + "Token : " + tokenNo);
+
+      Map<String, dynamic> json123 =
+          await callapiNotification(tokenNo, apiresponse);
+
+      print("sdfdsf" + json123.toString());
     }
+
+    // }
+    // }
 
     /// you can see this log in logcat
     print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');

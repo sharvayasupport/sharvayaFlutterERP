@@ -70,6 +70,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/sales_target/sales_target
 import 'package:soleoserp/ui/screens/DashBoard/Modules/salesorder/salesorder_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_list/telecaller_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_pagintion.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_list/vk_sound_complain_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/utils/general_utils.dart';
@@ -1238,8 +1239,6 @@ makeDashboardItem(
       } else if (title == "To-Do") {
         navigateTo(context, ToDoListScreen.routeName, clearAllStack: true);
       } else if (title == "Activity Summary") {
-
-
         navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
       } else if (title == "Quotation") {
         navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
@@ -1260,7 +1259,9 @@ makeDashboardItem(
                 clearAllStack: true);
       } else if (title == "Complaint") {
         if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-            "DHSI-09RY-BATH-ACCU") {
+                "DHSI-09RY-BATH-ACCU" ||
+            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "TEST-0000-ACBF-0214") {
           navigateTo(context, AccurabathComplaintListScreen.routeName,
               clearAllStack: true);
         } else {
@@ -1274,9 +1275,6 @@ makeDashboardItem(
                 .serialKey
                 .toLowerCase() ==
             "dol2-6uh7-ph03-in5h") {
-          /* navigateTo(context, DolphinComplaintVisitListScreen.routeName,
-                    clearAllStack: true);*/
-
           navigateTo(context, AttendVisitListScreen.routeName,
               clearAllStack: true);
         } else if (SharedPrefHelper.instance
@@ -1397,6 +1395,9 @@ makeDashboardItem(
             clearAllStack: true);
       } else if (title == "Sales Target") {
         navigateTo(context, SalesTargetListScreen.routeName,
+            clearAllStack: true);
+      } else if (title == "VkComplaint") {
+        navigateTo(context, VkSoundComplaintPaginationListScreen.routeName,
             clearAllStack: true);
       }
 
@@ -2206,13 +2207,21 @@ getSupportList(List<ALL_Name_ID> Support, BuildContext context) {
           onTap: () {
             if (Support[i].Name == "Complaint") {
               if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "DHSI-09RY-BATH-ACCU") {
+                      "DHSI-09RY-BATH-ACCU" ||
+                  _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                      "TEST-0000-ACBF-0214") {
                 navigateTo(context, AccurabathComplaintListScreen.routeName,
                     clearAllStack: true);
               } else {
                 navigateTo(context, ComplaintPaginationListScreen.routeName,
                     clearAllStack: true);
               }
+            }
+
+            if (Support[i].Name == "VkComplaint") {
+              navigateTo(
+                  context, VkSoundComplaintPaginationListScreen.routeName,
+                  clearAllStack: true);
             }
             if (Support[i].Name == "Attend Visit") {
               if (SharedPrefHelper.instance

@@ -176,6 +176,17 @@ class _SearchCompanyScreenState extends BaseState<SearchCompanyScreen>
             all_name_id.Name1 = "";
             all_name_id.pkID = 0;
 
+            all_name_id.CityCode =
+                _offlineLoggedInData.details[0].CityCode.toString();
+            all_name_id.CityName = _offlineLoggedInData.details[0].CityName;
+
+            all_name_id.StateCode =
+                _offlineLoggedInData.details[0].stateCode.toString();
+            all_name_id.StateName = _offlineLoggedInData.details[0].StateName;
+
+            all_name_id.CountryCode = "IND";
+            all_name_id.CountryName = "India";
+
             /* SearchDetails model = new SearchDetails();
             model.label = edt_CustomerName.text;
             model.value = 0;*/
@@ -212,6 +223,16 @@ class _SearchCompanyScreenState extends BaseState<SearchCompanyScreen>
           all_name_id.Name = model.label;
           all_name_id.Name1 = model.ContactNo1;
           all_name_id.pkID = model.value;
+
+          all_name_id.CityCode = model.CityCode.toString();
+          all_name_id.CityName = model.CityName.toString();
+
+          all_name_id.StateCode = model.stateCode.toString();
+          all_name_id.StateName = model.stateName;
+
+          all_name_id.CountryCode = model.countryCode;
+          all_name_id.CountryName = model.countryName;
+
           Navigator.of(context).pop(all_name_id);
         },
         child: Card(

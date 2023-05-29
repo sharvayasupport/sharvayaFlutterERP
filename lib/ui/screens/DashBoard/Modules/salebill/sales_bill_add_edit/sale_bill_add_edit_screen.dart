@@ -13,18 +13,20 @@ import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_inq_QT_SO_NO_
 import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_details_request.dart';
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_export_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_export_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/city_api_response.dart';
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
-import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/headerToDetailsResponse.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/sales_bill_table.dart';
@@ -50,8 +52,8 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 import 'module_no_list_screen.dart';
 
 class AddUpdateSaleBillScreenArguments {
-  SaleBillDetails editModel;
-
+  //SaleBillDetails editModel;
+  HeaderToDetailsResponseDetails editModel;
   AddUpdateSaleBillScreenArguments(this.editModel);
 }
 
@@ -71,7 +73,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
   SalesBillBloc salesBillBloc;
   final _formKey = GlobalKey<FormState>();
   bool _isForUpdate;
-  SaleBillDetails _editModel;
+  HeaderToDetailsResponseDetails _editModel;
   int pkID = 0;
 
   SearchDetails _searchInquiryListResponse;
@@ -162,6 +164,12 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
   TextEditingController edt_StateCode = TextEditingController();
 
   TextEditingController edt_HeaderDisc = TextEditingController();
+  TextEditingController _controller_currency = TextEditingController();
+  TextEditingController _controller_currency_Symbol = TextEditingController();
+  TextEditingController _controllerExchangeRate = TextEditingController();
+  TextEditingController edt_ProjectName = TextEditingController();
+  TextEditingController edt_ProjectID = TextEditingController();
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_ProjectList = [];
 
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales_Order_AC_Name = [];
 
@@ -176,6 +184,8 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Terms_And_Condition = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_Email_Subject = [];
   List<ALL_Name_ID> arr_ALL_Name_ID_For_ModeOfTransfer = [];
+
+  List<ALL_Name_ID> arr_ALL_Name_ID_For_Sales_Order_Select_Currency = [];
   List<SaleBillTable> _inquiryProductList = [];
 
   DateTime selectedDate = DateTime.now();
@@ -250,9 +260,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
     salesBillBloc.add(GenericOtherChargeCallEvent(
         CompanyID.toString(), QuotationOtherChargesListRequest(pkID: "")));
 
-
     salesBillBloc.add(SBAssemblyTableALLDeleteEvent());
-
 
     _controller_select_inquiry.addListener(() {
       setState(() {
@@ -378,8 +386,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
               currentState is DeleteAllGenericAddditionalChargesState ||
               currentState is GenericOtherCharge1ListResponseState ||
               currentState is SBExportListResponseState ||
-              currentState is SBAssemblyTableDeleteALLState
-          ) {
+              currentState is SBAssemblyTableDeleteALLState) {
             return true;
           }
           return false;
@@ -404,6 +411,14 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
           if (state is SBProductSaveResponseState) {
             _OnSBExportSaveResponse(state);
           }
+
+          if (state is SOCurrencyListResponseState) {
+            _ONCurrencyResponse(state);
+          }
+
+          if (state is QuotationProjectListResponseState) {
+            _OnGetProjectList(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
@@ -411,7 +426,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
               currentState is MultiNoToProductDetailsResponseState ||
               currentState is SBHeaderSaveResponseState ||
               currentState is SBProductSaveResponseState ||
-              currentState is SBProductSaveResponseState) {
+              currentState is SBProductSaveResponseState ||
+              currentState is SOCurrencyListResponseState ||
+              currentState is QuotationProjectListResponseState) {
             return true;
           }
           return false;
@@ -458,7 +475,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                         EmailContent(),
                         TermsCondition(),
                         TransportDetails(),
-                        ShipmentDetails(),
+                        //ShipmentDetails(),
 
                         Attachments(),
 
@@ -482,16 +499,26 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
 
   void fillData() async {
     pkID = _editModel.pkID;
-    print("PKID" + pkID.toString());
+    print("PKID" + _editModel.inquiryNo);
+
+    _controller_order_no.text = _editModel.invoiceNo;
 
     _controller_order_date.text = _editModel.invoiceDate.getFormattedDate(
         fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "dd-MM-yyyy");
     _controller_rev_order_date.text = _editModel.invoiceDate.getFormattedDate(
         fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
 
+    _controller_work_Due_date.text = _editModel.dueDate.getFormattedDate(
+        fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
+
+    edt_ProjectName.text = _editModel.projectName;
+
+    _controller_currency.text = _editModel.currencyName;
+    _controller_currency_Symbol.text = _editModel.currencySymbol;
+    _controllerExchangeRate.text = _editModel.exchangeRate.toString();
     _controller_customer_name.text = _editModel.customerName.toString();
     _controller_customer_pkID.text = _editModel.customerID.toString();
-    _controller_AC_name.text = _editModel.fixedLedgerName.toString();
+    _controller_AC_name.text = _editModel.fixedLedgerAccount.toString();
     _controller_AC_ID.text = _editModel.fixedLedgerID.toString();
     _controller_bank_name.text = _editModel.bankName.toString();
     _controller_bank_ID.text = _editModel.bankID.toString();
@@ -512,12 +539,16 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
             selectedDate.day.toString()
         : _editModel.supplierRefDate.getFormattedDate(
             fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
-    edt_QualifiedState.text = _editModel.terminationOfDelieryName.toString();
+    edt_QualifiedState.text =
+        _editModel.terminationOfDelieryStatename.toString();
     edt_QualifiedStateCode.text = _editModel.terminationOfDeliery.toString();
     edt_QualifiedCity.text = _editModel.terminationOfDelieryCityName.toString();
     edt_QualifiedCityCode.text = _editModel.terminationOfDelieryCity.toString();
     _controller_OtherRef_no.text = _editModel.otherRef.toString();
     _controller_docNo.text = _editModel.dispatchDocNo.toString();
+    _controller_CR_Days.text = _editModel.cRDays.toString();
+    _controller_select_email_subject_ID.text =
+        _editModel.emailSubject.toString();
     _controller_select_email_subject.text = _editModel.emailSubject.toString();
     _contrller_email_subject.text = _editModel.emailContent.toString();
     _contrller_terms_and_condition.text = _editModel.termsCondition.toString();
@@ -572,10 +603,12 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
 
     edt_StateCode.text = _editModel.terminationOfDeliery.toString();
 
-    edt_QualifiedState.text = _editModel.terminationOfDelieryName.toString();
+    edt_QualifiedState.text =
+        _editModel.terminationOfDelieryStatename.toString();
     edt_QualifiedStateCode.text = _editModel.terminationOfDeliery.toString();
-    edt_QualifiedCity.text = _editModel.terminationOfDelieryCity.toString();
+    edt_QualifiedCity.text = _editModel.terminationOfDelieryCityName.toString();
     edt_QualifiedCityCode.text = _editModel.terminationOfDelieryCity.toString();
+
     if (_editModel.invoiceNo.toString() != "") {
       salesBillBloc.add(MultiNoToProductDetailsRequestEvent(
           "Edit",
@@ -2231,8 +2264,8 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                         createTextFormField(
                             _contrller_terms_and_condition, "Terms & Condition",
                             minLines: 2,
-                            maxLines: 5,
-                            height: 70,
+                            maxLines: 10,
+                            height: 100,
                             keyboardInput: TextInputType.text),
                         SizedBox(
                           height: 3,
@@ -2380,6 +2413,33 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                             Flexible(child: _buildWorkOrdereDate())
                           ],
                         ),
+                        Column(
+                          children: [
+                            Column(
+                              children: [
+                                createTextLabel("Currency", 10.0, 0.0),
+                                CurrencyDropDown("Currency",
+                                    enable1: false,
+                                    title: "Select Currency",
+                                    hintTextvalue: "Tap to Select Currency",
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    controllerForLeft: _controller_currency,
+                                    Custom_values1:
+                                        arr_ALL_Name_ID_For_Sales_Order_Select_Currency)
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Column(
+                              children: [
+                                createTextLabel("Exchange Rate", 10.0, 0.0),
+                                createTextFormField(
+                                    _controllerExchangeRate, "Exchange Rate"),
+                              ],
+                            )
+                          ],
+                        ),
                         SizedBox(
                           height: 5,
                         ),
@@ -2392,6 +2452,79 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
           ),
           // height: 60,
         ),
+      ),
+    );
+  }
+
+  Widget CurrencyDropDown(String Category,
+      {bool enable1,
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      List<ALL_Name_ID> Custom_values1}) {
+    return Container(
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              salesBillBloc.add(SOCurrencyListRequestEvent(
+                  SOCurrencyListRequest(
+                      LoginUserID: LoginUserID,
+                      CurrencyName: "",
+                      CompanyID: CompanyID.toString())));
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /*SizedBox(
+                  height: 5,
+                ),*/
+                Card(
+                  elevation: 3,
+                  color: colorLightGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: controllerForLeft,
+                            enabled: false,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.only(bottom: 7),
+                              hintText: hintTextvalue,
+                              hintStyle:
+                                  TextStyle(fontSize: 13, color: colorGrayDark),
+                              labelStyle: TextStyle(
+                                color: Color(0xFF000000),
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF000000),
+                            )
+                            // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                            ,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2488,6 +2621,18 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                 width: 20,
                 height: 15,
               ),
+              ProjectList("Project",
+                  enable1: false,
+                  title: "Project",
+                  hintTextvalue: "Tap to Select Project",
+                  icon: Icon(Icons.arrow_drop_down),
+                  controllerForLeft: edt_ProjectName,
+                  controllerpkID: edt_ProjectID,
+                  Custom_values1: arr_ALL_Name_ID_For_ProjectList),
+              SizedBox(
+                width: 20,
+                height: 15,
+              ),
               _isForUpdate == true
                   ? Container()
                   : Column(
@@ -2554,7 +2699,6 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
               backGroundColor: colorGreenLight,
               radius: 25.0),
         ),
-
       ],
     );
   }
@@ -3694,6 +3838,17 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                 ? _controller_rev_delivery_date.text.toString()
                                 : "";
 
+
+                            String FixedLedgerID = _controller_AC_ID
+                                .text
+                                .toString() !=
+                                "" ||
+                                _controller_AC_ID.text
+                                    .toString() !=
+                                    null
+                                ? _controller_AC_ID.text.toString()
+                                : "0";
+
                             salesBillBloc.add(SBHeaderSaveRequestEvent(
                                 context,
                                 pkID,
@@ -3701,7 +3856,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                     InvoiceNo: InquiryNo,
                                     InvoiceDate:
                                         _controller_rev_order_date.text,
-                                    FixedLedgerID: _controller_AC_ID.text,
+                                    FixedLedgerID: FixedLedgerID,
                                     CustomerID: _controller_customer_pkID.text,
                                     LocationID: "",
                                     BankID: _controller_bank_ID.text,
@@ -3777,27 +3932,35 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                     TransportRemark: TransporterRemarks,
                                     LoginUserID: LoginUserID,
                                     ReturnInvoiceNo: "",
-                                    CompanyId: CompanyID.toString())));
+                                    CompanyId: CompanyID.toString(),
+                                    CRDays: _controller_CR_Days.text.toString(),
+                                    DueDate: _controller_work_Due_date_Reverse.text.toString(),
+                                    CurrencyName: _controller_currency.text.toString(),
+                                    CurrencySymbol: _controller_currency_Symbol.text.toString(),
+                                    ExchangeRate: _controllerExchangeRate.text.toString(),
+                                    ProjectName: edt_ProjectName.text)));
                           });
                         } else {
                           showCommonDialogWithSingleOption(
                               context, "ProductDetails is required !",
-                              positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                Navigator.pop(context);
+                              positiveButtonTitle: "OK",
+                              onTapOfPositiveButton: () {
+                            Navigator.pop(context);
                           });
                         }
                       } else {
                         //Ledger Selection is required.
                         showCommonDialogWithSingleOption(
                             context, "Ledger Selection is required !",
-                            positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                            positiveButtonTitle: "OK",
+                            onTapOfPositiveButton: () {
                           Navigator.pop(context);
                         });
                       }
                     } else {
                       showCommonDialogWithSingleOption(
                           context, "Bank Name is required !",
-                          positiveButtonTitle: "OK", onTapOfPositiveButton: (){
+                          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
                         Navigator.pop(context);
                       });
                     }
@@ -3806,14 +3969,14 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                   } else {
                     showCommonDialogWithSingleOption(
                         context, "CustomerName is required !",
-                        positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
                       Navigator.pop(context);
                     });
                   }
                 } else {
                   showCommonDialogWithSingleOption(
                       context, "SaleOrder date is required !",
-                      positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                      positiveButtonTitle: "OK", onTapOfPositiveButton: () {
                     Navigator.pop(context);
                   });
                 }
@@ -4094,7 +4257,6 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
         }
       }
 
-
       if (_otherChargeNameController4.isNotEmpty) {
         if (_otherChargeNameController4.toString() != "null") {
           hdnOthChrgGST1hdnOthChrgBasic4 =
@@ -4108,9 +4270,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                       : 0.00,
                   _otherChargeTaxTypeController4.isNotEmpty
                       ? int.parse(
-                      _otherChargeTaxTypeController4.toString() == "0.00"
-                          ? "0"
-                          : _otherChargeTaxTypeController4.toString())
+                          _otherChargeTaxTypeController4.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController4.toString())
                       : 0,
                   _otherChargeBeForeGSTController4.toString() == "true"
                       ? true
@@ -4138,9 +4300,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                       : 0.00,
                   _otherChargeTaxTypeController5.isNotEmpty
                       ? int.parse(
-                      _otherChargeTaxTypeController5.toString() == "0.00"
-                          ? "0"
-                          : _otherChargeTaxTypeController5.toString())
+                          _otherChargeTaxTypeController5.toString() == "0.00"
+                              ? "0"
+                              : _otherChargeTaxTypeController5.toString())
                       : 0,
                   _otherChargeBeForeGSTController5.toString() == "true"
                       ? true
@@ -4155,8 +4317,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
         }
       }
 
-
-    /*  if (_otherChargeNameController4.isNotEmpty) {
+      /*  if (_otherChargeNameController4.isNotEmpty) {
         if (_otherChargeNameController4.toString() != "null") {
           hdnOthChrgGST1hdnOthChrgBasic4 =
               AddtionalCharges.txtOthChrgAmt1_TextChanged(
@@ -4359,11 +4520,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
       retrunQT_No = state.sbHeaderSaveResponse.details[i].column3;
     }
 
-    if(_isForUpdate==true)
-      {
-        retrunQT_No = _editModel.invoiceNo;
-      }
-
+    if (_isForUpdate == true) {
+      retrunQT_No = _editModel.invoiceNo;
+    }
 
     salesBillBloc.add(SBExportSaveRequestEvent(SBExportSaveRequest(
         InvoiceNo: retrunQT_No,
@@ -4382,9 +4541,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
         LoginUserID: LoginUserID.toString(),
         CompanyId: CompanyID.toString())));
 
-
     updateRetrunInquiryNoToDB(state.context, returnPKID, retrunQT_No);
-
   }
 
   void updateRetrunInquiryNoToDB(
@@ -4882,5 +5039,131 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
 
   void _onDeleteAllQTAssemblyResponse(SBAssemblyTableDeleteALLState state) {
     print("deleteAllSalesOrderAssembly" + state.response);
+  }
+
+  void _ONCurrencyResponse(SOCurrencyListResponseState state) {
+    arr_ALL_Name_ID_For_Sales_Order_Select_Currency.clear();
+    if (state.response.details.length != 0) {
+      for (int i = 0; i < state.response.details.length; i++) {
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].currencyName;
+        all_name_id.Name1 = state.response.details[i].currencySymbol;
+        arr_ALL_Name_ID_For_Sales_Order_Select_Currency.add(all_name_id);
+      }
+
+      showcustomdialog(
+          values: arr_ALL_Name_ID_For_Sales_Order_Select_Currency,
+          context1: context,
+          controller: _controller_currency,
+          controller2: _controller_currency_Symbol,
+          lable: "Select Currency");
+    }
+  }
+
+  Widget ProjectList(String Category,
+      {bool enable1,
+      Icon icon,
+      String title,
+      String hintTextvalue,
+      TextEditingController controllerForLeft,
+      TextEditingController controller1,
+      TextEditingController controllerpkID,
+      List<ALL_Name_ID> Custom_values1}) {
+    return Container(
+      margin: EdgeInsets.only(top: 10, bottom: 10),
+      child: Column(
+        children: [
+          InkWell(
+            onTap:
+                () => /*showcustomdialogWithID(
+                values: Custom_values1,
+                context1: context,
+                controller: controllerForLeft,
+                controllerID: controllerpkID,
+                lable: "Select $Category")*/
+
+                    salesBillBloc.add(QuotationProjectListCallEvent(
+                        QuotationProjectListRequest(
+                            CompanyId: CompanyID.toString(),
+                            LoginUserID: LoginUserID))),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 10, right: 10),
+                  child: Text(title,
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: colorPrimary,
+                          fontWeight: FontWeight
+                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                      ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Card(
+                  elevation: 5,
+                  color: colorLightGray,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: 40,
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                              controller: controllerForLeft,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                hintText: hintTextvalue,
+                                labelStyle: TextStyle(
+                                  color: Color(0xFF000000),
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                              ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _OnGetProjectList(QuotationProjectListResponseState state) {
+    if (state.response.details.length != 0) {
+      arr_ALL_Name_ID_For_ProjectList.clear();
+      for (var i = 0; i < state.response.details.length; i++) {
+        print("InquiryStatus : " + state.response.details[i].projectName);
+        ALL_Name_ID all_name_id = ALL_Name_ID();
+        all_name_id.Name = state.response.details[i].projectName;
+        all_name_id.pkID = state.response.details[i].pkID;
+        arr_ALL_Name_ID_For_ProjectList.add(all_name_id);
+      }
+      showcustomdialogWithID(
+          values: arr_ALL_Name_ID_For_ProjectList,
+          context1: context,
+          controller: edt_ProjectName,
+          controllerID: edt_ProjectID,
+          lable: "Select Project ");
+    }
   }
 }

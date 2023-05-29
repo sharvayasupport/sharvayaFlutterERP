@@ -181,6 +181,14 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
   Location location = new Location();
   double CardViewHeight = 45.00;
 
+  bool IsCustomerDetails = false;
+  bool IsInquiryDetails = false;
+  bool IsFollowupDetails = false;
+
+  bool IsPrimaryDetails = false;
+  bool IsBasicDetails = false;
+  bool IsContactDetails = false;
+
   @override
   void initState() {
     super.initState();
@@ -374,6 +382,7 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
+        backgroundColor: colorTileBG,
         appBar: NewGradientAppBar(
           title: Text('Quick Inquiry'),
           gradient: LinearGradient(colors: [
@@ -394,143 +403,178 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
         ),
         body: SingleChildScrollView(
           child: Container(
-            margin: EdgeInsets.all(Constant.CONTAINERMARGIN),
+            margin: EdgeInsets.all(10),
             child: Form(
               key: _formKey,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomerName(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    CustomDropDown1("Category", "Lead Source *",
-                        enable1: false,
-                        enable2: false,
-                        icon: Icon(Icons.arrow_drop_down),
-                        controllerForLeft: edt_Category,
-                        controllerForRight: edt_Source,
-                        Custom_values1: arr_ALL_Name_ID_For_Category,
-                        Custom_values2: arr_ALL_Name_ID_For_Source),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    SwitchNoFollowup(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    ContactCollapse(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    EmailWebSite(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    GSTPAN(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    Address(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    Area(),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    CustomDropDownCountry("Country", "State",
-                        enable1: false,
-                        enable2: false,
-                        icon: Icon(Icons.arrow_drop_down),
-                        controllerForLeft: edt_Country,
-                        controllerForRight: edt_State,
-                        Custom_values1: _listFilteredCountry,
-                        Custom_values2: _listFilteredState),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    CustomDropDown("City", "PinCode",
-                        enable1: false,
-                        enable2: true,
-                        icon: Icon(Icons.pin_drop_sharp),
-                        controllerForLeft: edt_City,
-                        controllerForRight: edt_Pincode),
-                    SizedBox(
-                      height: Constant.SIZEBOXHEIGHT,
-                    ),
+                    ManageCustomerDetails(),
                     Container(
-                      child: Text(
-                        "~~~ Inquiry Details ~~~",
-                        style: TextStyle(
-                            color: colorPrimary, fontWeight: FontWeight.bold),
-                      ),
+                      height: 1,
+                      color: Colors.grey,
+                      margin: EdgeInsets.symmetric(vertical: 10),
                     ),
-                    SizedBox(
-                      height: Constant.SIZEBOXHEIGHT,
-                    ),
-                    CustomDropDownPriority("Priority",
-                        enable1: false,
-                        title: "Lead Priority ",
-                        hintTextvalue: "Tap to Select Lead Priority",
-                        icon: Icon(Icons.arrow_drop_down),
-                        controllerForLeft: edt_Priority,
-                        Custom_values1: arr_ALL_Name_ID_For_Folowup_Priority),
+                    Card(
+                        elevation: 20,
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  IsInquiryDetails = !IsInquiryDetails;
+                                  IsCustomerDetails = false;
+                                  IsFollowupDetails = false;
+                                  IsPrimaryDetails = false;
+                                  IsBasicDetails = false;
+                                  IsContactDetails = false;
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                margin: EdgeInsets.all(5),
+                                child: Row(
+                                  children: [
+                                    Text("Inquiry Details ",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight.bold)),
+                                    Spacer(),
+                                    IsInquiryDetails == true
+                                        ? Icon(
+                                            Icons.arrow_circle_up_rounded,
+                                            color: colorPrimary,
+                                          )
+                                        : Icon(
+                                            Icons.arrow_circle_down_rounded,
+                                            color: colorPrimary,
+                                          )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: IsInquiryDetails,
+                              child: ManageInquiryDetails(),
+                            ),
+                          ],
+                        )),
                     SizedBox(
                       width: 20,
                       height: 15,
                     ),
-                    showcustomdialogWithIDLead("Lead Status",
-                        enable1: false,
-                        title: "Lead Status",
-                        hintTextvalue: "Tap to Select Lead Status",
-                        icon: Icon(Icons.arrow_drop_down),
-                        controllerForLeft: edt_LeadStatus,
-                        controllerpkID: edt_LeadStatusID,
-                        Custom_values1: arr_ALL_Name_ID_For_LeadStatus),
-                    Container(
-                      margin: EdgeInsets.only(left: 10, right: 10),
-                      child: Text("Description * ",
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: colorPrimary,
-                              fontWeight: FontWeight
-                                  .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                          ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 7, right: 7, top: 10),
-                      child: TextFormField(
-                        controller: edt_Description,
-                        minLines: 2,
-                        maxLines: 5,
-                        keyboardType: TextInputType.multiline,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(10.0),
-                            hintText: 'Tap to Enter Description',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                            )),
-                      ),
-                    ),
+                    Card(
+                        elevation: 20,
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  IsFollowupDetails = !IsFollowupDetails;
+                                  IsCustomerDetails = false;
+                                  IsInquiryDetails = false;
+                                  IsPrimaryDetails = false;
+                                  IsBasicDetails = false;
+                                  IsContactDetails = false;
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                margin: EdgeInsets.all(5),
+                                child: Row(
+                                  children: [
+                                    Text("Followup Details ",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight.bold)),
+                                    Spacer(),
+                                    IsFollowupDetails == true
+                                        ? Icon(
+                                            Icons.arrow_circle_up_rounded,
+                                            color: colorPrimary,
+                                          )
+                                        : Icon(
+                                            Icons.arrow_circle_down_rounded,
+                                            color: colorPrimary,
+                                          )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: IsFollowupDetails,
+                              child: ManageFollowupDetails(),
+                            ),
+                          ],
+                        )),
                     SizedBox(
                       width: 20,
                       height: 15,
                     ),
-                    FollowupFields(),
-                    SizedBox(
-                      width: 20,
-                      height: 15,
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      alignment: Alignment.bottomCenter,
-                      child: getCommonButton(baseTheme, () {
-                        //  _onTapOfDeleteALLContact();
-                        //  navigateTo(context, InquiryProductListScreen.routeName);
-                        //print("INWWWE" + InquiryNo.toString());
+                    InkWell(
+                      onTap: () {
                         navigateTo(context, InquiryProductListScreen.routeName,
                             arguments: AddProductListArgument(""));
-                      }, "Add Product + ",
-                          width: 600, backGroundColor: Color(0xff4d62dc)),
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorYellow,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 10, right: 20, top: 10, bottom: 10),
+                            child: Row(
+                              children: [
+                                Text("Add Product",
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold)),
+                                Spacer(),
+                                Icon(Icons.add_shopping_cart_outlined)
+                              ],
+                            ),
+                          )),
                     ),
                     SizedBox(
                       width: 20,
                       height: 15,
                     ),
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      alignment: Alignment.bottomCenter,
-                      child: getCommonButton(baseTheme, () {
-                        // getContactarray();
+                    InkWell(
+                      onTap: () {
                         _onTapOfSaveCustomerAPICall();
-                        // navigateTo(context, ContactsListScreen.routeName);
-                      }, "Save", width: 600),
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Save",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
                     ),
                   ]),
             ),
@@ -1127,329 +1171,6 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
           LoginUserID: LoginUserID,
           SearchKey: "")));
     }
-  }
-
-  Widget CustomDropDownCountry(String Category, String Source,
-      {bool enable1,
-      bool enable2,
-      Icon icon,
-      TextEditingController controllerForLeft,
-      TextEditingController controllerForRight,
-      List<ALL_Name_ID> Custom_values1,
-      List<ALL_Name_ID> Custom_values2}) {
-    return Container(
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => _onTapOfSearchCountryView(
-                _searchDetails == null ? "" : _searchDetails.countryCode),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Text("Country *",
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: colorPrimary,
-                          fontWeight: FontWeight
-                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                      ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  elevation: 5,
-                  color: colorLightGray,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child:
-                              /*Text(
-                            _searchDetails == null
-                                ? "Tap to search country"
-                                : _searchDetails.countryName,
-                            style: baseTheme.textTheme.headline3.copyWith(
-                                color: _searchDetails == null
-                                    ? colorGrayDark
-                                    : colorBlack,
-                                fontSize: 15),
-                          ),*/
-                              TextField(
-                                  controller: controllerForLeft,
-                                  enabled: false,
-                                  decoration: InputDecoration(
-                                    hintText: "Tap to Search Country",
-                                    labelStyle: TextStyle(
-                                      color: Color(0xFF000000),
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Color(0xFF000000),
-                                  ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                  ),
-                        ),
-                        Icon(
-                          Icons.location_city_outlined,
-                          color: colorGrayDark,
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-
-            /*Container(
-                child:
-                    Text(
-                  _searchDetails == null
-                      ? "search country"
-                      : _searchDetails.countryName,
-                  style: baseTheme.textTheme.headline3.copyWith(
-                      color:
-                          _searchDetails == null ? colorGrayDark : colorBlack),
-                ),
-              ),*/
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          InkWell(
-            onTap: () => _onTapOfSearchStateView(
-                _searchDetails == null ? "" : _searchDetails.countryCode),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Text("State *",
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: colorPrimary,
-                          fontWeight: FontWeight
-                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                      ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  elevation: 5,
-                  color: colorLightGray,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child:
-                              /*Text(
-                            _searchStateDetails == null
-                                ? "Tap to search state"
-                                : _searchStateDetails.label,
-                            style: baseTheme.textTheme.headline3.copyWith(
-                                color: _searchStateDetails == null
-                                    ? colorGrayDark
-                                    : colorBlack,
-                                fontSize: 15),
-                          ),*/
-                              TextField(
-                                  controller: controllerForRight,
-                                  enabled: false,
-                                  decoration: InputDecoration(
-                                    hintText: "Tap to Search State",
-                                    labelStyle: TextStyle(
-                                      color: Color(0xFF000000),
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Color(0xFF000000),
-                                  ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                  ),
-                        ),
-                        Icon(
-                          Icons.location_city_outlined,
-                          color: colorGrayDark,
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget CustomDropDown(String Category, String Source,
-      {bool enable1,
-      bool enable2,
-      Icon icon,
-      TextEditingController controllerForLeft,
-      TextEditingController controllerForRight}) {
-    return Container(
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () => _onTapOfSearchCityView(_searchStateDetails == null
-                ? ""
-                : _searchStateDetails.value.toString()),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Text("City *",
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: colorPrimary,
-                          fontWeight: FontWeight
-                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                      ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  elevation: 5,
-                  color: colorLightGray,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                              controller: controllerForLeft,
-                              enabled: false,
-                              decoration: InputDecoration(
-                                hintText: "Tap to search city",
-                                labelStyle: TextStyle(
-                                  color: Color(0xFF000000),
-                                ),
-                                border: InputBorder.none,
-                              ),
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF000000),
-                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                              ),
-                        ),
-                        Icon(
-                          Icons.location_city_outlined,
-                          color: colorGrayDark,
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-
-            /*Container(
-                child:
-                    Text(
-                  _searchDetails == null
-                      ? "search country"
-                      : _searchDetails.countryName,
-                  style: baseTheme.textTheme.headline3.copyWith(
-                      color:
-                          _searchDetails == null ? colorGrayDark : colorBlack),
-                ),
-              ),*/
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Text("PinCode",
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: colorPrimary,
-                          fontWeight: FontWeight
-                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                      ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Card(
-                  elevation: 5,
-                  color: colorLightGray,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Container(
-                    height: 60,
-                    padding: EdgeInsets.only(left: 20, right: 20),
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                              focusNode: PicCodeFocus,
-                              controller: controllerForRight,
-                              keyboardType: TextInputType.number,
-                              maxLength: 6,
-                              decoration: InputDecoration(
-                                counterText: "",
-                                hintText: "Tap to enter PinCode",
-                                labelStyle: TextStyle(
-                                  color: Color(0xFF000000),
-                                ),
-                                border: InputBorder.none,
-                              ),
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Color(0xFF000000),
-                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-                              ),
-                        ),
-                        Icon(
-                          Icons.pin_drop_sharp,
-                          color: colorGrayDark,
-                        )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget ContactCollapse() {
@@ -2918,5 +2639,877 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
         state.response.multicastId.toString() +
         state.response.success.toString() +
         state.response.results[0].messageId);
+  }
+
+  ManageCustomerDetails() {
+    return Column(
+      children: [
+        PrimaryDetails(),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+        BasicDeetails(),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+        AddressDetails(),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+      ],
+    );
+  }
+
+  PrimaryDetails() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsPrimaryDetails = !IsPrimaryDetails;
+                  IsBasicDetails = false;
+                  IsContactDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Primary Details ",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsPrimaryDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(
+                            Icons.arrow_circle_down_rounded,
+                            color: colorPrimary,
+                          )
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsPrimaryDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Customer_Name,
+                          decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.person),
+                              border: UnderlineInputBorder(),
+                              labelText: 'Customer Name',
+                              hintText: "Enter Name"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _CustomerBloc.add(CustomerCategoryCallEvent(
+                            CustomerCategoryRequest(
+                                pkID: "", CompanyID: CompanyID.toString())));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_Category,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Category *',
+                                hintText: "Select Category"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _CustomerBloc.add(CustomerSourceCallEvent(
+                            CustomerSourceRequest(
+                                pkID: "0",
+                                StatusCategory: "InquirySource",
+                                companyId: CompanyID,
+                                LoginUserID: LoginUserID,
+                                SearchKey: "")));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_Source,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Source *',
+                                hintText: "Select Source"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsBasicDetails = !IsBasicDetails;
+                          IsPrimaryDetails = false;
+                          IsContactDetails = false;
+
+                          IsFollowupDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  BasicDeetails() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsBasicDetails = !IsBasicDetails;
+                  IsPrimaryDetails = false;
+                  IsContactDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Basic Details ",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsBasicDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(
+                            Icons.arrow_circle_down_rounded,
+                            color: colorPrimary,
+                          )
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsBasicDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Customer_Contact1_Name,
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.phone,
+                          focusNode: myFocusNode,
+                          maxLength: 14,
+                          decoration: const InputDecoration(
+                              counterText: "",
+                              suffixIcon: Icon(Icons.mobile_friendly),
+                              border: UnderlineInputBorder(),
+                              labelText: 'Contact No.1',
+                              hintText: "Enter Number"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Customer_Contact2_Name,
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.phone,
+                          focusNode: myFocusNode,
+                          maxLength: 14,
+                          decoration: const InputDecoration(
+                              counterText: "",
+                              suffixIcon: Icon(Icons.mobile_friendly),
+                              border: UnderlineInputBorder(),
+                              labelText: 'Contact No.2.',
+                              hintText: "Enter Number"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Email_Name,
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.text,
+                          maxLength: 50,
+                          decoration: const InputDecoration(
+                              counterText: "",
+                              suffixIcon: Icon(Icons.email_outlined),
+                              border: UnderlineInputBorder(),
+                              labelText: 'Email',
+                              hintText: "Enter Email"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Website_Name,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                              counterText: "",
+                              suffixIcon: Icon(Icons.web),
+                              border: UnderlineInputBorder(),
+                              labelText: 'WebSite',
+                              hintText: "Enter WebSite"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_GST_Name,
+                          keyboardType: TextInputType.text,
+                          maxLength: 15,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                              counterText: "",
+                              suffixIcon:
+                                  Icon(Icons.confirmation_number_outlined),
+                              border: UnderlineInputBorder(),
+                              labelText: 'GST No.',
+                              hintText: "Enter GST Number"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_PAN_Name,
+                          keyboardType: TextInputType.text,
+                          maxLength: 14,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                              counterText: "",
+                              suffixIcon:
+                                  Icon(Icons.confirmation_number_outlined),
+                              border: UnderlineInputBorder(),
+                              labelText: 'PAN No.',
+                              hintText: "Enter PAN Number"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsContactDetails = !IsContactDetails;
+                          IsPrimaryDetails = false;
+                          IsBasicDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  AddressDetails() {
+    return Card(
+        elevation: 20,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: () {
+                setState(() {
+                  IsContactDetails = !IsContactDetails;
+                  IsPrimaryDetails = false;
+                  IsBasicDetails = false;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(5),
+                margin: EdgeInsets.all(5),
+                child: Row(
+                  children: [
+                    Text("Address Details ",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: colorPrimary,
+                            fontWeight: FontWeight.bold)),
+                    Spacer(),
+                    IsContactDetails == true
+                        ? Icon(
+                            Icons.arrow_circle_up_rounded,
+                            color: colorPrimary,
+                          )
+                        : Icon(
+                            Icons.arrow_circle_down_rounded,
+                            color: colorPrimary,
+                          )
+                  ],
+                ),
+              ),
+            ),
+            Visibility(
+              visible: IsContactDetails,
+              child: Container(
+                margin: EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      //margin: EdgeInsets.only(left: 10, right: 10),
+                      child: Text("Address",
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: colorPrimary,
+                              fontWeight: FontWeight
+                                  .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                          ),
+                    ),
+                    TextFormField(
+                      minLines: 3,
+                      maxLines: null,
+                      controller: edt_Address,
+                      decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          hintText: 'Enter Address',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                            borderSide: new BorderSide(color: colorPrimary),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Area,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.area_chart),
+                              border: UnderlineInputBorder(),
+                              labelText: 'Area',
+                              hintText: "Enter Area"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _onTapOfSearchCountryView("");
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_Country,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.location_city),
+                                border: UnderlineInputBorder(),
+                                labelText: 'Country',
+                                hintText: "Select Country"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _onTapOfSearchStateView(edt_CountryID.text);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_State,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.location_city),
+                                border: UnderlineInputBorder(),
+                                labelText: 'State',
+                                hintText: "Select State"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+                        _onTapOfSearchCityView(edt_StateID.text);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.only(bottom: 20),
+                        child: TextFormField(
+                            controller: edt_City,
+                            enabled: false,
+                            decoration: const InputDecoration(
+                                suffixIcon: Icon(Icons.location_city),
+                                border: UnderlineInputBorder(),
+                                labelText: 'City',
+                                hintText: "Select City"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF000000),
+                            )),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: TextFormField(
+                          controller: edt_Pincode,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
+                              suffixIcon: Icon(Icons.pin_drop),
+                              border: UnderlineInputBorder(),
+                              labelText: 'PinCode',
+                              hintText: "Enter PinCode"),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF000000),
+                          )),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          IsInquiryDetails = !IsInquiryDetails;
+                          IsPrimaryDetails = false;
+                          IsBasicDetails = false;
+                          IsContactDetails = false;
+                        });
+                      },
+                      child: Card(
+                          elevation: 10,
+                          color: colorPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.only(
+                                left: 20, right: 20, top: 10, bottom: 10),
+                            child: Center(
+                              child: Text("Next",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  ManageInquiryDetails() {
+    return Container(
+      margin: EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+              showcustomdialogWithOnlyName(
+                  values: arr_ALL_Name_ID_For_Folowup_Priority,
+                  context1: context,
+                  controller: edt_Priority,
+                  lable: "Select Priority");
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 20),
+              child: TextFormField(
+                  controller: edt_Priority,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                      border: UnderlineInputBorder(),
+                      labelText: 'Lead Priority *',
+                      hintText: "Select Priority"),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF000000),
+                  )),
+            ),
+          ),
+
+          InkWell(
+            onTap: () {
+              // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+              _CustomerBloc.add(InquiryLeadStatusTypeListByNameCallEvent(
+                  FollowupInquiryStatusTypeListRequest(
+                      CompanyId: CompanyID.toString(),
+                      pkID: "",
+                      StatusCategory: "Inquiry",
+                      LoginUserID: LoginUserID,
+                      SearchKey: "")));
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 20),
+              child: TextFormField(
+                  controller: edt_LeadStatus,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                      border: UnderlineInputBorder(),
+                      labelText: 'Lead Status *',
+                      hintText: "Select Status"),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF000000),
+                  )),
+            ),
+          ),
+
+          ///
+
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            //margin: EdgeInsets.only(left: 10, right: 10),
+            child: Text("Description *",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: colorPrimary,
+                    fontWeight: FontWeight
+                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                ),
+          ),
+          TextFormField(
+            controller: edt_Description,
+            minLines: 2,
+            maxLines: 5,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(10.0),
+                hintText: 'Enter Details',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderSide: new BorderSide(color: colorPrimary),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                )),
+          ),
+
+          SizedBox(
+            height: 20,
+          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+                IsFollowupDetails = !IsFollowupDetails;
+                IsInquiryDetails = false;
+                IsCustomerDetails = false;
+              });
+            },
+            child: Card(
+                elevation: 10,
+                color: colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  margin:
+                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child: Center(
+                    child: Text("Next",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  ManageFollowupDetails() {
+    return Container(
+      margin: EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            //margin: EdgeInsets.only(left: 10, right: 10),
+            child: Text("Followup Notes *",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: colorPrimary,
+                    fontWeight: FontWeight
+                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                ),
+          ),
+          TextFormField(
+            controller: edt_FollowupNotes,
+            minLines: 2,
+            maxLines: 5,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(10.0),
+                hintText: 'Enter Notes',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderSide: new BorderSide(color: colorPrimary),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                )),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Column(
+            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {
+                  _selectNextFollowupDate(context, edt_NextFollowupDate);
+                },
+                child: TextFormField(
+                    controller: edt_NextFollowupDate,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.calendar_today_outlined),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Next Followup Date *',
+                        hintText: "DD-MM-YYYY"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              InkWell(
+                onTap: () {
+                  _selectTime(context, edt_PreferedTime);
+                },
+                child: TextFormField(
+                    controller: edt_PreferedTime,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.watch_later_outlined),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Preferred Time',
+                        hintText: "HH:MM"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+                IsFollowupDetails = false; //!IsFollowupDetails;
+                IsInquiryDetails = false;
+                IsCustomerDetails = false;
+                IsPrimaryDetails = false;
+                IsBasicDetails = false;
+                IsContactDetails = false;
+              });
+            },
+            child: Card(
+                elevation: 10,
+                color: colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  margin:
+                      EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child: Center(
+                    child: Text("Next",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                )),
+          ),
+        ],
+      ),
+    );
   }
 }

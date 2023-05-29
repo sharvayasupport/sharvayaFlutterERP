@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/bt_country_list_request.dart';
+import 'package:soleoserp/models/api_requests/customer/city_code_to_customer_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_add_edit_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_category_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_document_request.dart';
@@ -23,6 +24,7 @@ import 'package:soleoserp/models/api_requests/other/district_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/taluka_api_request.dart';
 import 'package:soleoserp/models/api_responses/customer/bt_country_list_response.dart';
+import 'package:soleoserp/models/api_responses/customer/city_code_to_customer_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_add_edit_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_category_list.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_contact_save_response.dart';
@@ -128,6 +130,12 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
 
     if (event is BTCountryListRequestEvent) {
       yield* _mapBTCountryListRequestEventState(event);
+    }
+
+    //
+
+    if (event is CityCodeToCustomerListRequestEvent) {
+      yield* _mapCityCodeToCustomerListRequestEventState(event);
     }
 
     //BTCountryListRequestEvent
@@ -474,6 +482,22 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
       BTCountryListResponse response =
           await userRepository.bt_country_list_api(event.btCountryListRequest);
       yield BTCountryListResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<CustomerStates> _mapCityCodeToCustomerListRequestEventState(
+      CityCodeToCustomerListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      CityCodeToCustomerListResponse response = await userRepository
+          .cityCodetoCustomerListAPI(event.CityCode, event.request);
+      yield CityCodeToCustomerListResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

@@ -19,10 +19,7 @@ const MULTI_USER = "assets/images/multi_user.jpg";
 
 const PHONE_CALL_IMAGE = "assets/images/telephone.png";
 const PDF_ICON = "assets/images/pdf_icon.png";
-const DASHBOARD_LITE = "assets/images/dashboard_lite.png";
 const HISTORY_ICON = "assets/images/history.png";
-const ADD_ICON = "assets/images/add.png";
-const COMPLAINT = "assets/images/complaint.jpg";
 const VISIT = "assets/images/visit.png";
 const NOIMAGE = "assets/images/custom_logo_icon/noimg.png";
 const LOCATION_ICON = "assets/images/custom_logo_icon/location_icon.png";
@@ -37,10 +34,8 @@ const CREDIT_INFORMATION =
 
 const EMAIL = "assets/images/custom_logo_icon/email.png";
 const CUSTOMER_DOC = "assets/images/custom_logo_icon/sutomer_doc.png";
-const DEALER_LOGO = "assets/images/dealer_logo.png";
 const REVISE_QT = "assets/images/revise_qt.png";
 const NO_ImageNetWorkURL = "https://img.icons8.com/color/2x/no-image.png";
-const LEAD_LOGO = "assets/images/e_lead_img.jpg";
 const DASHBOARD_LEAD = "assets/images/dashboard_res/dashboard_lead_four.png";
 
 const DASHBOARD_SALES = "assets/images/dashboard_res/dashboard_sales.png";

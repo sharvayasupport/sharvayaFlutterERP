@@ -3384,8 +3384,7 @@ class _TeleCallerAddEditNewScreenState
         ),
         InkWell(
             onTap: () {
-              _onTapOfSearchCountryView(
-                  _searchDetails == null ? "IND" : _searchDetails.countryCode);
+              _onTapOfSearchCountryView("");
             },
             /*=> isAllEditable==true?_onTapOfSearchCountryView(_searchDetails == null ? "" : */ /*_searchDetails.countryCode*/ /*""):Container(),*/
             child: Card(
@@ -3449,8 +3448,7 @@ class _TeleCallerAddEditNewScreenState
         ),
         InkWell(
           onTap: () {
-            _onTapOfSearchStateView(
-                _searchDetails == null ? "" : _searchDetails.countryCode);
+            _onTapOfSearchStateView(edt_QualifiedCountryCode.text);
           },
           /*=> isAllEditable==true?_onTapOfSearchStateView(
               _searchDetails == null ? "" : _searchDetails.countryCode):Container(),*/
@@ -3516,9 +3514,7 @@ class _TeleCallerAddEditNewScreenState
         ),
         InkWell(
           onTap: () {
-            _onTapOfSearchCityView(edt_QualifiedStateCode.text == null
-                ? ""
-                : edt_QualifiedStateCode.text);
+            _onTapOfSearchCityView(edt_QualifiedStateCode.text);
           },
           /*=> isAllEditable==true?_onTapOfSearchCityView(_searchStateDetails == null
               ? ""

@@ -22,8 +22,8 @@ import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:path_provider/path_provider.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Logout_Count/logout_count_request.dart';
@@ -293,6 +293,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
     print("MapAPIKey" + MapAPIKey);
     IOSAPPStatus = _offlineCompanyData.details[0].IOSApp;
+
+    print("IOSAPPStatussdsd" + IOSAPPStatus);
+
     AndroidAppStatus = _offlineCompanyData.details[0].AndroidApp;
     SiteURL = _offlineCompanyData.details[0].siteURL;
     Password = _offlineLoggedInData.details[0].userPassword;
@@ -2557,107 +2560,141 @@ class _HomeScreenState extends BaseState<HomeScreen>
       }
 
       ///__________________________________Production____________________________________________________
-      /*  else if (response.menuRightsResponse.details[i].menuName ==
+
+      if (response.menuRightsResponse.details[i].menuName ==
           "pgPackingChecklist") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Packing Checklist";
-        all_name_id.Name1 =
-            "http://dolphin.sharvayainfotech.in/images/inspection.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
-      }
-      else if (response.menuRightsResponse.details[i].menuName ==
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Packing Checklist";
+          all_name_id.Name1 =
+              "http://dolphin.sharvayainfotech.in/images/inspection.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
+      } else if (response.menuRightsResponse.details[i].menuName ==
           "pgChecking") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Final Checking";
-        all_name_id.Name1 =
-            "http://dolphin.sharvayainfotech.in/images/Packing.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
-      }
-      else if (response.menuRightsResponse.details[i].menuName ==
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Final Checking";
+          all_name_id.Name1 =
+              "http://dolphin.sharvayainfotech.in/images/Packing.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
+      } else if (response.menuRightsResponse.details[i].menuName ==
           "pgInstallation") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Installation";
-        all_name_id.Name1 =
-            "http://dolphin.sharvayainfotech.in/images/Packing.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Installation";
+          all_name_id.Name1 =
+              "http://dolphin.sharvayainfotech.in/images/Packing.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgProductionActivity") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Production Activity";
-        all_name_id.Name1 =
-            "http://dolphin.sharvayainfotech.in/images/Worklog.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Production Activity";
+          all_name_id.Name1 =
+              "http://dolphin.sharvayainfotech.in/images/Worklog.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgInward") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Material Inward";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/Inward.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Material Inward";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/Inward.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgOutward") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Material Outward";
-        all_name_id.Name1 =
-            "http://demo.sharvayainfotech.in/images/Outward.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Material Outward";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/Outward.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgMaterialMovementInward") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Store Inward";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/inbox.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Store Inward";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/inbox.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgMaterialMovementOutward") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Store Outward";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/outbox.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Store Outward";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/outbox.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgMaterialConsumption") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Material Consumption";
-        all_name_id.Name1 =
-            "http://demo.sharvayainfotech.in/images/consumption.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Material Consumption";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/consumption.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgInspection") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Inspection Check List";
-        all_name_id.Name1 =
-            "http://demo.sharvayainfotech.in/images/inspection.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Inspection Check List";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/inspection.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgJobCardInward") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Job Card Inward";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/inbox.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Job Card Inward";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/inbox.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgJobCardOutward") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Job Card Outward";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/outbox.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Job Card Outward";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/outbox.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgIndent") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Material Indent";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/indent.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Material Indent";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/indent.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgSiteSurvey") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Site Survey";
-        all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/survey.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id);
+        if (_offlineCompanyData.details[0].pkId == 4132) {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Site Survey";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/survey.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id);
 
-        ALL_Name_ID all_name_id2 = ALL_Name_ID();
-        all_name_id2.Name = "Site Survey Report";
-        all_name_id2.Name1 =
-            "http://demo.sharvayainfotech.in/images/survey.png";
-        arr_ALL_Name_ID_For_Production.add(all_name_id2);
+          ALL_Name_ID all_name_id2 = ALL_Name_ID();
+          all_name_id2.Name = "Site Survey Report";
+          all_name_id2.Name1 =
+              "http://demo.sharvayainfotech.in/images/survey.png";
+          arr_ALL_Name_ID_For_Production.add(all_name_id2);
+        }
       }
-*/
+
       ///-------------------------------------Account---------------------------------------------------------
 
       else if (response.menuRightsResponse.details[i].menuName ==
@@ -2850,11 +2887,22 @@ class _HomeScreenState extends BaseState<HomeScreen>
           "pgComplaint") {
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
             "acsi-c803-cup0-shel") {
-          ALL_Name_ID all_name_id = ALL_Name_ID();
-          all_name_id.Name = "Complaint";
-          all_name_id.Name1 =
-              "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
-          arr_ALL_Name_ID_For_Support.add(all_name_id);
+          if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "VK34-SOFG-NDH2-35JK" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "TEST-0000-SI0F-0208") {
+            ALL_Name_ID all_name_id = ALL_Name_ID();
+            all_name_id.Name = "VkComplaint";
+            all_name_id.Name1 =
+                "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
+            arr_ALL_Name_ID_For_Support.add(all_name_id);
+          } else {
+            ALL_Name_ID all_name_id = ALL_Name_ID();
+            all_name_id.Name = "Complaint";
+            all_name_id.Name1 =
+                "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
+            arr_ALL_Name_ID_For_Support.add(all_name_id);
+          }
         }
       } else if (response.menuRightsResponse.details[i].menuName == "pgVisit") {
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=

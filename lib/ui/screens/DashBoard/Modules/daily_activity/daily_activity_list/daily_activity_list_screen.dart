@@ -1,8 +1,8 @@
+import 'package:device_apps/device_apps.dart';
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
+import 'package:mailto/mailto.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/dailyactivity/dailyactivity_bloc.dart';
 import 'package:soleoserp/models/api_requests/daily_activity/daily_activity_delete_request.dart';
@@ -257,32 +257,58 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
                   navigateTo(context, HomeScreen.routeName,
                       clearAllStack: true);
                 }),
+            /*  _offlineLoggedInData.details[0].companyID == 4132
+                ?*/
             IconButton(
                 icon: Icon(
                   Icons.email,
                   color: colorWhite,
                 ),
                 onPressed: () async {
-                  //_onTapOfLogOut();
+                  bool isInstalled =
+                      await DeviceApps.isAppInstalled('ru.yandex.mail');
 
-                  // final smtpServer = gmail(username, password);
-                  // Use the SmtpServer class to configure an SMTP server:
-                  final smtpServer = SmtpServer('smtp.yandex.com',
-                      port: 587,
-                      ssl: true,
-                      username: 'support@sharvayainfotech.com',
-                      password: "sharvayasupport@2020\$");
-                  // See the named arguments of SmtpServer for further configuration
-                  // options.
-                  // Create our message.
+                  if (isInstalled == true) {
+                    if (_dailyActivityDetails.details.isNotEmpty) {
+                      sendEmail(_dailyActivityDetails.details);
+                    } else {
+                      showCommonDialogWithSingleOption(context,
+                          "You Can't Send Mail Because Your Daily WorkLog is Empty",
+                          positiveButtonTitle: "OK");
+                    }
+                  } else {
+                    showCommonDialogWithTwoOptions(context,
+                        "Kindly Install Yandex Mail App For Sending Mail !",
+                        positiveButtonTitle: "Download",
+                        onTapOfPositiveButton: () async {
+                          //https://play.google.com/store/apps/details?id=ru.yandex.mail&hl=en&gl=US
+
+                          String uri =
+                              'https://play.google.com/store/apps/details?id=ru.yandex.mail&hl=en&gl=US';
+                          if (await canLaunch(uri)) {
+                            await launch(uri);
+                          } else {
+                            print("No App found");
+                          }
+                        },
+                        negativeButtonTitle: "Close",
+                        onTapOfNegativeButton: () {
+                          Navigator.pop(context);
+                        });
+                  }
+
+                  /*final smtpServer = SmtpServer('smtp.yandex.com',
+                      // port: 587,
+                      //ssl: true,
+                      username: 'noreply@sharvayainfotech.com',
+                      password: "sharvaya");
+
 
                   final message = Message()
-                    ..from = Address(
-                        "kishan.rathod@sharvayainfotech.com", 'Kishan Rathod')
+                    ..from =
+                        Address("rathod.kishan7up@gmail.com", 'Kishan Rathod')
                     ..recipients.add('Ashish.rathod@sharvayainfotech.com')
-                    /*..ccRecipients
-                        .addAll(['destCc1@example.com', 'destCc2@example.com'])
-                    ..bccRecipients.add(Address('bccAddress@example.com'))*/
+
                     ..subject =
                         'Test Dart Mailer library :: 😀 :: ${DateTime.now()}'
                     ..text =
@@ -298,8 +324,9 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
                     for (var p in e.problems) {
                       print('Problem: ${p.code}: ${p.msg}');
                     }
-                  }
+                  }*/
                 })
+            /*: Container()*/
           ],
         ),
         /* AppBar(
@@ -1126,5 +1153,144 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
           ? true
           : false;
     }
+  }
+
+  void sendEmail(List<DailyActivityDetails> details) async {
+    List<String> dailydata = [];
+    for (int i = 0; i < details.length; i++) {
+      dailydata.add(" => " +
+          "Category : " +
+          details[i].taskCategoryName +
+          "\nWork Notes : " +
+          details[i].taskDescription +
+          "\n" +
+          " ( " +
+          (details[i].taskDuration == 0
+              ? "0.00"
+              : details[i].taskDuration.toString()) +
+          " Hrs )\n\n");
+    }
+
+    String ReportToEmail = "";
+
+    String ReportToCC = "";
+    String ReportToCC1 = "";
+    String ReportToCC2 = "";
+
+    ReportToEmail = "ashish.rathod@sharvayainfotech.com";
+    ReportToCC = "jalpa.shah@sharvayainfotech.com";
+
+    if (_offlineLoggedInData.details[0].employeeID == 67) {
+      //Dhara
+      ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 62) {
+      //Bhavini
+      ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 63) {
+      //Nisha
+      ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 95) {
+      //Dev
+      ReportToEmail = "payal.vaghasiya@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "hekanksh.gohel@sharvayainfotech.com";
+      ReportToCC2 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 101) {
+      //Payal
+      ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+
+    if (_offlineLoggedInData.details[0].employeeID == 100) {
+      //Yash
+      ReportToEmail = "akshar.patel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+
+    if (_offlineLoggedInData.details[0].employeeID == 94) {
+      //Shivam
+      ReportToEmail = "akshar.patel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 99) {
+      //Trilok
+      ReportToEmail = "akshar.patel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 93) {
+      //Krish
+      ReportToEmail = "akshar.patel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+    if (_offlineLoggedInData.details[0].employeeID == 102) {
+      //Vedant
+      ReportToEmail = "akshar.patel@sharvayainfotech.com";
+      ReportToCC = "ashish.rathod@sharvayainfotech.com";
+      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
+    }
+
+    /* final Uri params = Uri(
+      host: 'smtp.yandex.com',
+      port: 587,
+      scheme: 'mailto',
+      path: 'Kishan.rathod@sharvayainfotech.com',
+      query: 'subject=Hello&body=World!',
+    );
+    String url = params.toString();
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }*/
+    /* final Email email = Email(
+      body: 'Email body',
+      subject: 'From Flutter App',
+      recipients: ['mayank.panchal@sharvayainfotech.com'],
+      cc: ['kishan.rathod@sharvayainfotech.com'],
+      // bcc: ['bcc@example.com'],
+      // attachmentPaths: ['/path/to/attachment.zip'],
+      isHTML: false,
+    );
+
+    await FlutterEmailSender.send(email);*/
+
+    final mailtoLink = Mailto(
+      to: [ReportToEmail],
+      cc: [ReportToCC, ReportToCC1, ReportToCC2],
+      subject: 'Daily Report  ' + edt_FollowupStatus.text,
+      body: 'Respected Sir,\n'
+              'Daily Report Points\n\n' +
+          dailydata
+              .toString()
+              .replaceAll('[', '')
+              .replaceAll(']', '\nTotal Hours : ' + TASKTOTALDURATION.text),
+    );
+    await launch('$mailtoLink');
+    /*final String subject = "Subject:";
+    final String stringText = "Same Message:";
+    String uri =
+        'mailto:kishan.rathod@sharvayainfotech.com?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(stringText)}';
+    if (await canLaunch(uri)) {
+      await launch(uri);
+    } else {
+      print("No email client found");
+    }
+  }*/
   }
 }

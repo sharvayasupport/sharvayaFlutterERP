@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -69,6 +70,12 @@ class _SerialKeyScreenState extends BaseState<SerialKeyScreen>
     getIPDropDown();
     _firstScreenBloc = FirstScreenBloc(baseBloc);
     _initPackageInfo();
+
+    FirebaseMessaging.instance.getToken().then((token) async {
+      //final tokenStr = token.toString();
+      // do whatever you want with the token here
+      print("fcm_TOken" + token);
+    });
 
     /*  _firstScreenBloc
       ..add(CompanyDetailsCallEvent(

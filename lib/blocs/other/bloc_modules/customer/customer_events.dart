@@ -133,3 +133,11 @@ class BTCountryListRequestEvent extends CustomerEvents {
   final BTCountryListRequest btCountryListRequest;
   BTCountryListRequestEvent(this.btCountryListRequest);
 }
+
+//CityCodeToCustomerListRequest
+class CityCodeToCustomerListRequestEvent extends CustomerEvents {
+
+  String CityCode;
+  final CityCodeToCustomerListRequest request;
+  CityCodeToCustomerListRequestEvent(this.CityCode,this.request);
+}

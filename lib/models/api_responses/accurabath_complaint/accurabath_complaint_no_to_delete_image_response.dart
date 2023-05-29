@@ -1,18 +1,16 @@
-class AccuraBathComplaintNoToDeleteImageVideoResponse {
-  List<AccuraBathComplaintNoToDeleteImageVideoResponseDetails> details;
+class AccuraBathComplaintNoToDeleteImageResponse {
+  List<AccuraBathComplaintNoToDeleteImageResponseDetails> details;
   int totalCount;
 
-  AccuraBathComplaintNoToDeleteImageVideoResponse(
-      {this.details, this.totalCount});
+  AccuraBathComplaintNoToDeleteImageResponse({this.details, this.totalCount});
 
-  AccuraBathComplaintNoToDeleteImageVideoResponse.fromJson(
+  AccuraBathComplaintNoToDeleteImageResponse.fromJson(
       Map<String, dynamic> json) {
     if (json['details'] != null) {
       details = [];
       json['details'].forEach((v) {
         details.add(
-            new AccuraBathComplaintNoToDeleteImageVideoResponseDetails.fromJson(
-                v));
+            new AccuraBathComplaintNoToDeleteImageResponseDetails.fromJson(v));
       });
     }
     totalCount = json['TotalCount'];
@@ -28,15 +26,15 @@ class AccuraBathComplaintNoToDeleteImageVideoResponse {
   }
 }
 
-class AccuraBathComplaintNoToDeleteImageVideoResponseDetails {
+class AccuraBathComplaintNoToDeleteImageResponseDetails {
   int column1;
   String column2;
   String column3;
 
-  AccuraBathComplaintNoToDeleteImageVideoResponseDetails(
+  AccuraBathComplaintNoToDeleteImageResponseDetails(
       {this.column1, this.column2, this.column3});
 
-  AccuraBathComplaintNoToDeleteImageVideoResponseDetails.fromJson(
+  AccuraBathComplaintNoToDeleteImageResponseDetails.fromJson(
       Map<String, dynamic> json) {
     column1 = json['Column1'];
     column2 = json['Column2'];

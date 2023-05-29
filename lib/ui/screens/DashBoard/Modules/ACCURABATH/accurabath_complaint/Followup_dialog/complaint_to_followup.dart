@@ -19,7 +19,7 @@ import 'package:soleoserp/models/api_responses/login/login_user_details_api_resp
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_listing_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/inquiry_list_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
@@ -301,7 +301,7 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
                 ),
                 onPressed: () {
                   //_onTapOfLogOut();
-                  navigateTo(context, ComplaintPaginationListScreen.routeName,
+                  navigateTo(context, AccurabathComplaintListScreen.routeName,
                       clearAllStack: true);
                 })
           ],
@@ -597,7 +597,7 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
   }
 
   Future<bool> _onBackPressed() {
-    navigateTo(context, ComplaintPaginationListScreen.routeName,
+    navigateTo(context, AccurabathComplaintListScreen.routeName,
         clearAllStack: true);
   }
 
@@ -929,7 +929,7 @@ class _AccuraBathFollowUpFromComplaintAddEditScreenState
         : "Followup Information. Added Successfully";
     await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-      navigateTo(context, ComplaintPaginationListScreen.routeName,
+      navigateTo(context, AccurabathComplaintListScreen.routeName,
           clearAllStack: true);
 
       //Navigator.of(context).pop();

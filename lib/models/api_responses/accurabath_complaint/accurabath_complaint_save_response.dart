@@ -28,16 +28,14 @@ class AccuraBathComplaintSaveResponseDetails {
   int column1;
   String column2;
   String column3;
-  int column4;
 
   AccuraBathComplaintSaveResponseDetails(
-      {this.column1, this.column2, this.column3, this.column4});
+      {this.column1, this.column2, this.column3});
 
   AccuraBathComplaintSaveResponseDetails.fromJson(Map<String, dynamic> json) {
     column1 = json['Column1'];
     column2 = json['Column2'];
     column3 = json['Column3'];
-    column4 = json['Column4'];
   }
 
   Map<String, dynamic> toJson() {
@@ -45,7 +43,6 @@ class AccuraBathComplaintSaveResponseDetails {
     data['Column1'] = this.column1;
     data['Column2'] = this.column2;
     data['Column3'] = this.column3;
-    data['Column4'] = this.column4;
 
     return data;
   }

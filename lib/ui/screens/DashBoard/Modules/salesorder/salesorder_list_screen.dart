@@ -15,6 +15,7 @@ import 'package:soleoserp/models/api_requests/salesOrder/sales_order_delete_requ
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipment_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
@@ -221,11 +222,16 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
           if (state is SalesOrderDeleteResponseState) {
             _onDeleteSalesOrderResponse(state);
           }
+
+          if (state is SOShipmentlistResponseState) {
+            _onGetShipmentDetails(state);
+          }
         },
         listenWhen: (oldState, currentState) {
           if (currentState is SalesOrderPDFGenerateResponseState ||
               currentState is SearchCustomerListByNumberCallResponseState ||
-              currentState is SalesOrderDeleteResponseState) {
+              currentState is SalesOrderDeleteResponseState ||
+              currentState is SOShipmentlistResponseState) {
             return true;
           }
 
@@ -1444,23 +1450,32 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                         onTap: () {
                                           // _onTapOfEditCustomer(model);
 
-                                          navigateTo(
-                                                  context,
-                                                  SaleOrderNewAddEditScreen
-                                                      .routeName,
-                                                  arguments:
-                                                      AddUpdateSalesOrderNewScreenArguments(
-                                                          model))
-                                              .then((value) {
-                                            _SalesOrderBloc.add(
-                                                SalesOrderListCallEvent(
-                                                    1,
-                                                    SalesOrderListApiRequest(
-                                                        CompanyId: CompanyID
-                                                            .toString(),
-                                                        LoginUserID:
-                                                            LoginUserID)));
-                                          });
+                                          _SalesOrderBloc.add(
+                                              SOShipmentListRequestEvent(
+                                                  SOShipmentListRequest(
+                                                      OrderNo: model.orderNo,
+                                                      LoginUserID: LoginUserID,
+                                                      CompanyId:
+                                                          CompanyID.toString()),
+                                                  model));
+
+                                          /*navigateTo(
+                                                    context,
+                                                    SaleOrderNewAddEditScreen
+                                                        .routeName,
+                                                    arguments:
+                                                        AddUpdateSalesOrderNewScreenArguments(
+                                                            model))
+                                                .then((value) {
+                                              _SalesOrderBloc.add(
+                                                  SalesOrderListCallEvent(
+                                                      1,
+                                                      SalesOrderListApiRequest(
+                                                          CompanyId: CompanyID
+                                                              .toString(),
+                                                          LoginUserID:
+                                                              LoginUserID)));
+                                            });*/
                                         },
                                         child: Row(
                                           children: <Widget>[
@@ -3041,5 +3056,17 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
     print("_OnDeleteAllGenericCharges" +
         " DeleteAllGenericFromDBSO : " +
         state.response);
+  }
+
+  void _onGetShipmentDetails(SOShipmentlistResponseState state) {
+    navigateTo(context, SaleOrderNewAddEditScreen.routeName,
+            arguments: AddUpdateSalesOrderNewScreenArguments(
+                state.salesOrderDetails, state.response.details[0]))
+        .then((value) {
+      _SalesOrderBloc.add(SalesOrderListCallEvent(
+          1,
+          SalesOrderListApiRequest(
+              CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    });
   }
 }

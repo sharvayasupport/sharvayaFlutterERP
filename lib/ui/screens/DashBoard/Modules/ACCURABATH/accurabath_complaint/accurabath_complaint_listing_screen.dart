@@ -8,9 +8,11 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_list_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/fetch_accurabath_complaint_image_list_request.dart';
+import 'package:soleoserp/models/api_requests/accurabath_complaint/accurabath_complaint_videoList_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_delete_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/complaint_image_list_response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/accurabath_complaint_videoList_Response.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/complaint/complaint_search_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
@@ -69,6 +71,10 @@ class _AccurabathComplaintListScreenState
 
   List<FetchAccuraBathComplaintImageListResponseDetails> arrrImageVideoList =
       [];
+
+  List<AccurabathComplaintVideoListResponseDetails> arrcomplaintSiteVideoList =
+      [];
+
   List<FetchAccuraBathComplaintImageListResponseDetails> arrrImageList = [];
   List<File> multiple_selectedImageFile = [];
 
@@ -99,9 +105,13 @@ class _AccurabathComplaintListScreenState
         ..add(AccuraBathComplaintListRequestEvent(
             1,
             AccuraBathComplaintListRequest(
-                CompanyId: CompanyID.toString(),
-                LoginUserID: LoginUserID,
-                SearchKey: edt_CustomerName.text))),
+              pkID: "0",
+              SearchKey: edt_CustomerName.text,
+              PageNo: 1.toString(),
+              PageSize: "10",
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+            ))),
       child: BlocConsumer<ComplaintScreenBloc, ComplaintScreenStates>(
         builder: (BuildContext context, ComplaintScreenStates state) {
           //handle states
@@ -149,7 +159,7 @@ class _AccurabathComplaintListScreenState
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          title: Text('Complaint List'),
+          title: Text('Acura_Complaint List'),
           gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
@@ -174,13 +184,17 @@ class _AccurabathComplaintListScreenState
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    _complaintScreenBloc.add(
-                        AccuraBathComplaintListRequestEvent(
+                    _complaintScreenBloc
+                        .add(AccuraBathComplaintListRequestEvent(
                             1,
                             AccuraBathComplaintListRequest(
-                                CompanyId: CompanyID.toString(),
-                                LoginUserID: LoginUserID,
-                                SearchKey: edt_CustomerName.text)));
+                              pkID: "0",
+                              SearchKey: edt_CustomerName.text,
+                              PageNo: 1.toString(),
+                              PageSize: "10",
+                              CompanyId: CompanyID.toString(),
+                              LoginUserID: LoginUserID,
+                            )));
                   },
                   child: Container(
                     padding: EdgeInsets.only(
@@ -267,13 +281,31 @@ class _AccurabathComplaintListScreenState
                       // print("StatusValue " + value.toString() )
                       if (value.length > 2)
                         {
-                          _complaintScreenBloc.add(
-                              AccuraBathComplaintListRequestEvent(
+                          _complaintScreenBloc
+                              .add(AccuraBathComplaintListRequestEvent(
                                   1,
                                   AccuraBathComplaintListRequest(
-                                      CompanyId: CompanyID.toString(),
-                                      LoginUserID: LoginUserID,
-                                      SearchKey: edt_CustomerName.text))),
+                                    pkID: "0",
+                                    SearchKey: edt_CustomerName.text,
+                                    PageNo: 1.toString(),
+                                    PageSize: "10",
+                                    CompanyId: CompanyID.toString(),
+                                    LoginUserID: LoginUserID,
+                                  ))),
+                        }
+                      else
+                        {
+                          _complaintScreenBloc
+                              .add(AccuraBathComplaintListRequestEvent(
+                                  1,
+                                  AccuraBathComplaintListRequest(
+                                    pkID: "0",
+                                    SearchKey: edt_CustomerName.text,
+                                    PageNo: 1.toString(),
+                                    PageSize: "10",
+                                    CompanyId: CompanyID.toString(),
+                                    LoginUserID: LoginUserID,
+                                  ))),
                         }
                     },
                     style: TextStyle(
@@ -336,12 +368,18 @@ class _AccurabathComplaintListScreenState
   }
 
   void _onInquiryListPagination() {
+    int totalpageNo = _pageNo + 1;
+
     _complaintScreenBloc.add(AccuraBathComplaintListRequestEvent(
         _pageNo + 1,
         AccuraBathComplaintListRequest(
-            CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID,
-            SearchKey: edt_CustomerName.text)));
+          pkID: "0",
+          SearchKey: edt_CustomerName.text,
+          PageNo: totalpageNo.toString(),
+          PageSize: "10",
+          CompanyId: CompanyID.toString(),
+          LoginUserID: LoginUserID,
+        )));
   }
 
   ExpantionCustomer(BuildContext context, int index) {
@@ -367,7 +405,7 @@ class _AccurabathComplaintListScreenState
                 width: 35,
               )),
           title: Text(
-            model.customerName,
+            model.customerEmpName,
             style: TextStyle(color: Colors.black),
           ),
           subtitle: GestureDetector(
@@ -451,13 +489,17 @@ class _AccurabathComplaintListScreenState
                                     AddUpdateAccuraBathFollowupInquiryScreenArguments(
                                         model.pkID.toString()))
                             .then((value) {
-                          _complaintScreenBloc.add(
-                              AccuraBathComplaintListRequestEvent(
+                          _complaintScreenBloc
+                              .add(AccuraBathComplaintListRequestEvent(
                                   1,
                                   AccuraBathComplaintListRequest(
-                                      CompanyId: CompanyID.toString(),
-                                      LoginUserID: LoginUserID,
-                                      SearchKey: edt_CustomerName.text)));
+                                    pkID: "0",
+                                    SearchKey: edt_CustomerName.text,
+                                    PageNo: 1.toString(),
+                                    PageSize: "10",
+                                    CompanyId: CompanyID.toString(),
+                                    LoginUserID: LoginUserID,
+                                  )));
                         });
                       },
                       child: Container(
@@ -619,9 +661,9 @@ class _AccurabathComplaintListScreenState
                                           width: 5,
                                         ),
                                         Text(
-                                            model.employeeName == null
+                                            model.assignedTo == null
                                                 ? "N/A"
-                                                : model.employeeName,
+                                                : model.assignedTo,
                                             style: TextStyle(
                                                 color: Color(title_color),
                                                 fontSize: _fontSize_Title,
@@ -773,16 +815,31 @@ class _AccurabathComplaintListScreenState
                 children: <Widget>[
                   GestureDetector(
                     onTap: () {
+                      String ImageFileBaseURL =
+                          _offlineCompanyData.details[0].siteURL +
+                              "/ModuleDocs/";
+                      String VideoFileURL =
+                          _offlineCompanyData.details[0].siteURL + "/SiteDocs/";
+
                       _complaintScreenBloc.add(
                           FetchAccuraBathComplaintImageListRequestEvent(
                               model,
                               FetchAccuraBathComplaintImageListRequest(
+                                  pkID: model.pkID.toString(),
                                   SearchKey: model.complaintNo,
-                                  ModuleName: "",
+                                  ModuleName: "complaint",
                                   DocName: "",
                                   KeyValue: model.complaintNo,
                                   CompanyID: CompanyID.toString(),
-                                  LoginUserID: LoginUserID)));
+                                  LoginUserID: LoginUserID),
+                              AccuraBathComplaintVideoListRequest(
+                                  pkID: model.pkID.toString(),
+                                  ComplaintNo: model.complaintNo,
+                                  Type: "sitevideo",
+                                  CompanyId: CompanyID.toString(),
+                                  LoginUserID: LoginUserID),
+                              ImageFileBaseURL,
+                              VideoFileURL));
                       // _onTapOfEditCustomer(model);
                     },
                     child: Column(
@@ -908,25 +965,39 @@ class _AccurabathComplaintListScreenState
   void _onTapOfEditCustomer(
       AccuraBathComplaintListResponseDetails detail,
       List<FetchAccuraBathComplaintImageListResponseDetails>
-          arrrImageVideoList123) {
+          arrrImageVideoList123,
+      List<AccurabathComplaintVideoListResponseDetails>
+          arrcomplaintSiteVideoList,
+      List<File> imageFileListFromAPI,
+      List<File> videoFileList) {
     navigateTo(context, AccuraBathComplaintAddEditScreen.routeName,
             arguments: AddUpdateAccuraBathComplaintScreenArguments(
-                detail, arrrImageVideoList123))
+                detail,
+                arrrImageVideoList123,
+                arrcomplaintSiteVideoList,
+                imageFileListFromAPI,
+                videoFileList))
         .then((value) {
       //_leaveRequestScreenBloc.add(LeaveRequestCallEvent(1,LeaveRequestListAPIRequest(EmployeeID: edt_FollowupEmployeeUserID.text,ApprovalStatus:edt_FollowupStatus.text,Month: "",Year: "",CompanyId: CompanyID )));
       _complaintScreenBloc.add(AccuraBathComplaintListRequestEvent(
           1,
           AccuraBathComplaintListRequest(
-              CompanyId: CompanyID.toString(),
-              LoginUserID: LoginUserID,
-              SearchKey: edt_CustomerName.text)));
+            pkID: "0",
+            SearchKey: edt_CustomerName.text,
+            PageNo: 1.toString(),
+            PageSize: "10",
+            CompanyId: CompanyID.toString(),
+            LoginUserID: LoginUserID,
+          )));
     });
   }
 
   void _OnImageListSucess(
       FetchAccuraBathComplaintImageListResponseState state) {
-    if (state.fetchAccuraBathComplaintImageListResponse.details.length != 0) {
+    if (state.fetchAccuraBathComplaintImageListResponse.details.length != 0 ||
+        state.accurabathComplaintVideoListResponse.details.length != 0) {
       arrrImageVideoList.clear();
+      arrcomplaintSiteVideoList.clear();
 
       for (int i = 0;
           i < state.fetchAccuraBathComplaintImageListResponse.details.length;
@@ -957,12 +1028,31 @@ class _AccurabathComplaintListScreenState
           arrrImageVideoList.add(fetchComplaintImageListResponseDetails);
         }
       }
+
+      for (int j = 0;
+          j < state.accurabathComplaintVideoListResponse.details.length;
+          j++) {
+        AccurabathComplaintVideoListResponseDetails
+            accurabathComplaintVideoListResponseDetails =
+            AccurabathComplaintVideoListResponseDetails();
+
+        arrcomplaintSiteVideoList
+            .add(state.accurabathComplaintVideoListResponse.details[j]);
+      }
       //arrrImageVideoList.addAll(state.fetchComplaintImageListResponse.details);
       _onTapOfEditCustomer(
-          state.accuraBathComplaintListResponseDetails, arrrImageVideoList);
+          state.accuraBathComplaintListResponseDetails,
+          arrrImageVideoList,
+          arrcomplaintSiteVideoList,
+          state.ImageFileListFromAPI,
+          state.VideoFileList);
     } else {
       _onTapOfEditCustomer(
-          state.accuraBathComplaintListResponseDetails, arrrImageVideoList);
+          state.accuraBathComplaintListResponseDetails,
+          arrrImageVideoList,
+          arrcomplaintSiteVideoList,
+          state.ImageFileListFromAPI,
+          state.VideoFileList);
     }
   }
 

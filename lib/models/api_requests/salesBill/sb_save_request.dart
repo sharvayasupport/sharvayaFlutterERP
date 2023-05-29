@@ -65,74 +65,87 @@ class SBHeaderSaveRequest {
   String LoginUserID;
   String ReturnInvoiceNo;
   String CompanyId;
+  String CRDays;
+  String DueDate;
+  String CurrencyName;
+  String CurrencySymbol;
+  String ExchangeRate;
+  String ProjectName;
 
-  SBHeaderSaveRequest(
-      {this.InvoiceNo,
-      this.InvoiceDate,
-      this.FixedLedgerID,
-      this.CustomerID,
-      this.LocationID,
-      this.BankID,
-      this.TerminationOfDeliery,
-      this.TerminationOfDelieryCity,
-      this.TermsCondition,
-      this.InquiryNo,
-      this.OrderNo,
-      this.QuotationNo,
-      this.ComplaintNo,
-      this.RefType,
-      this.SupplierRef,
-      this.SupplierRefDate,
-      this.EmailSubject,
-      this.EmailContent,
-      this.OtherRef,
-      this.PatientName,
-      this.PatientType,
-      this.Amount,
-      this.Percentage,
-      this.EstimatedAmt,
-      this.BasicAmt,
-      this.DiscountAmt,
-      this.SGSTAmt,
-      this.CGSTAmt,
-      this.IGSTAmt,
-      this.ROffAmt,
-      this.ChargeID1,
-      this.ChargeAmt1,
-      this.ChargeBasicAmt1,
-      this.ChargeGSTAmt1,
-      this.ChargeID2,
-      this.ChargeAmt2,
-      this.ChargeBasicAmt2,
-      this.ChargeGSTAmt2,
-      this.ChargeID3,
-      this.ChargeAmt3,
-      this.ChargeBasicAmt3,
-      this.ChargeGSTAmt3,
-      this.ChargeID4,
-      this.ChargeAmt4,
-      this.ChargeBasicAmt4,
-      this.ChargeGSTAmt4,
-      this.ChargeID5,
-      this.ChargeAmt5,
-      this.ChargeBasicAmt5,
-      this.ChargeGSTAmt5,
-      this.NetAmt,
-      this.ModeOfTransport,
-      this.TransporterName,
-      this.DeliverTo,
-      this.VehicleNo,
-      this.LRNo,
-      this.DeliveryNote,
-      this.DeliveryDate,
-      this.DispatchDocNo,
-      this.LRDate,
-      this.EwayBillNo,
-      this.ModeOfPayment,
-      this.TransportRemark,
-      this.LoginUserID,
-      this.ReturnInvoiceNo,
-      this.CompanyId});
+  SBHeaderSaveRequest({
+    this.InvoiceNo,
+    this.InvoiceDate,
+    this.FixedLedgerID,
+    this.CustomerID,
+    this.LocationID,
+    this.BankID,
+    this.TerminationOfDeliery,
+    this.TerminationOfDelieryCity,
+    this.TermsCondition,
+    this.InquiryNo,
+    this.OrderNo,
+    this.QuotationNo,
+    this.ComplaintNo,
+    this.RefType,
+    this.SupplierRef,
+    this.SupplierRefDate,
+    this.EmailSubject,
+    this.EmailContent,
+    this.OtherRef,
+    this.PatientName,
+    this.PatientType,
+    this.Amount,
+    this.Percentage,
+    this.EstimatedAmt,
+    this.BasicAmt,
+    this.DiscountAmt,
+    this.SGSTAmt,
+    this.CGSTAmt,
+    this.IGSTAmt,
+    this.ROffAmt,
+    this.ChargeID1,
+    this.ChargeAmt1,
+    this.ChargeBasicAmt1,
+    this.ChargeGSTAmt1,
+    this.ChargeID2,
+    this.ChargeAmt2,
+    this.ChargeBasicAmt2,
+    this.ChargeGSTAmt2,
+    this.ChargeID3,
+    this.ChargeAmt3,
+    this.ChargeBasicAmt3,
+    this.ChargeGSTAmt3,
+    this.ChargeID4,
+    this.ChargeAmt4,
+    this.ChargeBasicAmt4,
+    this.ChargeGSTAmt4,
+    this.ChargeID5,
+    this.ChargeAmt5,
+    this.ChargeBasicAmt5,
+    this.ChargeGSTAmt5,
+    this.NetAmt,
+    this.ModeOfTransport,
+    this.TransporterName,
+    this.DeliverTo,
+    this.VehicleNo,
+    this.LRNo,
+    this.DeliveryNote,
+    this.DeliveryDate,
+    this.DispatchDocNo,
+    this.LRDate,
+    this.EwayBillNo,
+    this.ModeOfPayment,
+    this.TransportRemark,
+    this.LoginUserID,
+    this.ReturnInvoiceNo,
+    this.CompanyId,
+    this.CRDays,
+    this.DueDate,
+    this.CurrencyName,
+    this.CurrencySymbol,
+    this.ExchangeRate,
+    this.ProjectName,
+  });
 
   SBHeaderSaveRequest.fromJson(Map<String, dynamic> json) {
     InvoiceNo = json['InvoiceNo'];
@@ -201,6 +214,12 @@ class SBHeaderSaveRequest {
     LoginUserID = json['LoginUserID'];
     ReturnInvoiceNo = json['ReturnInvoiceNo'];
     CompanyId = json['CompanyId'];
+    CRDays = json['CRDays'];
+    DueDate = json['DueDate'];
+    CurrencyName = json['CurrencyName'];
+    CurrencySymbol = json['CurrencySymbol'];
+    ExchangeRate = json['ExchangeRate'];
+    ProjectName = json['ProjectName'];
   }
 
   Map<String, dynamic> toJson() {
@@ -272,6 +291,13 @@ class SBHeaderSaveRequest {
     data['LoginUserID'] = this.LoginUserID;
     data['ReturnInvoiceNo'] = this.ReturnInvoiceNo;
     data['CompanyId'] = this.CompanyId;
+    data['CRDays'] = this.CRDays;
+    data['DueDate'] = this.DueDate;
+    data['CurrencyName'] = this.CurrencyName;
+    data['CurrencySymbol'] = this.CurrencySymbol;
+    data['ExchangeRate'] = this.ExchangeRate;
+    data['ProjectName'] = this.ProjectName;
+    // ProjectName = json['ProjectName'];
 
     return data;
   }

@@ -1,12 +1,23 @@
 class FetchAccuraBathComplaintImageListRequest {
+  String pkID;
   String SearchKey;
   String ModuleName;
   String DocName;
   String KeyValue;
   String CompanyID;
   String LoginUserID;
+
+  /*pkID:0
+SearchKey:
+ModuleName:complaint
+DocName:
+KeyValue:TK-APR23-001
+LoginUserID:
+CompanyId:4156*/
+
   FetchAccuraBathComplaintImageListRequest(
-      {this.SearchKey,
+      {this.pkID,
+      this.SearchKey,
       this.ModuleName,
       this.DocName,
       this.KeyValue,
@@ -14,6 +25,7 @@ class FetchAccuraBathComplaintImageListRequest {
       this.LoginUserID});
 
   FetchAccuraBathComplaintImageListRequest.fromJson(Map<String, dynamic> json) {
+    pkID = json['pkID'];
     SearchKey = json['SearchKey'];
     ModuleName = json['ModuleName'];
     DocName = json['DocName'];
@@ -24,6 +36,8 @@ class FetchAccuraBathComplaintImageListRequest {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+
+    data['pkID'] = this.pkID;
     data['SearchKey'] = this.SearchKey;
     data['ModuleName'] = this.ModuleName;
     data['DocName'] = this.DocName;

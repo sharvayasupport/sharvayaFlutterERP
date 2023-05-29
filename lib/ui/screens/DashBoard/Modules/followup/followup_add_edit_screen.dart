@@ -249,6 +249,8 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
   }
 
 
+  bool IsFollowpDetails = true;
+
 
 
   @override
@@ -384,121 +386,58 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildFollowupDate(),
+                        Card(
+                            elevation: 20,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      IsFollowpDetails = !IsFollowpDetails;
+
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.all(5),
+                                    child: Row(
+                                      children: [
+                                        Text("Followup Details ",
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: colorPrimary,
+                                                fontWeight: FontWeight.bold)),
+                                        Spacer(),
+                                        IsFollowpDetails == true
+                                            ? Icon(Icons.arrow_circle_down_rounded)
+                                            : Icon(
+                                          Icons.arrow_circle_up_rounded,
+                                          color: colorPrimary,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: IsFollowpDetails,
+                                  child: ManageFollowupDetails(),
+                                ),
+                              ],
+                            )),
+
                         SizedBox(
                           width: 20,
                           height: 15,
                         ),
-                        _buildSearchView(),
-                        Visibility(
-                          visible: _isInqury_details_Exist,
-                          child: showcustomdialogWithMultiID1("Inquiry #",
-                              enable1: false,
-                              title: "Inquiry #",
-                              hintTextvalue: "Tap to Select Inquiry#",
-                              icon: Icon(Icons.arrow_drop_down),
-                              controllerForLeft: edt_InqNo,
-                              controller1: edt_FollowupInquiryStatusType,
-                              controllerpkID: edt_FollowupInquiryStatusTypepkID,
-                              Custom_values1:
-                                  arr_ALL_Name_ID_For_FolowupInquiryByCustomerID),
-                        ),
-                        showcustomdialogWithID1("Followup Type",
-                            enable1: false,
-                            title: "Followup Type *",
-                            hintTextvalue: "Tap to Select Followup Type",
-                            icon: Icon(Icons.arrow_drop_down),
-                            controllerForLeft: edt_FollowupType,
-                            controllerpkID: edt_FollowupTypepkID,
-                            Custom_values1: arr_ALL_Name_ID_For_FolowupType),
-                        CustomDropDown1("Priority",
-                            enable1: false,
-                            title: "Priority *",
-                            hintTextvalue: "Tap to Select Priority",
-                            icon: Icon(Icons.arrow_drop_down),
-                            controllerForLeft: edt_Priority,
-                            Custom_values1:
-                                arr_ALL_Name_ID_For_Folowup_Priority),
 
-                        /* CustomDropDown1("Followup Status",
-                              enable1: false,
-                              title: "Followup Status",
-                              hintTextvalue: "Tap to Followup Status",
-                              icon: Icon(Icons.arrow_drop_down),
-                              controllerForLeft: edt_FollowupStatus,
-                              Custom_values1: arr_ALL_Name_ID_For_Folowup_Status),
-*/
+                      
 
-                        Container(
-                          margin: EdgeInsets.only(left: 10, right: 10),
-                          child: Text("Followup Notes *",
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: colorPrimary,
-                                  fontWeight: FontWeight
-                                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                              ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 7, right: 7, top: 10),
-                          child: TextFormField(
-                            focusNode: NotesFocusNode,
-                            controller: edt_FollowupNotes,
-                            minLines: 2,
-                            maxLines: 5,
-                            keyboardType: TextInputType.multiline,
-                            decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(10.0),
-                                hintText: 'Enter Notes',
-                                hintStyle: TextStyle(color: Colors.grey),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                )),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                          height: 15,
-                        ),
-                        _buildNextFollowupDate(),
-                        SizedBox(
-                          width: 20,
-                          height: 15,
-                        ),
-                        _buildPreferredTime(),
-                        Visibility(
-                          visible: _isInqury_details_Exist,
-                          child: showcustomdialogWithID1("Inquiry Status",
-                              enable1: false,
-                              title: "Inquiry Status",
-                              hintTextvalue: "Tap to Select Inquiry Status",
-                              icon: Icon(Icons.arrow_drop_down),
-                              controllerForLeft: edt_FollowupInquiryStatusType,
-                              controllerpkID: edt_FollowupInquiryStatusTypepkID,
-                              Custom_values1:
-                                  arr_ALL_Name_ID_For_FolowupInquiryStatusType),
-                        ),
-                        Visibility(
-                          visible: _isInqury_details_Exist,
-                          child: is_closer_reasonVisible == true
-                              ? showcustomdialogWithID1("Closer Reason",
-                                  enable1: false,
-                                  title: "Closer Reason",
-                                  hintTextvalue: "Tap to Select Closer Reason",
-                                  icon: Icon(Icons.arrow_drop_down),
-                                  controllerForLeft: edt_CloserReasonStatusType,
-                                  controllerpkID:
-                                      edt_CloserReasonStatusTypepkID,
-                                  Custom_values1:
-                                      arr_ALL_Name_ID_For_CloserReasonStatusType)
-                              : Container(),
-                        ),
-                        SizedBox(
-                          width: 20,
-                          height: 10,
-                        ),
+
                         Visibility(
                             visible: false,
                             child: RatingStar()),
@@ -518,156 +457,208 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                           width: 20,
                           height: 10,
                         ),
-                        getCommonButton(baseTheme, () async {
 
 
-                          getLocationAddressFromAPI();
-                          print("RatingValue " +
-                              "Rate : " +
-                              _rating.toInt().toString());
-                          int nofollowupvalue = 0;
-                          if (_isSwitched == false) {
-                            nofollowupvalue = 0;
-                          } else {
-                            nofollowupvalue = 1;
-                          }
+                        InkWell(
+                          onTap: () async {
+                            getLocationAddressFromAPI();
+                            print("RatingValue " +
+                                "Rate : " +
+                                _rating.toInt().toString());
+                            int nofollowupvalue = 0;
+                            if (_isSwitched == false) {
+                              nofollowupvalue = 0;
+                            } else {
+                              nofollowupvalue = 1;
+                            }
 
-                          print("SwitchValue " +
-                              "Switch : " +
-                              nofollowupvalue.toString());
+                            print("SwitchValue " +
+                                "Switch : " +
+                                nofollowupvalue.toString());
 
-                          if (edt_CustomerName.text != "") {
-                            if (edt_FollowupType.text != "") {
-                              if (edt_Priority.text != "") {
-                                if (edt_FollowupNotes.text != "") {
-                                  if (edt_NextFollowupDate.text != "") {
-                                    if (_selectedImageFile != null) {
-                                      /*fileName = _selectedImageFile.path
+                            if (edt_CustomerName.text != "") {
+                              if (edt_FollowupType.text != "") {
+                                if (edt_Priority.text != "") {
+                                  if (edt_FollowupNotes.text != "") {
+                                    if (edt_NextFollowupDate.text != "") {
+                                      if (_selectedImageFile != null) {
+                                        /*fileName = _selectedImageFile.path
                                           .split('/')
                                           .last;*/
 
-                                      File filerty = File(_selectedImageFile.path);
+                                        File filerty = File(_selectedImageFile.path);
 
-                                      final extension = p.extension(filerty.path);
+                                        final extension = p.extension(filerty.path);
 
-                                      int timestamp1 = DateTime.now().millisecondsSinceEpoch;
-                                      fileName="";
-                                       fileName = "Follow_Up"+
-                                          "_" +
-                                          "0" + "_" +
-                                          DateTime.now().day.toString() +
-                                          "_" +
-                                          DateTime.now().month.toString() +
-                                          "_" +
-                                          DateTime.now().year.toString() +
-                                          "_" +
-                                          timestamp1.toString() +
-                                          extension;
+                                        int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+                                        fileName="";
+                                        fileName = "Follow_Up"+
+                                            "_" +
+                                            "0" + "_" +
+                                            DateTime.now().day.toString() +
+                                            "_" +
+                                            DateTime.now().month.toString() +
+                                            "_" +
+                                            DateTime.now().year.toString() +
+                                            "_" +
+                                            timestamp1.toString() +
+                                            extension;
 
-                                    } else {
-                                      fileName = GetImageNamefromEditMode;
-                                    }
-                                    print("ALLIDS" +
-                                        "CustomerID : " +
-                                        edt_CustomerpkID.text +
-                                        " FollowupType_pkID : " +
-                                        edt_FollowupTypepkID.text +
-                                        " InquiryStatusID : " +
-                                        edt_FollowupInquiryStatusTypepkID.text +
-                                        " CloserReason_pkID : " +
-                                        edt_CloserReasonStatusTypepkID.text);
-                                    String FollowupStatusIDs = "";
-                                    String FollowupPriorityDetails = "";
-
-                                    if (_offlineLoggedInData
-                                            .details[0].serialKey
-                                            .toUpperCase() ==
-                                        "DOL2-6UH7-PH03-IN5H"||_offlineLoggedInData
-                                        .details[0].serialKey
-                                        .toUpperCase() ==
-                                        "TEST-0000-SI0F-0208" ) {
-                                      if (edt_Priority.text == "Hot") {
-                                        FollowupPriorityDetails = "1";
-                                      } else if (edt_Priority.text == "Cold") {
-                                        FollowupPriorityDetails = "2";
-                                      } else if (edt_Priority.text == "Warm") {
-                                        FollowupPriorityDetails = "3";
+                                      } else {
+                                        fileName = GetImageNamefromEditMode;
                                       }
-                                    } else {
-                                      if (edt_Priority.text == "High") {
-                                        FollowupPriorityDetails = "1";
-                                      } else if (edt_Priority.text ==
-                                          "Medium") {
-                                        FollowupPriorityDetails = "2";
-                                      } else if (edt_Priority.text == "Low") {
-                                        FollowupPriorityDetails = "3";
-                                      }
-                                    }
+                                      print("ALLIDS" +
+                                          "CustomerID : " +
+                                          edt_CustomerpkID.text +
+                                          " FollowupType_pkID : " +
+                                          edt_FollowupTypepkID.text +
+                                          " InquiryStatusID : " +
+                                          edt_FollowupInquiryStatusTypepkID.text +
+                                          " CloserReason_pkID : " +
+                                          edt_CloserReasonStatusTypepkID.text);
+                                      String FollowupStatusIDs = "";
+                                      String FollowupPriorityDetails = "";
 
-                                    /*baseBloc
+                                      if (_offlineLoggedInData
+                                          .details[0].serialKey
+                                          .toUpperCase() ==
+                                          "DOL2-6UH7-PH03-IN5H"||_offlineLoggedInData
+                                          .details[0].serialKey
+                                          .toUpperCase() ==
+                                          "TEST-0000-SI0F-0208" ) {
+                                        if (edt_Priority.text == "Hot") {
+                                          FollowupPriorityDetails = "1";
+                                        } else if (edt_Priority.text == "Cold") {
+                                          FollowupPriorityDetails = "2";
+                                        } else if (edt_Priority.text == "Warm") {
+                                          FollowupPriorityDetails = "3";
+                                        }
+                                      } else {
+                                        if (edt_Priority.text == "High") {
+                                          FollowupPriorityDetails = "1";
+                                        } else if (edt_Priority.text ==
+                                            "Medium") {
+                                          FollowupPriorityDetails = "2";
+                                        } else if (edt_Priority.text == "Low") {
+                                          FollowupPriorityDetails = "3";
+                                        }
+                                      }
+
+                                      /*baseBloc
                                         .emit(ShowProgressIndicatorState(true));
 */
-                                    if (is_LocationService_Permission == true) {
-                                      bool serviceLocation = await Permission
-                                          .locationWhenInUse
-                                          .serviceStatus
-                                          .isDisabled;
+                                      if (is_LocationService_Permission == true) {
+                                        bool serviceLocation = await Permission
+                                            .locationWhenInUse
+                                            .serviceStatus
+                                            .isDisabled;
 
-                                      // if (serviceLocation == false) {
-                                      // baseBloc.emit(ShowProgressIndicatorState(false));
+                                        // if (serviceLocation == false) {
+                                        // baseBloc.emit(ShowProgressIndicatorState(false));
 
-                                      DateTime FbrazilianDate =
-                                          new DateFormat("dd-MM-yyyy")
-                                              .parse(edt_FollowUpDate.text);
-                                      DateTime NbrazilianDate =
-                                          new DateFormat("dd-MM-yyyy")
-                                              .parse(edt_NextFollowupDate.text);
+                                        DateTime FbrazilianDate =
+                                        new DateFormat("dd-MM-yyyy")
+                                            .parse(edt_FollowUpDate.text);
+                                        DateTime NbrazilianDate =
+                                        new DateFormat("dd-MM-yyyy")
+                                            .parse(edt_NextFollowupDate.text);
 
-                                      if (FbrazilianDate.isBefore(
-                                          NbrazilianDate)) {
-                                        showCommonDialogWithTwoOptions(context,
-                                            "Are you sure you want to Save this Follow-Up?",
-                                            negativeButtonTitle: "No",
-                                            positiveButtonTitle: "Yes",
-                                            onTapOfPositiveButton: () {
-                                          Navigator.of(context).pop();
-                                          String Msg = _isForUpdate == true
-                                              ? "Followup Information. Updated Successfully"
-                                              : "Followup Information. Added Successfully";
+                                        if (FbrazilianDate.isBefore(
+                                            NbrazilianDate)) {
+                                          showCommonDialogWithTwoOptions(context,
+                                              "Are you sure you want to Save this Follow-Up?",
+                                              negativeButtonTitle: "No",
+                                              positiveButtonTitle: "Yes",
+                                              onTapOfPositiveButton: () {
+                                                Navigator.of(context).pop();
+                                                String Msg = _isForUpdate == true
+                                                    ? "Followup Information. Updated Successfully"
+                                                    : "Followup Information. Added Successfully";
 
 
-                                          if(_offlineLoggedInData.details[0].serialKey.toUpperCase()=="DOL2-6UH7-PH03-IN5H" || _offlineLoggedInData
-                                              .details[0].serialKey
-                                              .toUpperCase() ==
-                                              "TEST-0000-SI0F-0208" )
-                                            {
-                                              if(_isForUpdate==true)
-                                              {
-
-                                                if(_editModel.extpkID.toString()!="0")
+                                                if(_offlineLoggedInData.details[0].serialKey.toUpperCase()=="DOL2-6UH7-PH03-IN5H" || _offlineLoggedInData
+                                                    .details[0].serialKey
+                                                    .toUpperCase() ==
+                                                    "TEST-0000-SI0F-0208" )
                                                 {
+                                                  if(_isForUpdate==true)
+                                                  {
+
+                                                    if(_editModel.extpkID.toString()!="0")
+                                                    {
 
 
-                                                  _FollowupBloc.add(TeleCallerFollowupSaveRequestEvent(context,_editModel.pkID,TeleCallerFollowupSaveRequest(
-                                                    pkID: "0",
-                                                    ExtpkID: _editModel.extpkID.toString(),
-                                                    FollowupDate: edt_ReverseFollowUpDate.text,
-                                                    FollowupSource: edt_FollowupType.text,
-                                                    InquiryStatusID: "0",
-                                                    MeetingNotes: edt_FollowupNotes.text,
-                                                    NextFollowupDate: edt_ReverseNextFollowupDate.text,
-                                                    PreferredTime: edt_PreferedTime.text,
-                                                    LeadStatus: "InProcess",
-                                                    NoFollClosureID: edt_CloserReasonStatusTypepkID.text,
-                                                    AssignToEmployee: _offlineLoggedInData
-                                                        .details[0].employeeID
-                                                        .toString(),
-                                                    LoginUserID: LoginUserID,
-                                                    CompanyId: CompanyID.toString(),
+                                                      _FollowupBloc.add(TeleCallerFollowupSaveRequestEvent(context,_editModel.pkID,TeleCallerFollowupSaveRequest(
+                                                        pkID: "0",
+                                                        ExtpkID: _editModel.extpkID.toString(),
+                                                        FollowupDate: edt_ReverseFollowUpDate.text,
+                                                        FollowupSource: edt_FollowupType.text,
+                                                        InquiryStatusID: "0",
+                                                        MeetingNotes: edt_FollowupNotes.text,
+                                                        NextFollowupDate: edt_ReverseNextFollowupDate.text,
+                                                        PreferredTime: edt_PreferedTime.text,
+                                                        LeadStatus: "InProcess",
+                                                        NoFollClosureID: edt_CloserReasonStatusTypepkID.text,
+                                                        AssignToEmployee: _offlineLoggedInData
+                                                            .details[0].employeeID
+                                                            .toString(),
+                                                        LoginUserID: LoginUserID,
+                                                        CompanyId: CompanyID.toString(),
 
-                                                  )));
-                                                }
-                                                else
+                                                      )));
+                                                    }
+                                                    else
+                                                    {
+                                                      _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                          Msg,
+                                                          context,
+                                                          savepkID,
+                                                          FollowupSaveApiRequest(
+                                                              pkID: savepkID.toString(),
+                                                              FollowupDate: edt_ReverseFollowUpDate
+                                                                  .text,
+                                                              CustomerID:
+                                                              edt_CustomerpkID.text,
+                                                              InquiryNo:
+                                                              edt_InqNo.text == "null"
+                                                                  ? ""
+                                                                  : edt_InqNo.text,
+                                                              MeetingNotes:
+                                                              edt_FollowupNotes.text,
+                                                              NextFollowupDate:
+                                                              edt_ReverseNextFollowupDate
+                                                                  .text,
+                                                              Rating: _rating
+                                                                  .toInt()
+                                                                  .toString(),
+                                                              FollowupTypeId:
+                                                              edt_FollowupTypepkID.text == "null"
+                                                                  ? ""
+                                                                  : edt_FollowupTypepkID
+                                                                  .text,
+                                                              LoginUserID: LoginUserID,
+                                                              Address: Address,
+                                                              NoFollowup: nofollowupvalue
+                                                                  .toString(),
+                                                              InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                                  ? ""
+                                                                  : edt_FollowupInquiryStatusTypepkID
+                                                                  .text,
+                                                              Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                              Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                              PreferredTime:
+                                                              edt_PreferedTime.text,
+                                                              ClosureReasonId:
+                                                              edt_CloserReasonStatusTypepkID.text == "null"
+                                                                  ? ""
+                                                                  : edt_CloserReasonStatusTypepkID.text,
+                                                              CompanyId: CompanyID.toString(),
+                                                              FollowupPriority: FollowupPriorityDetails,
+                                                              FollowUpImage: fileName)));
+                                                    }
+
+                                                  }
+                                                  else
                                                   {
                                                     _FollowupBloc.add(FollowupSaveByNameCallEvent(
                                                         Msg,
@@ -717,9 +708,8 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                                             FollowUpImage: fileName)));
                                                   }
 
-                                              }
-                                              else
-                                                {
+                                                }
+                                                else{
                                                   _FollowupBloc.add(FollowupSaveByNameCallEvent(
                                                       Msg,
                                                       context,
@@ -768,80 +758,30 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                                           FollowUpImage: fileName)));
                                                 }
 
-                                            }
-                                          else{
-                                            _FollowupBloc.add(FollowupSaveByNameCallEvent(
-                                                Msg,
+
+                                              });
+                                        } else {
+                                          if (FbrazilianDate.isAtSameMomentAs(
+                                              NbrazilianDate)) {
+                                            showCommonDialogWithTwoOptions(
                                                 context,
-                                                savepkID,
-                                                FollowupSaveApiRequest(
-                                                    pkID: savepkID.toString(),
-                                                    FollowupDate: edt_ReverseFollowUpDate
-                                                        .text,
-                                                    CustomerID:
-                                                    edt_CustomerpkID.text,
-                                                    InquiryNo:
-                                                    edt_InqNo.text == "null"
-                                                        ? ""
-                                                        : edt_InqNo.text,
-                                                    MeetingNotes:
-                                                    edt_FollowupNotes.text,
-                                                    NextFollowupDate:
-                                                    edt_ReverseNextFollowupDate
-                                                        .text,
-                                                    Rating: _rating
-                                                        .toInt()
-                                                        .toString(),
-                                                    FollowupTypeId:
-                                                    edt_FollowupTypepkID.text == "null"
-                                                        ? ""
-                                                        : edt_FollowupTypepkID
-                                                        .text,
-                                                    LoginUserID: LoginUserID,
-                                                    Address: Address,
-                                                    NoFollowup: nofollowupvalue
-                                                        .toString(),
-                                                    InquiryStatusId: edt_FollowupInquiryStatusTypepkID.text == "null"
-                                                        ? ""
-                                                        : edt_FollowupInquiryStatusTypepkID
-                                                        .text,
-                                                    Latitude: SharedPrefHelper.instance.getLatitude(),
-                                                    Longitude: SharedPrefHelper.instance.getLongitude(),
-                                                    PreferredTime:
-                                                    edt_PreferedTime.text,
-                                                    ClosureReasonId:
-                                                    edt_CloserReasonStatusTypepkID.text == "null"
-                                                        ? ""
-                                                        : edt_CloserReasonStatusTypepkID.text,
-                                                    CompanyId: CompanyID.toString(),
-                                                    FollowupPriority: FollowupPriorityDetails,
-                                                    FollowUpImage: fileName)));
-                                          }
+                                                "Are you sure you want to Save this Follow-Up?",
+                                                negativeButtonTitle: "No",
+                                                positiveButtonTitle: "Yes",
+                                                onTapOfPositiveButton: () {
+                                                  Navigator.of(context).pop();
+                                                  String Msg = _isForUpdate == true
+                                                      ? "Followup Information. Updated Successfully"
+                                                      : "Followup Information. Added Successfully";
 
-
-                                        });
-                                      } else {
-                                        if (FbrazilianDate.isAtSameMomentAs(
-                                            NbrazilianDate)) {
-                                          showCommonDialogWithTwoOptions(
-                                              context,
-                                              "Are you sure you want to Save this Follow-Up?",
-                                              negativeButtonTitle: "No",
-                                              positiveButtonTitle: "Yes",
-                                              onTapOfPositiveButton: () {
-                                            Navigator.of(context).pop();
-                                            String Msg = _isForUpdate == true
-                                                ? "Followup Information. Updated Successfully"
-                                                : "Followup Information. Added Successfully";
-
-                                            if(_offlineLoggedInData.details[0].serialKey.toUpperCase()=="DOL2-6UH7-PH03-IN5H" || _offlineLoggedInData
-                                                .details[0].serialKey
-                                                .toUpperCase() ==
-                                                "TEST-0000-SI0F-0208" )
-                                              {
-                                                if(_isForUpdate==true)
+                                                  if(_offlineLoggedInData.details[0].serialKey.toUpperCase()=="DOL2-6UH7-PH03-IN5H" || _offlineLoggedInData
+                                                      .details[0].serialKey
+                                                      .toUpperCase() ==
+                                                      "TEST-0000-SI0F-0208" )
                                                   {
-                                                    if(_editModel.extpkID.toString()!="0")
+                                                    if(_isForUpdate==true)
+                                                    {
+                                                      if(_editModel.extpkID.toString()!="0")
                                                       {
                                                         _FollowupBloc.add(TeleCallerFollowupSaveRequestEvent(context,_editModel.pkID,TeleCallerFollowupSaveRequest(
                                                           pkID: "0",
@@ -862,7 +802,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
                                                         )));
                                                       }
-                                                    else
+                                                      else
                                                       {
                                                         _FollowupBloc.add(FollowupSaveByNameCallEvent(
                                                             Msg,
@@ -914,9 +854,62 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                                                 FollowUpImage: fileName)));
 
                                                       }
+                                                    }
+                                                    else
+                                                    {
+                                                      _FollowupBloc.add(FollowupSaveByNameCallEvent(
+                                                          Msg,
+                                                          context,
+                                                          savepkID,
+                                                          FollowupSaveApiRequest(
+                                                              pkID: savepkID.toString(),
+                                                              FollowupDate:
+                                                              edt_ReverseFollowUpDate
+                                                                  .text,
+                                                              CustomerID:
+                                                              edt_CustomerpkID.text,
+                                                              InquiryNo:
+                                                              edt_InqNo.text == "null"
+                                                                  ? ""
+                                                                  : edt_InqNo.text,
+                                                              MeetingNotes:
+                                                              edt_FollowupNotes.text,
+                                                              NextFollowupDate:
+                                                              edt_ReverseNextFollowupDate
+                                                                  .text,
+                                                              Rating: _rating
+                                                                  .toInt()
+                                                                  .toString(),
+                                                              FollowupTypeId:
+                                                              edt_FollowupTypepkID.text == "null"
+                                                                  ? ""
+                                                                  : edt_FollowupTypepkID
+                                                                  .text,
+                                                              LoginUserID: LoginUserID,
+                                                              Address:Address,
+                                                              NoFollowup: nofollowupvalue
+                                                                  .toString(),
+                                                              InquiryStatusId:
+                                                              edt_FollowupInquiryStatusTypepkID.text == "null"
+                                                                  ? ""
+                                                                  : edt_FollowupInquiryStatusTypepkID
+                                                                  .text,
+                                                              Latitude: SharedPrefHelper.instance.getLatitude(),
+                                                              Longitude: SharedPrefHelper.instance.getLongitude(),
+                                                              PreferredTime:
+                                                              edt_PreferedTime.text,
+                                                              ClosureReasonId:
+                                                              edt_CloserReasonStatusTypepkID.text == "null"
+                                                                  ? ""
+                                                                  : edt_CloserReasonStatusTypepkID.text,
+                                                              CompanyId: CompanyID.toString(),
+                                                              FollowupPriority: FollowupPriorityDetails,
+                                                              FollowUpImage: fileName)));
+
+                                                    }
+
                                                   }
-                                                else
-                                                  {
+                                                  else{
                                                     _FollowupBloc.add(FollowupSaveByNameCallEvent(
                                                         Msg,
                                                         context,
@@ -946,7 +939,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
                                                                 : edt_FollowupTypepkID
                                                                 .text,
                                                             LoginUserID: LoginUserID,
-                                                            Address:Address,
+                                                            Address: Address,
                                                             NoFollowup: nofollowupvalue
                                                                 .toString(),
                                                             InquiryStatusId:
@@ -968,107 +961,76 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
                                                   }
 
-                                              }
-                                            else{
-                                              _FollowupBloc.add(FollowupSaveByNameCallEvent(
-                                                  Msg,
-                                                  context,
-                                                  savepkID,
-                                                  FollowupSaveApiRequest(
-                                                      pkID: savepkID.toString(),
-                                                      FollowupDate:
-                                                      edt_ReverseFollowUpDate
-                                                          .text,
-                                                      CustomerID:
-                                                      edt_CustomerpkID.text,
-                                                      InquiryNo:
-                                                      edt_InqNo.text == "null"
-                                                          ? ""
-                                                          : edt_InqNo.text,
-                                                      MeetingNotes:
-                                                      edt_FollowupNotes.text,
-                                                      NextFollowupDate:
-                                                      edt_ReverseNextFollowupDate
-                                                          .text,
-                                                      Rating: _rating
-                                                          .toInt()
-                                                          .toString(),
-                                                      FollowupTypeId:
-                                                      edt_FollowupTypepkID.text == "null"
-                                                          ? ""
-                                                          : edt_FollowupTypepkID
-                                                          .text,
-                                                      LoginUserID: LoginUserID,
-                                                      Address: Address,
-                                                      NoFollowup: nofollowupvalue
-                                                          .toString(),
-                                                      InquiryStatusId:
-                                                      edt_FollowupInquiryStatusTypepkID.text == "null"
-                                                          ? ""
-                                                          : edt_FollowupInquiryStatusTypepkID
-                                                          .text,
-                                                      Latitude: SharedPrefHelper.instance.getLatitude(),
-                                                      Longitude: SharedPrefHelper.instance.getLongitude(),
-                                                      PreferredTime:
-                                                      edt_PreferedTime.text,
-                                                      ClosureReasonId:
-                                                      edt_CloserReasonStatusTypepkID.text == "null"
-                                                          ? ""
-                                                          : edt_CloserReasonStatusTypepkID.text,
-                                                      CompanyId: CompanyID.toString(),
-                                                      FollowupPriority: FollowupPriorityDetails,
-                                                      FollowUpImage: fileName)));
-
-                                            }
 
 
 
 
-
-                                          });
-                                        } else {
-                                          showCommonDialogWithSingleOption(
-                                              context,
-                                              "Next Followup Date Should be greater than Followup Date !",
-                                              positiveButtonTitle: "OK");
+                                                });
+                                          } else {
+                                            showCommonDialogWithSingleOption(
+                                                context,
+                                                "Next Followup Date Should be greater than Followup Date !",
+                                                positiveButtonTitle: "OK");
+                                          }
                                         }
-                                      }
-                                      /*}else {
+                                        /*}else {
                                         location.requestService();
                                         await Future.delayed(
                                             const Duration(seconds: 3), () {});
                                         baseBloc.emit(
                                             ShowProgressIndicatorState(false));
                                       }*/
+                                      } else {
+                                        checkPermissionStatus();
+                                      }
                                     } else {
-                                      checkPermissionStatus();
+                                      showCommonDialogWithSingleOption(context,
+                                          "Next FollowupDate is required!",
+                                          positiveButtonTitle: "OK");
                                     }
                                   } else {
-                                    showCommonDialogWithSingleOption(context,
-                                        "Next FollowupDate is required!",
+                                    showCommonDialogWithSingleOption(
+                                        context, "Followup Notes is required!",
                                         positiveButtonTitle: "OK");
                                   }
                                 } else {
                                   showCommonDialogWithSingleOption(
-                                      context, "Followup Notes is required!",
+                                      context, "Please Select Priority!",
                                       positiveButtonTitle: "OK");
                                 }
                               } else {
                                 showCommonDialogWithSingleOption(
-                                    context, "Please Select Priority!",
+                                    context, "Please Select Followup Type!",
                                     positiveButtonTitle: "OK");
                               }
                             } else {
                               showCommonDialogWithSingleOption(
-                                  context, "Please Select Followup Type!",
+                                  context, "Select Proper Customer From List!",
                                   positiveButtonTitle: "OK");
                             }
-                          } else {
-                            showCommonDialogWithSingleOption(
-                                context, "Select Proper Customer From List!",
-                                positiveButtonTitle: "OK");
-                          }
-                        }, "Save"),
+                          },
+                          child: Card(
+                              elevation: 10,
+                              color: colorPrimary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.only(
+                                    left: 20, right: 20, top: 10, bottom: 10),
+                                child: Center(
+                                  child: Text("Save",
+                                      style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              )),
+                        ),
+
+
+
                         SizedBox(
                           width: 20,
                           height: 15,
@@ -1108,7 +1070,7 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
         context: context,
         initialDate: selectedDate,
         firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101));
+        lastDate: selectedDate);
     if (picked != null && picked != selectedDate)
       setState(() {
         selectedDate = picked;
@@ -2664,6 +2626,332 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
               }
           }
       }
+  }
+
+  ManageFollowupDetails() {
+
+    return Container(
+      margin: EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              _selectDate(context, edt_FollowUpDate);
+            },
+            child: TextFormField(
+                controller: edt_FollowUpDate,
+                enabled: false,
+                decoration: const InputDecoration(
+                    suffixIcon: Icon(Icons.calendar_today_outlined),
+                    border: UnderlineInputBorder(),
+                    labelText: 'Followup Date *',
+                    hintText: "DD-MM-YYYY"),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+
+          InkWell(
+            onTap: () {
+              _onTapOfSearchView();
+            },
+            child: TextFormField(
+                controller: edt_CustomerName,
+                enabled: false,
+                decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: 'Customer Name *',
+                    hintText: "Tap to select Name"),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )),
+          ),
+
+          Visibility(
+            visible: _isInqury_details_Exist,
+            child: InkWell(
+              onTap: () {
+                // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+
+                /* controllerForLeft: edt_InqNo,
+                              controller1: edt_FollowupInquiryStatusType,
+                              controllerpkID: edt_FollowupInquiryStatusTypepkID,
+                              Custom_values1:
+                                  arr_ALL_Name_ID_For_FolowupInquiryByCustomerID*/
+                showcustomdialogWithMultipleID(
+                    values: arr_ALL_Name_ID_For_FolowupInquiryByCustomerID,
+                    context1: context,
+                    controller: edt_InqNo,
+                    controller2: edt_FollowupInquiryStatusType,
+                    controllerID: edt_FollowupInquiryStatusTypepkID,
+                    lable: "Select Inquiry No");
+              },
+              child: Container(
+                margin: EdgeInsets.only(top:20,bottom: 20),
+                child: TextFormField(
+                    controller: edt_InqNo,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Inquiry No',
+                        hintText: "Select Number"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+            ),
+          ),
+
+
+          Visibility(
+            visible: _isInqury_details_Exist,
+            child: InkWell(
+              onTap: () {
+                // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+
+                /* controllerForLeft: edt_InqNo,
+                              controller1: edt_FollowupInquiryStatusType,
+                              controllerpkID: edt_FollowupInquiryStatusTypepkID,
+                              Custom_values1:
+                                  arr_ALL_Name_ID_For_FolowupInquiryByCustomerID*/
+                _FollowupBloc.add(InquiryLeadStatusTypeListByNameCallEvent(
+                    FollowupInquiryStatusTypeListRequest(
+                        CompanyId: CompanyID.toString(),
+                        pkID: "",
+                        StatusCategory: "Inquiry",
+                        LoginUserID: LoginUserID,
+                        SearchKey: "")));
+              },
+              child: Container(
+                margin: EdgeInsets.only(bottom: 20),
+                child: TextFormField(
+                    controller: edt_FollowupInquiryStatusType,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Inquiry Status',
+                        hintText: "Select Status"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+            ),
+          ),
+
+
+          Visibility(
+            visible: is_closer_reasonVisible,
+            child: InkWell(
+              onTap: () {
+                // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+
+                /* controllerForLeft: edt_InqNo,
+                              controller1: edt_FollowupInquiryStatusType,
+                              controllerpkID: edt_FollowupInquiryStatusTypepkID,
+                              Custom_values1:
+                                  arr_ALL_Name_ID_For_FolowupInquiryByCustomerID*/
+                _FollowupBloc
+                  ..add(CloserReasonTypeListByNameCallEvent(CloserReasonTypeListRequest(
+                      CompanyId: CompanyID.toString(),
+                      pkID: "",
+                      StatusCategory: "DisQualifiedReason",
+                      LoginUserID: LoginUserID,
+                      SearchKey: "")));
+              },
+              child: Container(
+                child: TextFormField(
+                    controller: edt_CloserReasonStatusType,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Closer Reason',
+                        hintText: "Select Reason"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+            ),
+          ),
+
+
+
+          InkWell(
+            onTap: () {
+              // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+              _FollowupBloc.add(FollowupTypeListByNameCallEvent(FollowupTypeListRequest(
+                  CompanyId: CompanyID.toString(),
+                  pkID: "",
+                  StatusCategory: "FollowUp",
+                  LoginUserID: LoginUserID,
+                  SearchKey: "")));
+            },
+            child: Container(
+              margin: EdgeInsets.only(top:20,bottom: 20),
+              child: TextFormField(
+                  controller: edt_FollowupType,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                      border: UnderlineInputBorder(),
+                      labelText: 'Followup Type',
+                      hintText: "Select Type"),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF000000),
+                  )),
+            ),
+          ),
+
+
+
+          InkWell(
+            onTap: () {
+              // isAllEditable == true ? _onTapOfSearchView() : Container();
+
+              showcustomdialogWithOnlyName(
+                  values: arr_ALL_Name_ID_For_Folowup_Priority,
+                  context1: context,
+                  controller: edt_Priority,
+                  lable: "Select Priority");
+            },
+            child: Container(
+              margin: EdgeInsets.only(bottom: 20),
+              child: TextFormField(
+                  controller: edt_Priority,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                      suffixIcon: Icon(Icons.arrow_drop_down_sharp),
+                      border: UnderlineInputBorder(),
+                      labelText: 'Priority',
+                      hintText: "Select Priority"),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF000000),
+                  )),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            //margin: EdgeInsets.only(left: 10, right: 10),
+            child: Text("Followup Notes *",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: colorPrimary,
+                    fontWeight: FontWeight
+                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+            ),
+          ),
+          TextFormField(
+            controller: edt_FollowupNotes,
+            minLines: 2,
+            maxLines: 5,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+                contentPadding: EdgeInsets.all(10.0),
+                hintText: 'Enter Notes',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderSide: new BorderSide(color: colorPrimary),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                )),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Column(
+            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () {
+                  _selectNextFollowupDate(context, edt_NextFollowupDate);
+                },
+                child: TextFormField(
+                    controller: edt_NextFollowupDate,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.calendar_today_outlined),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Next Followup Date *',
+                        hintText: "DD-MM-YYYY"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              InkWell(
+                onTap: () {
+                  _selectTime(context, edt_PreferedTime);
+                },
+                child: TextFormField(
+                    controller: edt_PreferedTime,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                        suffixIcon: Icon(Icons.watch_later_outlined),
+                        border: UnderlineInputBorder(),
+                        labelText: 'Preferred Time',
+                        hintText: "HH:MM"),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF000000),
+                    )),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          InkWell(
+            onTap: () {
+              setState(() {
+               IsFollowpDetails = false;
+              });
+            },
+            child: Card(
+                elevation: 10,
+                color: colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  margin:
+                  EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                  child: Center(
+                    child: Text("Next",
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                )),
+          ),
+        ],
+      ),
+    );
+
   }
 
 }

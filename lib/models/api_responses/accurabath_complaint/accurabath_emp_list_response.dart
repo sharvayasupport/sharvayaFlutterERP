@@ -1,16 +1,15 @@
-class AccuraBathComplaintEmpFollowerListResponse {
-  List<AccuraBathComplaintEmpFollowerListResponseDetails> details;
+class AccuraBathComplaintEmployeeListResponse {
+  List<AccuraBathComplaintEmployeeListResponseDetails> details;
   int totalCount;
 
-  AccuraBathComplaintEmpFollowerListResponse({this.details, this.totalCount});
+  AccuraBathComplaintEmployeeListResponse({this.details, this.totalCount});
 
-  AccuraBathComplaintEmpFollowerListResponse.fromJson(
-      Map<String, dynamic> json) {
+  AccuraBathComplaintEmployeeListResponse.fromJson(Map<String, dynamic> json) {
     if (json['details'] != null) {
       details = [];
       json['details'].forEach((v) {
         details.add(
-            new AccuraBathComplaintEmpFollowerListResponseDetails.fromJson(v));
+            new AccuraBathComplaintEmployeeListResponseDetails.fromJson(v));
       });
     }
     totalCount = json['TotalCount'];
@@ -26,23 +25,23 @@ class AccuraBathComplaintEmpFollowerListResponse {
   }
 }
 
-class AccuraBathComplaintEmpFollowerListResponseDetails {
-  int employeeID;
-  String employeeName;
+class AccuraBathComplaintEmployeeListResponseDetails {
+  int customerID;
+  String customerName;
 
-  AccuraBathComplaintEmpFollowerListResponseDetails(
-      {this.employeeID, this.employeeName});
+  AccuraBathComplaintEmployeeListResponseDetails(
+      {this.customerID, this.customerName});
 
-  AccuraBathComplaintEmpFollowerListResponseDetails.fromJson(
+  AccuraBathComplaintEmployeeListResponseDetails.fromJson(
       Map<String, dynamic> json) {
-    employeeID = json['EmployeeID'];
-    employeeName = json['EmployeeName'];
+    customerID = json['CustomerID'];
+    customerName = json['CustomerName'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['EmployeeID'] = this.employeeID;
-    data['EmployeeName'] = this.employeeName;
+    data['CustomerID'] = this.customerID;
+    data['CustomerName'] = this.customerName;
     return data;
   }
 }

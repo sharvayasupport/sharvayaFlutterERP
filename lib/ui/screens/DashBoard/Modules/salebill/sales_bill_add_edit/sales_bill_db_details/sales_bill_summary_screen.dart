@@ -7,7 +7,7 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_l
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
-import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/headerToDetailsResponse.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/sales_bill_table.dart';
@@ -22,7 +22,7 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 class NewSalesBillOtherChargesScreenArguments {
   int StateCode;
   String HeaderDiscFromAddEditScreen;
-  SaleBillDetails editModel;
+  HeaderToDetailsResponseDetails editModel;
   String ISCalculation;
 
   AddditionalCharges addditionalCharges;

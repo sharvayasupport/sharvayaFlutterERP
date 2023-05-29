@@ -227,6 +227,7 @@ class SOProductOneDeleteState extends SalesOrderStates {
 
   SOProductOneDeleteState(this.response);
 }
+
 ///SO Assembly offline DB CRUD
 ///
 class SOAssemblyTableListState extends SalesOrderStates {
@@ -257,9 +258,24 @@ class SOAssemblyTableDeleteALLState extends SalesOrderStates {
   SOAssemblyTableDeleteALLState(this.response);
 }
 
-
 class SalesTargetListCallResponseState extends SalesOrderStates {
   final SalesTargetListResponse response;
   final int newPage;
   SalesTargetListCallResponseState(this.response, this.newPage);
+}
+
+class SOShipmentlistResponseState extends SalesOrderStates {
+  SOShipmentlistResponse response;
+  SalesOrderDetails salesOrderDetails;
+  SOShipmentlistResponseState(this.response, this.salesOrderDetails);
+}
+
+class SOShipmentSaveResponseState extends SalesOrderStates {
+  SOShipmentSaveResponse response;
+  SOShipmentSaveResponseState(this.response);
+}
+
+class SOShipmentDeleteResponseState extends SalesOrderStates {
+  String response;
+  SOShipmentDeleteResponseState(this.response);
 }

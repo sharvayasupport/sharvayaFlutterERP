@@ -31,7 +31,6 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/inquiry/search_inquiry_pr
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
 import 'package:soleoserp/ui/widgets/common_widgets.dart';
-import 'package:soleoserp/utils/General_Constants.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
@@ -169,7 +168,11 @@ class _ExternalLeadAddEditScreenState
   String ReportToToken = "";
 
   String AssignToToken = "";
+  bool IsLeadInfo = false;
 
+  bool IsCompanyInfo = false;
+
+  bool IsLeadStatusInfo = false;
 
   @override
   void initState() {
@@ -351,6 +354,7 @@ class _ExternalLeadAddEditScreenState
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
+        backgroundColor: colorTileBG,
         appBar: NewGradientAppBar(
           title: Text('Portal Lead Details'),
           gradient:
@@ -374,13 +378,850 @@ class _ExternalLeadAddEditScreenState
         ),
         body: SingleChildScrollView(
           child: Container(
-              margin: EdgeInsets.all(Constant.CONTAINERMARGIN),
+             // margin: EdgeInsets.all(Constant.CONTAINERMARGIN),
+              margin: EdgeInsets.only(top: 30,left: 10,right: 10,bottom: 20),
               child: Form(
                   key: _formKey,
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+
+                        Card(
+                            elevation: 20,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    setState(() {
+                                      IsLeadInfo = !IsLeadInfo;
+                                      IsCompanyInfo=false;
+                                      IsLeadStatusInfo=false;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.all(5),
+
+                                    child: Row(
+                                      children: [
+                                        Text("Lead Information From Portal",     style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight
+                                                .bold)),
+                                        Spacer(),
+                                        IsLeadInfo==true?Icon(Icons.arrow_circle_up_rounded,color: colorPrimary,)
+                                            : Icon(
+                                          Icons.arrow_circle_down_rounded,
+                                          color: colorPrimary,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+
+                                Visibility(
+                                  visible: IsLeadInfo,
+                                  child: LeadInfoFromPortal(),
+                                ),
+
+                              ],
+                            )
+
+
+
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Card(
+                            elevation: 20,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    setState(() {
+                                      IsCompanyInfo = !IsCompanyInfo;
+                                      IsLeadInfo=false;
+                                      IsLeadStatusInfo=false;
+
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.all(5),
+
+                                    child: Row(
+                                      children: [
+                                        Text("Company Information",     style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight
+                                                .bold)),
+                                        Spacer(),
+                                        IsCompanyInfo==true?Icon(Icons.arrow_circle_up_rounded,color: colorPrimary,)
+                                            : Icon(
+                                          Icons.arrow_circle_down_rounded,
+                                          color: colorPrimary,
+                                        )  ],
+                                    ),
+                                  ),
+                                ),
+
+                                Visibility(
+                                  visible: IsCompanyInfo,
+                                  child: CompanyInfo(),
+                                ),
+
+                              ],
+                            )
+
+
+
+                        ),
+
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Card(
+                            elevation: 20,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    setState(() {
+                                      IsLeadStatusInfo = !IsLeadStatusInfo;
+                                      IsLeadInfo=false;
+                                      IsCompanyInfo=false;
+
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.all(5),
+
+                                    child: Row(
+                                      children: [
+                                        Text("Lead Status",     style: TextStyle(
+                                            fontSize: 15,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight
+                                                .bold)),
+                                        Spacer(),
+                                        IsLeadStatusInfo==true?Icon(Icons.arrow_circle_up_rounded,color: colorPrimary,)
+                                            : Icon(
+                                          Icons.arrow_circle_down_rounded,
+                                          color: colorPrimary,
+                                        )  ],
+                                    ),
+                                  ),
+                                ),
+
+                                Visibility(
+                                  visible: IsLeadStatusInfo,
+                                  child: LeadInformation(),
+                                ),
+
+                              ],
+                            )
+
+
+
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+
+
+
+                        Visibility(
+                          visible: isViewSaveButton,
+                          child: InkWell(
+                            onTap: (){
+                              if(_offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="DOL2-6UH7-PH03-IN5H".toLowerCase().toString() ||
+                                  _offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="TEST-0000-SI0F-0208".toLowerCase().toString()
+                              ){
+                                _expenseBloc.add(AssignToNotificationRequestEvent("test",AssignToNotificationRequest(CompanyId: CompanyID.toString(),
+                                    EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
+                              }
+                              else
+                              {
+                                _expenseBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
+                                    CompanyId: CompanyID.toString(),
+                                    EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
+                              }
+
+
+                              print("EMPIDDD"+" EmployeeName : "+edt_QualifiedEmplyeeName.text + " EmpID : " + edt_QualifiedEmplyeeID.text);
+
+                              if(edt_CompanyName.text!="")
+                              {
+                                if(edt_PrimaryContact.text!="")
+                                {
+                                  if(edt_LeadStatus.text!="")
+                                  {
+                                    if(isqualified==true)
+                                    {
+                                      if(edt_QualifiedEmplyeeName.text!="")
+                                      {
+                                        if(edt_QualifiedForProduct.text!="")
+                                        {
+                                          if(edt_QualifiedCountry.text!="")
+                                          {
+                                            if(edt_QualifiedState.text!="") {
+
+                                              if(edt_QualifiedCity.text!=""){
+                                                showCommonDialogWithTwoOptions(
+                                                    context,
+                                                    "Are you sure you want to Save Portal Details ?",
+                                                    negativeButtonTitle: "No",
+                                                    positiveButtonTitle: "Yes",
+                                                    onTapOfPositiveButton: () {
+                                                      Navigator.of(
+                                                          context)
+                                                          .pop();
+
+
+
+
+                                                      _expenseBloc.add(
+                                                          ExternalLeadSaveCallEvent(context,
+                                                              savepkID,
+                                                              ExternalLeadSaveRequest(
+                                                                  CompanyName: edt_CompanyName
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_CompanyName
+                                                                      .text,
+                                                                  CountryFlagURL: "",
+                                                                  Message: edt_Details
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_Details
+                                                                      .text,
+                                                                  Address: edt_Address
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_Address
+                                                                      .text,
+                                                                  City: edt_CityHeader
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_CityHeader
+                                                                      .text,
+                                                                  State: edt_StateHeader
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_StateHeader
+                                                                      .text,
+                                                                  PrimaryMobileNo: edt_PrimaryContact
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_PrimaryContact
+                                                                      .text,
+                                                                  SecondaryMobileNo: edt_AlternateContact
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_AlternateContact
+                                                                      .text,
+                                                                  ForProduct: edt_ForProduct
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_ForProduct
+                                                                      .text,
+                                                                  LeadSource: edt_LeadSource
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_LeadSource
+                                                                      .text,
+                                                                  LeadStatus: edt_LeadStatus
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_LeadStatus
+                                                                      .text,
+                                                                  EmployeeID: edt_QualifiedEmplyeeID
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_QualifiedEmplyeeID
+                                                                      .text,
+                                                                  ProductID: edt_QualifiedForProductID
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_QualifiedForProductID
+                                                                      .text,
+                                                                  Pincode: edt_QualifiedPinCode
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_QualifiedPinCode
+                                                                      .text,
+                                                                  StateCode: edt_QualifiedStateCode
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_QualifiedStateCode
+                                                                      .text,
+                                                                  CityCode: edt_QualifiedCityCode
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_QualifiedCityCode
+                                                                      .text,
+                                                                  CustomerID: "0",
+                                                                  ExLeadClosure: edt_DisQualifiedID
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_DisQualifiedID
+                                                                      .text,
+                                                                  LoginUserID: LoginUserID,
+                                                                  CountryCode: edt_QualifiedCountryCode
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_QualifiedCountryCode
+                                                                      .text,
+                                                                  ClosureRemark: edt_DisQualifiedName
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_DisQualifiedName
+                                                                      .text,
+                                                                  CompanyId: CompanyID
+                                                                      .toString(),
+                                                                  SenderName: edt_SenderName
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_SenderName
+                                                                      .text,
+                                                                  QueryDatetime: edt_ReverseExpenseDateController
+                                                                      .text ==
+                                                                      null
+                                                                      ? ""
+                                                                      : edt_ReverseExpenseDateController
+                                                                      .text,
+                                                                  SenderMail: edt_Email
+                                                                      .text,
+                                                                  InProcessRemark: edt_InProcess_Details.text
+                                                              )));
+                                                    });
+                                              }
+                                              else
+                                              {
+                                                showCommonDialogWithSingleOption(context, "Qualified City is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                                  Navigator.of(
+                                                      context)
+                                                      .pop();
+                                                });
+
+                                              }
+
+                                            }
+                                            else
+                                            {
+                                              showCommonDialogWithSingleOption(context, "Qualified State is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                                Navigator.of(
+                                                    context)
+                                                    .pop();
+                                              });
+
+                                            }
+                                          }
+                                          else
+                                          {
+                                            showCommonDialogWithSingleOption(context, "Qualified Country is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                              Navigator.of(
+                                                  context)
+                                                  .pop();
+                                            });
+
+                                          }
+
+                                        }
+                                        else
+                                        {
+                                          showCommonDialogWithSingleOption(context, "Qualified ProductName  is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                            Navigator.of(
+                                                context)
+                                                .pop();
+                                          });
+
+                                        }
+
+                                      }
+                                      else
+                                      {
+                                        showCommonDialogWithSingleOption(context, "AssignTo is required!",positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                          Navigator.of(
+                                              context)
+                                              .pop();
+                                        });
+
+                                      }
+                                    }
+                                    else if(isDisqualified==true)
+                                    {
+                                      if(edt_DisQualifiedName.text!="")
+                                      {
+                                        showCommonDialogWithTwoOptions(
+                                            context,
+                                            "Are you sure you want to Save Portal Details ?",
+                                            negativeButtonTitle: "No",
+                                            positiveButtonTitle: "Yes",
+                                            onTapOfPositiveButton: () {
+                                              Navigator.of(
+                                                  context)
+                                                  .pop();
+                                              _expenseBloc.add(
+                                                  ExternalLeadSaveCallEvent(context,
+                                                      savepkID,
+                                                      ExternalLeadSaveRequest(
+                                                          CompanyName: edt_CompanyName
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_CompanyName
+                                                              .text,
+                                                          CountryFlagURL: "",
+                                                          Message: edt_Details
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_Details
+                                                              .text,
+                                                          Address: edt_Address
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_Address
+                                                              .text,
+                                                          City: edt_CityHeader
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_CityHeader
+                                                              .text,
+                                                          State: edt_StateHeader
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_StateHeader
+                                                              .text,
+                                                          PrimaryMobileNo: edt_PrimaryContact
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_PrimaryContact
+                                                              .text,
+                                                          SecondaryMobileNo: edt_AlternateContact
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_AlternateContact
+                                                              .text,
+                                                          ForProduct: edt_ForProduct
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_ForProduct
+                                                              .text,
+                                                          LeadSource: edt_LeadSource
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_LeadSource
+                                                              .text,
+                                                          LeadStatus: edt_LeadStatus
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_LeadStatus
+                                                              .text,
+                                                          EmployeeID: edt_QualifiedEmplyeeID
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_QualifiedEmplyeeID
+                                                              .text,
+                                                          ProductID: edt_QualifiedForProductID
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_QualifiedForProductID
+                                                              .text,
+                                                          Pincode: edt_QualifiedPinCode
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_QualifiedPinCode
+                                                              .text,
+                                                          StateCode: edt_QualifiedStateCode
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_QualifiedStateCode
+                                                              .text,
+                                                          CityCode: edt_QualifiedCityCode
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_QualifiedCityCode
+                                                              .text,
+                                                          CustomerID: "0",
+                                                          ExLeadClosure: edt_DisQualifiedID
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_DisQualifiedID
+                                                              .text,
+                                                          LoginUserID: LoginUserID,
+                                                          CountryCode: edt_QualifiedCountryCode
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_QualifiedCountryCode
+                                                              .text,
+                                                          ClosureRemark: edt_DisQualifiedName
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_DisQualifiedName
+                                                              .text,
+                                                          CompanyId: CompanyID
+                                                              .toString(),
+                                                          SenderName: edt_SenderName
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_SenderName
+                                                              .text,
+                                                          QueryDatetime: edt_ReverseExpenseDateController
+                                                              .text ==
+                                                              null
+                                                              ? ""
+                                                              : edt_ReverseExpenseDateController
+                                                              .text,
+                                                          SenderMail: edt_Email
+                                                              .text,
+                                                          InProcessRemark: edt_InProcess_Details.text
+
+                                                      )));
+                                            });
+                                      }
+                                      else
+                                      {
+                                        showCommonDialogWithSingleOption(context, "DisQualified Reason is required!", positiveButtonTitle: "OK");
+
+                                      }
+                                    }
+                                    else if(isInProcess==true)
+                                    {
+                                      if(edt_QualifiedEmplyeeName.text!="")
+                                      {
+
+                                        if(edt_InProcess_Details.text!="")
+                                        {
+                                          showCommonDialogWithTwoOptions(
+                                              context,
+                                              "Are you sure you want to Save Portal Details ?",
+                                              negativeButtonTitle: "No",
+                                              positiveButtonTitle: "Yes",
+                                              onTapOfPositiveButton: () {
+                                                Navigator.of(
+                                                    context)
+                                                    .pop();
+                                                _expenseBloc.add(
+                                                    ExternalLeadSaveCallEvent(context,
+                                                        savepkID,
+                                                        ExternalLeadSaveRequest(
+                                                            CompanyName: edt_CompanyName
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_CompanyName
+                                                                .text,
+                                                            CountryFlagURL: "",
+                                                            Message: edt_Details
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_Details
+                                                                .text,
+                                                            Address: edt_Address
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_Address
+                                                                .text,
+                                                            City: edt_CityHeader
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_CityHeader
+                                                                .text,
+                                                            State: edt_StateHeader
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_StateHeader
+                                                                .text,
+                                                            PrimaryMobileNo: edt_PrimaryContact
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_PrimaryContact
+                                                                .text,
+                                                            SecondaryMobileNo: edt_AlternateContact
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_AlternateContact
+                                                                .text,
+                                                            ForProduct: edt_ForProduct
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_ForProduct
+                                                                .text,
+                                                            LeadSource: edt_LeadSource
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_LeadSource
+                                                                .text,
+                                                            LeadStatus: edt_LeadStatus
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_LeadStatus
+                                                                .text,
+                                                            EmployeeID: edt_QualifiedEmplyeeID
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_QualifiedEmplyeeID
+                                                                .text,
+                                                            ProductID: edt_QualifiedForProductID
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_QualifiedForProductID
+                                                                .text,
+                                                            Pincode: edt_QualifiedPinCode
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_QualifiedPinCode
+                                                                .text,
+                                                            StateCode: edt_QualifiedStateCode
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_QualifiedStateCode
+                                                                .text,
+                                                            CityCode: edt_QualifiedCityCode
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_QualifiedCityCode
+                                                                .text,
+                                                            CustomerID: "0",
+                                                            ExLeadClosure: edt_DisQualifiedID
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_DisQualifiedID
+                                                                .text,
+                                                            LoginUserID: LoginUserID,
+                                                            CountryCode: edt_QualifiedCountryCode
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_QualifiedCountryCode
+                                                                .text,
+                                                            ClosureRemark: edt_DisQualifiedName
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_DisQualifiedName
+                                                                .text,
+                                                            CompanyId: CompanyID
+                                                                .toString(),
+                                                            SenderName: edt_SenderName
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_SenderName
+                                                                .text,
+                                                            QueryDatetime: edt_ReverseExpenseDateController
+                                                                .text ==
+                                                                null
+                                                                ? ""
+                                                                : edt_ReverseExpenseDateController
+                                                                .text,
+                                                            SenderMail: edt_Email
+                                                                .text,
+                                                            InProcessRemark: edt_InProcess_Details.text
+
+                                                        )));
+                                              });
+                                        }
+                                        else
+                                        {
+                                          showCommonDialogWithSingleOption(context, "In-Process Remarks is required!", positiveButtonTitle: "OK");
+
+                                        }
+
+                                      }
+                                      else
+                                      {
+                                        showCommonDialogWithSingleOption(context, "Assign To is required!", positiveButtonTitle: "OK");
+
+                                      }
+                                    }
+                                    else
+                                    {
+                                      showCommonDialogWithSingleOption(context, "Lead Status is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                        Navigator.of(
+                                            context)
+                                            .pop();
+                                      });
+
+
+                                    }
+                                  }
+                                  else
+                                  {
+                                    showCommonDialogWithSingleOption(context, "Lead Status is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                      Navigator.of(
+                                          context)
+                                          .pop();
+                                    });
+
+
+                                  }
+
+                                }
+                                else
+                                {
+                                  showCommonDialogWithSingleOption(context, "Primary Contact is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                    Navigator.of(
+                                        context)
+                                        .pop();
+                                  });
+
+                                }
+
+                              }
+                              else{
+                                showCommonDialogWithSingleOption(context, "Company Name is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
+                                  Navigator.of(
+                                      context)
+                                      .pop();
+                                });
+
+                              }
+                            },
+                            child: Card(
+                                elevation: 10,
+                                color: colorPrimary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: EdgeInsets.only(left: 20,right: 20,top: 10,bottom: 10),
+                                  child: Center(
+                                    child: Text("Save", style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight
+                                            .bold)),
+                                  ),
+                                )
+
+
+
+                            ),
+                          ),
+                        ),
+
+                        /*SizedBox(
+                          height: 20,
+                        ),
+                        Card(
+                            elevation: 20,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    setState(() {
+                                      IsLeadStatusInfo = !IsLeadStatusInfo;
+                                      IsLeadInfo=false;
+                                      IsCompanyInfo=false;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    margin: EdgeInsets.all(5),
+
+                                    child: Row(
+                                      children: [
+                                        Text("Company Information",     style: TextStyle(
+                                            fontSize: 12,
+                                            color: colorPrimary,
+                                            fontWeight: FontWeight
+                                                .bold)),
+                                        Spacer(),
+                                        IsLeadStatusInfo==true?Icon(Icons.arrow_circle_down_rounded):Icon(Icons.arrow_circle_up_rounded,color: colorPrimary,)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                Visibility(
+                                  visible: IsLeadStatusInfo,
+                                  child: LeadStatusInformation(),
+                                ),
+
+                              ],
+                            )
+
+
+
+                        ),*/
+
+                      /*  Row(
                           children: [
                             Expanded(flex: 2, child: LeadNo()),
                             SizedBox(
@@ -490,696 +1331,18 @@ class _ExternalLeadAddEditScreenState
                           height: 10,
                         ),
                         AlternativeContact(),
-                        SizedBox(
-                          width: 20,
-                          height: 10,
-                        ),
-                        GestureDetector(
-                          onTap: () => isAllEditable==true?showcustomdialogWithOnlyName(
-                              values: arr_ALL_Name_ID_For_LeadStatus,
-                              context1: context,
-                              controller: edt_LeadStatus,
-                              lable: "Select Lead Status"):Container(),
-                          child: Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(left: 10, right: 10),
-                                  child: Text("Lead Status *",
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: colorPrimary,
-                                          fontWeight: FontWeight
-                                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-                                      ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Card(
-                                  elevation: 5,
-                                  color: colorLightGray,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15)),
-                                  child: Container(
-                                    height: CardViewHeight,
-                                    padding:
-                                        EdgeInsets.only(left: 20, right: 20),
-                                    width: double.maxFinite,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextField(
-                                              controller: edt_LeadStatus,
-                                              enabled: false,
-                                              decoration: InputDecoration(
-                                                hintText: "Select Lead Status",
-                                                labelStyle: TextStyle(
-                                                  color: Color(0xFF000000),
-                                                ),
-                                                border: InputBorder.none,
-                                              ),
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: Color(0xFF000000),
-                                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+                       */
 
-                                              ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_drop_down,
-                                          color: colorGrayDark,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        isqualified == true ? LeadQualified() : Container(),
-                        isDisqualified == true
-                            ? LeadDisQualified()
-                            : Container(),
-                        isInProcess == true
-                            ? LeadInProcess()
-                            : Container(),
+
                         SizedBox(
                           width: 20,
                           height: 15,
                         ),
-                        isViewSaveButton==true?getCommonButton(baseTheme, () {
-
-                          if(_offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="DOL2-6UH7-PH03-IN5H".toLowerCase().toString() ||
-                              _offlineLoggedInData.details[0].serialKey.toLowerCase().toString()=="TEST-0000-SI0F-0208".toLowerCase().toString()
-                          ){
-                            _expenseBloc.add(AssignToNotificationRequestEvent("test",AssignToNotificationRequest(CompanyId: CompanyID.toString(),
-                                EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
-                          }
-                          else
-                            {
-                              _expenseBloc.add(GetReportToTokenRequestEvent(GetReportToTokenRequest(
-                              CompanyId: CompanyID.toString(),
-                              EmployeeID: edt_QualifiedEmplyeeID.text.toString())));
-                            }
-
-
-                          print("EMPIDDD"+" EmployeeName : "+edt_QualifiedEmplyeeName.text + " EmpID : " + edt_QualifiedEmplyeeID.text);
-
-                          if(edt_CompanyName.text!="")
-                            {
-                              if(edt_PrimaryContact.text!="")
-                                {
-                                  if(edt_LeadStatus.text!="")
-                                    {
-                                      if(isqualified==true)
-                                        {
-                                          if(edt_QualifiedEmplyeeName.text!="")
-                                            {
-                                              if(edt_QualifiedForProduct.text!="")
-                                                {
-                                                  if(edt_QualifiedCountry.text!="")
-                                                    {
-                                                      if(edt_QualifiedState.text!="") {
-
-                                                        if(edt_QualifiedCity.text!=""){
-                                                          showCommonDialogWithTwoOptions(
-                                                              context,
-                                                              "Are you sure you want to Save Portal Details ?",
-                                                              negativeButtonTitle: "No",
-                                                              positiveButtonTitle: "Yes",
-                                                              onTapOfPositiveButton: () {
-                                                                Navigator.of(
-                                                                    context)
-                                                                    .pop();
-
-
-
-
-                                                                _expenseBloc.add(
-                                                                    ExternalLeadSaveCallEvent(context,
-                                                                        savepkID,
-                                                                        ExternalLeadSaveRequest(
-                                                                            CompanyName: edt_CompanyName
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_CompanyName
-                                                                                .text,
-                                                                            CountryFlagURL: "",
-                                                                            Message: edt_Details
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_Details
-                                                                                .text,
-                                                                            Address: edt_Address
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_Address
-                                                                                .text,
-                                                                            City: edt_CityHeader
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_CityHeader
-                                                                                .text,
-                                                                            State: edt_StateHeader
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_StateHeader
-                                                                                .text,
-                                                                            PrimaryMobileNo: edt_PrimaryContact
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_PrimaryContact
-                                                                                .text,
-                                                                            SecondaryMobileNo: edt_AlternateContact
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_AlternateContact
-                                                                                .text,
-                                                                            ForProduct: edt_ForProduct
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_ForProduct
-                                                                                .text,
-                                                                            LeadSource: edt_LeadSource
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_LeadSource
-                                                                                .text,
-                                                                            LeadStatus: edt_LeadStatus
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_LeadStatus
-                                                                                .text,
-                                                                            EmployeeID: edt_QualifiedEmplyeeID
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_QualifiedEmplyeeID
-                                                                                .text,
-                                                                            ProductID: edt_QualifiedForProductID
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_QualifiedForProductID
-                                                                                .text,
-                                                                            Pincode: edt_QualifiedPinCode
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_QualifiedPinCode
-                                                                                .text,
-                                                                            StateCode: edt_QualifiedStateCode
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_QualifiedStateCode
-                                                                                .text,
-                                                                            CityCode: edt_QualifiedCityCode
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_QualifiedCityCode
-                                                                                .text,
-                                                                            CustomerID: "0",
-                                                                            ExLeadClosure: edt_DisQualifiedID
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_DisQualifiedID
-                                                                                .text,
-                                                                            LoginUserID: LoginUserID,
-                                                                            CountryCode: edt_QualifiedCountryCode
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_QualifiedCountryCode
-                                                                                .text,
-                                                                            ClosureRemark: edt_DisQualifiedName
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_DisQualifiedName
-                                                                                .text,
-                                                                            CompanyId: CompanyID
-                                                                                .toString(),
-                                                                            SenderName: edt_SenderName
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_SenderName
-                                                                                .text,
-                                                                            QueryDatetime: edt_ReverseExpenseDateController
-                                                                                .text ==
-                                                                                null
-                                                                                ? ""
-                                                                                : edt_ReverseExpenseDateController
-                                                                                .text,
-                                                                            SenderMail: edt_Email
-                                                                                .text,
-                                                                            InProcessRemark: edt_InProcess_Details.text
-                                                                        )));
-                                                              });
-                                                        }
-                                                        else
-                                                        {
-                                                          showCommonDialogWithSingleOption(context, "Qualified City is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                                            Navigator.of(
-                                                                context)
-                                                                .pop();
-                                                          });
-
-                                                        }
-
-                                                      }
-                                                      else
-                                                      {
-                                                        showCommonDialogWithSingleOption(context, "Qualified State is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                                          Navigator.of(
-                                                              context)
-                                                              .pop();
-                                                        });
-
-                                                      }
-                                                    }
-                                                  else
-                                                  {
-                                                    showCommonDialogWithSingleOption(context, "Qualified Country is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                                      Navigator.of(
-                                                          context)
-                                                          .pop();
-                                                    });
-
-                                                  }
-
-                                                }
-                                              else
-                                              {
-                                                showCommonDialogWithSingleOption(context, "Qualified ProductName  is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                                  Navigator.of(
-                                                      context)
-                                                      .pop();
-                                                });
-
-                                              }
-
-                                            }
-                                          else
-                                            {
-                                              showCommonDialogWithSingleOption(context, "AssignTo is required!",positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                                Navigator.of(
-                                                    context)
-                                                    .pop();
-                                              });
-
-                                            }
-                                        }
-                                      else if(isDisqualified==true)
-                                        {
-                                          if(edt_DisQualifiedName.text!="")
-                                            {
-                                              showCommonDialogWithTwoOptions(
-                                                  context,
-                                                  "Are you sure you want to Save Portal Details ?",
-                                                  negativeButtonTitle: "No",
-                                                  positiveButtonTitle: "Yes",
-                                                  onTapOfPositiveButton: () {
-                                                    Navigator.of(
-                                                        context)
-                                                        .pop();
-                                                    _expenseBloc.add(
-                                                        ExternalLeadSaveCallEvent(context,
-                                                            savepkID,
-                                                            ExternalLeadSaveRequest(
-                                                                CompanyName: edt_CompanyName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_CompanyName
-                                                                    .text,
-                                                                CountryFlagURL: "",
-                                                                Message: edt_Details
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Details
-                                                                    .text,
-                                                                Address: edt_Address
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Address
-                                                                    .text,
-                                                                City: edt_CityHeader
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_CityHeader
-                                                                    .text,
-                                                                State: edt_StateHeader
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_StateHeader
-                                                                    .text,
-                                                                PrimaryMobileNo: edt_PrimaryContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PrimaryContact
-                                                                    .text,
-                                                                SecondaryMobileNo: edt_AlternateContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_AlternateContact
-                                                                    .text,
-                                                                ForProduct: edt_ForProduct
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_ForProduct
-                                                                    .text,
-                                                                LeadSource: edt_LeadSource
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_LeadSource
-                                                                    .text,
-                                                                LeadStatus: edt_LeadStatus
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_LeadStatus
-                                                                    .text,
-                                                                EmployeeID: edt_QualifiedEmplyeeID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedEmplyeeID
-                                                                    .text,
-                                                                ProductID: edt_QualifiedForProductID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedForProductID
-                                                                    .text,
-                                                                Pincode: edt_QualifiedPinCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedPinCode
-                                                                    .text,
-                                                                StateCode: edt_QualifiedStateCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedStateCode
-                                                                    .text,
-                                                                CityCode: edt_QualifiedCityCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCityCode
-                                                                    .text,
-                                                                CustomerID: "0",
-                                                                ExLeadClosure: edt_DisQualifiedID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisQualifiedID
-                                                                    .text,
-                                                                LoginUserID: LoginUserID,
-                                                                CountryCode: edt_QualifiedCountryCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCountryCode
-                                                                    .text,
-                                                                ClosureRemark: edt_DisQualifiedName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisQualifiedName
-                                                                    .text,
-                                                                CompanyId: CompanyID
-                                                                    .toString(),
-                                                                SenderName: edt_SenderName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_SenderName
-                                                                    .text,
-                                                                QueryDatetime: edt_ReverseExpenseDateController
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_ReverseExpenseDateController
-                                                                    .text,
-                                                                SenderMail: edt_Email
-                                                                    .text,
-                                                                InProcessRemark: edt_InProcess_Details.text
-
-                                                            )));
-                                                  });
-                                            }
-                                          else
-                                            {
-                                              showCommonDialogWithSingleOption(context, "DisQualified Reason is required!", positiveButtonTitle: "OK");
-
-                                            }
-                                        }
-                                      else if(isInProcess==true)
-                                      {
-                                        if(edt_QualifiedEmplyeeName.text!="")
-                                        {
-
-                                          if(edt_InProcess_Details.text!="")
-                                            {
-                                              showCommonDialogWithTwoOptions(
-                                                  context,
-                                                  "Are you sure you want to Save Portal Details ?",
-                                                  negativeButtonTitle: "No",
-                                                  positiveButtonTitle: "Yes",
-                                                  onTapOfPositiveButton: () {
-                                                    Navigator.of(
-                                                        context)
-                                                        .pop();
-                                                    _expenseBloc.add(
-                                                        ExternalLeadSaveCallEvent(context,
-                                                            savepkID,
-                                                            ExternalLeadSaveRequest(
-                                                                CompanyName: edt_CompanyName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_CompanyName
-                                                                    .text,
-                                                                CountryFlagURL: "",
-                                                                Message: edt_Details
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Details
-                                                                    .text,
-                                                                Address: edt_Address
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_Address
-                                                                    .text,
-                                                                City: edt_CityHeader
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_CityHeader
-                                                                    .text,
-                                                                State: edt_StateHeader
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_StateHeader
-                                                                    .text,
-                                                                PrimaryMobileNo: edt_PrimaryContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_PrimaryContact
-                                                                    .text,
-                                                                SecondaryMobileNo: edt_AlternateContact
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_AlternateContact
-                                                                    .text,
-                                                                ForProduct: edt_ForProduct
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_ForProduct
-                                                                    .text,
-                                                                LeadSource: edt_LeadSource
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_LeadSource
-                                                                    .text,
-                                                                LeadStatus: edt_LeadStatus
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_LeadStatus
-                                                                    .text,
-                                                                EmployeeID: edt_QualifiedEmplyeeID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedEmplyeeID
-                                                                    .text,
-                                                                ProductID: edt_QualifiedForProductID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedForProductID
-                                                                    .text,
-                                                                Pincode: edt_QualifiedPinCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedPinCode
-                                                                    .text,
-                                                                StateCode: edt_QualifiedStateCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedStateCode
-                                                                    .text,
-                                                                CityCode: edt_QualifiedCityCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCityCode
-                                                                    .text,
-                                                                CustomerID: "0",
-                                                                ExLeadClosure: edt_DisQualifiedID
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisQualifiedID
-                                                                    .text,
-                                                                LoginUserID: LoginUserID,
-                                                                CountryCode: edt_QualifiedCountryCode
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_QualifiedCountryCode
-                                                                    .text,
-                                                                ClosureRemark: edt_DisQualifiedName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_DisQualifiedName
-                                                                    .text,
-                                                                CompanyId: CompanyID
-                                                                    .toString(),
-                                                                SenderName: edt_SenderName
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_SenderName
-                                                                    .text,
-                                                                QueryDatetime: edt_ReverseExpenseDateController
-                                                                    .text ==
-                                                                    null
-                                                                    ? ""
-                                                                    : edt_ReverseExpenseDateController
-                                                                    .text,
-                                                                SenderMail: edt_Email
-                                                                    .text,
-                                                                InProcessRemark: edt_InProcess_Details.text
-
-                                                            )));
-                                                  });
-                                            }
-                                          else
-                                            {
-                                              showCommonDialogWithSingleOption(context, "In-Process Remarks is required!", positiveButtonTitle: "OK");
-
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                          showCommonDialogWithSingleOption(context, "Assign To is required!", positiveButtonTitle: "OK");
-
-                                        }
-                                      }
-                                      else
-                                        {
-                                          showCommonDialogWithSingleOption(context, "Lead Status is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                            Navigator.of(
-                                                context)
-                                                .pop();
-                                          });
-
-
-                                        }
-                                    }
-                                  else
-                                  {
-                                    showCommonDialogWithSingleOption(context, "Lead Status is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                      Navigator.of(
-                                          context)
-                                          .pop();
-                                    });
-
-
-                                  }
-
-                                }
-                              else
-                                {
-                                  showCommonDialogWithSingleOption(context, "Primary Contact is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                                    Navigator.of(
-                                        context)
-                                        .pop();
-                                  });
-
-                                }
-
-                            }
-                          else{
-                            showCommonDialogWithSingleOption(context, "Company Name is required!", positiveButtonTitle: "OK",onTapOfPositiveButton: (){
-                              Navigator.of(
-                                  context)
-                                  .pop();
-                            });
-
-                          }
-
-
-
-
-
-                        }, "Save", backGroundColor: colorPrimary):Container(),
-                        SizedBox(
-                          width: 20,
-                          height: 15,
-                        ),
-                      ]))),
+                      ]
+                  )
+              )
+          ),
         ),
       ),
     );
@@ -1248,7 +1411,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1306,7 +1470,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1365,7 +1530,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1424,7 +1590,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1483,7 +1650,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1542,7 +1710,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1601,7 +1770,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1660,7 +1830,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1719,7 +1890,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1778,7 +1950,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1837,7 +2010,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1896,7 +2070,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -1955,7 +2130,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -2014,7 +2190,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -2074,7 +2251,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -2134,7 +2312,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: Colors.white,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -2208,7 +2387,8 @@ class _ExternalLeadAddEditScreenState
                 ),
                 Card(
                   elevation: 5,
-                  color: colorLightGray,
+                  color: Colors.white,
+
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
@@ -2415,7 +2595,8 @@ class _ExternalLeadAddEditScreenState
           ),
           Card(
             elevation: 5,
-            color: colorLightGray,
+            color: Colors.white,
+
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
@@ -2535,7 +2716,8 @@ class _ExternalLeadAddEditScreenState
                     ),
                     Card(
                       elevation: 5,
-                      color: colorLightGray,
+                      color: colorTileBG,
+
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
                       child: Container(
@@ -2580,7 +2762,8 @@ class _ExternalLeadAddEditScreenState
           Container(
             child: Card(
               elevation: 5,
-              color: colorLightGray,
+              color: colorTileBG,
+
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25)),
               child: Container(
@@ -2670,7 +2853,8 @@ class _ExternalLeadAddEditScreenState
           onTap: () => isAllEditable==true?_onTapOfSearchView():Container(),
           child: Card(
             elevation: 5,
-            color: colorLightGray,
+            color: colorTileBG,
+
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
@@ -2729,10 +2913,11 @@ class _ExternalLeadAddEditScreenState
           height: 5,
         ),
         InkWell(
-            onTap: () => isAllEditable==true?_onTapOfSearchCountryView(_searchDetails == null ? "" : /*_searchDetails.countryCode*/""):Container(),
+            onTap: () => isAllEditable==true?_onTapOfSearchCountryView(""):Container(),
             child: Card(
               elevation: 5,
-              color: colorLightGray,
+              color: colorTileBG,
+
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15)),
               child: Container(
@@ -2791,10 +2976,11 @@ class _ExternalLeadAddEditScreenState
         ),
         InkWell(
           onTap: () => isAllEditable==true?_onTapOfSearchStateView(
-              _searchDetails == null ? "" : /*_searchDetails.countryCode*/"IND"):Container(),
+              edt_QualifiedCountryCode.text):Container(),
           child: Card(
             elevation: 5,
-            color: colorLightGray,
+            color: colorTileBG,
+
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
@@ -2834,6 +3020,7 @@ class _ExternalLeadAddEditScreenState
     );
   }
 
+
   Widget QualifiedCity() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2853,12 +3040,11 @@ class _ExternalLeadAddEditScreenState
           height: 5,
         ),
         InkWell(
-          onTap: () => isAllEditable==true?_onTapOfSearchCityView(_searchStateDetails == null
-              ? ""
-              : _searchStateDetails.value.toString()):Container(),
+          onTap: () => isAllEditable==true?_onTapOfSearchCityView(edt_QualifiedStateCode.text):Container(),
           child: Card(
             elevation: 5,
-            color: colorLightGray,
+            color: colorTileBG,
+
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: Container(
@@ -2918,7 +3104,8 @@ class _ExternalLeadAddEditScreenState
         ),
         Card(
           elevation: 5,
-          color: colorLightGray,
+          color: colorTileBG,
+
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
@@ -3141,7 +3328,8 @@ class _ExternalLeadAddEditScreenState
 
                     child: Card(
                       elevation: 5,
-                      color: colorLightGray,
+                      color: colorTileBG,
+
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
                       child: Container(
@@ -3248,7 +3436,8 @@ class _ExternalLeadAddEditScreenState
                     ),
                     Card(
                       elevation: 5,
-                      color: colorLightGray,
+                      color: colorTileBG,
+
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
                       child: Container(
@@ -3488,6 +3677,491 @@ class _ExternalLeadAddEditScreenState
 
     print("AssignToNotification" + request123.toString());
     _expenseBloc.add(FCMNotificationRequestEvent(request123));*/
+
+  }
+
+  LeadInfoFromPortal() {
+
+    return Container(
+      margin: EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+
+        Row(
+          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+          Expanded(
+            child: TextFormField(
+                controller: edt_LeadNo,
+                enabled: isAllEditable,
+
+                decoration: const InputDecoration(
+               // border: UnderlineInputBorder(),
+                labelText: 'Lead',
+
+              ),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )
+            ),
+          ),
+
+           SizedBox(width: 20,),
+            Expanded(
+            child: TextFormField(
+                controller: edt_ExpenseDateController,
+                enabled: false,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: 'Query Date',
+                  hintText: "DD-MM-YYYY"
+                ),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )
+            ),
+          ),
+        ],),
+        SizedBox(height: 20,),
+        TextFormField(
+            controller: edt_LeadSource,
+            enabled: isAllEditable,
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Lead Source',
+            ),
+            style: TextStyle(
+              fontSize: 15,
+              color: Color(0xFF000000),
+            )
+        ),
+        SizedBox(height: 20,),
+        TextFormField(
+            controller: edt_ForProduct,
+            enabled: isAllEditable,
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'For Product',
+              hintText :"Product Name"
+            ),
+            style: TextStyle(
+              fontSize: 15,
+              color: Color(0xFF000000),
+            )
+        ),
+        SizedBox(height: 20,),
+        Container(
+          //margin: EdgeInsets.only(left: 10, right: 10),
+          child: Text("Details",
+              style: TextStyle(
+                  fontSize: 12,
+                  color: colorPrimary,
+                  fontWeight: FontWeight
+                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+          ),
+        ),
+        TextFormField(
+          enabled: isAllEditable,
+          controller: edt_Details,
+          minLines: 2,
+          maxLines: 5,
+          keyboardType: TextInputType.multiline,
+          decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(10.0),
+              hintText: 'Enter Details',
+              hintStyle: TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderSide:
+                new BorderSide(color: colorPrimary),
+                borderRadius:
+                BorderRadius.all(Radius.circular(10)),
+              )),
+        ),
+          SizedBox(height: 20,),
+
+
+          InkWell(
+            onTap: (){
+              setState(() {
+                IsCompanyInfo = !IsCompanyInfo;
+                IsLeadInfo=false;
+                IsLeadStatusInfo=false;
+              });
+            },
+            child: Card(
+                elevation: 10,
+                color: colorPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.only(left: 20,right: 20,top: 10,bottom: 10),
+                  child: Center(
+                    child: Text("Next", style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                        fontWeight: FontWeight
+                            .bold)),
+                  ),
+                )
+
+
+
+            ),
+          ),
+          
+
+      ],),
+    );
+
+  }
+
+
+  CompanyInfo() {
+    return Container(
+        margin: EdgeInsets.all(20),
+
+        child: Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+
+      TextFormField(
+          enabled: isAllEditable,
+          textInputAction: TextInputAction.next,
+
+          controller: edt_SenderName,
+         // enabled: false,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            labelText: 'Sender Name',
+          ),
+          style: TextStyle(
+            fontSize: 15,
+            color: Color(0xFF000000),
+          )
+      ),
+
+      SizedBox(height: 20,),
+
+      //edt_CompanyName
+
+      TextFormField(
+          enabled: isAllEditable,
+          textInputAction: TextInputAction.next,
+
+          controller: edt_CompanyName,
+          // enabled: false,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            labelText: 'Company Name *',
+          ),
+          style: TextStyle(
+            fontSize: 15,
+            color: Color(0xFF000000),
+          )
+      ),
+      SizedBox(height: 20,),
+
+
+      TextFormField(
+          enabled: isAllEditable,
+          textInputAction: TextInputAction.next,
+
+          controller: edt_Email,
+          // enabled: false,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            labelText: 'Email',
+          ),
+          style: TextStyle(
+            fontSize: 15,
+            color: Color(0xFF000000),
+          )
+      ),
+      //edt_Email
+      SizedBox(height: 20,),
+
+      TextFormField(
+          enabled: isAllEditable,
+
+          controller: edt_Address,
+          // enabled: false,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            labelText: 'Address',
+          ),
+          style: TextStyle(
+            fontSize: 15,
+            color: Color(0xFF000000),
+          )
+      ),
+      SizedBox(height: 20,),
+
+
+      Row(
+        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: TextFormField(
+                controller: edt_CountryHeader,
+                enabled: isAllEditable,
+                textInputAction: TextInputAction.next,
+
+                decoration: const InputDecoration(
+                  // border: UnderlineInputBorder(),
+                  labelText: 'Country',
+
+                ),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )
+            ),
+          ),
+
+          SizedBox(width: 20,),
+          Expanded(
+            child: TextFormField(
+                controller: edt_StateHeader,
+                enabled: isAllEditable,
+                textInputAction: TextInputAction.next,
+
+                decoration: const InputDecoration(
+                    border: UnderlineInputBorder(),
+                    labelText: 'State',
+                ),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )
+            ),
+          ),
+
+
+        ],),
+      SizedBox(height: 20,),
+
+      Row(
+        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+
+          Expanded(
+            child: TextFormField(
+                controller: edt_CityHeader,
+                enabled: isAllEditable,
+                textInputAction: TextInputAction.next,
+
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: 'City',
+                ),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )
+            ),
+          ),
+          SizedBox(width: 20,),
+
+          Expanded(
+            child: TextFormField(
+                controller: edt_PinHeader,
+                enabled: isAllEditable,
+                textInputAction: TextInputAction.next,
+
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: 'PinCode',
+                ),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF000000),
+                )
+            ),
+          ),
+        ],),
+      SizedBox(height: 20,),
+
+      TextFormField(
+          enabled: isAllEditable,
+
+          keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.next,
+          controller: edt_PrimaryContact,
+          // enabled: false,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            labelText: 'Primary Contact *',
+          ),
+          style: TextStyle(
+            fontSize: 15,
+            color: Color(0xFF000000),
+          )
+      ),
+
+      SizedBox(height: 20,),
+
+
+
+      TextFormField(
+          enabled: isAllEditable,
+
+          keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.next,
+          controller: edt_AlternateContact,
+          // enabled: false,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            labelText: 'Alternate Contact',
+          ),
+          style: TextStyle(
+            fontSize: 15,
+            color: Color(0xFF000000),
+          )
+      ),
+      SizedBox(height: 20,),
+
+
+      InkWell(
+        onTap: (){
+          setState(() {
+            IsLeadStatusInfo = !IsLeadStatusInfo;
+            IsLeadInfo=false;
+            IsCompanyInfo=false;
+          });
+        },
+        child: Card(
+            elevation: 10,
+            color: colorPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(left: 20,right: 20,top: 10,bottom: 10),
+              child: Center(
+                child: Text("Next", style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white,
+                    fontWeight: FontWeight
+                        .bold)),
+              ),
+            )
+
+
+
+        ),
+      ),
+
+    ]));
+
+  }
+
+  LeadStatusInformation() {
+
+    return Container();
+  }
+
+  LeadInformation() {
+
+
+    return Container(
+      margin: EdgeInsets.all(10),
+      child: Column(children: [
+        SizedBox(
+          width: 20,
+          height: 10,
+        ),
+        GestureDetector(
+          onTap: () => isAllEditable==true?showcustomdialogWithOnlyName(
+              values: arr_ALL_Name_ID_For_LeadStatus,
+              context1: context,
+              controller: edt_LeadStatus,
+              lable: "Select Lead Status"):Container(),
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 10, right: 10),
+                  child: Text("Lead Status *",
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: colorPrimary,
+                          fontWeight: FontWeight
+                              .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Card(
+                  elevation: 5,
+                  color: colorTileBG,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Container(
+                    height: CardViewHeight,
+                    padding:
+                    EdgeInsets.only(left: 20, right: 20),
+                    width: double.maxFinite,
+                    child: Row(
+                      children: [
+
+                        Expanded(
+                          child: TextField(
+                              controller: edt_LeadStatus,
+                              enabled: false,
+                              decoration: InputDecoration(
+                                hintText: "Select Lead Status",
+                                labelStyle: TextStyle(
+                                  color: Color(0xFF000000),
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF000000),
+                              ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+
+                          ),
+                        ),
+
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: colorGrayDark,
+                        )
+
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+        isqualified == true ? LeadQualified() : Container(),
+        isDisqualified == true
+            ? LeadDisQualified()
+            : Container(),
+        isInProcess == true
+            ? LeadInProcess()
+            : Container(),
+        SizedBox(
+          width: 20,
+          height: 15,
+        ),
+      ],),
+    );
 
   }
 }

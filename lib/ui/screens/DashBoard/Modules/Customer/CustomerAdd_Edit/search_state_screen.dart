@@ -52,7 +52,7 @@ class _SearchStateScreen extends BaseState<SearchStateScreen>
     if (widget.arguments != null) {
       //for update
 
-      // print("objectOfState" + widget.arguments.countryCode );
+      print("objectOfState" + widget.arguments.countryCode);
       _CustomerBloc
         ..add(StateCallEvent(StateListRequest(
             CountryCode: widget.arguments.countryCode,
@@ -266,7 +266,7 @@ class _SearchStateScreen extends BaseState<SearchStateScreen>
   void _onSearchInquiryListCallSuccess(StateListEventResponseState state) {
     arr_ALL_Name_ID_For_Country.clear();
 
-    _listFilteredCountry.clear();
+    // _listFilteredCountry.clear();
     for (var i = 0; i < state.statelistresponse.details.length; i++) {
       print("CustomerCategoryResponse2 : " +
           state.statelistresponse.details[i].label);
@@ -279,6 +279,19 @@ class _SearchStateScreen extends BaseState<SearchStateScreen>
     }
   }
 
+/*  void filterList(String query) {
+    refreshList(() {
+      _listFilteredCountry.clear();
+      _listFilteredCountry.addAll(arr_ALL_Name_ID_For_Country
+          .where((element) =>
+              element.Name.toLowerCase().contains(query.toLowerCase()))
+          .toList());
+      print("_listFiltered.data.length - ${_listFilteredCountry.length}");
+      print(
+          "_listResponse.data.length - ${arr_ALL_Name_ID_For_Country.length}");
+    });
+    //baseBloc.refreshScreen();
+  }*/
   void filterList(String query) {
     refreshList(() {
       _listFilteredCountry.clear();

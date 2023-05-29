@@ -1,50 +1,3 @@
-/*pkID:0
-InquiryNo:
-QuotationNo:
-QuotationDate:2022-01-27
-CustomerID:1
-ProjectName:
-QuotationSubject:Testing Of API
-QuotationKindAttn:Mr.X
-QuotationHeader:Dear Sir/Ma'am
-QuotationFooter:1. Subject to our standard terms and conditions.   2. Payment Terms: 50% advance along with the confirmation and rest 50% within next 30 days,   3. 18% GST Extra as mentioned.   4. Delivery : within 30-45 working days from the order confirmation date.   5. 15% AMC will be charged after completion of 1 year from the installation date, including online and technical support.   6. Any changes/queries should be intimated within 3 days, thereafter no changes will be entertained and/or charged in extra as per the company policy.   7. Once order confirmed cannot be cancelled.   8. Under any circumstances advance given shall not be refunded.    9. Certified that the particulars are true and correct.   10. Subject to Ahmedabad Jurisdiction.
-LoginUserID:admin
-Latitude:
-Longitude:
-DiscountAmt:0
-SGSTAmt:0
-CGSTAmt:0
-IGSTAmt:0
-ChargeID1:0
-ChargeAmt1:0
-ChargeBasicAmt1:0
-ChargeGSTAmt1:0
-ChargeID2:0
-ChargeAmt2:0
-ChargeBasicAmt2:0
-ChargeGSTAmt2:0
-ChargeID3:0
-ChargeAmt3:0
-ChargeBasicAmt3:0
-ChargeGSTAmt3:0
-ChargeID4:0
-ChargeAmt4:0
-ChargeBasicAmt4:0
-ChargeGSTAmt4:0
-ChargeID5:0
-ChargeAmt5:0
-ChargeBasicAmt5:0
-ChargeGSTAmt5:0
-NetAmt:22500
-BasicAmt:22500
-ROffAmt:23000
-ChargePer1:0
-ChargePer2:0
-ChargePer3:0
-ChargePer4:0
-ChargePer5:0
-CompanyId:10032*/
-
 class QuotationHeaderSaveRequest {
   String pkID;
   String InquiryNo;
@@ -95,6 +48,17 @@ class QuotationHeaderSaveRequest {
   String BankID;
   String AdditionalRemarks;
   String AssumptionRemarks;
+  String OrgCode;
+  String ReferenceNo;
+  String ReferenceDate;
+  String CreditDays;
+  String CurrencyName;
+  String CurrencySymbol;
+  String ExchangeRate;
+
+  /*data['CurrencyName'] = "";
+    data['CurrencySymbol'] = "";
+    data['ExchangeRate'] = "";*/
 
   QuotationHeaderSaveRequest(
       {this.pkID,
@@ -145,7 +109,14 @@ class QuotationHeaderSaveRequest {
       this.CompanyId,
       this.BankID,
       this.AdditionalRemarks,
-      this.AssumptionRemarks});
+      this.AssumptionRemarks,
+      this.OrgCode,
+      this.ReferenceNo,
+      this.ReferenceDate,
+      this.CreditDays,
+      this.CurrencyName,
+      this.CurrencySymbol,
+      this.ExchangeRate});
 
   QuotationHeaderSaveRequest.fromJson(Map<String, dynamic> json) {
     pkID = json['pkID'];
@@ -197,6 +168,13 @@ class QuotationHeaderSaveRequest {
     BankID = json['BankID'];
     AdditionalRemarks = json['AdditionalRemarks'];
     AssumptionRemarks = json['AssumptionRemarks'];
+    OrgCode = json['OrgCode'];
+    ReferenceNo = json['ReferenceNo'];
+    ReferenceDate = json['ReferenceDate'];
+    CreditDays = json['CreditDays'];
+    CurrencyName = json['CurrencyName'];
+    CurrencySymbol = json['CurrencySymbol'];
+    ExchangeRate = json['ExchangeRate'];
   }
 
   Map<String, dynamic> toJson() {
@@ -250,6 +228,23 @@ class QuotationHeaderSaveRequest {
     data['BankID'] = this.BankID;
     data['AdditionalRemarks'] = this.AdditionalRemarks;
     data['AssumptionRemarks'] = this.AssumptionRemarks;
+    data['OrgCode'] = this.OrgCode;
+    data['ReferenceNo'] = this.ReferenceNo;
+    data['ReferenceDate'] = this.ReferenceDate;
+    data['CreditDays'] = this.CreditDays;
+    data['QType'] = "";
+    data['Hosting'] = "";
+    data['MaxUsers'] = "";
+    data['DeliveryTime'] = "";
+    data['ProfitPer'] = "";
+    data['ProfitAmt'] = "";
+    data['AfterProfitAmt'] = "";
+    data['ManualQuoteNo'] = "";
+    data['BidDate'] = "";
+    data['CurrencyName'] = CurrencyName;
+    data['CurrencySymbol'] = CurrencySymbol;
+    data['ExchangeRate'] = ExchangeRate;
+
     return data;
   }
 }

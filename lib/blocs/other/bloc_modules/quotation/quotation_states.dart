@@ -359,4 +359,10 @@ class DeleteQuotationSpecificationByFinishProductIDState
   String response;
   DeleteQuotationSpecificationByFinishProductIDState(this.response);
 }
+
+class QuotationOrganizationListResponseState extends QuotationStates {
+  final QuotationOrganizationListResponse quotationOrganizationListResponse;
+  QuotationOrganizationListResponseState(
+      this.quotationOrganizationListResponse);
+}
 //

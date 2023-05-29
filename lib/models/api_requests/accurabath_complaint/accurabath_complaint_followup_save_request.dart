@@ -10,6 +10,15 @@ class AccuraBathComplaintFollowupSaveRequest {
   String LoginUserID;
   String CompanyID;
 
+  /*ComppkID:2
+FollowupDate:2023-04-21
+FollowupSource:Mail
+MeetingNotes:Need to visit
+NextFollowupDate:2023-04-22
+PreferredTime:06:15 PM
+LoginUserID:admin
+CompanyId:4156*/
+
   AccuraBathComplaintFollowupSaveRequest(
       {this.ComppkID,
       this.FollowupDate,
@@ -43,8 +52,8 @@ class AccuraBathComplaintFollowupSaveRequest {
     data['MeetingNotes'] = this.MeetingNotes;
     data['NextFollowupDate'] = this.NextFollowupDate;
     data['PreferredTime'] = this.PreferredTime;
-    data['CustomerID'] = this.CustomerID;
-    data['InquiryStatusID'] = this.InquiryStatusID;
+    // data['CustomerID'] = this.CustomerID;
+    // data['InquiryStatusID'] = this.InquiryStatusID;
     data['CompanyId'] = this.CompanyID;
     data['LoginUserID'] = this.LoginUserID;
 

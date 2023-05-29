@@ -217,3 +217,22 @@ class SBDeleteRequestEvent extends SalesBillEvents {
   final SBDeleteRequest request;
   SBDeleteRequestEvent(this.headerpkID, this.request);
 }
+
+class SOCurrencyListRequestEvent extends SalesBillEvents {
+  final SOCurrencyListRequest request;
+
+  SOCurrencyListRequestEvent(this.request);
+}
+
+class HeaderToDetailsRequestEvent extends SalesBillEvents {
+  int hedarpkID;
+  final HeaderToDetailsRequest request;
+
+  HeaderToDetailsRequestEvent(this.hedarpkID, this.request);
+}
+
+class QuotationProjectListCallEvent extends SalesBillEvents {
+  final QuotationProjectListRequest request;
+
+  QuotationProjectListCallEvent(this.request);
+}

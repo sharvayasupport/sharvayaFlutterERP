@@ -17,6 +17,7 @@ import 'package:soleoserp/models/api_requests/quotation/save_email_content_reque
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipment_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
@@ -27,6 +28,7 @@ import 'package:soleoserp/models/api_responses/other/country_list_response.dart'
 import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
@@ -54,8 +56,9 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 
 class AddUpdateSalesOrderNewScreenArguments {
   SalesOrderDetails editModel;
-
-  AddUpdateSalesOrderNewScreenArguments(this.editModel);
+  SOShipmentlistResponseDetails soShipmentlistResponseDetails;
+  AddUpdateSalesOrderNewScreenArguments(
+      this.editModel, this.soShipmentlistResponseDetails);
 }
 
 class SaleOrderNewAddEditScreen extends BaseStatefulWidget {
@@ -218,6 +221,8 @@ class _SaleOrderNewAddEditScreenState
   String LoginUserID = "";
   bool isAllEditable = false;
   SalesOrderDetails _editModel;
+
+  SOShipmentlistResponseDetails _soShipmentlistResponseDetails;
 
   String SalesOrderNo = "";
   final TextEditingController edt_HeaderDisc = TextEditingController();
@@ -485,6 +490,7 @@ class _SaleOrderNewAddEditScreenState
           if (state is QuotationTermsCondtionResponseState) {
             _OnTermsAndConditionResponse(state);
           }
+
           return super.build(context);
           //handle states
         },
@@ -565,12 +571,12 @@ class _SaleOrderNewAddEditScreenState
                         termsAndCondition(),
                         space(5),
                         emailContent(),
-                        space(5),
-                        paymentSchedule(),
-                        space(5),
-                        shipmentDetail(),
-                        space(5),
-                        attachment(),
+                        //space(5),
+                        //paymentSchedule(),
+                        //space(5),
+                        //shipmentDetail(),
+                        //space(5),
+                        //attachment(),
                         space(5),
                         shipmentAddress(),
                         space(20),
@@ -1817,7 +1823,7 @@ class _SaleOrderNewAddEditScreenState
                         SizedBox(
                           height: 10,
                         ),
-                        createTextLabel("Projects", 10.0, 0.0),
+                        /*createTextLabel("Projects", 10.0, 0.0),
                         SizedBox(
                           height: 3,
                         ),
@@ -1966,6 +1972,7 @@ class _SaleOrderNewAddEditScreenState
                         SizedBox(
                           height: 5,
                         ),
+                    */
                       ],
                     ),
                   ),
@@ -2059,7 +2066,7 @@ class _SaleOrderNewAddEditScreenState
                         SizedBox(
                           height: 3,
                         ),
-                        createTextLabel("Delivery Terms", 10.0, 0.0),
+                        /* createTextLabel("Delivery Terms", 10.0, 0.0),
                         createTextFormField(
                             _contrller_delivery_terms, "Delivery Terms",
                             minLines: 2,
@@ -2076,7 +2083,7 @@ class _SaleOrderNewAddEditScreenState
                             maxLines: 5,
                             height: 70,
                             bottom: 5,
-                            keyboardInput: TextInputType.text),
+                            keyboardInput: TextInputType.text),*/
                       ],
                     ),
                   ),
@@ -3064,6 +3071,25 @@ class _SaleOrderNewAddEditScreenState
                                     _controller_currency_Symbol.text,
                                 ExchangeRate: _controller_exchange_rate.text,
                                 RefType: "",
+                                EmailHeader: _contrller_email_subject.text,
+                                EmailContent:
+                                    _controller_select_email_subject.text,
+                              ),
+                              SOShipmentSaveRequest(
+                                OrderNo: "",
+                                SCompanyName: _controller_company_name.text,
+                                SGSTNo: _controller_GSTNO.text,
+                                SContactNo: _controller_contact_no.text,
+                                SContactPersonName:
+                                    _controller_contact_person_name.text,
+                                SAddress: _controller_address.text,
+                                SArea: _controller_area.text,
+                                SCountryCode: edt_QualifiedCountryCode.text,
+                                SCityCode: edt_QualifiedCityCode.text,
+                                SStateCode: edt_QualifiedStateCode.text,
+                                SPincode: edt_QualifiedPinCode.text,
+                                LoginUserID: LoginUserID,
+                                CompanyId: CompanyID.toString(),
                               )));
                         });
                       } else {
@@ -3791,7 +3817,7 @@ class _SaleOrderNewAddEditScreenState
         ),
         InkWell(
             onTap: () =>
-                _onTapOfSearchCountryView(_searchDetails == null ? "" : ""),
+                _onTapOfSearchCountryView(edt_QualifiedCountryCode.text),
             child: Card(
               elevation: 5,
               color: colorLightGray,
@@ -3840,8 +3866,9 @@ class _SaleOrderNewAddEditScreenState
         _searchDetails = SearchCountryDetails();
         _searchDetails = value;
         print("CountryName IS From SearchList" + _searchDetails.countryCode);
-        edt_QualifiedCountryCode.text = /*_searchDetails.countryCode*/ "";
+        edt_QualifiedCountryCode.text = _searchDetails.countryCode;
         edt_QualifiedCountry.text = _searchDetails.countryName;
+        setState(() {});
       }
     });
   }
@@ -3866,8 +3893,7 @@ class _SaleOrderNewAddEditScreenState
         ),
         InkWell(
           onTap: () {
-            _onTapOfSearchStateView(
-                _searchDetails == null ? "" : _searchDetails.countryCode);
+            _onTapOfSearchStateView(edt_QualifiedCountryCode.text);
           },
           /*=> isAllEditable==true?_onTapOfSearchStateView(
               _searchDetails == null ? "" : _searchDetails.countryCode):Container(),*/
@@ -3944,9 +3970,7 @@ class _SaleOrderNewAddEditScreenState
         ),
         InkWell(
           onTap: () {
-            _onTapOfSearchCityView(edt_QualifiedStateCode.text == null
-                ? ""
-                : edt_QualifiedStateCode.text);
+            _onTapOfSearchCityView(edt_QualifiedStateCode.text);
           },
           /*=> isAllEditable==true?_onTapOfSearchCityView(_searchStateDetails == null
               ? ""
@@ -4189,6 +4213,30 @@ class _SaleOrderNewAddEditScreenState
       ChargePer4: "0.00",
       ChargePer5: "0.00",
     );
+
+    _controller_select_email_subject.text = _editModel.EmailContent;
+    _controller_select_email_subject_ID.text = _editModel.EmailContent;
+    _contrller_email_subject.text = _editModel.EmailHeader;
+
+    //  _soShipmentlistResponseDetails
+    _soShipmentlistResponseDetails =
+        widget.arguments.soShipmentlistResponseDetails;
+    _controller_company_name.text = _soShipmentlistResponseDetails.sCompanyName;
+    _controller_GSTNO.text = _soShipmentlistResponseDetails.sGSTNo;
+    _controller_contact_no.text = _soShipmentlistResponseDetails.sContactNo;
+    _controller_contact_person_name.text =
+        _soShipmentlistResponseDetails.sContactPersonName;
+    _controller_address.text = _soShipmentlistResponseDetails.sAddress;
+    _controller_area.text = _soShipmentlistResponseDetails.sArea;
+    edt_QualifiedCountry.text = _soShipmentlistResponseDetails.countryName;
+    edt_QualifiedCountryCode.text = _soShipmentlistResponseDetails.sCountryCode;
+    edt_QualifiedCity.text = _soShipmentlistResponseDetails.cityName;
+    edt_QualifiedCityCode.text =
+        _soShipmentlistResponseDetails.sCityCode.toString();
+    edt_QualifiedState.text = _soShipmentlistResponseDetails.stateName;
+    edt_QualifiedStateCode.text =
+        _soShipmentlistResponseDetails.sStateCode.toString();
+    edt_QualifiedPinCode.text = _soShipmentlistResponseDetails.sPincode;
   }
 
   BankDetails(BuildContext context) {

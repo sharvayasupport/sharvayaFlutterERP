@@ -16,6 +16,14 @@ class ALL_Name_ID {
   String IsEditField;
   String IsDeleteField;
 
+  String CityCode;
+  String CityName;
+  String StateCode;
+  String StateName;
+
+  String CountryCode;
+  String CountryName;
+
   ALL_Name_ID({
     this.pkID,
     this.Name,
@@ -29,5 +37,11 @@ class ALL_Name_ID {
     this.IsAddField,
     this.IsEditField,
     this.IsDeleteField,
+    this.CityCode,
+    this.CityName,
+    this.StateCode,
+    this.StateName,
+    this.CountryCode,
+    this.CountryName,
   });
 }

@@ -6,6 +6,7 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_history_list_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_label_value_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_count_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_image_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
@@ -162,6 +163,10 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
     }
     if (event is FollowupImageListRequestEvent) {
       yield* _mapFollowupImageListRequestEventToState(event);
+    }
+
+    if (event is FollowupCountRequestEvent) {
+      yield* _mapFollowupCountRequestEventState(event);
     }
     //
   }
@@ -621,6 +626,22 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
       FollowupImageListResponse respo =
           await userRepository.followupImageListAPI(event.pkID, event.request);
       yield FollowupImageListResponseState(event.pkID, respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FollowupStates> _mapFollowupCountRequestEventState(
+      FollowupCountRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      String respo =
+          await userRepository.followupCount(event.Status, event.request);
+      yield FollowUpCountState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

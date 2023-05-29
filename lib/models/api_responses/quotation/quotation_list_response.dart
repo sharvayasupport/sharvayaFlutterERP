@@ -123,6 +123,14 @@ class QuotationDetails {
   String panelAngle;
   String degradation;
   String panelTechnology;
+  String OrgCode;
+  String OrganizationName;
+  String ReferenceNo;
+  String ReferenceDate;
+  String CreditDays;
+  String CurrencyName;
+  String CurrencySymbol;
+  double ExchangeRate;
 
   QuotationDetails({
     this.rowNum,
@@ -225,6 +233,14 @@ class QuotationDetails {
     this.panelAngle,
     this.degradation,
     this.panelTechnology,
+    this.OrgCode,
+    this.OrganizationName,
+    this.ReferenceNo,
+    this.ReferenceDate,
+    this.CreditDays,
+    this.CurrencyName,
+    this.CurrencySymbol,
+    this.ExchangeRate,
   });
 
   QuotationDetails.fromJson(Map<String, dynamic> json) {
@@ -354,6 +370,19 @@ class QuotationDetails {
     degradation = json['Degradation'] == null ? "" : json['Degradation'];
     panelTechnology =
         json['PanelTechnology'] == null ? "" : json['PanelTechnology'];
+    OrgCode = json['OrgCode'] == null ? "" : json['OrgCode'];
+    OrganizationName =
+        json['OrganizationName'] == null ? "" : json['OrganizationName'];
+    ReferenceNo = json['ReferenceNo'] == null ? "" : json['ReferenceNo'];
+    ReferenceDate = json['ReferenceDate'] == null ||
+            json['ReferenceDate'] == "1900-01-01T00:00:00"
+        ? ""
+        : json['ReferenceDate'];
+    CreditDays = json['CreditDays'] == null ? "" : json['CreditDays'];
+    CurrencyName = json['CurrencyName'] == null ? "" : json['CurrencyName'];
+    CurrencySymbol =
+        json['CurrencySymbol'] == null ? "" : json['CurrencySymbol'];
+    ExchangeRate = json['ExchangeRate'] == null ? 0.00 : json['ExchangeRate'];
   }
 
   Map<String, dynamic> toJson() {
@@ -458,6 +487,20 @@ class QuotationDetails {
     data['PanelAngle'] = this.panelAngle;
     data['Degradation'] = this.degradation;
     data['PanelTechnology'] = this.panelTechnology;
+
+    data['OrgCode'] = this.OrgCode;
+    data['OrganizationName'] = this.OrganizationName;
+    data['ReferenceNo'] = this.ReferenceNo;
+    data['ReferenceDate'] = this.ReferenceDate;
+    data['CreditDays'] = this.CreditDays;
+    data['CurrencyName'] = this.CurrencyName;
+    data['CurrencySymbol'] = this.CurrencySymbol;
+    data['ExchangeRate'] = this.ExchangeRate;
+
+    /* this.CurrencyName,
+    this.CurrencySymbol,
+    this.ExchangeRate,*/
+
     return data;
   }
 }

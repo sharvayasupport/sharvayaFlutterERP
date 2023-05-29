@@ -8,7 +8,6 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/repositories/custom_exception.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/res/image_resources.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 
@@ -300,13 +299,13 @@ mixin BasicScreen<Screen extends BaseStatefulWidget> on BaseState<Screen> {
                       ),
                       label: 'Company',
                       backgroundColor: colorPrimary),
-                  BottomNavigationBarItem(
+                  /* BottomNavigationBarItem(
                       icon: ImageIcon(
                         AssetImage(DEALER_LOGO),
                         color: colorPrimary,
                       ),
                       label: 'Dealer',
-                      backgroundColor: colorPrimary),
+                      backgroundColor: colorPrimary),*/
                 ],
                 showUnselectedLabels: true,
                 type: BottomNavigationBarType.fixed,

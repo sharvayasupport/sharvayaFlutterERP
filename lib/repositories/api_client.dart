@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
@@ -166,7 +167,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const END_POINT_COMPLAINT_SEARCH_BY_NAME_DETAILS = "Complaint/Search";
   static const END_POINT_COMPLAINT_SEARCH_BY_ID_DETAILS = "Complaint";
   static const END_POINT_ACCURABATH_COMPLAINT_IMAGE_LIST =
-      "Complaint/getdocumentlist";
+      "ModuleAttachments/AttachmentsList";
 
   static const END_POINT_COMPLAINT_SAVE_DETAILS = "Complaint";
   static const END_POINT_ATTEND_VISIT_DETAILS = "ComplaintVisit";
@@ -298,16 +299,24 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
   static const API_UPLOAD_CUSTOMER_DOCUMENT = 'Customer/UploadAttachments';
   static const API_FETCH_CUSTOMER_DOCUMENT = 'Customer/AttachmentsList';
   static const API_DELETE_CUSTOMER_DOCUMENT = 'Customer/';
-  static const END_POINT_COMPLAINT_FOLLOWUP_HISTORY_LIST =
-      "ComplaintFollowUp/1-100000";
+  static const END_POINT_ACCURABATH_COMPLAINT_FOLLOWUP_HISTORY_LIST =
+      "ComplaintAcura/";
 
-  static const END_POINT_COMPLAINT_SAVE_FOLLOWUP = "Complaint/0/FollowUp";
+  static const END_POINT_ACCURABATH_COMPLAINT_SAVE_FOLLOWUP =
+      "ComplaintAcura/0/FollowUp";
   static const END_POINT_ACCURABATH_COMPLAINT_EMPLOYEE_LIST =
-      "Complaint/EmployeeFollowerList";
+      "ComplaintAcura/ServiceCenterlist";
 
-  static const END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG_VIDEO =
-      "ComplaintDoc/";
-  static const END_ACCURABATH_POINT_COMPLAINT_UPLOAD = "Complaint/ImageUpload";
+  static const END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_IMG =
+      "ModuleAttachments/";
+
+  static const END_POINT_ACCURABATH_COMPLAINT_NO_DELETE_VIDEO =
+      "ComplaintAcura/";
+  static const END_ACCURABATH_POINT_COMPLAINT_UPLOAD =
+      "ModuleAttachments/UploadAttachments";
+
+  static const END_ACCURABATH_POINT_COMPLAINT_UPLOAD_VIDEO =
+      "ComplaintAcura/UploadVideoAttachments";
   static const END_GET_REGION_CODE = "Customer/Codes";
 
   static const END_POINT_SALES_ORDER_HEADER_SAVE_REQUEST = "SalesOrder/";
@@ -370,7 +379,22 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
   static const END_POINT_FOLLOWUP_IMG_LIST = 'FollowUp/';
 
-  //Inquiry
+  static const END_POINT_CITY_CODE_TO_CUSTOMER_LIST = 'Customer/';
+  static const END_POINT_VK_COMPLAIN_LIST = 'ComplaintQuick/';
+  static const END_POINT_VK_COMPLAIN_SAVE = 'ComplaintQuick/';
+  static const END_POINT_VK_COMPLAIN_PK_ID_TO_DETAILS = 'ComplaintQuick/';
+  static const END_POINT_VK_COMPLAIN_DELETE = 'ComplaintQuick/';
+  static const END_POINT_VK_COMPLAIN_HISTORY = 'ComplaintQuick/';
+  static const END_POINT_SB_HEADERIDTOLIST = "SalesBill/";
+
+  static const END_POINT_ACURABATH_OMPLAINT_LIST_DETAILS = "ComplaintAcura";
+  static const END_POINT_ACURABATH_OMPLAINT_SAVE__DETAILS = "ComplaintAcura";
+  static const END_POINT_ACURABATH_COMPLAINT_VIDEO_LIST =
+      "ComplaintAcura/VideoAttachmentslist";
+
+  static const END_POINT_SO_SHIPMENT_LIST = 'SalesOrderShipmentDetails';
+  static const END_POINT_QT_ORGANIZATION_DROP_DOWN_LIST =
+      "OrganizationStructure/";
 
   //Quatation/Product/Spec-Save
 
@@ -421,6 +445,63 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     return responseJson;
   }
 
+  Future<File> apiCallGetFile(String DOC_BaseURL, String DocName) async {
+    var responseJson;
+    var getUrl;
+    var BASE_URL = DOC_BaseURL;
+    //BASE_URL = SharedPrefHelper.instance.getBaseURL();
+    getUrl = '$BASE_URL$DocName';
+
+    /*if (query.isNotEmpty) {
+      getUrl = '$BASE_URL$url?$query';
+    } else {
+      getUrl = '$BASE_URL$url';
+    }*/
+
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    print("Api request url : $getUrl");
+    String authToken =
+        SharedPrefHelper.instance.getString(SharedPrefHelper.AUTH_TOKEN_STRING);
+    if (authToken != null && authToken.isNotEmpty) {
+      headers['access-token'] = "$authToken";
+    }
+
+    try {
+      String timeZone = await getCurrentTimeZone();
+      if (timeZone != null && timeZone.isNotEmpty) {
+        headers['timeZone'] = timeZone;
+      }
+    } catch (e) {}
+    print("Api request url : $getUrl\nHeaders - $headers");
+
+    try {
+      final response =
+          await httpClient.get(Uri.parse(getUrl), headers: headers);
+      /*.timeout(const Duration(seconds: 60));*/
+
+      if (response.statusCode == 200) {
+        // baseBloc.emit(ShowProgressIndicatorState(true));
+
+        Directory dir = await getTemporaryDirectory();
+        dir.exists();
+        String pathName = path.join(dir.path, DocName);
+        File file = new File(pathName);
+        await file.writeAsBytes(response.bodyBytes);
+
+        return file;
+
+        // baseBloc.emit(ShowProgressIndicatorState(false));
+      }
+
+      //responseJson =
+    } on SocketException {
+      throw FetchDataException('No Internet Connection');
+    }
+    return responseJson;
+  }
+
   ///POST api call
   Future<dynamic> apiCallPost(
     String url,
@@ -443,6 +524,9 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
     //log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
     print(
         "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+
+    log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+
     try {
       final response = await httpClient
           .post(Uri.parse("$BASE_URL$url"),
@@ -522,6 +606,7 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
 
     print(
         "Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
+    log("Api request url : $BASE_URL$url\nHeaders - $headers\nApi request params : $requestJsonMap");
 
     final request = http.MultipartRequest("POST", Uri.parse("$BASE_URL$url"));
     if (requestJsonMap != null) {

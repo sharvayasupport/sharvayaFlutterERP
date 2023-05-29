@@ -110,9 +110,11 @@ class SaleOrderHeaderSaveRequestEvent extends SalesOrderEvents {
   int pkID;
   SaleOrderHeaderSaveRequest saleOrderHeaderSaveRequest;
 
+  SOShipmentSaveRequest soShipmentSaveRequest;
+
   BuildContext context;
-  SaleOrderHeaderSaveRequestEvent(
-      this.context, this.pkID, this.saleOrderHeaderSaveRequest);
+  SaleOrderHeaderSaveRequestEvent(this.context, this.pkID,
+      this.saleOrderHeaderSaveRequest, this.soShipmentSaveRequest);
 }
 
 class SaleOrderProductSaveCallEvent extends SalesOrderEvents {
@@ -256,8 +258,26 @@ class SOAssemblyTableOneItemDeleteEvent extends SalesOrderEvents {
 class SOAssemblyTableALLDeleteEvent extends SalesOrderEvents {
   SOAssemblyTableALLDeleteEvent();
 }
+
 class SalesTargetListCallEvent extends SalesOrderEvents {
   final int pageNo;
   final SalaryTargetListRequest salaryTargetListRequest;
   SalesTargetListCallEvent(this.pageNo, this.salaryTargetListRequest);
+}
+
+class SOShipmentListRequestEvent extends SalesOrderEvents {
+  final SOShipmentListRequest soShipmentListRequest;
+  SalesOrderDetails salesOrderDetails;
+  SOShipmentListRequestEvent(
+      this.soShipmentListRequest, this.salesOrderDetails);
+}
+
+class SOShipmentSaveRequestEvent extends SalesOrderEvents {
+  final SOShipmentSaveRequest soShipmentSaveRequest;
+  SOShipmentSaveRequestEvent(this.soShipmentSaveRequest);
+}
+
+class SOShipmentDeleteRequestEvent extends SalesOrderEvents {
+  final SOShipmentDeleteRequest soShipmentDeleteRequest;
+  SOShipmentDeleteRequestEvent(this.soShipmentDeleteRequest);
 }

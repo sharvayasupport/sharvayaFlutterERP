@@ -171,5 +171,10 @@ class TeleCallerFollowupSaveResponseState extends FollowupStates {
 class FollowupImageListResponseState extends FollowupStates {
   int followuppkID;
   final FollowupImageListResponse response;
-  FollowupImageListResponseState(this.followuppkID,this.response);
+  FollowupImageListResponseState(this.followuppkID, this.response);
+}
+
+class FollowUpCountState extends FollowupStates {
+  final String count;
+  FollowUpCountState(this.count);
 }

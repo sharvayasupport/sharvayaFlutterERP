@@ -65,18 +65,28 @@ class FetchAccuraBathComplaintImageListResponseState
       accuraBathComplaintListResponseDetails;
   final FetchAccuraBathComplaintImageListResponse
       fetchAccuraBathComplaintImageListResponse;
+
+  final AccurabathComplaintVideoListResponse
+      accurabathComplaintVideoListResponse;
+
+  List<File> ImageFileListFromAPI = [];
+
+  List<File> VideoFileList = [];
   FetchAccuraBathComplaintImageListResponseState(
       this.fetchAccuraBathComplaintImageListResponse,
-      this.accuraBathComplaintListResponseDetails);
+      this.accuraBathComplaintListResponseDetails,
+      this.accurabathComplaintVideoListResponse,
+      this.ImageFileListFromAPI,
+      this.VideoFileList);
 }
 
-class AccuraBathComplaintEmpFollowerListResponseState
+class AccuraBathComplaintEmployeeListResponseState
     extends ComplaintScreenStates {
-  final AccuraBathComplaintEmpFollowerListResponse
-      complaintEmpFollowerListResponse;
+  final AccuraBathComplaintEmployeeListResponse
+      accuraBathComplaintEmployeeListResponse;
 
-  AccuraBathComplaintEmpFollowerListResponseState(
-      this.complaintEmpFollowerListResponse);
+  AccuraBathComplaintEmployeeListResponseState(
+      this.accuraBathComplaintEmployeeListResponse);
 }
 
 class AccuraBathComplaintSaveResponseState extends ComplaintScreenStates {
@@ -85,21 +95,39 @@ class AccuraBathComplaintSaveResponseState extends ComplaintScreenStates {
   AccuraBathComplaintSaveResponseState(this.complaintSaveResponse);
 }
 
-class AccuraBathComplaintNoToDeleteImageVideoResponseState
+class AccuraBathComplaintNoToDeleteImageResponseState
     extends ComplaintScreenStates {
-  final AccuraBathComplaintNoToDeleteImageVideoResponse
-      complaintNoToDeleteImageVideoResponse;
+  final AccuraBathComplaintNoToDeleteImageResponse
+      complaintNoToDeleteImageResponse;
 
-  AccuraBathComplaintNoToDeleteImageVideoResponseState(
-      this.complaintNoToDeleteImageVideoResponse);
+  AccuraBathComplaintNoToDeleteImageResponseState(
+      this.complaintNoToDeleteImageResponse);
+}
+
+class AccuraBathComplaintNoToDeleteVideoResponseState
+    extends ComplaintScreenStates {
+  final AccuraBathComplaintDeleteVideoResponse
+      accuraBathComplaintDeleteVideoResponse;
+
+  AccuraBathComplaintNoToDeleteVideoResponseState(
+      this.accuraBathComplaintDeleteVideoResponse);
 }
 
 class AccuraBathComplaintUploadImageCallResponseState
     extends ComplaintScreenStates {
   final AccuraBathComplaintImageUploadResponse complaintImageUploadResponse;
+  AccuraBathComplaintUploadImageAPIRequest complaintUploadImageAPIRequest;
 
   AccuraBathComplaintUploadImageCallResponseState(
-      this.complaintImageUploadResponse);
+      this.complaintImageUploadResponse, this.complaintUploadImageAPIRequest);
+}
+
+class AccuraBathComplaintUploadVideoCallResponseState
+    extends ComplaintScreenStates {
+  final AccuraBathComplaintVideoUploadResponse complaintVideoUploadResponse;
+
+  AccuraBathComplaintUploadVideoCallResponseState(
+      this.complaintVideoUploadResponse);
 }
 
 class CountryListEventResponseState extends ComplaintScreenStates {

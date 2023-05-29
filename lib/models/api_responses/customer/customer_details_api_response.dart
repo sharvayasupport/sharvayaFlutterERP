@@ -473,6 +473,8 @@ class CustomerDetails {
   double Debit;
   double Credit;
   double Closing;
+  String Latitude;
+  String Longitude;
 
   CustomerDetails(
       {this.rowNum,
@@ -515,7 +517,9 @@ class CustomerDetails {
       this.Opening,
       this.Debit,
       this.Credit,
-      this.Closing});
+      this.Closing,
+      this.Latitude,
+      this.Longitude});
 
   CustomerDetails.fromJson(Map<String, dynamic> json) {
     rowNum = json['RowNum'] != null ? json['RowNum'] : 0;
@@ -566,6 +570,8 @@ class CustomerDetails {
     Debit = json["Debit"] != null ? json["Debit"] : 0.00;
     Credit = json["Credit"] != null ? json["Credit"] : 0.00;
     Closing = json["Closing"] != null ? json["Closing"] : 0.00;
+    Latitude = json["Latitude"] == null ? "" : json['Latitude'];
+    Longitude = json["Longitude"] == null ? "" : json['Longitude'];
   }
 
   Map<String, dynamic> toJson() {
@@ -613,6 +619,8 @@ class CustomerDetails {
     data["Debit"] = this.Debit;
     data["Credit"] = this.Credit;
     data["Closing"] = this.Closing;
+    data['Latitude'] = this.Latitude;
+    data['Longitude'] = this.Longitude;
 
     return data;
   }

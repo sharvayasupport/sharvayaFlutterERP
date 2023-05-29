@@ -194,3 +194,10 @@ class FollowupImageListRequestEvent extends FollowupEvents {
   final FollowupImageListRequest request;
   FollowupImageListRequestEvent(this.pkID, this.request);
 }
+
+class FollowupCountRequestEvent extends FollowupEvents {
+  String Status;
+
+  final FollowupCountRequest request;
+  FollowupCountRequestEvent(this.Status, this.request);
+}

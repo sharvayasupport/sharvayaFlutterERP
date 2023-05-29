@@ -19,6 +19,9 @@ import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pd
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_name_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/search_salesorder_list_by_number_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipment_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipment_save_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/shipment/so_shipmnet_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_requests/sales_target/sales_target_list_request.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
@@ -38,6 +41,8 @@ import 'package:soleoserp/models/api_responses/saleOrder/sales_order_pdf_generat
 import 'package:soleoserp/models/api_responses/saleOrder/sales_order_product_delete_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
 import 'package:soleoserp/models/api_responses/sales_target/sales_target_list_response.dart';
 import 'package:soleoserp/models/common/assembly/so_assembly_table.dart';
@@ -210,6 +215,17 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
 
     if (event is SalesTargetListCallEvent) {
       yield* _mapSalesTargetListCallEventToState(event);
+    }
+
+    if (event is SOShipmentListRequestEvent) {
+      yield* _mapSOShipmentListRequestEventToState(event);
+    }
+    if (event is SOShipmentSaveRequestEvent) {
+      yield* _mapSOShipmentSaveRequestEventToState(event);
+    }
+
+    if (event is SOShipmentDeleteRequestEvent) {
+      yield* _mapSOShipmentDeleteRequestEventToState(event);
     }
   }
 
@@ -497,6 +513,27 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       SaleOrderHeaderSaveResponse response =
           await userRepository.getSalesOrderHeaderSaveAPI(
               event.pkID, event.saleOrderHeaderSaveRequest);
+
+      SOShipmentSaveRequest soShipmentSaveRequest = SOShipmentSaveRequest(
+        OrderNo: response.details[0].column4,
+        SCompanyName: event.soShipmentSaveRequest.SCompanyName,
+        SGSTNo: event.soShipmentSaveRequest.SGSTNo,
+        SContactNo: event.soShipmentSaveRequest.SContactNo,
+        SContactPersonName: event.soShipmentSaveRequest.SContactPersonName,
+        SAddress: event.soShipmentSaveRequest.SAddress,
+        SArea: event.soShipmentSaveRequest.SArea,
+        SCountryCode: event.soShipmentSaveRequest.SCountryCode,
+        SCityCode: event.soShipmentSaveRequest.SCityCode,
+        SStateCode: event.soShipmentSaveRequest.SStateCode,
+        SPincode: event.soShipmentSaveRequest.SPincode,
+        LoginUserID: event.soShipmentSaveRequest.LoginUserID,
+        CompanyId: event.soShipmentSaveRequest.CompanyId.toString(),
+      );
+      //soShipmentSaveRequest.OrderNo = response.details[0].column4;
+      // soShipmentSaveRequest.
+
+      await userRepository.saveSoShipmentListAPI(soShipmentSaveRequest);
+
       yield SaleOrderHeaderSaveResponseState(
           event.context, event.pkID, response);
     } catch (error, stacktrace) {
@@ -977,6 +1014,51 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       SalesTargetListResponse response = await userRepository
           .getSalesTargetList(event.pageNo, event.salaryTargetListRequest);
       yield SalesTargetListCallResponseState(response, event.pageNo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOShipmentListRequestEventToState(
+      SOShipmentListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SOShipmentlistResponse response = await userRepository
+          .getSoShipmentListAPI(event.soShipmentListRequest);
+      yield SOShipmentlistResponseState(response, event.salesOrderDetails);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOShipmentSaveRequestEventToState(
+      SOShipmentSaveRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SOShipmentSaveResponse response = await userRepository
+          .saveSoShipmentListAPI(event.soShipmentSaveRequest);
+      yield SOShipmentSaveResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesOrderStates> _mapSOShipmentDeleteRequestEventToState(
+      SOShipmentDeleteRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      String response = await userRepository
+          .deleteSoShipmentListAPI(event.soShipmentDeleteRequest);
+      yield SOShipmentDeleteResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

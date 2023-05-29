@@ -27,146 +27,136 @@ class AccuraBathComplaintListResponse {
 class AccuraBathComplaintListResponseDetails {
   int rowNum;
   int pkID;
-  String complaintNo;
   String complaintDate;
-  String referenceName;
-  String complaintStatus;
-  String complaintType;
-  String customerName;
+  String complaintNo;
+  String customerEmpName;
+  String custmoreMobileNo;
+  String referenceNo;
+  String srNo;
+  int productID;
+  String productName;
+  String siteAddress;
+  int cityCode;
+  String cityName;
+  int stateCode;
+  String stateName;
+  String countryCode;
+  String countryName;
+  String pincode;
   String complaintNotes;
   String preferredDate;
   String timeFrom;
   String timeTo;
-  String custmoreMobileNo;
-  String dateOfPurchase;
-  String siteAddress;
-  int cityCode;
-  String countryCode;
-  String countryName;
-  int stateCode;
-  String pincode;
-  String convinientDate;
-  String cityName;
-  String stateName;
-  int productID;
-  String productName;
-  String srNo;
+  String customerID2;
+  String assignedTo;
+  String complaintStatus;
+  String complaintType;
   String createdBy;
   String createdDate;
-  String createdByEmployee;
-  String employeeID;
-  String employeeName;
-  int complaintDays;
+  String updatedBy;
+  String updatedDate;
 
   AccuraBathComplaintListResponseDetails(
       {this.rowNum,
       this.pkID,
-      this.complaintNo,
       this.complaintDate,
-      this.referenceName,
-      this.complaintStatus,
-      this.complaintType,
-      this.customerName,
+      this.complaintNo,
+      this.customerEmpName,
+      this.custmoreMobileNo,
+      this.referenceNo,
+      this.srNo,
+      this.productID,
+      this.productName,
+      this.siteAddress,
+      this.cityCode,
+      this.cityName,
+      this.stateCode,
+      this.stateName,
+      this.countryCode,
+      this.countryName,
+      this.pincode,
       this.complaintNotes,
       this.preferredDate,
       this.timeFrom,
       this.timeTo,
-      this.custmoreMobileNo,
-      this.dateOfPurchase,
-      this.siteAddress,
-      this.cityCode,
-      this.countryCode,
-      this.countryName,
-      this.stateCode,
-      this.pincode,
-      this.convinientDate,
-      this.cityName,
-      this.stateName,
-      this.productID,
-      this.productName,
-      this.srNo,
+      this.customerID2,
+      this.assignedTo,
+      this.complaintStatus,
+      this.complaintType,
       this.createdBy,
       this.createdDate,
-      this.createdByEmployee,
-      this.employeeID,
-      this.employeeName,
-      this.complaintDays});
+      this.updatedBy,
+      this.updatedDate});
 
   AccuraBathComplaintListResponseDetails.fromJson(Map<String, dynamic> json) {
     rowNum = json['RowNum'] == null ? 0 : json['RowNum'];
     pkID = json['pkID'] == null ? 0 : json['pkID'];
-    complaintNo = json['ComplaintNo'] == null ? "" : json['ComplaintNo'];
     complaintDate = json['ComplaintDate'] == null ? "" : json['ComplaintDate'];
-    referenceName = json['ReferenceName'] == null ? "" : json['ReferenceName'];
-    complaintStatus =
-        json['ComplaintStatus'] == null ? "" : json['ComplaintStatus'];
-    complaintType = json['ComplaintType'] == null ? "" : json['ComplaintType'];
-    customerName = json['CustomerName'] == null ? "" : json['CustomerName'];
+    complaintNo = json['ComplaintNo'] == null ? "" : json['ComplaintNo'];
+    customerEmpName =
+        json['CustomerEmpName'] == null ? "" : json['CustomerEmpName'];
+    custmoreMobileNo =
+        json['CustmoreMobileNo'] == null ? "" : json['CustmoreMobileNo'];
+    referenceNo = json['ReferenceNo'] == null ? "" : json['ReferenceNo'];
+    srNo = json['SrNo'] == null ? "" : json['SrNo'];
+    productID = json['ProductID'] == null ? 0 : json['ProductID'];
+    productName = json['ProductName'] == null ? "" : json['ProductName'];
+    siteAddress = json['SiteAddress'] == null ? "" : json['SiteAddress'];
+    cityCode = json['CityCode'] == null ? 0 : json['CityCode'];
+    cityName = json['CityName'] == null ? "" : json['CityName'];
+    stateCode = json['StateCode'] == null ? 0 : json['StateCode'];
+    stateName = json['StateName'] == null ? "" : json['StateName'];
+    countryCode = json['CountryCode'] == null ? "" : json['CountryCode'];
+    countryName = json['CountryName'] == null ? "" : json['CountryName'];
+    pincode = json['Pincode'] == null ? "" : json['Pincode'];
     complaintNotes =
         json['ComplaintNotes'] == null ? "" : json['ComplaintNotes'];
     preferredDate = json['PreferredDate'] == null ? "" : json['PreferredDate'];
     timeFrom = json['TimeFrom'] == null ? "" : json['TimeFrom'];
     timeTo = json['TimeTo'] == null ? "" : json['TimeTo'];
-    custmoreMobileNo =
-        json['CustmoreMobileNo'] == null ? "" : json['CustmoreMobileNo'];
-    dateOfPurchase =
-        json['DateOfPurchase'] == null ? "" : json['DateOfPurchase'];
-    siteAddress = json['SiteAddress'] == null ? "" : json['SiteAddress'];
-    cityCode = json['CityCode'] == null ? 0 : json['CityCode'];
-    countryCode = json['CountryCode'] == null ? "" : json['CountryCode'];
-    countryName = json['CountryName'] == null ? "" : json['CountryName'];
-    stateCode = json['StateCode'] == null ? 0 : json['StateCode'];
-    pincode = json['Pincode'] == null ? "" : json['Pincode'];
-    convinientDate =
-        json['ConvinientDate'] == null ? "" : json['ConvinientDate'];
-    cityName = json['CityName'] == null ? "" : json['CityName'];
-    stateName = json['StateName'] == null ? "" : json['StateName'];
-    productID = json['ProductID'] == null ? 0 : json['ProductID'];
-    productName = json['ProductName'] == null ? "" : json['ProductName'];
-    srNo = json['SrNo'] == null ? "" : json['SrNo'];
+    customerID2 = json['CustomerID2'] == null ? "" : json['CustomerID2'];
+    assignedTo = json['AssignedTo'] == null ? "" : json['AssignedTo'];
+    complaintStatus =
+        json['ComplaintStatus'] == null ? "" : json['ComplaintStatus'];
+    complaintType = json['ComplaintType'] == null ? "" : json['ComplaintType'];
     createdBy = json['CreatedBy'] == null ? "" : json['CreatedBy'];
     createdDate = json['CreatedDate'] == null ? "" : json['CreatedDate'];
-    createdByEmployee =
-        json['CreatedByEmployee'] == null ? "" : json['CreatedByEmployee'];
-    employeeID = json['EmployeeID'] == null ? "" : json['EmployeeID'];
-    employeeName = json['EmployeeName'] == null ? "" : json['EmployeeName'];
-    complaintDays = json['ComplaintDays'] == null ? "" : json['ComplaintDays'];
+    updatedBy = json['UpdatedBy'] == null ? "" : json['UpdatedBy'];
+    updatedDate = json['UpdatedDate'] == null ? "" : json['UpdatedDate'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['RowNum'] = this.rowNum;
     data['pkID'] = this.pkID;
-    data['ComplaintNo'] = this.complaintNo;
     data['ComplaintDate'] = this.complaintDate;
-    data['ReferenceName'] = this.referenceName;
-    data['ComplaintStatus'] = this.complaintStatus;
-    data['ComplaintType'] = this.complaintType;
-    data['CustomerName'] = this.customerName;
+    data['ComplaintNo'] = this.complaintNo;
+    data['CustomerEmpName'] = this.customerEmpName;
+    data['CustmoreMobileNo'] = this.custmoreMobileNo;
+    data['ReferenceNo'] = this.referenceNo;
+    data['SrNo'] = this.srNo;
+    data['ProductID'] = this.productID;
+    data['ProductName'] = this.productName;
+    data['SiteAddress'] = this.siteAddress;
+    data['CityCode'] = this.cityCode;
+    data['CityName'] = this.cityName;
+    data['StateCode'] = this.stateCode;
+    data['StateName'] = this.stateName;
+    data['CountryCode'] = this.countryCode;
+    data['CountryName'] = this.countryName;
+    data['Pincode'] = this.pincode;
     data['ComplaintNotes'] = this.complaintNotes;
     data['PreferredDate'] = this.preferredDate;
     data['TimeFrom'] = this.timeFrom;
     data['TimeTo'] = this.timeTo;
-    data['CustmoreMobileNo'] = this.custmoreMobileNo;
-    data['DateOfPurchase'] = this.dateOfPurchase;
-    data['SiteAddress'] = this.siteAddress;
-    data['CityCode'] = this.cityCode;
-    data['CountryCode'] = this.countryCode;
-    data['CountryName'] = this.countryName;
-    data['StateCode'] = this.stateCode;
-    data['Pincode'] = this.pincode;
-    data['ConvinientDate'] = this.convinientDate;
-    data['CityName'] = this.cityName;
-    data['StateName'] = this.stateName;
-    data['ProductID'] = this.productID;
-    data['ProductName'] = this.productName;
-    data['SrNo'] = this.srNo;
+    data['CustomerID2'] = this.customerID2;
+    data['AssignedTo'] = this.assignedTo;
+    data['ComplaintStatus'] = this.complaintStatus;
+    data['ComplaintType'] = this.complaintType;
     data['CreatedBy'] = this.createdBy;
     data['CreatedDate'] = this.createdDate;
-    data['CreatedByEmployee'] = this.createdByEmployee;
-    data['EmployeeID'] = this.employeeID;
-    data['EmployeeName'] = this.employeeName;
-    data['ComplaintDays'] = this.complaintDays;
+    data['UpdatedBy'] = this.updatedBy;
+    data['UpdatedDate'] = this.updatedDate;
     return data;
   }
 }

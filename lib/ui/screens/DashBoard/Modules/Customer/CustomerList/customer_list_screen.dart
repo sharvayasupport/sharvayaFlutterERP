@@ -4,17 +4,20 @@ import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:soleoserp/Clients/BlueTone/Customer/blue_tone_customer_add_edit.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/customer/customer_bloc.dart';
+import 'package:soleoserp/models/api_requests/customer/city_code_to_customer_list_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_delete_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_fetch_document_api_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_paggination_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
+import 'package:soleoserp/models/api_responses/customer/city_code_to_customer_list_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_fetch_document_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
@@ -152,11 +155,16 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
           if (state is CustomerFetchDocumentResponseState) {
             _onFetchCustomer_document_List(state);
           }
+
+          if (state is CityCodeToCustomerListResponseState) {
+            _OnCityCodetoCustomerDetails(state);
+          }
           return super.build(context);
         },
         listenWhen: (oldState, currentState) {
           if (currentState is CustomerDeleteCallResponseState ||
-              currentState is CustomerFetchDocumentResponseState) {
+              currentState is CustomerFetchDocumentResponseState ||
+              currentState is CityCodeToCustomerListResponseState) {
             return true;
           }
           return false;
@@ -245,9 +253,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                 await _onTapOfDeleteALLContact();
 
                 if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                        "BLG3-AF78-TO5F-NW16" ||
-                    _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                        "TEST-0000-SI0F-0208") {
+                    "BLG3-AF78-TO5F-NW16") {
                   navigateTo(context, BlueToneCustomer_ADD_EDIT.routeName);
                 } else {
                   navigateTo(context, Customer_ADD_EDIT.routeName);
@@ -735,6 +741,113 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                     ],
                   ),
                 ),
+                SizedBox(
+                  width: 15,
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    /* MapsLauncher.launchCoordinates(
+                        21.192572, 72.799736, 'Location');*/
+
+                    if (model.Latitude != "" || model.Longitude != "") {
+                      print("jdjfds45" +
+                          double.parse(model.Latitude).toString() +
+                          " Longitude : " +
+                          double.parse(model.Longitude).toString());
+                      MapsLauncher.launchCoordinates(
+                          double.parse(model.Latitude),
+                          double.parse(model.Longitude),
+                          'Location In');
+                    } else {
+                      showCommonDialogWithSingleOption(
+                          context, "Location In Not Valid !",
+                          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                        Navigator.of(context).pop();
+                      });
+                    }
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                            child: Image.asset(
+                              LOCATION_ICON,
+                              width: 30,
+                              height: 30,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Location",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 15,
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    _CustomerBloc.add(CityCodeToCustomerListRequestEvent(
+                        model.cityCode.toString(),
+                        CityCodeToCustomerListRequest(
+                            CityCode: model.cityCode.toString(),
+                            LoginUserID: LoginUserID,
+                            CompanyID: CompanyID.toString())));
+
+                    /* if (model.latitudeIN != "" || model.longitude_IN != "") {
+                      print("jdjfds45" +
+                          double.parse(model.latitudeIN).toString() +
+                          " Longitude : " +
+                          double.parse(model.longitude_IN).toString());
+                      MapsLauncher.launchCoordinates(
+                          double.parse(model.latitudeIN),
+                          double.parse(model.longitude_IN),
+                          'Location In');
+                    } else {
+                      showCommonDialogWithSingleOption(
+                          context, "Location In Not Valid !",
+                          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+                        Navigator.of(context).pop();
+                      });
+                    }*/
+                  },
+                  child: Column(
+                    children: [
+                      Card(
+                        color: colorBackGroundGray,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          width: 35,
+                          height: 35,
+                          child: Center(
+                              child: Icon(
+                            Icons.people_alt_rounded,
+                            size: 24,
+                            color: colorPrimary,
+                          )),
+                        ),
+                      ),
+                      Text("Near By City",
+                          style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: colorPrimary,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold))
+                    ],
+                  ),
+                ),
               ],
             ),
             Container(
@@ -784,8 +897,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             child: Text(
                                                 model.customerType == ""
                                                     ? "N/A"
-                                                    : model
-                                                        .customerType, //put your own long text here.
+                                                    : model.customerType,
+                                                //put your own long text here.
                                                 maxLines: 3,
                                                 overflow: TextOverflow.clip,
                                                 style: TextStyle(
@@ -821,8 +934,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                                 model.customerSourceName ==
                                                         "--Not Available--"
                                                     ? "N/A"
-                                                    : model
-                                                        .customerSourceName, //put your own long text here.
+                                                    : model.customerSourceName,
+                                                //put your own long text here.
                                                 maxLines: 3,
                                                 overflow: TextOverflow.clip,
                                                 style: TextStyle(
@@ -958,10 +1071,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                     child: Text(
                                         model.address == ""
                                             ? "N/A"
-                                            : model.address +
-                                                "," +
-                                                model
-                                                    .area, //put your own long text here.
+                                            : model.address + "," + model.area,
+                                        //put your own long text here.
                                         maxLines: 3,
                                         overflow: TextOverflow.clip,
                                         style: TextStyle(
@@ -1012,8 +1123,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             child: Text(
                                                 model.cityName == ""
                                                     ? "N/A"
-                                                    : model
-                                                        .cityName, //put your own long text here.
+                                                    : model.cityName,
+                                                //put your own long text here.
                                                 maxLines: 3,
                                                 overflow: TextOverflow.clip,
                                                 style: TextStyle(
@@ -1048,8 +1159,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             child: Text(
                                                 model.pinCode == ""
                                                     ? "N/A"
-                                                    : model
-                                                        .pinCode, //put your own long text here.
+                                                    : model.pinCode,
+                                                //put your own long text here.
                                                 maxLines: 3,
                                                 overflow: TextOverflow.clip,
                                                 style: TextStyle(
@@ -1099,8 +1210,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             child: Text(
                                                 model.stateName == ""
                                                     ? "N/A"
-                                                    : model
-                                                        .stateName, //put your own long text here.
+                                                    : model.stateName,
+                                                //put your own long text here.
                                                 maxLines: 3,
                                                 overflow: TextOverflow.clip,
                                                 style: TextStyle(
@@ -1135,8 +1246,8 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                             child: Text(
                                                 model.countryName == ""
                                                     ? "N/A"
-                                                    : model
-                                                        .countryName, //put your own long text here.
+                                                    : model.countryName,
+                                                //put your own long text here.
                                                 maxLines: 3,
                                                 overflow: TextOverflow.clip,
                                                 style: TextStyle(
@@ -1519,5 +1630,306 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
 
   void getUserRights(MenuRightsResponse menuRightsResponse) {
     for (int i = 0; i < menuRightsResponse.details.length; i++) {}
+  }
+
+  void NearByCityDialog(BuildContext context,
+      List<CityCodeToCustomerListResponseDetails> citytocustomerList) async {
+    return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context123) {
+        return SimpleDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          colorPrimary, //                   <--- border color
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(
+                            15.0) //                 <--- border radius here
+                        ),
+                  ),
+                  child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Text(
+                        "Near By Customers",
+                        style: TextStyle(
+                            color: colorPrimary, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ))),
+              Spacer(),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Icon(
+                  Icons.close_rounded,
+                  color: colorPrimary,
+                  size: 24,
+                ),
+              )
+            ],
+          ),
+          children: [
+            SizedBox(
+                width: MediaQuery.of(context123).size.width,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SingleChildScrollView(
+                        physics: ScrollPhysics(),
+                        child: Column(children: <Widget>[
+                          ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemBuilder: (ctx, index) {
+                              CityCodeToCustomerListResponseDetails model =
+                                  citytocustomerList[index];
+
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: colorTileBG,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(14.0),
+                                    ),
+                                  ),
+                                  padding: EdgeInsets.all(10),
+                                  margin: EdgeInsets.all(10),
+                                  child: Column(
+                                    children: [
+                                      Card(
+                                        color: colorBackGroundGray,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.only(
+                                              left: 12,
+                                              right: 10,
+                                              top: 5,
+                                              bottom: 5),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text("Customer Name. ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3)),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                  model.customerName == ""
+                                                      ? "N/A"
+                                                      : model.customerName,
+                                                  style: TextStyle(
+                                                      color: Color(title_color),
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3))
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Card(
+                                        color: colorBackGroundGray,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.only(
+                                              left: 12,
+                                              right: 10,
+                                              top: 5,
+                                              bottom: 5),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text("Mobile. ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3)),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                  model.contactNo1 == ""
+                                                      ? "N/A"
+                                                      : model.contactNo1,
+                                                  style: TextStyle(
+                                                      color: Color(title_color),
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3))
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Card(
+                                        color: colorBackGroundGray,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.only(
+                                              left: 12,
+                                              right: 10,
+                                              top: 5,
+                                              bottom: 5),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text("Address. ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3)),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                  model.address == ""
+                                                      ? "N/A"
+                                                      : model.address,
+                                                  softWrap: true,
+                                                  overflow: TextOverflow.clip,
+                                                  style: TextStyle(
+                                                      color: Color(title_color),
+                                                      fontSize: _fontSize_Title,
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      letterSpacing: .3))
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      Card(
+                                        color: colorBackGroundGray,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Container(
+                                          width: double.infinity,
+                                          padding: EdgeInsets.only(
+                                              left: 12,
+                                              right: 10,
+                                              top: 5,
+                                              bottom: 5),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text("City. ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3)),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                  model.cityname == ""
+                                                      ? "N/A"
+                                                      : model.cityname,
+                                                  softWrap: true,
+                                                  style: TextStyle(
+                                                      color: Color(title_color),
+                                                      fontSize: _fontSize_Title,
+                                                      letterSpacing: .3))
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+
+                              /* return SimpleDialogOption(
+                              onPressed: () => {
+                                controller.text = values[index].Name,
+                                controller2.text = values[index].Name1,
+                              Navigator.of(context1).pop(),
+
+
+                            },
+                              child: Text(values[index].Name),
+                            );*/
+                            },
+                            itemCount: citytocustomerList.length,
+                          ),
+                        ])),
+                  ],
+                )),
+            /*Center(
+            child: Container(
+              padding: EdgeInsets.all(3.0),
+              decoration: BoxDecoration(
+                  color: Color(0xFFF27442),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                      5.0) //                 <--- border radius here
+                  ),
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Color(0xFFF27442))),
+              //color: Color(0xFFF27442),
+              child: GestureDetector(
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Color(0xFFFFFFFF)),
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
+          ),*/
+          ],
+        );
+      },
+    );
+  }
+
+  void _OnCityCodetoCustomerDetails(CityCodeToCustomerListResponseState state) {
+    NearByCityDialog(context, state.response.details);
   }
 }

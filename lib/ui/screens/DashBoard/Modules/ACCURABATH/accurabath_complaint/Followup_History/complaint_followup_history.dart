@@ -64,6 +64,8 @@ class _AccuraBathComplaintFollowupHistoryScreenState
         SearchKey: "",
         CompanyID: CompanyID.toString(),
         LoginUserID: LoginUserID,
+        PageNo: "1",
+        PageSize: "100000",
       )));
   }
 

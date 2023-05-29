@@ -9,7 +9,9 @@ import 'package:soleoserp/models/api_requests/SalesOrder/multi_no_to_product_det
 import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
+import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/headerToDetailsRequest.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_delete_request.dart';
@@ -18,6 +20,7 @@ import 'package:soleoserp/models/api_requests/salesBill/sb_export_save_request.d
 import 'package:soleoserp/models/api_requests/salesBill/sb_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/search_sale_bill_list_by_name_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/so_currency_list_request.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sale_bill_email_content_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_INQ_QT_SO_NO_list_response.dart';
 import 'package:soleoserp/models/api_responses/SaleBill/sales_bill_search_by_name_response.dart';
@@ -25,7 +28,9 @@ import 'package:soleoserp/models/api_responses/SaleOrder/multi_no_to_product_det
 import 'package:soleoserp/models/api_responses/bank_voucher/bank_drop_down_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_details_api_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
+import 'package:soleoserp/models/api_responses/quotation/quotation_project_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_terms_condition_response.dart';
+import 'package:soleoserp/models/api_responses/saleBill/headerToDetailsResponse.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sales_bill_generate_pdf_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sales_bill_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sb_delete_response.dart';
@@ -34,6 +39,7 @@ import 'package:soleoserp/models/api_responses/saleBill/sb_export_save_response.
 import 'package:soleoserp/models/api_responses/saleBill/sb_header_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/sb_product_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleBill/search_sales_bill_search_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
 import 'package:soleoserp/models/common/assembly/sb_assembly_table.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
@@ -174,6 +180,18 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
 
     if (event is SBDeleteRequestEvent) {
       yield* _mapSBDeleteRequestEventToState(event);
+    }
+
+    if (event is SOCurrencyListRequestEvent) {
+      yield* _mapSOCurrencyListRequestEventToState(event);
+    }
+
+    if (event is HeaderToDetailsRequestEvent) {
+      yield* _mapHeaderToDetailsRequestEventToState(event);
+    }
+
+    if (event is QuotationProjectListCallEvent) {
+      yield* _mapQuotationProjectListCallEventToState(event);
     }
   }
 
@@ -787,6 +805,52 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
       SBDeleteResponse response = await userRepository.getSBHeaderDeleteAPI(
           event.headerpkID, event.request);
       yield SBDeleteResponseState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesBillStates> _mapSOCurrencyListRequestEventToState(
+      SOCurrencyListRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      SOCurrencyListResponse inquiryDeleteResponse =
+          await userRepository.SOCurrencyListAPI(event.request);
+      yield SOCurrencyListResponseState(inquiryDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesBillStates> _mapHeaderToDetailsRequestEventToState(
+      HeaderToDetailsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      HeaderToDetailsResponse inquiryDeleteResponse =
+          await userRepository.SalesBillHeaderIdToDetailsAPI(
+              event.hedarpkID, event.request);
+      yield HeaderToDetailsResponseState(inquiryDeleteResponse);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<SalesBillStates> _mapQuotationProjectListCallEventToState(
+      QuotationProjectListCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      QuotationProjectListResponse response =
+          await userRepository.getQuotationProjectList(event.request);
+      yield QuotationProjectListResponseState(response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

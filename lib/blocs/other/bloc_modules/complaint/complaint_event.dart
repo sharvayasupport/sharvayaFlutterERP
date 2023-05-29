@@ -71,9 +71,19 @@ class FetchAccuraBathComplaintImageListRequestEvent
       accuraBathComplaintListResponseDetails;
   final FetchAccuraBathComplaintImageListRequest
       fetchAccuraBathComplaintImageListRequest;
+  final AccuraBathComplaintVideoListRequest accuraBathComplaintVideoListRequest;
+
+  String ImageBaseURL;
+  String VideoFileURL;
+
+  //
+
   FetchAccuraBathComplaintImageListRequestEvent(
       this.accuraBathComplaintListResponseDetails,
-      this.fetchAccuraBathComplaintImageListRequest);
+      this.fetchAccuraBathComplaintImageListRequest,
+      this.accuraBathComplaintVideoListRequest,
+      this.ImageBaseURL,
+      this.VideoFileURL);
 }
 
 class AccuraBathComplaintEmpFollowerListRequestEvent
@@ -88,16 +98,36 @@ class AccuraBathComplaintSaveRequestEvent extends ComplaintScreenEvents {
   final int pkID;
   final AccuraBathComplaintSaveRequest complaintSaveRequest;
 
-  AccuraBathComplaintSaveRequestEvent(this.pkID, this.complaintSaveRequest);
+  List<File> imageFileList = [];
+  // AccuraBathComplaintUploadImageAPIRequest imageApiRequest;
+
+  List<File> videoFileList = [];
+  // AccuraBathComplaintUploadVideoAPIRequest videoApiRequest;
+
+  AccuraBathComplaintSaveRequestEvent(
+    this.pkID,
+    this.complaintSaveRequest,
+    this.imageFileList,
+    // this.imageApiRequest,
+    this.videoFileList,
+    /*this.videoApiRequest*/
+  );
 }
 
-class AccuraBathComplaintNoToDeleteImageVideoRequestEvent
-    extends ComplaintScreenEvents {
+class AccurabathComplaintImageDeleteRequestEvent extends ComplaintScreenEvents {
   final String ComplaintNo;
-  final AccuraBathComplaintNoToDeleteImageVideoRequest
+  final AccurabathComplaintImageDeleteRequest
       complaintNoToDeleteImageVideoRequest;
-  AccuraBathComplaintNoToDeleteImageVideoRequestEvent(
+  AccurabathComplaintImageDeleteRequestEvent(
       this.ComplaintNo, this.complaintNoToDeleteImageVideoRequest);
+}
+
+class AccurabathComplaintVideoDeleteRequestEvent extends ComplaintScreenEvents {
+  final String ComplaintNo;
+  final AccurabathComplaintVideoDeleteRequest
+      accurabathComplaintVideoDeleteRequest;
+  AccurabathComplaintVideoDeleteRequestEvent(
+      this.ComplaintNo, this.accurabathComplaintVideoDeleteRequest);
 }
 
 class AccuraBathComplaintUploadImageAPIRequestEvent
@@ -106,6 +136,15 @@ class AccuraBathComplaintUploadImageAPIRequestEvent
   final AccuraBathComplaintUploadImageAPIRequest complaintUploadImageAPIRequest;
 
   AccuraBathComplaintUploadImageAPIRequestEvent(
+      this.expenseImageFile, this.complaintUploadImageAPIRequest);
+}
+
+class AccuraBathComplaintUploadVideoAPIRequestEvent
+    extends ComplaintScreenEvents {
+  final List<File> expenseImageFile;
+  final AccuraBathComplaintUploadVideoAPIRequest complaintUploadImageAPIRequest;
+
+  AccuraBathComplaintUploadVideoAPIRequestEvent(
       this.expenseImageFile, this.complaintUploadImageAPIRequest);
 }
 

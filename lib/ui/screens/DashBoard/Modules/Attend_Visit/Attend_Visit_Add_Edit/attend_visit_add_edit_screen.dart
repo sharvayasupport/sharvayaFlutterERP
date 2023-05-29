@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
+import 'package:open_file/open_file.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/attend_visit/attend_visit_bloc.dart';
 import 'package:soleoserp/models/api_requests/AttendVisit/attend_visit_save_request.dart';
 import 'package:soleoserp/models/api_requests/complaint/complaint_no_list_request.dart';
@@ -102,6 +107,9 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
   int savepkID = 0;
   String ComplaintNo = "";
   bool IsCharged = false;
+
+  List<File> MultipleVideoList = [];
+  final imagepicker = ImagePicker();
 
   @override
   void initState() {
@@ -555,7 +563,15 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
                           width: 20,
                           height: 15,
                         ),
-                        getCommonButton(baseTheme, () {
+                        /*Attachments(),*/
+                        getCommonButton(baseTheme, () async {
+                          /*var status = await Permission.storage.status;
+                          if (!status.isGranted) {
+                            await Permission.storage.request();
+                          } else {
+                            test(MultipleVideoList);
+                          }*/
+
                           print("ComplaintDetails" +
                               "ComplaintDate : " +
                               edt_ComplanitDate.text +
@@ -1825,4 +1841,346 @@ class _AttendVisitAddEditScreenState extends BaseState<AttendVisitAddEditScreen>
 
     Navigator.of(context).pop();
   }*/
+
+  Attachments() {
+    return Container(
+      child: Card(
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        elevation: 2,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Color(0xff362d8b), borderRadius: BorderRadius.circular(20)
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Colors.grey, blurRadius: 3.0, offset: Offset(2, 2),
+              //       spreadRadius: 1.0
+              //   ),
+              // ]
+              ),
+          child: Theme(
+            data: ThemeData().copyWith(
+              dividerColor: Colors.white70,
+            ),
+            child: ListTileTheme(
+              dense: true,
+              child: ExpansionTile(
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                // backgroundColor: Colors.grey[350],
+                title: Text(
+                  "Attachment",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+                leading: Container(child: Icon(Icons.attachment)),
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(15),
+                            bottomLeft: Radius.circular(15))),
+                    child: Column(
+                      children: [
+                        AttachedFileList(),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        getCommonButton(baseTheme, () async {
+                          if (await Permission.storage.isDenied) {
+                            //await Permission.storage.request();
+
+                            checkPhotoPermissionStatus();
+                          } else {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (BuildContext bc) {
+                                  return SafeArea(
+                                    child: Container(
+                                      child: new Wrap(
+                                        children: <Widget>[
+                                          /*  new ListTile(
+                                              leading:
+                                                  new Icon(Icons.photo_library),
+                                              title: new Text('Choose Files'),
+                                              onTap: () async {
+                                                Navigator.of(context).pop();
+                                                FilePickerResult result =
+                                                    await FilePicker.platform
+                                                        .pickFiles(
+                                                  type: FileType.custom,
+                                                  allowedExtensions: [
+                                                    'bmp',
+                                                    'gif',
+                                                    'jpeg',
+                                                    'jpg',
+                                                    'png',
+                                                    'heic',
+                                                    'avi',
+                                                    'flv',
+                                                    'mkv',
+                                                    'mov',
+                                                    'mp4',
+                                                    'mpeg',
+                                                    'webm',
+                                                    'wmv'
+                                                  ],
+                                                  allowMultiple: true,
+                                                );
+                                                if (result != null) {
+
+
+
+                                                  List<File> files = result
+                                                      .paths
+                                                      .map((path) => File(path))
+                                                      .toList();
+
+
+
+
+
+
+                                                  setState(() {
+                                                    MultipleVideoList.addAll(
+                                                        files);
+                                                  });
+                                                } else {
+                                                  // User canceled the picker
+                                                }
+                                              }),*/
+
+                                          new ListTile(
+                                            leading:
+                                                new Icon(Icons.browse_gallery),
+                                            title: new Text("Upload Image"),
+                                            onTap: () async {
+                                              XFile capturedFile =
+                                                  await ImagePicker().pickImage(
+                                                      source:
+                                                          ImageSource.gallery,
+                                                      imageQuality: 85);
+
+                                              File file =
+                                                  File(capturedFile.path);
+
+                                              final bytes = file
+                                                  .readAsBytesSync()
+                                                  .lengthInBytes;
+                                              final kb = bytes / 1024;
+                                              final mb = kb / 1024;
+                                              print("imgsizedd" +
+                                                  " ImageSize in MB" +
+                                                  mb.toString());
+
+                                              if (mb >= 4) {
+                                                showCommonDialogWithSingleOption(
+                                                    context,
+                                                    "Image Size Should not be Greater than 5 MB ! \nHere File Size is " +
+                                                        " (" +
+                                                        mb.toStringAsFixed(2) +
+                                                        "MB ) ",
+                                                    positiveButtonTitle: "OK");
+                                              } else {
+                                                // _selectedImageFile = file;
+                                                setState(() {
+                                                  MultipleVideoList.add(
+                                                      File(file.path));
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          new ListTile(
+                                            leading:
+                                                new Icon(Icons.photo_camera),
+                                            title: new Text('Choose Image'),
+                                            onTap: () async {
+                                              Navigator.of(context).pop();
+
+                                              XFile file =
+                                                  await imagepicker.pickImage(
+                                                source: ImageSource.camera,
+                                              );
+                                              setState(() {
+                                                MultipleVideoList.add(
+                                                    File(file.path));
+                                              });
+                                            },
+                                          ),
+                                          /* new ListTile(
+                                            leading:
+                                                new Icon(Icons.photo_camera),
+                                            title: new Text('Choose Video'),
+                                            onTap: () async {
+                                              Navigator.of(context).pop();
+
+                                              XFile file =
+                                                  await imagepicker.pickVideo(
+                                                source: ImageSource.gallery,
+                                              );
+
+                                              MediaInfo mediaInfo =
+                                                  await VideoCompress
+                                                      .compressVideo(
+                                                file.path,
+                                                quality:
+                                                    VideoQuality.LowQuality,
+                                                deleteOrigin:
+                                                    false, // It's false by default
+                                                includeAudio: true,
+                                                frameRate: 8,
+                                              );
+
+                                              final info = await VideoCompress
+                                                  .getMediaInfo(mediaInfo.path);
+
+                                              final bytes = mediaInfo.file
+                                                  .readAsBytesSync()
+                                                  .lengthInBytes;
+                                              final kb = bytes / 1024;
+                                              final mb = kb / 1024;
+
+                                              setState(() {
+                                                print("FileSize" +
+                                                    " FileSized : " +
+                                                    mb.toString() +
+                                                    " PATH : " +
+                                                    mediaInfo.file.path +
+                                                    " INFO : " +
+                                                    info.toJson().toString());
+                                                MultipleVideoList.add(
+                                                    File(mediaInfo.path));
+                                              });
+                                            },
+                                          ),*/
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                });
+                          }
+                        }, "Choose File",
+                            radius: 20,
+                            backGroundColor: Color(0xff02b1fc),
+                            textColor: colorWhite)
+                      ],
+                    ),
+                  ),
+                ], // children:
+              ),
+            ),
+          ),
+          // height: 60,
+        ),
+      ),
+    );
+  }
+
+  AttachedFileList() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return Container(
+                margin: EdgeInsets.only(top: 5, bottom: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  //crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        showCommonDialogWithTwoOptions(context,
+                            "Are you sure you want to delete this File ?",
+                            negativeButtonTitle: "No",
+                            positiveButtonTitle: "Yes",
+                            onTapOfPositiveButton: () {
+                          Navigator.of(context).pop();
+
+                          // print("sdjdsfj" + MultipleVideoList[index].path);
+                          // OpenFile.open(MultipleVideoList[index].path);
+                          MultipleVideoList.removeAt(index);
+                          setState(() {});
+                        });
+                      },
+                      child: Icon(
+                        Icons.delete_forever,
+                        size: 32,
+                        color: colorPrimary,
+                      ),
+                    ),
+                    Card(
+                      elevation: 5,
+                      color: colorLightGray,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        width: 300,
+                        /* decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      color: colorLightGray,
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                    ),*/
+                        child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                OpenFile.open(MultipleVideoList[index].path);
+                              },
+                              child: Text(
+                                MultipleVideoList[index].path.split('/').last,
+                                softWrap: true,
+
+                                //overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 10, color: colorPrimary),
+                              ),
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+
+              // }
+            },
+            shrinkWrap: true,
+            itemCount: MultipleVideoList.length,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void checkPhotoPermissionStatus() async {
+    bool granted = await Permission.storage.isGranted;
+    bool Denied = await Permission.storage.isDenied;
+    bool PermanentlyDenied = await Permission.storage.isPermanentlyDenied;
+    print("PermissionStatus" +
+        "Granted : " +
+        granted.toString() +
+        " Denied : " +
+        Denied.toString() +
+        " PermanentlyDenied : " +
+        PermanentlyDenied.toString());
+    if (Denied == true) {
+      await Permission.storage.request();
+    }
+    if (await Permission.location.isRestricted) {
+      openAppSettings();
+    }
+    if (PermanentlyDenied == true) {
+      openAppSettings();
+    }
+    if (granted == true) {}
+  }
 }

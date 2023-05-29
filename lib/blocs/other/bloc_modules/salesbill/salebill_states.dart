@@ -226,8 +226,27 @@ class SBAssemblyTableDeleteALLState extends SalesBillStates {
   String response;
   SBAssemblyTableDeleteALLState(this.response);
 }
+
 class SBDeleteResponseState extends SalesBillStates {
   SBDeleteResponse response;
   SBDeleteResponseState(this.response);
+}
+
+class SOCurrencyListResponseState extends SalesBillStates {
+  final SOCurrencyListResponse response;
+
+  SOCurrencyListResponseState(this.response);
+}
+
+class HeaderToDetailsResponseState extends SalesBillStates {
+  final HeaderToDetailsResponse response;
+
+  HeaderToDetailsResponseState(this.response);
+}
+
+class QuotationProjectListResponseState extends SalesBillStates {
+  final QuotationProjectListResponse response;
+
+  QuotationProjectListResponseState(this.response);
 }
 //

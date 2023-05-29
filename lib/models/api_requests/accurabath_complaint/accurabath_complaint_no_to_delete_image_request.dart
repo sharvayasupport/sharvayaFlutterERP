@@ -1,12 +1,12 @@
-class AccurabathComplaintImageRequest {
+class AccurabathComplaintImageDeleteRequest {
   String CompanyId;
   String LoginUserID;
   String KeyValue;
 
-  AccurabathComplaintImageRequest(
+  AccurabathComplaintImageDeleteRequest(
       {this.CompanyId, this.LoginUserID, this.KeyValue});
 
-  AccurabathComplaintImageRequest.fromJson(Map<String, dynamic> json) {
+  AccurabathComplaintImageDeleteRequest.fromJson(Map<String, dynamic> json) {
     CompanyId = json['CompanyId'];
     LoginUserID = json['LoginUserID'];
     KeyValue = json['KeyValue'];

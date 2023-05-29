@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/followup/followup_bloc.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_count_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_delete_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_filter_list_request.dart';
 import 'package:soleoserp/models/api_requests/inquiry/inquiry_share_emp_list_request.dart';
@@ -89,6 +90,8 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
   var _url = "https://api.whatsapp.com/send?phone=91";
   bool isDeleteVisible = true;
   int TotalCount = 0;
+  int FinalTotalCount = 0;
+
   bool _isForUpdate;
 
   String NotificationEmpName = "";
@@ -147,7 +150,14 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
             CompanyId: CompanyID.toString(),
             LoginUserID: edt_FollowupEmployeeUserID.text,
             PageNo: 1,
-            PageSize: 10000)));
+            PageSize: 10)));
+
+    _FollowupBloc.add(FollowupCountRequestEvent(
+        edt_FollowupStatus.text,
+        FollowupCountRequest(
+            CompanyId: CompanyID.toString(),
+            LoginUserID: LoginUserID.toString(),
+            FollowupStatus: edt_FollowupStatus.text)));
   }
 
   followupStatusListener() {
@@ -160,7 +170,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
               CompanyId: CompanyID.toString(),
               LoginUserID: edt_FollowupEmployeeUserID.text,
               PageNo: 1,
-              PageSize: 10000)));
+              PageSize: 10)));
     } else {
       // _FollowupBloc.add(SearchFollowupListByNameCallEvent(SearchFollowupListByNameRequest(CompanyId: CompanyID.toString(),LoginUserID: edt_FollowupEmployeeUserID.text,FollowupStatusID: "",FollowupStatus: edt_FollowupStatus.text,SearchKey: "",Month: "",Year: "")));
       _FollowupBloc.add(FollowupFilterListCallEvent(
@@ -169,7 +179,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
               CompanyId: CompanyID.toString(),
               LoginUserID: edt_FollowupEmployeeUserID.text,
               PageNo: 1,
-              PageSize: 10000)));
+              PageSize: 10)));
     }
   }
 
@@ -184,7 +194,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
               CompanyId: CompanyID.toString(),
               LoginUserID: edt_FollowupEmployeeUserID.text,
               PageNo: 1,
-              PageSize: 10000)));
+              PageSize: 10)));
     } else {
       // _FollowupBloc.add(SearchFollowupListByNameCallEvent(SearchFollowupListByNameRequest(CompanyId: CompanyID.toString(),LoginUserID: edt_FollowupEmployeeUserID.text,FollowupStatusID: "",FollowupStatus: edt_FollowupStatus.text,SearchKey: "",Month: "",Year: "")));
       _FollowupBloc.add(FollowupFilterListCallEvent(
@@ -193,7 +203,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
               CompanyId: CompanyID.toString(),
               LoginUserID: edt_FollowupEmployeeUserID.text,
               PageNo: 1,
-              PageSize: 10000)));
+              PageSize: 10)));
     }
   }
 
@@ -207,7 +217,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                 CompanyId: CompanyID.toString(),
                 LoginUserID: edt_FollowupEmployeeUserID.text,
                 PageNo: 1,
-                PageSize: 10000))),
+                PageSize: 10))),
 
       // _FollowupBloc..add(FollowupFilterListCallEvent("todays",FollowupFilterListRequest(CompanyId: CompanyID.toString(),LoginUserID: LoginUserID,PageNo: 1,PageSize: 10))),
       child: BlocConsumer<FollowupBloc, FollowupStates>(
@@ -220,11 +230,16 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
             _OnMenuRightsSucess(state);
           }
 
+          if (state is FollowUpCountState) {
+            _OnFetchTotalCount(state);
+          }
+
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is FollowupFilterListCallResponseState ||
-              currentState is UserMenuRightsResponseState) {
+              currentState is UserMenuRightsResponseState ||
+              currentState is FollowUpCountState) {
             return true;
           }
 
@@ -238,10 +253,14 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
           if (state is InquiryShareEmpListResponseState) {
             _OnInquiryShareEmpListResponse(state);
           }
+          if (state is FollowUpCountState) {
+            _OnFetchTotalCount(state);
+          }
         },
         listenWhen: (oldState, currentState) {
           if (currentState is FollowupDeleteCallResponseState ||
-              currentState is InquiryShareEmpListResponseState) {
+              currentState is InquiryShareEmpListResponseState ||
+              currentState is FollowUpCountState) {
             return true;
           }
           return false;
@@ -276,7 +295,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        TotalCount.toString(),
+                        FinalTotalCount.toString(),
                         //TotalCount.toString(),
                         style: TextStyle(
                             color: colorPrimary,
@@ -318,12 +337,18 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                 child: RefreshIndicator(
                   onRefresh: () async {
                     _FollowupBloc.add(FollowupFilterListCallEvent(
-                        "Todays",
+                        edt_FollowupStatus.text,
                         FollowupFilterListRequest(
                             CompanyId: CompanyID.toString(),
                             LoginUserID: LoginUserID,
                             PageNo: 1,
-                            PageSize: 10000)));
+                            PageSize: 10)));
+                    _FollowupBloc.add(FollowupCountRequestEvent(
+                        edt_FollowupStatus.text,
+                        FollowupCountRequest(
+                            CompanyId: CompanyID.toString(),
+                            LoginUserID: LoginUserID.toString(),
+                            FollowupStatus: edt_FollowupStatus.text)));
 
                     getUserRights(_menuRightsResponse);
                   },
@@ -517,7 +542,15 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                           LoginUserID:
                                               edt_FollowupEmployeeUserID.text,
                                           PageNo: 1,
-                                          PageSize: 10000)));
+                                          PageSize: 10)));
+
+                                  _FollowupBloc.add(FollowupCountRequestEvent(
+                                      edt_FollowupStatus.text,
+                                      FollowupCountRequest(
+                                          CompanyId: CompanyID.toString(),
+                                          LoginUserID: LoginUserID.toString(),
+                                          FollowupStatus:
+                                              edt_FollowupStatus.text)));
                                 }, "Submit", radius: 15),
                               ),
                               SizedBox(
@@ -534,7 +567,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                           CompanyId: CompanyID.toString(),
                                           LoginUserID: LoginUserID,
                                           PageNo: 1,
-                                          PageSize: 10000)));
+                                          PageSize: 10)));
                                 }, "Close", radius: 15),
                               ),
                             ],
@@ -740,15 +773,15 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
   ///builds inquiry list
   Widget _buildFollowupList() {
     if (isListExist == true) {
-      return ListView.builder(
+      /* return ListView.builder(
         key: Key('selected $selected'),
         itemBuilder: (context, index) {
           return _buildFollowupListItem(index);
         },
         shrinkWrap: true,
         itemCount: arr_FollowupList.length,
-      );
-      /* return NotificationListener<ScrollNotification>(
+      );*/
+      return NotificationListener<ScrollNotification>(
         onNotification: (scrollInfo) {
           if (shouldPaginate(
             scrollInfo,
@@ -767,7 +800,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
           shrinkWrap: true,
           itemCount: arr_FollowupList.length,
         ),
-      );*/
+      );
     } else {
       return Container(
         alignment: Alignment.center,
@@ -850,17 +883,39 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
       TotalCount = 0;
     }*/
 
-    arr_FollowupList.clear();
-    for (int i = 0; i < state.followupFilterListResponse.details.length; i++) {
-      arr_FollowupList.add(state.followupFilterListResponse.details[i]);
-    }
+    if (_pageNo != state.newPage || state.newPage == 1) {
+      if (state.newPage == 1) {
+        arr_FollowupList.clear();
+        for (int i = 0;
+            i < state.followupFilterListResponse.details.length;
+            i++) {
+          arr_FollowupList.add(state.followupFilterListResponse.details[i]);
+        }
 
-    if (arr_FollowupList.length != 0) {
-      isListExist = true;
-      TotalCount = state.followupFilterListResponse.totalCount;
-    } else {
-      isListExist = false;
-      TotalCount = 0;
+        if (arr_FollowupList.length != 0) {
+          isListExist = true;
+          TotalCount = state.followupFilterListResponse.totalCount;
+        } else {
+          isListExist = false;
+          TotalCount = 0;
+        }
+      } else {
+        for (int i = 0;
+            i < state.followupFilterListResponse.details.length;
+            i++) {
+          arr_FollowupList.add(state.followupFilterListResponse.details[i]);
+        }
+
+        if (arr_FollowupList.length != 0) {
+          isListExist = true;
+          TotalCount = state.followupFilterListResponse.totalCount;
+        } else {
+          isListExist = false;
+          TotalCount = 0;
+        }
+      }
+
+      _pageNo = state.newPage;
     }
   }
 
@@ -873,7 +928,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
             CompanyId: CompanyID.toString(),
             LoginUserID: LoginUserID,
             PageNo: _pageNo + 1,
-            PageSize: 10000)));
+            PageSize: 10)));
 
     /* if (_FollowupListResponse.details.length < _FollowupListResponse.totalCount) {
 
@@ -1208,7 +1263,6 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                   setState(() {
                                     // followerEmployeeList();
 
-                                    print("dfjhdjh" + value);
                                     edt_FollowupStatus.text = value;
                                     _FollowupBloc.add(
                                         FollowupFilterListCallEvent(
@@ -1218,8 +1272,8 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                                 LoginUserID:
                                                     edt_FollowupEmployeeUserID
                                                         .text,
-                                                PageNo: 1,
-                                                PageSize: 10000)));
+                                                PageNo: _pageNo,
+                                                PageSize: 10)));
                                   });
                                 });
 
@@ -1911,6 +1965,9 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                                               .text))
                                               .then((value) {
                                             setState(() {
+                                              print("testDFDdfdF" +
+                                                  "PageNo : " +
+                                                  _pageNo.toString());
                                               // followerEmployeeList();
                                               edt_FollowupStatus.text = value;
                                               _FollowupBloc.add(
@@ -1922,8 +1979,8 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                                           LoginUserID:
                                                               edt_FollowupEmployeeUserID
                                                                   .text,
-                                                          PageNo: 1,
-                                                          PageSize: 10000)));
+                                                          PageNo: _pageNo,
+                                                          PageSize: 10)));
                                             });
                                           });
                                         },
@@ -2169,5 +2226,10 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
           ? true
           : false;
     }
+  }
+
+  void _OnFetchTotalCount(FollowUpCountState state) {
+    FinalTotalCount =
+        state.count.toString() == "" ? 0 : int.parse(state.count.toString());
   }
 }

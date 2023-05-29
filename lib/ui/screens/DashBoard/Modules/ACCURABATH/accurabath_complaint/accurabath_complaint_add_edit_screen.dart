@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -13,16 +15,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/complaint/complaint_bloc.dart';
-import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_image_upload_request.dart';
-import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_no_to_delete_image_video_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_complaint_save_request.dart';
 import 'package:soleoserp/models/api_requests/Accurabath_complaint/accurabath_emp_follower_list_request.dart';
+import 'package:soleoserp/models/api_requests/accurabath_complaint/accurabath_complaint_no_to_upload_video_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_source_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/city_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/country_list_request.dart';
 import 'package:soleoserp/models/api_requests/other/state_list_request.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/accurabath_complaint_list_response.dart';
 import 'package:soleoserp/models/api_responses/Accurabath_complaint/complaint_image_list_response.dart';
+import 'package:soleoserp/models/api_responses/accurabath_complaint/accurabath_complaint_videoList_Response.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_label_value_response.dart';
 import 'package:soleoserp/models/api_responses/inquiry/inquiry_product_search_response.dart';
@@ -33,7 +35,7 @@ import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/ACCURABATH/accurabath_complaint/accurabath_complaint_listing_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_city_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_country_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Customer/CustomerAdd_Edit/search_state_screen.dart';
@@ -50,9 +52,16 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 class AddUpdateAccuraBathComplaintScreenArguments {
   AccuraBathComplaintListResponseDetails editModel;
   List<FetchAccuraBathComplaintImageListResponseDetails> arrrImageVideoList123;
+  List<AccurabathComplaintVideoListResponseDetails> arrcomplaintSiteVideoList;
+  List<File> ImageFileListFromAPI = [];
+  List<File> videoFileListFromAPI = [];
 
   AddUpdateAccuraBathComplaintScreenArguments(
-      this.editModel, this.arrrImageVideoList123);
+      this.editModel,
+      this.arrrImageVideoList123,
+      this.arrcomplaintSiteVideoList,
+      this.ImageFileListFromAPI,
+      this.videoFileListFromAPI);
 }
 
 class AccuraBathComplaintAddEditScreen extends BaseStatefulWidget {
@@ -136,6 +145,9 @@ class _AccuraBathComplaintAddEditScreenState
 
   List<FetchAccuraBathComplaintImageListResponseDetails>
       _arrrImageVideoList123 = [];
+
+  List<AccurabathComplaintVideoListResponseDetails> _arrcomplaintSiteVideoList;
+
   List<FetchAccuraBathComplaintImageListResponseDetails> _arrrVideoList123 = [];
 
   int savepkID = 0;
@@ -175,9 +187,14 @@ class _AccuraBathComplaintAddEditScreenState
 
   bool isLoading = false;
 
+  bool isUploadedDocs = false;
+
+  bool loadingProgresswithdoc = false;
+
   @override
   void initState() {
     super.initState();
+
     _complaintScreenBloc = ComplaintScreenBloc(baseBloc);
 
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
@@ -192,13 +209,22 @@ class _AccuraBathComplaintAddEditScreenState
 
     _complaintScreenBloc.add(AccuraBathComplaintEmpFollowerListRequestEvent(
         AccuraBathComplaintEmpFollowerListRequest(
-            CompanyId: CompanyID.toString(), EmployeeID: "")));
+            CompanyId: CompanyID.toString())));
 
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
+      ShowProgressIndicatorState(true);
+
       _editModel = widget.arguments.editModel;
       _arrrImageVideoList123 = widget.arguments.arrrImageVideoList123;
+      _arrcomplaintSiteVideoList = widget.arguments.arrcomplaintSiteVideoList;
+
       fillData();
+
+      ShowProgressIndicatorState(false);
+
+      /* loadingProgresswithdoc = false;
+      loadercerculur(loadingProgresswithdoc);*/
 
       //https://www.youtube.com/watch?v=BAgLOAGga2o&ab_channel=JohannesMilke
     } else {
@@ -291,16 +317,16 @@ class _AccuraBathComplaintAddEditScreenState
       create: (BuildContext context) => _complaintScreenBloc
         ..add(AccuraBathComplaintEmpFollowerListRequestEvent(
             AccuraBathComplaintEmpFollowerListRequest(
-                CompanyId: CompanyID.toString(), EmployeeID: ""))),
+                CompanyId: CompanyID.toString()))),
       child: BlocConsumer<ComplaintScreenBloc, ComplaintScreenStates>(
         builder: (BuildContext context, ComplaintScreenStates state) {
-          if (state is AccuraBathComplaintEmpFollowerListResponseState) {
+          if (state is AccuraBathComplaintEmployeeListResponseState) {
             _onGetComplaintImageList(state);
           }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
-          if (currentState is AccuraBathComplaintEmpFollowerListResponseState) {
+          if (currentState is AccuraBathComplaintEmployeeListResponseState) {
             return true;
           }
 
@@ -317,6 +343,9 @@ class _AccuraBathComplaintAddEditScreenState
             _OnComplaintImageUploadSucess(state);
           }
 
+          if (state is AccuraBathComplaintUploadVideoCallResponseState) {
+            _OnComplaintVideoUploadSucess(state);
+          }
           if (state is CountryListEventResponseState) {
             _onCountryListSuccess(state);
           }
@@ -327,7 +356,7 @@ class _AccuraBathComplaintAddEditScreenState
             _onCityListSuccess(state);
           }
 
-          if (state is AccuraBathComplaintNoToDeleteImageVideoResponseState) {
+          if (state is AccuraBathComplaintNoToDeleteImageResponseState) {
             _OnImageDeleteResponse(state);
           }
 
@@ -340,8 +369,8 @@ class _AccuraBathComplaintAddEditScreenState
               currentState is StateListEventResponseState ||
               currentState is CityListEventResponseState ||
               currentState is AccuraBathComplaintUploadImageCallResponseState ||
-              currentState
-                  is AccuraBathComplaintNoToDeleteImageVideoResponseState) {
+              currentState is AccuraBathComplaintNoToDeleteImageResponseState ||
+              currentState is AccuraBathComplaintUploadVideoCallResponseState) {
             return true;
           }
           return false;
@@ -843,10 +872,10 @@ class _AccuraBathComplaintAddEditScreenState
                                             .toString() +
                                         " VideoList : " +
                                         MultipleVideoList.length.toString());
-                                    ALLImageVideoList.clear();
+                                    /*ALLImageVideoList.clear();
                                     ALLImageVideoList.addAll(
                                         multiple_selectedImageFile);
-                                    ALLImageVideoList.addAll(MultipleVideoList);
+                                    ALLImageVideoList.addAll(MultipleVideoList);*/
 
                                     print("dfjdfdj" +
                                         " ALLImageVideoList : " +
@@ -867,10 +896,32 @@ class _AccuraBathComplaintAddEditScreenState
                                           positiveButtonTitle: "Yes",
                                           onTapOfPositiveButton: () {
                                         Navigator.of(context).pop();
+
+                                        /* _complaintScreenBloc.add(
+                                            AccurabathComplaintImageDeleteRequestEvent(
+                                                edt_ComplanitID.text,
+                                                AccurabathComplaintImageDeleteRequest(
+                                                    CompanyId:
+                                                        CompanyID.toString(),
+                                                    LoginUserID: LoginUserID,
+                                                    KeyValue:
+                                                        edt_ComplanitID.text)));
+
+                                        _complaintScreenBloc.add(
+                                            AccurabathComplaintVideoDeleteRequestEvent(
+                                                edt_ComplanitID.text,
+                                                AccurabathComplaintVideoDeleteRequest(
+                                                    CompanyId:
+                                                        CompanyID.toString(),
+                                                    LoginUserID: LoginUserID,
+                                                    ComplaintNo:
+                                                        edt_ComplanitID.text)));*/
+
                                         _complaintScreenBloc.add(
                                             AccuraBathComplaintSaveRequestEvent(
                                                 savepkID,
                                                 AccuraBathComplaintSaveRequest(
+                                                  pkID: savepkID.toString(),
                                                   ComplaintDate:
                                                       edt_ReverseComplanitDate
                                                           .text,
@@ -878,10 +929,8 @@ class _AccuraBathComplaintAddEditScreenState
                                                       edt_ComplanitID.text,
                                                   CustomerEmpName:
                                                       edt_CustomerName.text,
-                                                  ReferenceName:
-                                                      edt_Referene.text == null
-                                                          ? ""
-                                                          : edt_Referene.text,
+                                                  CustmoreMobileNo:
+                                                      edt_MobileNo.text,
                                                   ComplaintNotes:
                                                       edt_ComplaintNotes.text,
                                                   ComplaintType:
@@ -892,7 +941,7 @@ class _AccuraBathComplaintAddEditScreenState
                                                       edt_satus.text == null
                                                           ? ""
                                                           : edt_satus.text,
-                                                  EmployeeID:
+                                                  CustomerID2:
                                                       edt_AssignToID.text,
                                                   PreferredDate:
                                                       edt_ReverseSheduleDate
@@ -902,8 +951,10 @@ class _AccuraBathComplaintAddEditScreenState
                                                   LoginUserID: LoginUserID,
                                                   CompanyId:
                                                       CompanyID.toString(),
-                                                  CustmoreMobileNo:
-                                                      edt_MobileNo.text,
+                                                  ReferenceNo:
+                                                      edt_Referene.text == null
+                                                          ? ""
+                                                          : edt_Referene.text,
                                                   DateOfPurchase: selectedDate
                                                           .year
                                                           .toString() +
@@ -936,7 +987,9 @@ class _AccuraBathComplaintAddEditScreenState
                                                   ProductID:
                                                       _productIDController.text,
                                                   SrNo: edt_SrNo.text,
-                                                )));
+                                                ),
+                                                multiple_selectedImageFile,
+                                                MultipleVideoList));
                                       });
                                     } else {
                                       if (FbrazilianDate.isAtSameMomentAs(
@@ -951,6 +1004,7 @@ class _AccuraBathComplaintAddEditScreenState
                                               AccuraBathComplaintSaveRequestEvent(
                                                   savepkID,
                                                   AccuraBathComplaintSaveRequest(
+                                                    pkID: savepkID.toString(),
                                                     ComplaintDate:
                                                         edt_ReverseComplanitDate
                                                             .text,
@@ -958,11 +1012,8 @@ class _AccuraBathComplaintAddEditScreenState
                                                         edt_ComplanitID.text,
                                                     CustomerEmpName:
                                                         edt_CustomerName.text,
-                                                    ReferenceName:
-                                                        edt_Referene.text ==
-                                                                null
-                                                            ? ""
-                                                            : edt_Referene.text,
+                                                    CustmoreMobileNo:
+                                                        edt_MobileNo.text,
                                                     ComplaintNotes:
                                                         edt_ComplaintNotes.text,
                                                     ComplaintType:
@@ -973,7 +1024,7 @@ class _AccuraBathComplaintAddEditScreenState
                                                         edt_satus.text == null
                                                             ? ""
                                                             : edt_satus.text,
-                                                    EmployeeID:
+                                                    CustomerID2:
                                                         edt_AssignToID.text,
                                                     PreferredDate:
                                                         edt_ReverseSheduleDate
@@ -983,8 +1034,11 @@ class _AccuraBathComplaintAddEditScreenState
                                                     LoginUserID: LoginUserID,
                                                     CompanyId:
                                                         CompanyID.toString(),
-                                                    CustmoreMobileNo:
-                                                        edt_MobileNo.text,
+                                                    ReferenceNo:
+                                                        edt_Referene.text ==
+                                                                null
+                                                            ? ""
+                                                            : edt_Referene.text,
                                                     DateOfPurchase: selectedDate
                                                             .year
                                                             .toString() +
@@ -1019,7 +1073,9 @@ class _AccuraBathComplaintAddEditScreenState
                                                         _productIDController
                                                             .text,
                                                     SrNo: edt_SrNo.text,
-                                                  )));
+                                                  ),
+                                                  multiple_selectedImageFile,
+                                                  MultipleVideoList));
                                         });
                                       } else {
                                         showCommonDialogWithSingleOption(
@@ -1652,7 +1708,7 @@ class _AccuraBathComplaintAddEditScreenState
   }
 
   Future<bool> _onBackPressed() {
-    navigateTo(context, AccuraBathComplaintAddEditScreen.routeName,
+    navigateTo(context, AccurabathComplaintListScreen.routeName,
         clearAllStack: true);
   }
 
@@ -1707,9 +1763,9 @@ class _AccuraBathComplaintAddEditScreenState
           fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "yyyy-MM-dd");
     }
     savepkID = _editModel.pkID.toInt();
-    edt_CustomerName.text = _editModel.customerName;
+    edt_CustomerName.text = _editModel.customerEmpName;
     //edt_CustomerID.text = _editModel..toString();
-    edt_Referene.text = _editModel.referenceName;
+    edt_Referene.text = ""; //_editModel.re;
     edt_ComplaintNotes.text = _editModel.complaintNotes;
 
     if (_editModel.timeFrom == "") {
@@ -1749,8 +1805,8 @@ class _AccuraBathComplaintAddEditScreenState
           fromFormat: "yyyy-MM-ddTHH:mm:ss", toFormat: "hh:mm a");
     }
 
-    edt_AssignTo.text = _editModel.employeeName;
-    edt_AssignToID.text = _editModel.employeeID.toString();
+    edt_AssignTo.text = _editModel.assignedTo;
+    edt_AssignToID.text = _editModel.customerID2.toString();
     edt_satus.text =
         _editModel.complaintStatus == "0" ? "" : _editModel.complaintStatus;
     edt_Type.text = _editModel.complaintType;
@@ -1783,7 +1839,7 @@ class _AccuraBathComplaintAddEditScreenState
     edt_QualifiedCityCode.text = _editModel.cityCode.toString();
     edt_Pincode.text = _editModel.pincode.toString();
 
-    for (int i = 0; i < _arrrImageVideoList123.length; i++) {
+    /*for (int i = 0; i < _arrrImageVideoList123.length; i++) {
       print("ImageNameList" +
           " Image : " +
           _arrrImageVideoList123[i].docName.toString());
@@ -1800,13 +1856,45 @@ class _AccuraBathComplaintAddEditScreenState
             _arrrImageVideoList123[i].docName.split(".").last == "png") {
           getDetailsOfImage(ImageURLFromListing,
               _arrrImageVideoList123[i].docName.toString());
-        } else {
-          getDetailsOfVideo(ImageURLFromListing,
-              _arrrImageVideoList123[i].docName.toString());
         }
         setState(() {});
       }
+
+
+    }*/
+
+    for (int i = 0; i < widget.arguments.ImageFileListFromAPI.length; i++) {
+      multiple_selectedImageFile.add(widget.arguments.ImageFileListFromAPI[i]);
     }
+
+    for (int i = 0; i < widget.arguments.videoFileListFromAPI.length; i++) {
+      MultipleVideoList.add(widget.arguments.videoFileListFromAPI[i]);
+    }
+
+    // multiple_selectedImageFile.addAll(widget.arguments.ImageFileListFromAPI);
+    //  MultipleVideoList.addAll(widget.arguments.videoFileListFromAPI);
+
+    /* for (int i = 0; i < _arrcomplaintSiteVideoList.length; i++) {
+      print("ImageNameList" +
+          " Image : " +
+          _arrcomplaintSiteVideoList[i].fileName.toString());
+      ImageURLFromListing = _offlineCompanyData.details[0].siteURL +
+          "/SiteDocs/" +
+          _arrcomplaintSiteVideoList[i].fileName.toString();
+
+      print("sssf33er" + " VideoFile Path : " + ImageURLFromListing);
+
+      if (_arrcomplaintSiteVideoList[i].fileName != "") {
+        {
+          getDetailsOfVideo(ImageURLFromListing,
+              _arrcomplaintSiteVideoList[i].fileName.toString());
+        }
+
+        setState(() {});
+      }
+    }*/
+
+    //ShowProgressIndicatorState(false);
   }
 
   void _onLeadSourceListTypeCallSuccess(
@@ -1846,40 +1934,74 @@ class _AccuraBathComplaintAddEditScreenState
 
   void _OnComplaintSaveResponseSucess(
       AccuraBathComplaintSaveResponseState state) async {
-    String Msg = "";
+    //String Msg = "";
+
+    String Msg = _isForUpdate == true
+        ? "Complaint Updated Successfully"
+        : "Complaint Added Successfully";
+
+    await showCommonDialogWithSingleOption(Globals.context, Msg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      navigateTo(context, AccurabathComplaintListScreen.routeName,
+          clearAllStack: true);
+    });
+
+    /* print("ljfjdfj" + MultipleVideoList.length.toString());
 
     var splitNo = state.complaintSaveResponse.details[0].column3.split(",");
     print("CONO" + " Co.Number : " + splitNo[0] + " pkID : " + splitNo[1]);
     if (edt_ComplanitID.text != "") {
-      _complaintScreenBloc.add(
-          AccuraBathComplaintNoToDeleteImageVideoRequestEvent(
-              edt_ComplanitID.text,
-              AccuraBathComplaintNoToDeleteImageVideoRequest(
-                  CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+      _complaintScreenBloc.add(AccurabathComplaintImageDeleteRequestEvent(
+          splitNo[0],
+          AccurabathComplaintImageDeleteRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              KeyValue: splitNo[0])));
+
+      _complaintScreenBloc.add(AccurabathComplaintVideoDeleteRequestEvent(
+          splitNo[0],
+          AccurabathComplaintVideoDeleteRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID,
+              ComplaintNo: splitNo[0])));
     }
 
-    if (ALLImageVideoList.length != 0) {
+    if (multiple_selectedImageFile.length != 0) {
       _complaintScreenBloc.add(AccuraBathComplaintUploadImageAPIRequestEvent(
-          ALLImageVideoList,
+          multiple_selectedImageFile,
           AccuraBathComplaintUploadImageAPIRequest(
               ModuleName: "complaint",
-              DocName: ALLImageVideoList[0].path.split('/').last,
+              DocName: multiple_selectedImageFile[0].path.split('/').last,
               KeyValue: splitNo[0],
               LoginUserId: LoginUserID,
               CompanyId: CompanyID.toString(),
               pkID: splitNo[1],
-              file: ALLImageVideoList[0])));
+              file: multiple_selectedImageFile[0])));
     } else {
+      _complaintScreenBloc.add(AccuraBathComplaintUploadVideoAPIRequestEvent(
+          MultipleVideoList,
+          AccuraBathComplaintUploadVideoAPIRequest(
+              CompanyId: CompanyID.toString(),
+              pkID: splitNo[1],
+              ComplaintNo: splitNo[0],
+              Name: MultipleVideoList[0].path.split('/').last,
+              Type: "sitevideo",
+              LoginUserId: LoginUserID,
+              file: MultipleVideoList[0])));
+    }
+
+    if (multiple_selectedImageFile.length == 0 ||
+        MultipleVideoList.length == 0) {
       String Msg = _isForUpdate == true
           ? "Complaint Updated Successfully"
           : "Complaint Added Successfully";
 
       await showCommonDialogWithSingleOption(Globals.context, Msg,
           positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-        navigateTo(context, ComplaintPaginationListScreen.routeName,
+        navigateTo(context, AccurabathComplaintListScreen.routeName,
             clearAllStack: true);
       });
-    }
+    }*/
   }
 
   Widget QualifiedCountry() {
@@ -2265,37 +2387,105 @@ class _AccuraBathComplaintAddEditScreenState
 
             checkPhotoPermissionStatus();
           } else {
-            pickMultipleImage(context, onMultipleImageSelection: (imageList) {
-              setState(() {
-                bool isTrueImageSized = false;
-                for (int i = 0; i < imageList.length; i++) {
-                  final bytes = imageList[i].readAsBytesSync().lengthInBytes;
-                  final kb = bytes / 1024;
-                  final mb = kb / 1024;
+            showModalBottomSheet(
+                context: context,
+                builder: (BuildContext bc) {
+                  return SafeArea(
+                    child: Container(
+                      child: new Wrap(
+                        children: <Widget>[
+                          new ListTile(
+                              leading: new Icon(Icons.photo_library),
+                              title: new Text('Photo Gallery'),
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                FilePickerResult result =
+                                    await FilePicker.platform.pickFiles(
+                                  allowMultiple: true,
+                                  type: FileType.image,
+                                );
 
-                  if (mb >= 4) {
-                    showcustomdialogWithImageSized(
-                        context1: context,
-                        values: imageList,
-                        lable: "Image Size Should not be Greater than 4 MB !");
-                    //continue;
-                    break;
-                  }
-                }
+                                if (result != null) {
+                                  List<File> imageList = result.paths
+                                      .map((path) => File(path))
+                                      .toList();
 
-                for (int i = 0; i < imageList.length; i++) {
-                  final bytes = imageList[i].readAsBytesSync().lengthInBytes;
-                  final kb = bytes / 1024;
-                  final mb = kb / 1024;
+                                  //  List<String> bigImageList = [];
+                                  for (int i = 0; i < imageList.length; i++) {
+                                    final bytes = imageList[i]
+                                        .readAsBytesSync()
+                                        .lengthInBytes;
+                                    final kb = bytes / 1024;
+                                    final mb = kb / 1024;
 
-                  if (mb <= 4) {
+                                    if (mb > 10) {
+                                      // bigImageList.add(imageList[i].path.split(".").last);
+
+                                      showcustomdialogWithImageSized(
+                                          context1: context,
+                                          values: imageList,
+                                          lable:
+                                              "Image Size Should not be Greater than 10 MB !");
+                                    } else {
+                                      setState(() {
+                                        multiple_selectedImageFile
+                                            .add(imageList[i]);
+                                      });
+                                    }
+                                  }
+                                } else {
+                                  // User canceled the picker
+                                }
+                              }),
+                          new ListTile(
+                            leading: new Icon(Icons.photo_camera),
+                            title: new Text('Camera'),
+                            onTap: () async {
+                              Navigator.of(context).pop();
+
+                              _onImageButtonPressed(ImageSource.camera,
+                                  context: context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                });
+
+            /* FilePickerResult result = await FilePicker.platform.pickFiles(
+              allowMultiple: true,
+              type: FileType.image,
+            );
+
+            if (result != null) {
+              List<File> imageList =
+                  result.paths.map((path) => File(path)).toList();
+
+              //  List<String> bigImageList = [];
+              for (int i = 0; i < imageList.length; i++) {
+                final bytes = imageList[i].readAsBytesSync().lengthInBytes;
+                final kb = bytes / 1024;
+                final mb = kb / 1024;
+
+                if (mb > 10) {
+                  // bigImageList.add(imageList[i].path.split(".").last);
+
+                  showcustomdialogWithImageSized(
+                      context1: context,
+                      values: imageList,
+                      lable: "Image Size Should not be Greater than 10 MB !");
+                } else {
+                  setState(() {
                     multiple_selectedImageFile.add(imageList[i]);
-                  }
+                  });
                 }
+              }
+            } else {
+              // User canceled the picker
+            }*/
 
-                //  multiple_selectedImageFile.addAll(imageList);
-              });
-            });
+            //  multiple_selectedImageFile.addAll(imageList);
           }
         }, "Upload Image", backGroundColor: Colors.indigoAccent)
       ],
@@ -2321,7 +2511,7 @@ class _AccuraBathComplaintAddEditScreenState
                     margin: EdgeInsets.all(5),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
                           onTap: () {
@@ -2347,7 +2537,6 @@ class _AccuraBathComplaintAddEditScreenState
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)),
                           child: Container(
-                            width: 300,
                             child: Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: GestureDetector(
@@ -2359,8 +2548,9 @@ class _AccuraBathComplaintAddEditScreenState
                                     MultipleVideoList[index]
                                         .path
                                         .split('/')
-                                        .last,
-                                    // overflow: TextOverflow.ellipsis,
+                                        .last
+                                        .replaceAll(" ", ""),
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         fontSize: 10, color: colorPrimary),
                                   ),
@@ -2398,8 +2588,42 @@ class _AccuraBathComplaintAddEditScreenState
                               title: new Text('Video Gallery'),
                               onTap: () async {
                                 Navigator.of(context).pop();
-                                _onImageButtonPressed(ImageSource.gallery,
-                                    context: context);
+                                FilePickerResult result =
+                                    await FilePicker.platform.pickFiles(
+                                  allowMultiple: true,
+                                  type: FileType.video,
+                                );
+
+                                if (result != null) {
+                                  List<File> imageList = result.paths
+                                      .map((path) => File(path))
+                                      .toList();
+
+                                  //  List<String> bigImageList = [];
+                                  for (int i = 0; i < imageList.length; i++) {
+                                    final bytes = imageList[i]
+                                        .readAsBytesSync()
+                                        .lengthInBytes;
+                                    final kb = bytes / 1024;
+                                    final mb = kb / 1024;
+
+                                    if (mb > 10) {
+                                      // bigImageList.add(imageList[i].path.split(".").last);
+
+                                      showcustomdialogWithImageSized(
+                                          context1: context,
+                                          values: imageList,
+                                          lable:
+                                              "Video Size Should not be Greater than 10 MB !");
+                                    } else {
+                                      setState(() {
+                                        MultipleVideoList.add(imageList[i]);
+                                      });
+                                    }
+                                  }
+                                } else {
+                                  // User canceled the picker
+                                }
                               }),
                           new ListTile(
                             leading: new Icon(Icons.photo_camera),
@@ -2407,7 +2631,7 @@ class _AccuraBathComplaintAddEditScreenState
                             onTap: () async {
                               Navigator.of(context).pop();
 
-                              _onImageButtonPressed(ImageSource.camera,
+                              _onVideoButtonPressed(ImageSource.camera,
                                   context: context);
                             },
                           ),
@@ -2425,6 +2649,8 @@ class _AccuraBathComplaintAddEditScreenState
   urlToFile(String imageUrl, String filenamee) async {
     if (Uri.parse(imageUrl).isAbsolute == true) {
       try {
+        baseBloc.emit(ShowProgressIndicatorState(true));
+
         http.Response response = await http.get(Uri.parse(imageUrl));
 
         if (response.statusCode == 200) {
@@ -2445,6 +2671,8 @@ class _AccuraBathComplaintAddEditScreenState
           }
 
           multiple_selectedImageFile.add(file);
+
+          baseBloc.emit(ShowProgressIndicatorState(false));
         }
       } catch (e) {
         print("775757" + e.toString());
@@ -2456,19 +2684,20 @@ class _AccuraBathComplaintAddEditScreenState
 
   urlVideoToFile(String imageUrl, String filenamee) async {
     if (Uri.parse(imageUrl).isAbsolute == true) {
-      baseBloc.emit(ShowProgressIndicatorState(true));
-
       http.Response response = await http.get(Uri.parse(imageUrl));
 
       if (response.statusCode == 200) {
+        baseBloc.emit(ShowProgressIndicatorState(true));
+
         Directory dir = await getApplicationDocumentsDirectory();
         dir.exists();
         String pathName = p.join(dir.path, filenamee);
         File file = new File(pathName);
         await file.writeAsBytes(response.bodyBytes);
         MultipleVideoList.add(file);
+
+        baseBloc.emit(ShowProgressIndicatorState(false));
       }
-      baseBloc.emit(ShowProgressIndicatorState(false));
 
       setState(() {});
     }
@@ -2592,23 +2821,101 @@ class _AccuraBathComplaintAddEditScreenState
       {BuildContext context, bool isMultiImage = false}) async {
     bool ISDuplicate = false;
 
-    XFile file = await picker.pickVideo(
-        source: source, maxDuration: const Duration(seconds: 10));
+    XFile file = await picker.pickImage(source: source);
 
-    File file123 = File(file.path);
+    File file1 = File(file.path);
+    final dir = await getTemporaryDirectory();
+    final extension = p.extension(file1.path);
+    int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+    String filenamepunchin =
+        _offlineLoggedInData.details[0].employeeID.toString() +
+            "_" +
+            DateTime.now().day.toString() +
+            "_" +
+            DateTime.now().month.toString() +
+            "_" +
+            DateTime.now().year.toString() +
+            "_" +
+            timestamp1.toString() +
+            extension;
 
-    final bytes = file123.readAsBytesSync().lengthInBytes;
+    final targetPath = dir.absolute.path + "/" + filenamepunchin;
+    File newRenameFile = await File(file1.path).copy(targetPath);
+    final bytes = newRenameFile.readAsBytesSync().lengthInBytes;
     final kb = bytes / 1024;
     final mb = kb / 1024;
 
-    videofile = file;
+    // videofile = file;
 
-    if (mb >= 4) {
+    if (mb >= 15) {
       showCommonDialogWithSingleOption(
-          context, "Video Size Should not be Greater than 4 MB !",
+          context, "Image Size Should not be Greater than 15 MB !",
           positiveButtonTitle: "OK");
     } else {
-      videofile = file;
+      // videofile = file;
+
+      if (multiple_selectedImageFile.length != 0) {
+        for (int i = 0; i < multiple_selectedImageFile.length; i++) {
+          if (file.path == multiple_selectedImageFile[i].path) {
+            ISDuplicate = true;
+          } else {
+            ISDuplicate = false;
+          }
+        }
+      }
+
+      if (ISDuplicate == true) {
+        showCommonDialogWithSingleOption(context, "File Is Already Exist !",
+            positiveButtonTitle: "OK");
+      } else {
+        multiple_selectedImageFile.add(File(file.path));
+      }
+
+      //  dataList.add(VideoListData("Video ", file.path));
+
+      //  await _playVideo(videofile);
+    }
+
+    setState(() {});
+  }
+
+  Future<void> _onVideoButtonPressed(ImageSource source,
+      {BuildContext context, bool isMultiImage = false}) async {
+    bool ISDuplicate = false;
+
+    XFile file = await picker.pickVideo(
+        source: source, maxDuration: const Duration(seconds: 10));
+
+    File file1 = File(file.path);
+    final dir = await getTemporaryDirectory();
+    final extension = p.extension(file1.path);
+    int timestamp1 = DateTime.now().millisecondsSinceEpoch;
+    String filenamepunchin =
+        _offlineLoggedInData.details[0].employeeID.toString() +
+            "_" +
+            DateTime.now().day.toString() +
+            "_" +
+            DateTime.now().month.toString() +
+            "_" +
+            DateTime.now().year.toString() +
+            "_" +
+            timestamp1.toString() +
+            extension;
+
+    final targetPath = dir.absolute.path + "/" + filenamepunchin;
+    File newRenameFile = await File(file1.path).copy(targetPath);
+    final bytes = newRenameFile.readAsBytesSync().lengthInBytes;
+    final kb = bytes / 1024;
+    final mb = kb / 1024;
+
+    //videofile = newRenameFile;
+
+    if (mb >= 15) {
+      showCommonDialogWithSingleOption(
+          context, "Video Size Should not be Greater than 15 MB !",
+          positiveButtonTitle: "OK");
+    } else {
+      // videofile = newRenameFile;
 
       if (MultipleVideoList.length != 0) {
         for (int i = 0; i < MultipleVideoList.length; i++) {
@@ -2624,7 +2931,7 @@ class _AccuraBathComplaintAddEditScreenState
         showCommonDialogWithSingleOption(context, "File Is Already Exist !",
             positiveButtonTitle: "OK");
       } else {
-        MultipleVideoList.add(File(file.path));
+        MultipleVideoList.add(File(newRenameFile.path));
       }
 
       //  dataList.add(VideoListData("Video ", file.path));
@@ -2633,6 +2940,20 @@ class _AccuraBathComplaintAddEditScreenState
     }
 
     setState(() {});
+  }
+
+  Future<File> testCompressAndGetFile(File file, String targetPath) async {
+    print('testCompressAndGetFile');
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 90,
+      minWidth: 1024,
+      minHeight: 1024,
+    );
+    print(file.lengthSync());
+    print(result?.lengthSync());
+    return result;
   }
 
   void checkPhotoPermissionStatus() async {
@@ -2780,28 +3101,53 @@ class _AccuraBathComplaintAddEditScreenState
 
   void _OnComplaintImageUploadSucess(
       AccuraBathComplaintUploadImageCallResponseState state) async {
+    if (MultipleVideoList.isNotEmpty) {
+      _complaintScreenBloc.add(AccuraBathComplaintUploadVideoAPIRequestEvent(
+          MultipleVideoList,
+          AccuraBathComplaintUploadVideoAPIRequest(
+              CompanyId: CompanyID.toString(),
+              pkID: state.complaintUploadImageAPIRequest.pkID,
+              ComplaintNo: state.complaintUploadImageAPIRequest.KeyValue,
+              Name: MultipleVideoList[0].path.split('/').last,
+              Type: "sitevideo",
+              LoginUserId: LoginUserID,
+              file: MultipleVideoList[0])));
+    } else {
+      String Msg = _isForUpdate == true
+          ? "Complaint With Image Updated Successfully"
+          : "Complaint With Image Added Successfully";
+      await showCommonDialogWithSingleOption(Globals.context, Msg,
+          positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+        navigateTo(context, AccurabathComplaintListScreen.routeName,
+            clearAllStack: true);
+      });
+    }
+  }
+
+  void _OnComplaintVideoUploadSucess(
+      AccuraBathComplaintUploadVideoCallResponseState state) async {
     String Msg = _isForUpdate == true
-        ? "Complaint Updated Successfully"
-        : "Complaint Added Successfully";
+        ? "Complaint With Image And Video Updated Successfully"
+        : "Complaint With Image And Video Added Successfully";
     await showCommonDialogWithSingleOption(Globals.context, Msg,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
-      navigateTo(context, ComplaintPaginationListScreen.routeName,
+      navigateTo(context, AccurabathComplaintListScreen.routeName,
           clearAllStack: true);
     });
   }
 
   void _onGetComplaintImageList(
-      AccuraBathComplaintEmpFollowerListResponseState state) {
+      AccuraBathComplaintEmployeeListResponseState state) {
     arr_ALL_Name_ID_For_AssignTo.clear();
     for (var i = 0;
-        i < state.complaintEmpFollowerListResponse.details.length;
+        i < state.accuraBathComplaintEmployeeListResponse.details.length;
         i++) {
       ALL_Name_ID all_name_id = ALL_Name_ID();
 
       all_name_id.Name =
-          state.complaintEmpFollowerListResponse.details[i].employeeName;
+          state.accuraBathComplaintEmployeeListResponse.details[i].customerName;
       all_name_id.pkID =
-          state.complaintEmpFollowerListResponse.details[i].employeeID;
+          state.accuraBathComplaintEmployeeListResponse.details[i].customerID;
 
       arr_ALL_Name_ID_For_AssignTo.add(all_name_id);
     }
@@ -2816,10 +3162,10 @@ class _AccuraBathComplaintAddEditScreenState
   }
 
   void _OnImageDeleteResponse(
-      AccuraBathComplaintNoToDeleteImageVideoResponseState state) {
+      AccuraBathComplaintNoToDeleteImageResponseState state) {
     print("ImageSucessDelete" +
         " MSG : " +
-        state.complaintNoToDeleteImageVideoResponse.details[0].column2);
+        state.complaintNoToDeleteImageResponse.details[0].column2);
   }
 
   showcustomdialogWithImageSized(

@@ -11,6 +11,7 @@ import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesbill/salesbill_bloc.dart';
 import 'package:soleoserp/models/api_requests/SalesBill/sales_bill_search_by_id_request.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/headerToDetailsRequest.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_delete_request.dart';
@@ -224,11 +225,16 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
           if (state is SBDeleteResponseState) {
             _OnDeleteSBHeaderFromAPI(state);
           }
+
+          if (state is HeaderToDetailsResponseState) {
+            _onHeaderpkIDtoDetails(state);
+          }
         },
         listenWhen: (oldState, currentState) {
           if (currentState is SalesBillPDFGenerateResponseState ||
               currentState is SearchCustomerListByNumberCallResponseState ||
-              currentState is SBDeleteResponseState) {
+              currentState is SBDeleteResponseState ||
+              currentState is HeaderToDetailsResponseState) {
             return true;
           }
           return false;
@@ -1058,15 +1064,8 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
   }
 
   void _onTaptoEditQuotation(SaleBillDetails model) {
-    navigateTo(context, SalesBillAddEditScreen.routeName,
-            arguments: AddUpdateSaleBillScreenArguments(model))
-        .then((value) {
-      _QuotationBloc
-        ..add(SalesBillListCallEvent(
-            1,
-            SalesBillListRequest(
-                CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
-    });
+    _QuotationBloc.add(HeaderToDetailsRequestEvent(
+        model.pkID, HeaderToDetailsRequest(CompanyId: CompanyID.toString())));
   }
 
   Future<bool> _onBackPressed() {
@@ -2189,5 +2188,19 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
     print("_OnDeleteAllGenericCharges" +
         " DeleteAllGenericFromDBSB : " +
         state.response);
+  }
+
+  void _onHeaderpkIDtoDetails(HeaderToDetailsResponseState state) {
+    //  HeaderToDetailsResponseDetails
+    navigateTo(context, SalesBillAddEditScreen.routeName,
+            arguments:
+                AddUpdateSaleBillScreenArguments(state.response.details[0]))
+        .then((value) {
+      _QuotationBloc
+        ..add(SalesBillListCallEvent(
+            1,
+            SalesBillListRequest(
+                CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    });
   }
 }
