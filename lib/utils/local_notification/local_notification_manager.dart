@@ -1,7 +1,10 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:soleoserp/Clients/BlueTone/followup_notification_details/followup_notification_details_screen.dart';
 import 'package:soleoserp/main.dart';
+import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/utils/general_utils.dart';
 
 class NotificationController {
   static ReceivedAction initialAction;
@@ -12,7 +15,7 @@ class NotificationController {
   ///
   static Future<void> initializeLocalNotifications() async {
     await AwesomeNotifications().initialize(
-        null, //'resource://drawable/res_app_icon',//
+        'resource://drawable/sharvaya_logo',
         [
           NotificationChannel(
               channelKey: 'alerts',
@@ -55,12 +58,33 @@ class NotificationController {
       print(
           'Message sent via notification input: "${receivedAction.buttonKeyInput}"');
       await executeLongTaskInBackground();
+    } else if (receivedAction.actionType == ActionType.Default) {
+      var payload = receivedAction.payload['pkID'];
+
+      print("PayLoadpkID1" + payload.toString());
+
+      navigateTo(Globals.context,
+              BlueToneFollowupNotificationDetailScreen.routeName,
+              clearAllStack: true,
+              arguments:
+                  BlueToneFollowupNotificationArgument(payload.toString()))
+          .then((value) {});
     } else {
-      MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      /* MyApp.navigatorKey.currentState?.pushNamedAndRemoveUntil(
           '/notification-page',
           (route) =>
               (route.settings.name != '/notification-page') || route.isFirst,
-          arguments: receivedAction);
+          arguments: receivedAction);*/
+      var payload = receivedAction.payload['pkID'];
+
+      print("PayLoadpkID2" + payload.toString());
+
+      navigateTo(Globals.context,
+              BlueToneFollowupNotificationDetailScreen.routeName,
+              clearAllStack: true,
+              arguments:
+                  BlueToneFollowupNotificationArgument(payload.toString()))
+          .then((value) {});
     }
   }
 
@@ -143,30 +167,35 @@ class NotificationController {
   ///     NOTIFICATION CREATION METHODS
   ///  *********************************************
   ///
-  static Future<void> createNewNotification() async {
-    bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  static Future<void> createNewNotification(
+      String Titlee, String boddy, int pkID) async {
+    /*bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
     if (!isAllowed) isAllowed = await displayNotificationRationale();
-    if (!isAllowed) return;
+    if (!isAllowed) return;*/
 
     await AwesomeNotifications().createNotification(
         content: NotificationContent(
             id: -1, // -1 is replaced by a random number
             channelKey: 'alerts',
-            title: 'Huston! The eagle has landed!',
-            body:
-                "A small step for a man, but a giant leap to Flutter's community!",
-            bigPicture: 'https://storage.googleapis.com/cms-storage-bucket/d406c736e7c4c57f5f61.png',
-            largeIcon: 'https://storage.googleapis.com/cms-storage-bucket/0dbfcc7a59cd1cf16282.png',
+            title: Titlee, //'Huston! The eagle has landed!',
+            body: boddy,
+            // "A small step for a man, but a giant leap to Flutter's community!",
+            //  bigPicture: 'https://storage.googleapis.com/cms-storage-bucket/d406c736e7c4c57f5f61.png',
+            //largeIcon: 'https://storage.googleapis.com/cms-storage-bucket/0dbfcc7a59cd1cf16282.png',
             //'asset://assets/images/balloons-in-sky.jpg',
-            notificationLayout: NotificationLayout.BigPicture,
-            payload: {'notificationId': '1234567890'}),
+            // notificationLayout: NotificationLayout.BigPicture,
+            payload: {'pkID': pkID.toString()}),
         actionButtons: [
-          NotificationActionButton(key: 'REDIRECT', label: 'Redirect'),
           NotificationActionButton(
+            key: 'REDIRECT',
+            label: 'Take it',
+            actionType: ActionType.Default,
+          ),
+          /* NotificationActionButton(
               key: 'REPLY',
               label: 'Reply Message',
               requireInputText: true,
-              actionType: ActionType.SilentAction),
+              actionType: ActionType.SilentAction),*/
           NotificationActionButton(
               key: 'DISMISS',
               label: 'Dismiss',

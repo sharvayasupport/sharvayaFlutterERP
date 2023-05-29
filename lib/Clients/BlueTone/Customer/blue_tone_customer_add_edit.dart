@@ -460,7 +460,7 @@ class _BlueToneCustomer_ADD_EDITState
                   children: [
                     CustomerName(),
                     SizedBox(height: Constant.SIZEBOXHEIGHT),
-                    CustomDropDown1("Category", "Source",
+                    /* CustomDropDown1("Category", "Source",
                         enable1: false,
                         enable2: false,
                         icon: Icon(Icons.arrow_drop_down),
@@ -468,7 +468,7 @@ class _BlueToneCustomer_ADD_EDITState
                         controllerForRight: edt_Source,
                         Custom_values1: arr_ALL_Name_ID_For_Category,
                         Custom_values2: arr_ALL_Name_ID_For_Source),
-                    SizedBox(height: Constant.SIZEBOXHEIGHT),
+                    SizedBox(height: Constant.SIZEBOXHEIGHT),*/
                     // SwitchNoFollowup(),
                     // SizedBox(height: Constant.SIZEBOXHEIGHT),
                     ContactCollapse(),
@@ -493,7 +493,7 @@ class _BlueToneCustomer_ADD_EDITState
                     Row(
                       children: [
                         Expanded(flex: 1, child: QualifiedCity()),
-                        Expanded(
+                        /* Expanded(
                             flex: 1,
                             child: Container(
                               child: Column(
@@ -556,7 +556,7 @@ class _BlueToneCustomer_ADD_EDITState
                                   )
                                 ],
                               ),
-                            )),
+                            )),*/
                       ],
                     ),
                     SizedBox(

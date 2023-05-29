@@ -57,7 +57,7 @@ class InquiryProductSaveResponseState extends InquiryStates {
 
 class BluetoneInquiryProductSaveResponseState extends InquiryStates {
   final InquiryProductSaveResponse inquiryProductSaveResponse;
-  final SizedListInsUpdateApiResponse sizedListInsUpdateApiResponse;
+  final String sizedListInsUpdateApiResponse;
   BluetoneInquiryProductSaveResponseState(
       this.inquiryProductSaveResponse, this.sizedListInsUpdateApiResponse);
 }

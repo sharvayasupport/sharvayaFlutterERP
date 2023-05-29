@@ -267,7 +267,9 @@ class SalesTargetListCallResponseState extends SalesOrderStates {
 class SOShipmentlistResponseState extends SalesOrderStates {
   SOShipmentlistResponse response;
   SalesOrderDetails salesOrderDetails;
-  SOShipmentlistResponseState(this.response, this.salesOrderDetails);
+  SOExportListResponse soExportListResponse;
+  SOShipmentlistResponseState(
+      this.response, this.salesOrderDetails, this.soExportListResponse);
 }
 
 class SOShipmentSaveResponseState extends SalesOrderStates {

@@ -2562,6 +2562,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
   void _OnKindAttListResponseSucess(QuotationKindAttListResponseState state) {
     if (state.response.details.length != 0) {
       arr_ALL_Name_ID_For_KindAttList.clear();
+
       for (var i = 0; i < state.response.details.length; i++) {
         print("InquiryStatus : " + state.response.details[i].contactPerson1);
         ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -2569,12 +2570,17 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
         all_name_id.pkID = state.response.details[i].customerID;
         arr_ALL_Name_ID_For_KindAttList.add(all_name_id);
       }
+
       showcustomdialogWithID(
           values: arr_ALL_Name_ID_For_KindAttList,
           context1: context,
           controller: edt_KindAtt,
           controllerID: edt_KindAttID,
           lable: "Select Kind Att.");
+    } else {
+      showCommonDialogWithSingleOption(
+          context, "Kind Attn is Empty , You can Add from Customer !",
+          positiveButtonTitle: "OK");
     }
   }
 
@@ -5978,7 +5984,10 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                 isUpdateCalculation = true;
 
                                 edt_HeaderDisc.text =
-                                    addditionalCharges.DiscountAmt;
+                                    addditionalCharges.DiscountAmt.toString() ==
+                                            "null"
+                                        ? "0.00"
+                                        : addditionalCharges.DiscountAmt;
 
                                 print("jjff23kj" +
                                     addditionalCharges.DiscountAmt);
@@ -6176,9 +6185,9 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                           )),
                     ),
                     SizedBox(
-                      height: 20,
+                      height: 30,
                     ),
-                    edt_InquiryNoExist.text == "true"
+                    /*edt_InquiryNoExist.text == "true"
                         ? InkWell(
                             onTap: () {
                               // isAllEditable == true ? _onTapOfSearchView() : Container();
@@ -6207,7 +6216,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                   )),
                             ),
                           )
-                        : Container(),
+                        : Container(),*/
 
                     InkWell(
                       onTap: () {
@@ -6221,7 +6230,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                             lable: "Select Bank Portal");
                       },
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 20),
+                        //margin: EdgeInsets.only(bottom: 20),
                         child: TextFormField(
                             controller: edt_Portal_details,
                             enabled: false,
@@ -6259,7 +6268,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                         }
                       },
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 20),
+                        //margin: EdgeInsets.only(bottom: 20),
                         child: TextFormField(
                             controller: edt_KindAtt,
                             enabled: false,
@@ -6301,7 +6310,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                                       LoginUserID: LoginUserID)));
                         },
                         child: Container(
-                          margin: EdgeInsets.only(bottom: 20),
+                          margin: EdgeInsets.only(top: 20, bottom: 20),
                           child: TextFormField(
                               controller: edt_OrganizationName,
                               enabled: false,
@@ -6343,7 +6352,7 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                       height: 5,
                     ),
 
-                    Container(
+                    /* Container(
                       //margin: EdgeInsets.only(left: 10, right: 10),
                       child: Text("Details",
                           style: TextStyle(
@@ -6367,10 +6376,10 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                             borderSide: new BorderSide(color: colorPrimary),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                           )),
-                    ),
+                    ),*/
 
                     SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
                     InkWell(
                       onTap: () {
@@ -7083,20 +7092,22 @@ class _QuotationAddEditScreenState extends BaseState<QuotationAddEditScreen>
                       onTap: () {
                         // isAllEditable == true ? _onTapOfSearchView() : Container();
 
-                        if (edt_CustomerName.text != "") {
-                          showcustomdialogWithID(
-                              values: arr_ALL_Name_ID_For_InqNoList,
-                              context1: context,
-                              controller: edt_InquiryNo,
-                              controllerID: edt_InquiryNoID,
-                              lable: "Select InquiryNo. ");
-                        } else {
-                          showCommonDialogWithSingleOption(
-                              context, "Customer Name is required !",
-                              positiveButtonTitle: "OK",
-                              onTapOfPositiveButton: () {
-                            Navigator.pop(context);
-                          });
+                        if (_isForUpdate == false) {
+                          if (edt_CustomerName.text != "") {
+                            showcustomdialogWithID(
+                                values: arr_ALL_Name_ID_For_InqNoList,
+                                context1: context,
+                                controller: edt_InquiryNo,
+                                controllerID: edt_InquiryNoID,
+                                lable: "Select InquiryNo. ");
+                          } else {
+                            showCommonDialogWithSingleOption(
+                                context, "Customer Name is required !",
+                                positiveButtonTitle: "OK",
+                                onTapOfPositiveButton: () {
+                              Navigator.pop(context);
+                            });
+                          }
                         }
                       },
                       child: Container(

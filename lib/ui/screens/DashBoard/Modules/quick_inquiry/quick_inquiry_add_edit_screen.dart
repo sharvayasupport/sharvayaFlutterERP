@@ -2885,7 +2885,6 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
                           controller: edt_Customer_Contact1_Name,
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.phone,
-                          focusNode: myFocusNode,
                           maxLength: 14,
                           decoration: const InputDecoration(
                               counterText: "",
@@ -2907,7 +2906,6 @@ class _QuickInquiryScreenState extends BaseState<QuickInquiryScreen>
                           controller: edt_Customer_Contact2_Name,
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.phone,
-                          focusNode: myFocusNode,
                           maxLength: 14,
                           decoration: const InputDecoration(
                               counterText: "",

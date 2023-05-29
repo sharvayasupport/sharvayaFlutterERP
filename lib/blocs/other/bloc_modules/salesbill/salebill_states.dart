@@ -249,4 +249,9 @@ class QuotationProjectListResponseState extends SalesBillStates {
 
   QuotationProjectListResponseState(this.response);
 }
+
+class SBAllProductDeleteState extends SalesBillStates {
+  String response;
+  SBAllProductDeleteState(this.response);
+}
 //

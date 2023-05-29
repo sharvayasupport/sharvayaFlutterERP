@@ -112,9 +112,15 @@ class SaleOrderHeaderSaveRequestEvent extends SalesOrderEvents {
 
   SOShipmentSaveRequest soShipmentSaveRequest;
 
+  SOExportSaveRequest soExportSaveRequest;
+
   BuildContext context;
-  SaleOrderHeaderSaveRequestEvent(this.context, this.pkID,
-      this.saleOrderHeaderSaveRequest, this.soShipmentSaveRequest);
+  SaleOrderHeaderSaveRequestEvent(
+      this.context,
+      this.pkID,
+      this.saleOrderHeaderSaveRequest,
+      this.soShipmentSaveRequest,
+      this.soExportSaveRequest);
 }
 
 class SaleOrderProductSaveCallEvent extends SalesOrderEvents {
@@ -267,9 +273,12 @@ class SalesTargetListCallEvent extends SalesOrderEvents {
 
 class SOShipmentListRequestEvent extends SalesOrderEvents {
   final SOShipmentListRequest soShipmentListRequest;
+  final SOExportListRequest soExportListRequest;
+
   SalesOrderDetails salesOrderDetails;
-  SOShipmentListRequestEvent(
-      this.soShipmentListRequest, this.salesOrderDetails);
+
+  SOShipmentListRequestEvent(this.soShipmentListRequest, this.salesOrderDetails,
+      this.soExportListRequest);
 }
 
 class SOShipmentSaveRequestEvent extends SalesOrderEvents {

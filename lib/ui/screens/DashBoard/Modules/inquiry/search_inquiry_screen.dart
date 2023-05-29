@@ -213,12 +213,14 @@ class _SearchInquiryScreenState extends BaseState<SearchInquiryScreen>
   ///calls search list api
   void _onSearchChanged(String value) {
     if (value.trim().length > 2) {
-      _inquiryBloc.add(SearchInquiryListByNameCallEvent(
-          SearchInquiryListByNameRequest(
-              word: value,
-              CompanyId: CompanyID.toString(),
-              LoginUserID: LoginUserID,
-              needALL: "1")));
+      _inquiryBloc
+          .add(SearchInquiryListByNameCallEvent(SearchInquiryListByNameRequest(
+        word: value,
+        CompanyId: CompanyID.toString(),
+        LoginUserID: LoginUserID,
+        needALL: "1",
+        EmployeeID: _EmployeeID.toString(),
+      )));
     }
   }
 

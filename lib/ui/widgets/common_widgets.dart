@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:intl/intl.dart';
 import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:ntp/ntp.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/list/acurabath_qt_list_screen.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
@@ -1202,12 +1204,25 @@ makeDashboardItem(
             clearAllStack: true);
 
         //Navigator.pushReplacementNamed(context, "/Inquiry");
+      } else if (title == "BlueToneInquiry") {
+        // navigateTo(context, CustomerPaginationListScreen .routeName);
+        navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+
+        //Navigator.pushReplacementNamed(context, "/Inquiry");
       } else if (title == "Inquiry") {
         // navigateTo(context, CustomerPaginationListScreen .routeName);
         navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
 
         //Navigator.pushReplacementNamed(context, "/Inquiry");
-      } else if (title == "Quick Inquiry") {
+      } else if (title == "BlueToneQuickInquiry") {
+        // navigateTo(context, CustomerPaginationListScreen .routeName);
+        navigateTo(context, QuickInquiryScreen.routeName, clearAllStack: true);
+
+        //Navigator.pushReplacementNamed(context, "/Inquiry");
+      }
+
+      //BlueToneQuickInquiry
+      else if (title == "Quick Inquiry") {
         navigateTo(context, QuickInquiryScreen.routeName, clearAllStack: true);
       } else if (title == "Follow-up") {
         navigateTo(context, FollowupListScreen.routeName, clearAllStack: true);
@@ -1242,6 +1257,11 @@ makeDashboardItem(
         navigateTo(context, OfficeToDoScreen.routeName, clearAllStack: true);
       } else if (title == "Quotation") {
         navigateTo(context, QuotationListScreen.routeName, clearAllStack: true);
+      }
+      //Acura Quotation
+      else if (title == "Acura Quotation") {
+        navigateTo(context, AcurabathQuotationListScreen.routeName,
+            clearAllStack: true);
       } else if (title == "SalesOrder") {
         navigateTo(context, SalesOrderListScreen.routeName,
             clearAllStack: true);
@@ -1270,11 +1290,18 @@ makeDashboardItem(
         }
       } else if (title == "Attend Visit") {
         if (SharedPrefHelper.instance
-                .getLoginUserData()
-                .details[0]
-                .serialKey
-                .toLowerCase() ==
-            "dol2-6uh7-ph03-in5h") {
+                    .getLoginUserData()
+                    .details[0]
+                    .serialKey
+                    .toUpperCase() ==
+                "DOL2-6UH7-PH03-IN5H" ||
+            SharedPrefHelper.instance
+                    .getLoginUserData()
+                    .details[0]
+                    .serialKey
+                    .toUpperCase() ==
+                "TEST-0000-DOLF-0205") {
+          //TEST-0000-DOLF-0205
           navigateTo(context, AttendVisitListScreen.routeName,
               clearAllStack: true);
         } else if (SharedPrefHelper.instance
@@ -1290,6 +1317,9 @@ makeDashboardItem(
               clearAllStack: true);
         }
         //
+      } else if (title == "HemaAttendVisit") {
+        navigateTo(context, HemaAttendVisitListScreen.routeName,
+            clearAllStack: true);
       } else if (title == "Employee") {
         navigateTo(context, EmployeeListScreen.routeName, clearAllStack: true);
       } else if (title == "Loan Installments") {
@@ -1396,7 +1426,7 @@ makeDashboardItem(
       } else if (title == "Sales Target") {
         navigateTo(context, SalesTargetListScreen.routeName,
             clearAllStack: true);
-      } else if (title == "VkComplaint") {
+      } else if (title == "Technical Visit") {
         navigateTo(context, VkSoundComplaintPaginationListScreen.routeName,
             clearAllStack: true);
       }
@@ -1872,25 +1902,27 @@ Widget build_Drawer({BuildContext context, String UserName, String RolCode}) {
                       },
                     )
                   : Container(),
-              ListTile(
-                leading: Icon(Icons.login_outlined, color: colorPrimary),
-                title: Text("LogOut",
-                    softWrap: true,
-                    style: new TextStyle(
-                        fontSize: 15.0,
-                        color: colorPrimary,
-                        fontWeight: FontWeight.bold)),
-                onTap: () {
-                  // Constants.prefs.setBool("Registration", true);
-                  //  Constants.prefs.setString("loggedIn", "");
-                  //  Navigator.pushReplacementNamed(context, "/login");
-                  // Get.to(LoginPage());
-                  SharedPrefHelper.instance
-                      .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
-                  navigateTo(context, FirstScreen.routeName,
-                      clearAllStack: true);
-                },
-              ),
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                      "BLG3-AF78-TO5F-NW16"
+                  ? Container()
+                  : ListTile(
+                      leading: Icon(Icons.login_outlined, color: colorPrimary),
+                      title: Text("LogOut",
+                          softWrap: true,
+                          style: new TextStyle(
+                              fontSize: 15.0,
+                              color: colorPrimary,
+                              fontWeight: FontWeight.bold)),
+                      onTap: () {
+                        SharedPrefHelper.instance
+                            .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
+
+                        final service = FlutterBackgroundService();
+                        service.invoke("stopService");
+                        navigateTo(context, FirstScreen.routeName,
+                            clearAllStack: true);
+                      },
+                    ),
             ],
           ),
         ),
@@ -1936,6 +1968,11 @@ getLeadList(List<ALL_Name_ID> sale, BuildContext context) {
             if (sale[i].Name == "Quotation")
               navigateTo(context, QuotationListScreen.routeName,
                   clearAllStack: true);
+
+            if (sale[i].Name == "Acura Quotation")
+              navigateTo(context, AcurabathQuotationListScreen.routeName,
+                  clearAllStack: true);
+
             if (sale[i].Name == "SalesBill")
               navigateTo(context, SalesBillListScreen.routeName,
                   clearAllStack: true);
@@ -2218,30 +2255,27 @@ getSupportList(List<ALL_Name_ID> Support, BuildContext context) {
               }
             }
 
-            if (Support[i].Name == "VkComplaint") {
+            if (Support[i].Name == "Technical Visit") {
               navigateTo(
                   context, VkSoundComplaintPaginationListScreen.routeName,
                   clearAllStack: true);
             }
             if (Support[i].Name == "Attend Visit") {
               if (SharedPrefHelper.instance
-                          .getLoginUserData()
-                          .details[0]
-                          .serialKey
-                          .toUpperCase() ==
-                      "HEMA-AUTO-SI08-NVRL" ||
-                  SharedPrefHelper.instance
-                          .getLoginUserData()
-                          .details[0]
-                          .serialKey
-                          .toUpperCase() ==
-                      "TEST-0000-SI0F-0208") {
+                      .getLoginUserData()
+                      .details[0]
+                      .serialKey
+                      .toUpperCase() ==
+                  "HEMA-AUTO-SI08-NVRL") {
                 navigateTo(context, HemaAttendVisitListScreen.routeName,
                     clearAllStack: true);
               } else {
                 navigateTo(context, AttendVisitListScreen.routeName,
                     clearAllStack: true);
               }
+            } else if (Support[i].Name == "HemaAttendVisit") {
+              navigateTo(context, HemaAttendVisitListScreen.routeName,
+                  clearAllStack: true);
             }
             if (Support[i].Name == "Maintenance Contract")
               navigateTo(context, MaintenanceListScreen.routeName,
@@ -3777,9 +3811,12 @@ showcustomdialogWithOtherCharges(
                                     SizedBox(
                                       width: 15,
                                     ),
-                                    Text(
-                                      values[index].Name,
-                                      style: TextStyle(color: colorPrimary),
+                                    Expanded(
+                                      child: Text(
+                                        values[index].Name,
+                                        softWrap: true,
+                                        style: TextStyle(color: colorPrimary),
+                                      ),
                                     ),
                                   ],
                                 ),

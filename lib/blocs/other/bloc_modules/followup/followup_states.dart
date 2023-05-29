@@ -178,3 +178,9 @@ class FollowUpCountState extends FollowupStates {
   final String count;
   FollowUpCountState(this.count);
 }
+
+class FollowupPkIdDetailsResponseState extends FollowupStates {
+  final FollowupPkIdDetailsResponse followupPkIdDetailsResponse;
+
+  FollowupPkIdDetailsResponseState(this.followupPkIdDetailsResponse);
+}

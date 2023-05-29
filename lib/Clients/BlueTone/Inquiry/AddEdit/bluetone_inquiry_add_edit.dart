@@ -349,7 +349,7 @@ class _BlueToneInquiryAddEditScreenState
                           width: 20,
                           height: 15,
                         ),
-                        Container(
+                        /* Container(
                           margin: EdgeInsets.only(left: 10, right: 10),
                           child: Text("Description * ",
                               style: TextStyle(
@@ -380,7 +380,7 @@ class _BlueToneInquiryAddEditScreenState
                         SizedBox(
                           width: 20,
                           height: 15,
-                        ),
+                        ),*/
                         _isForUpdate == false ? FollowupFields() : Container(),
                         ISDisQualified == true
                             ? Column(
@@ -1006,9 +1006,12 @@ class _BlueToneInquiryAddEditScreenState
       await _onTapOfDeleteALLProduct();
 
       await _onTapOfDeleteALLPrice();
+
       _inquiryBloc.add(BluetoneInquiryNotoProductCallEvent(
           InquiryNoToProductListRequest(
-              InquiryNo: "MAR23-001", CompanyId: CompanyID.toString())));
+              InquiryNo: InquiryNo,
+              CompanyId: CompanyID.toString(),
+              LoginUserID: LoginUserID)));
 
       /*_inquiryBloc.add(InquiryNoToFetchProductSizedListRequestEvent(InquiryNoToFetchProductSizedListRequest(
          InquiryNo : InquiryNo,
@@ -1025,91 +1028,84 @@ class _BlueToneInquiryAddEditScreenState
     if (edt_InquiryDate.text.toString().trim() != '') {
       if (edt_CustomerName.text.toString().trim() != '') {
         if (edt_LeadSource.text.toString().trim() != '') {
-          if (edt_Description.text.toString().trim() != '') {
-            if (ISDisQualifiedEmpty == true) {
-              if (_inquiryProductList.length != 0) {
-                print("HeaderDetailsRequestParam" +
-                    "InquiryDate" +
-                    edt_InquiryDate.text +
-                    "ReverseInquiryDate" +
-                    edt_ReverseInquiryDate.text +
-                    "CustomerID" +
-                    edt_CustomerpkID.text +
-                    " CustomerName" +
-                    edt_CustomerName.text +
-                    "InquiryNo " +
-                    InquiryNo +
-                    "MeetingNotes" +
-                    edt_Description.text +
-                    "InquirySourceID" +
-                    edt_LeadSourceID.text +
-                    "InquirySource" +
-                    edt_LeadSource.text +
-                    "ReferenceName" +
-                    edt_Reference_Name.text +
-                    "InquiryStatusID" +
-                    edt_LeadStatusID.text +
-                    "LoginUserID" +
-                    LoginUserID +
-                    "Priority" +
-                    edt_Priority.text +
-                    "CompanyId" +
-                    CompanyID.toString());
+          if (ISDisQualifiedEmpty == true) {
+            if (_inquiryProductList.length != 0) {
+              print("HeaderDetailsRequestParam" +
+                  "InquiryDate" +
+                  edt_InquiryDate.text +
+                  "ReverseInquiryDate" +
+                  edt_ReverseInquiryDate.text +
+                  "CustomerID" +
+                  edt_CustomerpkID.text +
+                  " CustomerName" +
+                  edt_CustomerName.text +
+                  "InquiryNo " +
+                  InquiryNo +
+                  "MeetingNotes" +
+                  edt_Description.text +
+                  "InquirySourceID" +
+                  edt_LeadSourceID.text +
+                  "InquirySource" +
+                  edt_LeadSource.text +
+                  "ReferenceName" +
+                  edt_Reference_Name.text +
+                  "InquiryStatusID" +
+                  edt_LeadStatusID.text +
+                  "LoginUserID" +
+                  LoginUserID +
+                  "Priority" +
+                  edt_Priority.text +
+                  "CompanyId" +
+                  CompanyID.toString());
 
-                showCommonDialogWithTwoOptions(
-                    context, "Are you sure you want to Save this Inquiry?",
-                    negativeButtonTitle: "No",
-                    positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
-                  Navigator.of(context).pop();
-                  if (InquiryNo != '') {
-                    _inquiryBloc.add(InquiryNotoDeleteProductCallEvent(
-                        InquiryNo,
-                        InquiryNoToDeleteProductRequest(
-                            InquiryNo: InquiryNo,
-                            CompanyId: CompanyID.toString())));
-                  }
-                  _inquiryBloc.add(InquiryHeaderSaveNameCallEvent(
-                      pkID,
-                      InquiryHeaderSaveRequest(
-                          pkID: pkID.toString(),
-                          FollowupDate:
-                              edt_ReverseNextFollowupDate.text.toString(),
-                          CustomerID: edt_CustomerpkID.text.toString(),
+              showCommonDialogWithTwoOptions(
+                  context, "Are you sure you want to Save this Inquiry?",
+                  negativeButtonTitle: "No",
+                  positiveButtonTitle: "Yes", onTapOfPositiveButton: () {
+                Navigator.of(context).pop();
+                if (InquiryNo != '') {
+                  _inquiryBloc.add(InquiryNotoDeleteProductCallEvent(
+                      InquiryNo,
+                      InquiryNoToDeleteProductRequest(
                           InquiryNo: InquiryNo,
-                          InquiryDate: edt_ReverseInquiryDate.text.toString(),
-                          MeetingNotes: edt_Description.text.toString(),
-                          InquirySource: edt_LeadSource.text.toString(),
-                          //edt_LeadSourceID.text.toString(),
-                          ReferenceName: edt_Reference_Name.text.toString(),
-                          FollowupNotes: edt_FollowupNotes.text.toString(),
-                          InquiryStatusID: edt_LeadStatusID.text.toString(),
-                          LoginUserID: LoginUserID,
-                          Latitude: SharedPrefHelper.instance.getLatitude(),
-                          Longitude: SharedPrefHelper.instance.getLongitude(),
-                          FollowupTypeID: "5",
-                          PreferredTime: edt_PreferedTime.text.toString(),
-                          Priority: edt_Priority.text.toString(),
-                          CompanyId: CompanyID.toString(),
-                          ClosureReason:
-                              edt_CloserReasonStatusTypepkID.text.toString() ==
-                                      null
-                                  ? 0
-                                  : edt_CloserReasonStatusTypepkID.text
-                                      .toString())));
-                });
-              } else {
-                showCommonDialogWithSingleOption(
-                    context, "Product Details are required!",
-                    positiveButtonTitle: "OK");
-              }
+                          CompanyId: CompanyID.toString())));
+                }
+                _inquiryBloc.add(InquiryHeaderSaveNameCallEvent(
+                    pkID,
+                    InquiryHeaderSaveRequest(
+                        pkID: pkID.toString(),
+                        FollowupDate:
+                            edt_ReverseNextFollowupDate.text.toString(),
+                        CustomerID: edt_CustomerpkID.text.toString(),
+                        InquiryNo: InquiryNo,
+                        InquiryDate: edt_ReverseInquiryDate.text.toString(),
+                        MeetingNotes: "",
+                        InquirySource: edt_LeadSource.text.toString(),
+                        //edt_LeadSourceID.text.toString(),
+                        ReferenceName: edt_Reference_Name.text.toString(),
+                        FollowupNotes: edt_FollowupNotes.text.toString(),
+                        InquiryStatusID: edt_LeadStatusID.text.toString(),
+                        LoginUserID: LoginUserID,
+                        Latitude: SharedPrefHelper.instance.getLatitude(),
+                        Longitude: SharedPrefHelper.instance.getLongitude(),
+                        FollowupTypeID: "5",
+                        PreferredTime: edt_PreferedTime.text.toString(),
+                        Priority: edt_Priority.text.toString(),
+                        CompanyId: CompanyID.toString(),
+                        ClosureReason: edt_CloserReasonStatusTypepkID.text
+                                    .toString() ==
+                                null
+                            ? 0
+                            : edt_CloserReasonStatusTypepkID.text.toString())));
+              });
             } else {
               showCommonDialogWithSingleOption(
-                  context, "Closer Reason is required!",
+                  context, "Product Details are required!",
                   positiveButtonTitle: "OK");
             }
           } else {
             showCommonDialogWithSingleOption(
-                context, "Description is required!",
+                context, "Closer Reason is required!",
                 positiveButtonTitle: "OK");
           }
         } else {
@@ -1227,8 +1223,9 @@ class _BlueToneInquiryAddEditScreenState
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
           navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
         });*/
-    await showCommonDialogWithSingleOption(Globals.context,
-        Msg + "\n" + state.sizedListInsUpdateApiResponse.details[0].column2,
+
+    await showCommonDialogWithSingleOption(
+        Globals.context, Msg + "\n" + state.sizedListInsUpdateApiResponse,
         positiveButtonTitle: "OK", onTapOfPositiveButton: () {
       navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
     });
@@ -1296,10 +1293,6 @@ class _BlueToneInquiryAddEditScreenState
                 state.inquiryProductWithTwoSizedListDetails[i]
                     .custom_sized_with_InquiryNo.length;
             k++) {
-          print("CustomizedSizedwithProduct125" +
-              state.inquiryProductWithTwoSizedListDetails[i]
-                  .all_sized_with_productID[k].sizeName);
-
           if (sizedListArray[l].SizeID.toString() ==
               state.inquiryProductWithTwoSizedListDetails[i]
                   .custom_sized_with_InquiryNo[k].sizeID
@@ -1355,7 +1348,7 @@ class _BlueToneInquiryAddEditScreenState
       children: [
         Container(
           margin: EdgeInsets.only(left: 10, right: 10),
-          child: Text("Followup Notes *",
+          child: Text("Followup Notes",
               style: TextStyle(
                   fontSize: 12,
                   color: colorPrimary,
@@ -1636,6 +1629,14 @@ class _BlueToneInquiryAddEditScreenState
         state.response.multicastId.toString() +
         state.response.success.toString() +
         state.response.results[0].messageId);
+    String Msg = _isForUpdate == true
+        ? "Inquiry Updated Successfully"
+        : "Inquiry Added Successfully";
+
+    showCommonDialogWithSingleOption(Globals.context, Msg,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      navigateTo(context, InquiryListScreen.routeName, clearAllStack: true);
+    });
   }
 
   void _onGetTokenfromReportopersonResult(GetReportToTokenResponseState state) {

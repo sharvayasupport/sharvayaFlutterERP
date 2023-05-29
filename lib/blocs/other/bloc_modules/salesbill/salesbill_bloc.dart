@@ -14,6 +14,7 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_terms_conditio
 import 'package:soleoserp/models/api_requests/salesBill/headerToDetailsRequest.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sales_bill_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_all_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_export_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_export_save_request.dart';
@@ -159,9 +160,9 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
       yield* _mapSBExportListRequestEventToState(event);
     }
 
-    if (event is SBExportSaveRequestEvent) {
+    /*  if (event is SBExportSaveRequestEvent) {
       yield* _mapSBExportSaveRequestEventToState(event);
-    }
+    }*/
     if (event is SBAssemblyTableListEvent) {
       yield* _mapSBAssemblyTableListEventState(event);
     }
@@ -193,6 +194,10 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
     if (event is QuotationProjectListCallEvent) {
       yield* _mapQuotationProjectListCallEventToState(event);
     }
+
+    /* if (event is SbAllProductDeleteRequestCallEvent) {
+      yield* _mapSbAllProductDeleteRequestCallEventToState(event);
+    }*/
   }
 
   ///event functions to states implementation
@@ -609,6 +614,41 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       SBHeaderSaveResponse response = await userRepository
           .getSaleBillHeaderSaveCallAPI(event.pkId, event.sbHeaderSaveRequest);
+
+      SBExportSaveRequest sbExportSaveRequest = SBExportSaveRequest();
+
+      sbExportSaveRequest.InvoiceNo = response.details[0].column3;
+      sbExportSaveRequest.PreCarrBy = event.sbExportSaveRequest.PreCarrBy;
+      sbExportSaveRequest.PreCarrRecPlace =
+          event.sbExportSaveRequest.PreCarrRecPlace;
+      sbExportSaveRequest.FlightNo = event.sbExportSaveRequest.FlightNo;
+      sbExportSaveRequest.PortOfLoading =
+          event.sbExportSaveRequest.PortOfLoading;
+      sbExportSaveRequest.PortOfDispatch =
+          event.sbExportSaveRequest.PortOfDispatch;
+      sbExportSaveRequest.PortOfDestination =
+          event.sbExportSaveRequest.PortOfDestination;
+      sbExportSaveRequest.MarksNo = event.sbExportSaveRequest.MarksNo;
+      sbExportSaveRequest.Packages = event.sbExportSaveRequest.Packages;
+      sbExportSaveRequest.NetWeight = event.sbExportSaveRequest.NetWeight;
+      sbExportSaveRequest.GrossWeight = event.sbExportSaveRequest.GrossWeight;
+      sbExportSaveRequest.PackageType = event.sbExportSaveRequest.PackageType;
+      sbExportSaveRequest.FreeOnBoard = event.sbExportSaveRequest.FreeOnBoard;
+      sbExportSaveRequest.LoginUserID = event.sbExportSaveRequest.LoginUserID;
+      sbExportSaveRequest.CompanyId = event.sbExportSaveRequest.CompanyId;
+
+      await userRepository.sb_ExportSaveAPI(
+          response.details[0].column3, sbExportSaveRequest);
+
+      SbAllProductDeleteRequest sbAllProductDeleteRequest =
+          SbAllProductDeleteRequest();
+      sbAllProductDeleteRequest.InvoiceNo = response.details[0].column3;
+      sbAllProductDeleteRequest.CompanyId =
+          event.sbAllProductDeleteRequest.CompanyId;
+
+      await userRepository.sales_bill_deleteAllProductAPI(
+          response.details[0].column3, sbAllProductDeleteRequest);
+
       yield SBHeaderSaveResponseState(event.context, response);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
@@ -640,7 +680,6 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
 
-      //  print("dlddd" + event.arrsbProductsaveRequest.length.toString());
       SBProductSaveResponse response =
           await userRepository.salesBillProductSaveDetails(
               event.InvoiceNo, event.arrsbProductsaveRequest);
@@ -686,7 +725,7 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
     }
   }
 
-  Stream<SalesBillStates> _mapSBExportSaveRequestEventToState(
+/*  Stream<SalesBillStates> _mapSBExportSaveRequestEventToState(
       SBExportSaveRequestEvent event) async* {
     try {
       baseBloc.emit(ShowProgressIndicatorState(true));
@@ -701,7 +740,7 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
 
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
-  }
+  }*/
 
   Stream<SalesBillStates> _mapSBAssemblyTableListEventState(
       SBAssemblyTableListEvent event) async* {
@@ -858,4 +897,19 @@ class SalesBillBloc extends Bloc<SalesBillEvents, SalesBillStates> {
       baseBloc.emit(ShowProgressIndicatorState(false));
     }
   }
+
+/*  Stream<SalesBillStates> _mapSbAllProductDeleteRequestCallEventToState(
+      SbAllProductDeleteRequestCallEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+      String response =
+          await userRepository.sales_bill_deleteAllProductAPI(event.request);
+      yield SBAllProductDeleteState(response);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }*/
 }

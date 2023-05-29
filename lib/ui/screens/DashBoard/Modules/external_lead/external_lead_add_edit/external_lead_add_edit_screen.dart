@@ -2322,6 +2322,7 @@ class _ExternalLeadAddEditScreenState
             width: double.maxFinite,
             child: Row(
               children: [
+
                 Expanded(
                   child: TextField(
                       textInputAction: TextInputAction.next,
@@ -3696,7 +3697,7 @@ class _ExternalLeadAddEditScreenState
           Expanded(
             child: TextFormField(
                 controller: edt_LeadNo,
-                enabled: isAllEditable,
+                enabled: false,
 
                 decoration: const InputDecoration(
                // border: UnderlineInputBorder(),
@@ -3730,7 +3731,7 @@ class _ExternalLeadAddEditScreenState
         SizedBox(height: 20,),
         TextFormField(
             controller: edt_LeadSource,
-            enabled: isAllEditable,
+            enabled: false,
             decoration: const InputDecoration(
               border: UnderlineInputBorder(),
               labelText: 'Lead Source',
@@ -3743,7 +3744,7 @@ class _ExternalLeadAddEditScreenState
         SizedBox(height: 20,),
         TextFormField(
             controller: edt_ForProduct,
-            enabled: isAllEditable,
+            enabled: false,
             decoration: const InputDecoration(
               border: UnderlineInputBorder(),
               labelText: 'For Product',
@@ -3767,7 +3768,7 @@ class _ExternalLeadAddEditScreenState
           ),
         ),
         TextFormField(
-          enabled: isAllEditable,
+          enabled: false,
           controller: edt_Details,
           minLines: 2,
           maxLines: 5,
@@ -3890,7 +3891,7 @@ class _ExternalLeadAddEditScreenState
       SizedBox(height: 20,),
 
       TextFormField(
-          enabled: isAllEditable,
+          enabled: false,
 
           controller: edt_Address,
           // enabled: false,

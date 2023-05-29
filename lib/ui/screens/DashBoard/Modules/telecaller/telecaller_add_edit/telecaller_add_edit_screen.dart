@@ -667,10 +667,11 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
                           height: 20,
                         ),
 
-                        uploadImage(context),
+                       /* uploadImage(context),
                         SizedBox(
                           height: 20,
-                        ),
+                        ),*/
+
 
 
 
@@ -4847,7 +4848,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
       children: [
         Container(
           margin: EdgeInsets.only(left: 10, right: 10),
-          child: Text("Followup Notes *",
+          child: Text("Followup Notes",
               style: TextStyle(
                   fontSize: 12,
                   color: colorPrimary,
@@ -4885,7 +4886,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
             children: [
               Container(
                 margin: EdgeInsets.only(left: 10, right: 10),
-                child: Text("Next FollowUp Date *",
+                child: Text("Next FollowUp Date",
                     style: TextStyle(
                         fontSize: 12,
                         color: colorPrimary,
@@ -5123,24 +5124,30 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
           Row(
             //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: TextFormField(
-                    controller: edt_LeadNo,
-                    enabled: isAllEditable,
+              Visibility(
+                visible: _isForUpdate,
+                child: Expanded(
+                  child: TextFormField(
+                      controller: edt_LeadNo,
+                      enabled: false,
 
-                    decoration: const InputDecoration(
-                      // border: UnderlineInputBorder(),
-                      labelText: 'Lead',
+                      decoration: const InputDecoration(
+                        // border: UnderlineInputBorder(),
+                        labelText: 'Lead',
 
-                    ),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF000000),
-                    )
+                      ),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF000000),
+                      )
+                  ),
                 ),
               ),
 
-              SizedBox(width: 20,),
+
+              Visibility(
+                  visible: _isForUpdate,
+                  child: SizedBox(width: 20,)),
               Expanded(
                 child: InkWell(
                   onTap: (){
@@ -5215,7 +5222,7 @@ class _TeleCallerAddEditScreenState extends BaseState<TeleCallerAddEditScreen>
           //edt_Brand
           Container(
             //margin: EdgeInsets.only(left: 10, right: 10),
-            child: Text("Details",
+            child: Text("Details *",
                 style: TextStyle(
                     fontSize: 12,
                     color: colorPrimary,

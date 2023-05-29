@@ -414,7 +414,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
     CustomerDetails model = _inquiryListResponse.details[index];
 
     return Container(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(10),
         child: ExpansionTileCard(
           // key:Key(index.toString()),
           initialElevation: 5.0,
@@ -482,31 +482,16 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   child: Container(
+                    width: 200,
                     padding: EdgeInsets.all(5),
-                    child: Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.mobile_friendly,
-                              color: Color(0xff108dcf),
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              model.contactNo1,
-                              style: TextStyle(
-                                color: colorPrimary,
-                                fontSize: _fontSize_Title,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: Text(
+                      "Mo." + model.contactNo1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: TextStyle(
+                        color: colorPrimary,
+                        fontSize: _fontSize_Title,
+                      ),
                     ),
                   ),
                 ),
@@ -851,7 +836,7 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
               ],
             ),
             Container(
-                margin: EdgeInsets.all(20),
+                margin: EdgeInsets.all(10),
                 child: Container(
                     child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1023,15 +1008,18 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
                                         SizedBox(
                                           width: 15,
                                         ),
-                                        Text(
-                                            model.emailAddress == ""
-                                                ? "N/A"
-                                                : model.emailAddress,
-                                            style: TextStyle(
-                                                color: Color(title_color),
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: _fontSize_Title,
-                                                letterSpacing: .3)),
+                                        Flexible(
+                                          child: Text(
+                                              model.emailAddress == ""
+                                                  ? "N/A"
+                                                  : model.emailAddress,
+                                              style: TextStyle(
+                                                  color: Color(title_color),
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: _fontSize_Title,
+                                                  overflow: TextOverflow.clip,
+                                                  letterSpacing: .3)),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -1419,9 +1407,10 @@ class _CustomerListScreenState extends BaseState<CustomerListScreen>
   void _onTapOfEditCustomer(CustomerDetails model,
       List<CustomerFetchDocumentResponseDetails> documentAPIList1) {
     if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-            "BLG3-AF78-TO5F-NW16" ||
+            "BLG3-AF78-TO5F-NW16" /*||
         _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-            "TEST-0000-SI0F-0208") {
+            "TEST-0000-SI0F-0208"*/
+        ) {
       navigateTo(context, BlueToneCustomer_ADD_EDIT.routeName,
               arguments: AddUpdateBlueToneCustomerScreenArguments(
                   model, documentAPIList1))

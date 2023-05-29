@@ -15,6 +15,7 @@ import 'package:soleoserp/models/api_requests/bank_voucher/bank_drop_down_reques
 import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
+import 'package:soleoserp/models/api_requests/salesBill/sb_all_product_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_export_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_export_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesBill/sb_product_save_request.dart';
@@ -408,9 +409,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
             _On_No_To_ProductDetails(state);
           }
 
-          if (state is SBProductSaveResponseState) {
+         /* if (state is SBProductSaveResponseState) {
             _OnSBExportSaveResponse(state);
-          }
+          }*/
 
           if (state is SOCurrencyListResponseState) {
             _ONCurrencyResponse(state);
@@ -426,7 +427,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
               currentState is MultiNoToProductDetailsResponseState ||
               currentState is SBHeaderSaveResponseState ||
               currentState is SBProductSaveResponseState ||
-              currentState is SBProductSaveResponseState ||
+              //currentState is SBProductSaveResponseState ||
               currentState is SOCurrencyListResponseState ||
               currentState is QuotationProjectListResponseState) {
             return true;
@@ -2352,7 +2353,8 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                           children: [
                             Flexible(
                               child: createTextFormField(
-                                  _controller_supplier_ref_no, "Reference No."),
+                                  _controller_supplier_ref_no, "Reference No.",
+                                  keyboardInput: TextInputType.text),
                             ),
                             Flexible(child: _buildReferenceDate())
                           ],
@@ -2373,7 +2375,11 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
-                              child: createTextLabel("Other's Ref.", 10.0, 0.0),
+                              child: createTextLabel(
+                                "Other's Ref.",
+                                10.0,
+                                0.0,
+                              ),
                             ),
                             Flexible(
                               child: createTextLabel(
@@ -2385,10 +2391,12 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                           children: [
                             Flexible(
                                 child: createTextFormField(
-                                    _controller_OtherRef_no, "Other's Ref.")),
+                                    _controller_OtherRef_no, "Other's Ref.",
+                                    keyboardInput: TextInputType.text)),
                             Flexible(
                                 child: createTextFormField(
-                                    _controller_docNo, "Dispatch Doc No."))
+                                    _controller_docNo, "Dispatch Doc No.",
+                                    keyboardInput: TextInputType.text))
                           ],
                         ),
                         SizedBox(
@@ -3633,8 +3641,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                             .toString(),
                                         edt_StateCode.text.toString());
 
+
                             for (int i = 0; i < temp.length; i++) {
-                              print("productList" +
+                              print("productList2322rty" +
                                   " AmountFromProductList : " +
                                   temp[i].DiscountPercent.toString() +
                                   " NetAmountFromProductList : " +
@@ -3648,7 +3657,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                             }
 
                             for (int i = 0; i < TempproductList1.length; i++) {
-                              print("TempproductList1" +
+                              print("sjsdkfjsj90-0" +
                                   " AmountCalculation : " +
                                   TempproductList1[i]
                                       .DiscountPercent
@@ -3664,7 +3673,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                             }
 
                             for (int i = 0; i < TempproductList.length; i++) {
-                              print("TempproductList" +
+                              print("4545fsdfsdf" +
                                   " AmountCalculation : " +
                                   TempproductList[i]
                                       .DiscountPercent
@@ -3838,16 +3847,12 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                 ? _controller_rev_delivery_date.text.toString()
                                 : "";
 
-
-                            String FixedLedgerID = _controller_AC_ID
-                                .text
-                                .toString() !=
-                                "" ||
-                                _controller_AC_ID.text
-                                    .toString() !=
-                                    null
-                                ? _controller_AC_ID.text.toString()
-                                : "0";
+                            String FixedLedgerID =
+                                _controller_AC_ID.text.toString() != "" ||
+                                        _controller_AC_ID.text.toString() !=
+                                            null
+                                    ? _controller_AC_ID.text.toString()
+                                    : "0";
 
                             salesBillBloc.add(SBHeaderSaveRequestEvent(
                                 context,
@@ -3856,7 +3861,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                     InvoiceNo: InquiryNo,
                                     InvoiceDate:
                                         _controller_rev_order_date.text,
-                                    FixedLedgerID: FixedLedgerID,
+                                    FixedLedgerID: FixedLedgerID.toString()=="null"?"0":FixedLedgerID,
                                     CustomerID: _controller_customer_pkID.text,
                                     LocationID: "",
                                     BankID: _controller_bank_ID.text,
@@ -3938,7 +3943,28 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                                     CurrencyName: _controller_currency.text.toString(),
                                     CurrencySymbol: _controller_currency_Symbol.text.toString(),
                                     ExchangeRate: _controllerExchangeRate.text.toString(),
-                                    ProjectName: edt_ProjectName.text)));
+                                    ProjectName: edt_ProjectName.text),
+                                SBExportSaveRequest(
+                                    InvoiceNo: "",
+                                    PreCarrBy: _controller_transport_name.text.toString(),
+                                    PreCarrRecPlace: _controller_place_of_rec.text.toString(),
+                                    FlightNo: _controller_flight_no.text.toString(),
+                                    PortOfLoading: _controller_port_of_loading.text.toString(),
+                                    PortOfDispatch: _controller_port_of_dispatch.text.toString(),
+                                    PortOfDestination: _controller_port_of_destination.text.toString(),
+                                    MarksNo: _controller_container_no.text.toString(),
+                                    Packages: _controller_packages.text.toString(),
+                                    NetWeight: _controller_net_weight.text.toString(),
+                                    GrossWeight: _controller_gross_weight.text.toString(),
+                                    PackageType: _controller_type_of_package.text.toString(),
+                                    FreeOnBoard: _controller_FOB.text.toString(),
+                                    LoginUserID: LoginUserID.toString(),
+                                    CompanyId: CompanyID.toString()),
+                                SbAllProductDeleteRequest(
+                                    InvoiceNo: "",
+                                    CompanyId: CompanyID.toString()
+                                )
+                            ));
                           });
                         } else {
                           showCommonDialogWithSingleOption(
@@ -4524,7 +4550,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
       retrunQT_No = _editModel.invoiceNo;
     }
 
-    salesBillBloc.add(SBExportSaveRequestEvent(SBExportSaveRequest(
+    /*salesBillBloc.add(SBExportSaveRequestEvent(SBExportSaveRequest(
         InvoiceNo: retrunQT_No,
         PreCarrBy: _controller_transport_name.text.toString(),
         PreCarrRecPlace: _controller_place_of_rec.text.toString(),
@@ -4539,7 +4565,16 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
         PackageType: _controller_type_of_package.text.toString(),
         FreeOnBoard: _controller_FOB.text.toString(),
         LoginUserID: LoginUserID.toString(),
-        CompanyId: CompanyID.toString())));
+        CompanyId: CompanyID.toString())));*/
+
+
+
+   /* salesBillBloc.add(SbAllProductDeleteRequestCallEvent(
+        SbAllProductDeleteRequest(
+          InvoiceNo: retrunQT_No,
+          CompanyId: CompanyID.toString()
+        )
+    ));*/
 
     updateRetrunInquiryNoToDB(state.context, returnPKID, retrunQT_No);
   }
@@ -4626,6 +4661,8 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
 
     arrSOProductList.clear();
 
+    print("BothListSizedsdsdsd" + " TempListCount : " +  TempproductList.length.toString() + " ArrayProductListCount : " + arrSOProductList.length.toString());
+
     for (int i = 0; i < TempproductList.length; i++) {
       SBProductSaveRequest salesOrderProductRequest =
           /* SalesOrderProductRequest(
@@ -4693,6 +4730,9 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
 
       arrSOProductList.add(salesOrderProductRequest);
     }
+
+
+    print("BothListSized" + " TempListCount : " +  TempproductList.length.toString() + " ArrayProductListCount : " + arrSOProductList.length.toString());
 
     salesBillBloc.add(
         SBProductSaveRequestEvent(context1, retrunSO_No, arrSOProductList));
@@ -5010,25 +5050,52 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
     _controller_gross_weight.text = "";
     _controller_FOB.text = "";
 
-    _controller_transport_name.text = state.response.details[0].preCarrBy;
-    _controller_place_of_rec.text = state.response.details[0].preCarrRecPlace;
-    _controller_flight_no.text = state.response.details[0].flightNo.toString();
-    _controller_port_of_loading.text =
-        state.response.details[0].portOfLoading.toString();
-    _controller_port_of_dispatch.text =
-        state.response.details[0].portOfDispatch.toString();
-    _controller_port_of_destination.text =
-        state.response.details[0].portOfDestination.toString();
-    _controller_container_no.text =
-        state.response.details[0].marksNo.toString();
-    _controller_packages.text = state.response.details[0].packages.toString();
-    _controller_type_of_package.text =
-        state.response.details[0].packageType.toString();
-    _controller_net_weight.text =
-        state.response.details[0].netWeight.toString();
-    _controller_gross_weight.text =
-        state.response.details[0].grossWeight.toString();
-    _controller_FOB.text = state.response.details[0].freeOnBoard.toString();
+
+    if(state.response.details.isNotEmpty)
+      {
+        _controller_transport_name.text = state.response.details[0].preCarrBy;
+        _controller_place_of_rec.text = state.response.details[0].preCarrRecPlace;
+        _controller_flight_no.text = state.response.details[0].flightNo.toString();
+        _controller_port_of_loading.text =
+            state.response.details[0].portOfLoading.toString();
+        _controller_port_of_dispatch.text =
+            state.response.details[0].portOfDispatch.toString();
+        _controller_port_of_destination.text =
+            state.response.details[0].portOfDestination.toString();
+        _controller_container_no.text =
+            state.response.details[0].marksNo.toString();
+        _controller_packages.text = state.response.details[0].packages.toString();
+        _controller_type_of_package.text =
+            state.response.details[0].packageType.toString();
+        _controller_net_weight.text =
+            state.response.details[0].netWeight.toString();
+        _controller_gross_weight.text =
+            state.response.details[0].grossWeight.toString();
+        _controller_FOB.text = state.response.details[0].freeOnBoard.toString();
+      }
+    else{
+      _controller_transport_name.text = "";
+      _controller_place_of_rec.text = "";
+      _controller_flight_no.text = "";
+      _controller_port_of_loading.text =
+          "";
+      _controller_port_of_dispatch.text =
+          "";
+      _controller_port_of_destination.text =
+          "";
+      _controller_container_no.text =
+          "";
+      _controller_packages.text = "";
+      _controller_type_of_package.text =
+          "";
+      _controller_net_weight.text =
+          "";
+      _controller_gross_weight.text =
+          "";
+      _controller_FOB.text = "";
+    }
+
+
   }
 
   void _OnSBExportSaveResponse(SBProductSaveResponseState state) {
@@ -5119,6 +5186,7 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
                               controller: controllerForLeft,
                               enabled: false,
                               decoration: InputDecoration(
+                                contentPadding: EdgeInsets.only(bottom: 7),
                                 hintText: hintTextvalue,
                                 labelStyle: TextStyle(
                                   color: Color(0xFF000000),
@@ -5164,6 +5232,12 @@ class _SalesBillAddEditScreenState extends BaseState<SalesBillAddEditScreen>
           controller: edt_ProjectName,
           controllerID: edt_ProjectID,
           lable: "Select Project ");
+    }
+
+    else{
+      showCommonDialogWithSingleOption(
+          context, "Project is not available ",
+          positiveButtonTitle: "OK");
     }
   }
 }

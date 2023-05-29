@@ -15,6 +15,7 @@ import 'package:soleoserp/models/api_requests/followup/followup_image_list_reque
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_by_customer_id_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_inquiry_no_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_list_request.dart';
+import 'package:soleoserp/models/api_requests/followup/followup_pkId_details_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_save_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_type_list_request.dart';
 import 'package:soleoserp/models/api_requests/followup/followup_upload_image_request.dart';
@@ -37,6 +38,7 @@ import 'package:soleoserp/models/api_responses/followup/followup_image_list_resp
 import 'package:soleoserp/models/api_responses/followup/followup_inquiry_by_customer_id_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_inquiry_no_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_list_response.dart';
+import 'package:soleoserp/models/api_responses/followup/followup_pkId_details_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_save_success_response.dart';
 import 'package:soleoserp/models/api_responses/followup/followup_type_list_response.dart';
 import 'package:soleoserp/models/api_responses/followup/quick_followup_list_response.dart';
@@ -167,6 +169,10 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
 
     if (event is FollowupCountRequestEvent) {
       yield* _mapFollowupCountRequestEventState(event);
+    }
+
+    if (event is FollowupPkIdDetailsRequestEvent) {
+      yield* _mapFollowupPkIdDetailsRequestEventState(event);
     }
     //
   }
@@ -642,6 +648,22 @@ class FollowupBloc extends Bloc<FollowupEvents, FollowupStates> {
       String respo =
           await userRepository.followupCount(event.Status, event.request);
       yield FollowUpCountState(respo);
+    } catch (error, stacktrace) {
+      baseBloc.emit(ApiCallFailureState(error));
+      print(stacktrace);
+    } finally {
+      baseBloc.emit(ShowProgressIndicatorState(false));
+    }
+  }
+
+  Stream<FollowupStates> _mapFollowupPkIdDetailsRequestEventState(
+      FollowupPkIdDetailsRequestEvent event) async* {
+    try {
+      baseBloc.emit(ShowProgressIndicatorState(true));
+
+      FollowupPkIdDetailsResponse respo = await userRepository
+          .followuppkIDtoDetailsAPI(event.followupPkIdDetailsRequest);
+      yield FollowupPkIdDetailsResponseState(respo);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

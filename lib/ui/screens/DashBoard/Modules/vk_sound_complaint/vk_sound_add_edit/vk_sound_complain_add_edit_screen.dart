@@ -419,7 +419,7 @@ class _VkComplaintAddEditScreenState extends BaseState<VkComplaintAddEditScreen>
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          title: Text('Complaint Details'),
+          title: Text('Technical Site Visit'),
           gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),

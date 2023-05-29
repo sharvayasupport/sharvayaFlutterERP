@@ -505,21 +505,21 @@ class _FollowUpFromInquiryAddEditScreenState
                           width: 20,
                           height: 30,
                         ),
-                        RatingStar(),
+                       /* RatingStar(),
                         SizedBox(
                           width: 20,
                           height: 30,
-                        ),
+                        ),*/
                         SwitchNoFollowup(),
                         SizedBox(
                           width: 20,
                           height: 30,
                         ),
-                        uploadImage(context),
+                       /* uploadImage(context),
                         SizedBox(
                           width: 20,
                           height: 30,
-                        ),
+                        ),*/
                         getCommonButton(baseTheme, () async {
                           print("RatingValue " +
                               "Rate : " +

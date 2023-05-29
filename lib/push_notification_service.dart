@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -182,13 +183,15 @@ class PushNotificationService {
       }
     });
 // onMessage is called when the app is in foreground and a notification is received
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Get.find<HomeController>().getNotificationsNumber();
-      print("Remotttt" + message.data['body']);
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+//      print("Remotttt" + message.data['body']);
       String data;
 
       if (message != null) {
         data = jsonEncode(message.data);
+
+        /*await NotificationController.createNewNotification(
+            message.data['title'], message.data['body']);*/
       }
 
       RemoteNotification notification = message.notification;
@@ -196,24 +199,66 @@ class PushNotificationService {
 // If `onMessage` is triggered with a notification, construct our own
       // local notification to show to users using the created channel.
       if (notification != null && android != null) {
+        /* await NotificationController.createNewNotification(
+            message.notification.title, message.notification.body);*/
+
         flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
+            1,
             notification.title,
             notification.body,
             NotificationDetails(
               android: AndroidNotificationDetails(
                   channel.id, channel.name, channel.description,
                   channelShowBadge: true,
-                  importance: Importance.min,
-                  priority: Priority.low,
-                  timeoutAfter: 100000,
+                  //importance: Importance.min,
+                  //priority: Priority.low,
+                  importance: Importance.max,
+                  priority: Priority.high,
+                  /*timeoutAfter: 50000,
                   styleInformation: DefaultStyleInformation(true, true),
                   playSound: true,
-                  ongoing: true,
+                  ongoing: true,*/
                   visibility: NotificationVisibility.public),
             ),
             payload: data);
+        //await NotificationController.initializeLocalNotifications();
+
+        /* AwesomeNotifications().createNotification(
+            content: NotificationContent(
+                id: -1,
+                category: NotificationCategory.Reminder,
+                channelKey: 'alerts',
+                title: notification.title,
+                body: notification.body,
+                actionType: ActionType.KeepOnTop));*/
+
+        /*await AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: 1,
+            channelKey: 'alerts',
+            title: 'Simple title',
+            body: 'Simple body ',
+          ),
+          actionButtons: [
+            NotificationActionButton(
+              key: 'accept',
+              label: 'Accept',
+            ),
+            NotificationActionButton(
+              key: 'cancel',
+              label: 'Cancel',
+            ),
+          ],
+        );*/
       }
+      //  message = null;
+    });
+  }
+
+  getmesssageappkillstate() async {
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) async {
       //  message = null;
     });
   }
@@ -227,14 +272,38 @@ class PushNotificationService {
     );
   }
 
-  androidNotificationChannel() => const AndroidNotificationChannel(
+  /* androidNotificationChannel() => const AndroidNotificationChannel(
         'high_importance_channel', // id
         'High Importance Notifications', // title
         'This channel is used for important notifications.',
-        importance: Importance.defaultImportance,
+        importance: Importance.max,
+      );*/
+
+  androidNotificationChannel() => AndroidNotificationChannel(
+        Random.secure().nextInt(100000).toString(), // id
+        "High Notification Channel", // title
+        'This channel is used for important notifications.',
+        importance: Importance.max,
       );
 
+  /*
+
+
+ AndroidNotificationChannel channel = AndroidNotificationChannel(
+    Random.secure().nextInt(100000).toString(),
+    "High Notification Channel",
+   importance: Importance.max,
+);
+
+ */
   // handle notification data
 
   // start chat screen
+
+/*   Future<void> cancelNotification() async {
+
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }*/
 }

@@ -681,7 +681,19 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
                                       model.customerID.toString();
 
                                   print("sdsds34" + sendemailreq);
-                                  _showEmailMyDialog(model);
+
+                                  if (model.EmailAddress.toString() != "") {
+                                    //_showEmailPIMyDialog(model);
+
+                                    _showEmailMyDialog(model);
+                                  } else {
+                                    showCommonDialogWithSingleOption(context,
+                                        "Customer's Email Not Found\nKindly Update Email From Customer Master !",
+                                        positiveButtonTitle: "OK",
+                                        onTapOfPositiveButton: () {
+                                      Navigator.pop(context);
+                                    });
+                                  }
                                   /*
                                   EmailTO.text = model.emailAddress;
                                   showcustomdialogSendEmail(
@@ -2177,10 +2189,15 @@ class _SalesBillListScreenState extends BaseState<SalesBillListScreen>
   }
 
   void _OnDeleteSBHeaderFromAPI(SBDeleteResponseState state) {
-    _QuotationBloc.add(SalesBillListCallEvent(
-        1,
-        SalesBillListRequest(
-            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    showCommonDialogWithSingleOption(context, state.response.details[0].column1,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      Navigator.pop(context);
+
+      _QuotationBloc.add(SalesBillListCallEvent(
+          1,
+          SalesBillListRequest(
+              CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    });
   }
 
   void _OnDeleteAllGenericCharges(

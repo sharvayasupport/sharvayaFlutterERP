@@ -357,7 +357,7 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
                               Flexible(
                                 child: getCommonButton(baseTheme, () {
                                   Navigator.pop(context);
-                                  edt_FollowupEmployeeList.text = "";
+                                  /* edt_FollowupEmployeeList.text = "";
 
                                   _expenseBloc.add(ExternalLeadListCallEvent(
                                       1,
@@ -369,7 +369,7 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
                                                   ? ""
                                                   : edt_LeadStatus.text,
                                           LoginUserID: LoginUserID,
-                                          CompanyId: CompanyID.toString())));
+                                          CompanyId: CompanyID.toString())));*/
                                 }, "Close", radius: 15),
                               ),
                             ],
@@ -620,32 +620,17 @@ class _ExternalLeadListScreenState extends BaseState<ExternalLeadListScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   child: Container(
+                    width: 200,
                     padding: EdgeInsets.all(5),
-                    child: Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.mobile_friendly,
-                              color: Color(0xff108dcf),
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              _expenseListResponse
-                                  .details[index].primaryMobileNo,
-                              style: TextStyle(
-                                color: colorPrimary,
-                                fontSize: _fontSize_Title,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: Text(
+                      "Mo." +
+                          _expenseListResponse.details[index].primaryMobileNo,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      style: TextStyle(
+                        color: colorPrimary,
+                        fontSize: _fontSize_Title,
+                      ),
                     ),
                   ),
                 ),

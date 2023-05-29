@@ -14,6 +14,7 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_l
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/SO_Export/so_export_save_api.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
@@ -29,6 +30,7 @@ import 'package:soleoserp/models/api_responses/other/state_list_response.dart';
 import 'package:soleoserp/models/api_responses/quotation/quotation_other_charges_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/so_export/so_export_list_response.dart';
 import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
 import 'package:soleoserp/models/common/sales_order_table.dart';
@@ -57,8 +59,9 @@ import 'package:soleoserp/utils/shared_pref_helper.dart';
 class AddUpdateSalesOrderNewScreenArguments {
   SalesOrderDetails editModel;
   SOShipmentlistResponseDetails soShipmentlistResponseDetails;
-  AddUpdateSalesOrderNewScreenArguments(
-      this.editModel, this.soShipmentlistResponseDetails);
+  SOExportListResponse soExportListResponse;
+  AddUpdateSalesOrderNewScreenArguments(this.editModel,
+      this.soShipmentlistResponseDetails, this.soExportListResponse);
 }
 
 class SaleOrderNewAddEditScreen extends BaseStatefulWidget {
@@ -223,6 +226,8 @@ class _SaleOrderNewAddEditScreenState
   SalesOrderDetails _editModel;
 
   SOShipmentlistResponseDetails _soShipmentlistResponseDetails;
+
+  SOExportListResponse _soExportListResponse;
 
   String SalesOrderNo = "";
   final TextEditingController edt_HeaderDisc = TextEditingController();
@@ -572,9 +577,9 @@ class _SaleOrderNewAddEditScreenState
                         space(5),
                         emailContent(),
                         //space(5),
-                        //paymentSchedule(),
+                        // paymentSchedule(),
                         //space(5),
-                        //shipmentDetail(),
+                        shipmentDetail(),
                         //space(5),
                         //attachment(),
                         space(5),
@@ -2640,7 +2645,8 @@ class _SaleOrderNewAddEditScreenState
                             Flexible(
                               child: createTextFormField(
                                   _controller_container_no,
-                                  "Enter Container No."),
+                                  "Enter Container No.",
+                                  keyboardInput: TextInputType.text),
                             ),
                             Flexible(
                               child: createTextFormField(
@@ -2674,7 +2680,10 @@ class _SaleOrderNewAddEditScreenState
                             ),
                             Flexible(
                               child: createTextFormField(
-                                  _controller_net_weight, "Enter Net Weight"),
+                                  _controller_net_weight, "Enter Net Weight",
+                                  keyboardInput:
+                                      TextInputType.numberWithOptions(
+                                          decimal: true)),
                             ),
                           ],
                         ),
@@ -2698,7 +2707,10 @@ class _SaleOrderNewAddEditScreenState
                             Flexible(
                               child: createTextFormField(
                                   _controller_gross_weight,
-                                  "Enter Gross Weight"),
+                                  "Enter Gross Weight",
+                                  keyboardInput:
+                                      TextInputType.numberWithOptions(
+                                          decimal: true)),
                             ),
                             Flexible(
                               child: createTextFormField(
@@ -2991,106 +3003,121 @@ class _SaleOrderNewAddEditScreenState
                           }
 
                           _salesOrderBloc.add(SaleOrderHeaderSaveRequestEvent(
-                              context,
-                              pkID,
-                              SaleOrderHeaderSaveRequest(
-                                CompanyId: CompanyID.toString(),
-                                OrderNo: _controller_order_no.text,
-                                OrderDate: _controller_rev_order_date.text,
-                                LoginUserID: LoginUserID,
-                                CustomerId: _controller_customer_pkID.text,
-                                QuotationNo: "",
-                                DeliveryDate:
-                                    _controller_rev_delivery_date.text,
-                                TermsCondition:
-                                    _contrller_terms_and_condition.text,
-                                Latitude:
-                                    SharedPrefHelper.instance.getLatitude(),
-                                Longitude:
-                                    SharedPrefHelper.instance.getLongitude(),
-                                DiscountAmt: edt_HeaderDisc.text.toString(),
-                                SGSTAmt: finalPrice[4].toStringAsFixed(2),
-                                CGSTAmt: finalPrice[3].toStringAsFixed(2),
-                                IGSTAmt: finalPrice[5].toStringAsFixed(2),
-                                ChargeID1: quotationOtherChargesListResponse[0]
-                                    .ChargeID1,
-                                ChargeAmt1: quotationOtherChargesListResponse[0]
-                                    .ChargeAmt1,
-                                ChargeBasicAmt1:
-                                    finalPrice[6].toStringAsFixed(2),
-                                ChargeGSTAmt1:
-                                    finalPrice[11].toStringAsFixed(2),
-                                ChargeID2: quotationOtherChargesListResponse[0]
-                                    .ChargeID2,
-                                ChargeAmt2: quotationOtherChargesListResponse[0]
-                                    .ChargeAmt2,
-                                ChargeBasicAmt2:
-                                    finalPrice[7].toStringAsFixed(2),
-                                ChargeGSTAmt2:
-                                    finalPrice[12].toStringAsFixed(2),
-                                ChargeID3: quotationOtherChargesListResponse[0]
-                                    .ChargeID3,
-                                ChargeAmt3: quotationOtherChargesListResponse[0]
-                                    .ChargeAmt3,
-                                ChargeBasicAmt3:
-                                    finalPrice[8].toStringAsFixed(2),
-                                ChargeGSTAmt3:
-                                    finalPrice[13].toStringAsFixed(2),
-                                ChargeID4: quotationOtherChargesListResponse[0]
-                                    .ChargeID4,
-                                ChargeAmt4: quotationOtherChargesListResponse[0]
-                                    .ChargeAmt4,
-                                ChargeBasicAmt4:
-                                    finalPrice[9].toStringAsFixed(2),
-                                ChargeGSTAmt4:
-                                    finalPrice[14].toStringAsFixed(2),
-                                ChargeID5: quotationOtherChargesListResponse[0]
-                                    .ChargeID5,
-                                ChargeAmt5: quotationOtherChargesListResponse[0]
-                                    .ChargeAmt5,
-                                ChargeBasicAmt5:
-                                    finalPrice[10].toStringAsFixed(2),
-                                ChargeGSTAmt5:
-                                    finalPrice[15].toStringAsFixed(2),
-                                NetAmt: finalPrice[17].toStringAsFixed(2),
-                                BasicAmt: finalPrice[0].toStringAsFixed(2),
-                                ROffAmt: finalPrice[18].toStringAsFixed(2),
-                                ApprovalStatus: "",
-                                ChargePer1: "0.00",
-                                ChargePer2: "0.00",
-                                ChargePer3: "0.00",
-                                ChargePer4: "0.00",
-                                ChargePer5: "0.00",
-                                AdvancePer: "0.00",
-                                AdvanceAmt: "0.00",
-                                CurrencyName:
-                                    _controller_currency.text.toString() ??
-                                        _controller_currency.text,
-                                CurrencySymbol: _controller_currency_Symbol.text
-                                        .toString() ??
-                                    _controller_currency_Symbol.text,
-                                ExchangeRate: _controller_exchange_rate.text,
-                                RefType: "",
-                                EmailHeader: _contrller_email_subject.text,
-                                EmailContent:
-                                    _controller_select_email_subject.text,
-                              ),
-                              SOShipmentSaveRequest(
-                                OrderNo: "",
-                                SCompanyName: _controller_company_name.text,
-                                SGSTNo: _controller_GSTNO.text,
-                                SContactNo: _controller_contact_no.text,
-                                SContactPersonName:
-                                    _controller_contact_person_name.text,
-                                SAddress: _controller_address.text,
-                                SArea: _controller_area.text,
-                                SCountryCode: edt_QualifiedCountryCode.text,
-                                SCityCode: edt_QualifiedCityCode.text,
-                                SStateCode: edt_QualifiedStateCode.text,
-                                SPincode: edt_QualifiedPinCode.text,
-                                LoginUserID: LoginUserID,
-                                CompanyId: CompanyID.toString(),
-                              )));
+                            context,
+                            pkID,
+                            SaleOrderHeaderSaveRequest(
+                              CompanyId: CompanyID.toString(),
+                              OrderNo: _controller_order_no.text,
+                              OrderDate: _controller_rev_order_date.text,
+                              LoginUserID: LoginUserID,
+                              CustomerId: _controller_customer_pkID.text,
+                              QuotationNo: "",
+                              DeliveryDate: _controller_rev_delivery_date.text,
+                              TermsCondition:
+                                  _contrller_terms_and_condition.text,
+                              Latitude: SharedPrefHelper.instance.getLatitude(),
+                              Longitude:
+                                  SharedPrefHelper.instance.getLongitude(),
+                              DiscountAmt: edt_HeaderDisc.text.toString(),
+                              SGSTAmt: finalPrice[4].toStringAsFixed(2),
+                              CGSTAmt: finalPrice[3].toStringAsFixed(2),
+                              IGSTAmt: finalPrice[5].toStringAsFixed(2),
+                              ChargeID1: quotationOtherChargesListResponse[0]
+                                  .ChargeID1,
+                              ChargeAmt1: quotationOtherChargesListResponse[0]
+                                  .ChargeAmt1,
+                              ChargeBasicAmt1: finalPrice[6].toStringAsFixed(2),
+                              ChargeGSTAmt1: finalPrice[11].toStringAsFixed(2),
+                              ChargeID2: quotationOtherChargesListResponse[0]
+                                  .ChargeID2,
+                              ChargeAmt2: quotationOtherChargesListResponse[0]
+                                  .ChargeAmt2,
+                              ChargeBasicAmt2: finalPrice[7].toStringAsFixed(2),
+                              ChargeGSTAmt2: finalPrice[12].toStringAsFixed(2),
+                              ChargeID3: quotationOtherChargesListResponse[0]
+                                  .ChargeID3,
+                              ChargeAmt3: quotationOtherChargesListResponse[0]
+                                  .ChargeAmt3,
+                              ChargeBasicAmt3: finalPrice[8].toStringAsFixed(2),
+                              ChargeGSTAmt3: finalPrice[13].toStringAsFixed(2),
+                              ChargeID4: quotationOtherChargesListResponse[0]
+                                  .ChargeID4,
+                              ChargeAmt4: quotationOtherChargesListResponse[0]
+                                  .ChargeAmt4,
+                              ChargeBasicAmt4: finalPrice[9].toStringAsFixed(2),
+                              ChargeGSTAmt4: finalPrice[14].toStringAsFixed(2),
+                              ChargeID5: quotationOtherChargesListResponse[0]
+                                  .ChargeID5,
+                              ChargeAmt5: quotationOtherChargesListResponse[0]
+                                  .ChargeAmt5,
+                              ChargeBasicAmt5:
+                                  finalPrice[10].toStringAsFixed(2),
+                              ChargeGSTAmt5: finalPrice[15].toStringAsFixed(2),
+                              NetAmt: finalPrice[17].toStringAsFixed(2),
+                              BasicAmt: finalPrice[0].toStringAsFixed(2),
+                              ROffAmt: finalPrice[18].toStringAsFixed(2),
+                              ApprovalStatus: "",
+                              ChargePer1: "0.00",
+                              ChargePer2: "0.00",
+                              ChargePer3: "0.00",
+                              ChargePer4: "0.00",
+                              ChargePer5: "0.00",
+                              AdvancePer: "0.00",
+                              AdvanceAmt: "0.00",
+                              CurrencyName:
+                                  _controller_currency.text.toString() ??
+                                      _controller_currency.text,
+                              CurrencySymbol:
+                                  _controller_currency_Symbol.text.toString() ??
+                                      _controller_currency_Symbol.text,
+                              ExchangeRate: _controller_exchange_rate.text,
+                              RefType: "",
+                              EmailHeader: _contrller_email_subject.text,
+                              EmailContent:
+                                  _controller_select_email_subject.text,
+                            ),
+                            SOShipmentSaveRequest(
+                              OrderNo: "",
+                              SCompanyName: _controller_company_name.text,
+                              SGSTNo: _controller_GSTNO.text,
+                              SContactNo: _controller_contact_no.text,
+                              SContactPersonName:
+                                  _controller_contact_person_name.text,
+                              SAddress: _controller_address.text,
+                              SArea: _controller_area.text,
+                              SCountryCode: edt_QualifiedCountryCode.text,
+                              SCityCode: edt_QualifiedCityCode.text,
+                              SStateCode: edt_QualifiedStateCode.text,
+                              SPincode: edt_QualifiedPinCode.text,
+                              LoginUserID: LoginUserID,
+                              CompanyId: CompanyID.toString(),
+                            ),
+                            SOExportSaveRequest(
+                              OrderNo: "",
+                              PreCarrBy:
+                                  _controller_transport_name.text.toString(),
+                              PreCarrRecPlace:
+                                  _controller_place_of_rec.text.toString(),
+                              FlightNo: _controller_flight_no.text.toString(),
+                              PortOfLoading:
+                                  _controller_port_of_loading.text.toString(),
+                              PortOfDispatch:
+                                  _controller_port_of_dispatch.text.toString(),
+                              PortOfDestination: _controller_port_of_destination
+                                  .text
+                                  .toString(),
+                              MarksNo: _controller_container_no.text.toString(),
+                              Packages: _controller_packages.text.toString(),
+                              NetWeight: _controller_net_weight.text.toString(),
+                              GrossWeight:
+                                  _controller_gross_weight.text.toString(),
+                              PackageType:
+                                  _controller_type_of_package.text.toString(),
+                              FreeOnBoard: _controller_FOB.text.toString(),
+                              LoginUserID: LoginUserID.toString(),
+                              CompanyId: CompanyID.toString(),
+                            ),
+                          ));
                         });
                       } else {
                         showCommonDialogWithSingleOption(
@@ -4237,6 +4264,34 @@ class _SaleOrderNewAddEditScreenState
     edt_QualifiedStateCode.text =
         _soShipmentlistResponseDetails.sStateCode.toString();
     edt_QualifiedPinCode.text = _soShipmentlistResponseDetails.sPincode;
+
+    //_onSO ExportList Response
+
+    _soExportListResponse = widget.arguments.soExportListResponse;
+
+    _controller_transport_name.text =
+        _soExportListResponse.details[0].preCarrBy;
+    _controller_place_of_rec.text =
+        _soExportListResponse.details[0].preCarrRecPlace;
+    _controller_flight_no.text = _soExportListResponse.details[0].flightNo;
+    _controller_port_of_loading.text =
+        _soExportListResponse.details[0].portOfLoading;
+    _controller_port_of_dispatch.text =
+        _soExportListResponse.details[0].portOfDispatch;
+    _controller_port_of_destination.text =
+        _soExportListResponse.details[0].portOfDestination;
+    _controller_container_no.text = _soExportListResponse.details[0].marksNo;
+
+    _controller_packages.text = _soExportListResponse.details[0].packages;
+    _controller_net_weight.text = _soExportListResponse.details[0].netWeight;
+
+    _controller_gross_weight.text =
+        _soExportListResponse.details[0].grossWeight;
+
+    _controller_type_of_package.text =
+        _soExportListResponse.details[0].packageType;
+
+    _controller_FOB.text = _soExportListResponse.details[0].freeOnBoard;
   }
 
   BankDetails(BuildContext context) {

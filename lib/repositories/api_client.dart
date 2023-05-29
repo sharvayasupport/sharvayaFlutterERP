@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:soleoserp/models/common/globals.dart';
+import 'package:soleoserp/ui/screens/authentication/first_screen.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
@@ -393,8 +394,16 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       "ComplaintAcura/VideoAttachmentslist";
 
   static const END_POINT_SO_SHIPMENT_LIST = 'SalesOrderShipmentDetails';
+
+  static const END_POINT_SO_EXPORT_LIST = 'SalesOrderExport';
+
   static const END_POINT_QT_ORGANIZATION_DROP_DOWN_LIST =
       "OrganizationStructure/";
+
+  static const END_POINT_SB_ALL_PRODUCT_DELETE = 'SalesBill/';
+  static const END_POINT_FOLLOWUP_PKID_TO_DETAILS = 'GetFollowUpDetailByPkID';
+
+  static const END_POINT_SO_EXPORT_SAVE = 'SalesOrderExport/';
 
   //Quatation/Product/Spec-Save
 
@@ -538,7 +547,15 @@ CartFlutterLive     : [BaseURL(API)]:	http://208.109.14.134:86/ [WebURL]:http://
       responseJson =
           await _response(response, showSuccessDialog: showSuccessDialog);
     } on SocketException {
-      throw FetchDataException('No Internet Connection');
+      await showCommonDialogWithSingleOption(
+          Globals.context, "Something Went Wrong !", positiveButtonTitle: "OK",
+          onTapOfPositiveButton: () async {
+        await SharedPrefHelper.instance
+            .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
+        navigateTo(Globals.context, FirstScreen.routeName, clearAllStack: true);
+      });
+      // navigateTo(context, routeName)
+      //throw FetchDataException('No Internet Connection');
     } on TimeoutException {
       throw FetchDataException('Request time out');
     }

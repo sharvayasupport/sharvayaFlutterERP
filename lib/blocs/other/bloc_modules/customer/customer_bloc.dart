@@ -406,8 +406,16 @@ class CustomerBloc extends Bloc<CustomerEvents, CustomerStates> {
       CustomerUploadDocumentResponse response;
       for (int i = 0; i < event.documentList.length; i++) {
         if (event.documentList[i].path != "") {
+          var getextention =
+              event.documentList[i].path.split('/').last.split(".");
           event.expenseImageUploadServerAPIRequest.Name =
-              event.documentList[i].path.split('/').last;
+              event.expenseImageUploadServerAPIRequest.CustomerID +
+                  "-" +
+                  "Attachments" +
+                  i.toString() +
+                  "." +
+                  getextention[1];
+          //event.documentList[i].path.split('/').last;
           event.expenseImageUploadServerAPIRequest.file = event.documentList[i];
           response = await userRepository.getCustomerploadDocumentAPI(
               event.documentList[i], event.expenseImageUploadServerAPIRequest);

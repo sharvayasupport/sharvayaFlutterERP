@@ -11,6 +11,8 @@ import 'package:soleoserp/models/api_requests/quotation/quotation_other_charge_l
 import 'package:soleoserp/models/api_requests/quotation/quotation_project_list_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/quotation_terms_condition_request.dart';
 import 'package:soleoserp/models/api_requests/quotation/save_email_content_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/SO_Export/so_export_list_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/SO_Export/so_export_save_api.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_header_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sale_order_product_save_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_all_product_delete_request.dart';
@@ -44,6 +46,7 @@ import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_
 import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_save_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/so_currency_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/so_export/so_export_list_response.dart';
 import 'package:soleoserp/models/api_responses/sales_target/sales_target_list_response.dart';
 import 'package:soleoserp/models/common/assembly/so_assembly_table.dart';
 import 'package:soleoserp/models/common/generic_addtional_calculation/generic_addtional_amount_calculation.dart';
@@ -532,7 +535,30 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       //soShipmentSaveRequest.OrderNo = response.details[0].column4;
       // soShipmentSaveRequest.
 
+      SOExportSaveRequest soExportSaveRequest = SOExportSaveRequest(
+        OrderNo: response.details[0].column4.toString(),
+        PreCarrBy: event.soExportSaveRequest.PreCarrBy,
+        PreCarrRecPlace: event.soExportSaveRequest.PreCarrRecPlace,
+        FlightNo: event.soExportSaveRequest.FlightNo,
+        PortOfLoading: event.soExportSaveRequest.PortOfLoading,
+        PortOfDispatch: event.soExportSaveRequest.PortOfDispatch,
+        PortOfDestination: event.soExportSaveRequest.PortOfDestination,
+        MarksNo: event.soExportSaveRequest.MarksNo,
+        Packages: event.soExportSaveRequest.Packages,
+        NetWeight: event.soExportSaveRequest.NetWeight,
+        GrossWeight: event.soExportSaveRequest.GrossWeight,
+        PackageType: event.soExportSaveRequest.PackageType,
+        FreeOnBoard: event.soExportSaveRequest.FreeOnBoard,
+        LoginUserID: event.soExportSaveRequest.LoginUserID,
+        CompanyId: event.soExportSaveRequest.CompanyId,
+      );
+
+      print("dslksdjfksf" + event.soExportSaveRequest.PreCarrBy.toString());
+
       await userRepository.saveSoShipmentListAPI(soShipmentSaveRequest);
+
+      await userRepository.soExportSaveAPI(
+          soExportSaveRequest, response.details[0].column4);
 
       yield SaleOrderHeaderSaveResponseState(
           event.context, event.pkID, response);
@@ -1028,7 +1054,11 @@ class SalesOrderBloc extends Bloc<SalesOrderEvents, SalesOrderStates> {
       baseBloc.emit(ShowProgressIndicatorState(true));
       SOShipmentlistResponse response = await userRepository
           .getSoShipmentListAPI(event.soShipmentListRequest);
-      yield SOShipmentlistResponseState(response, event.salesOrderDetails);
+
+      SOExportListResponse soExportListResponse =
+          await userRepository.getSOExportListAPI(event.soExportListRequest);
+      yield SOShipmentlistResponseState(
+          response, event.salesOrderDetails, soExportListResponse);
     } catch (error, stacktrace) {
       baseBloc.emit(ApiCallFailureState(error));
       print(stacktrace);

@@ -338,8 +338,12 @@ class _ContactsListScreenState extends BaseState<ContactsListScreen>
                                                   width: 5,
                                                 ),
                                                 Text(
-                                                    model.ContactDesignationName ==
-                                                            ""
+                                                    model.ContactDesignationName
+                                                                    .toString() ==
+                                                                "" ||
+                                                            model.ContactDesignationName
+                                                                    .toString() ==
+                                                                "null"
                                                         ? "N/A"
                                                         : model
                                                             .ContactDesignationName,

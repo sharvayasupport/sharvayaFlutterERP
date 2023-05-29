@@ -2297,6 +2297,7 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
             navigateTo(context, CustomerListScreen.routeName,
                 clearAllStack: true);
           }
+          Navigator.pop(context);
         });
         //Navigator.of(context).pop();
       }
@@ -3642,7 +3643,6 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                           controller: edt_Customer_Contact1_Name,
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.phone,
-                          focusNode: myFocusNode,
                           maxLength: 14,
                           decoration: const InputDecoration(
                               counterText: "",
@@ -3664,7 +3664,6 @@ class _Customer_ADD_EDITState extends BaseState<Customer_ADD_EDIT>
                           controller: edt_Customer_Contact2_Name,
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.phone,
-                          focusNode: myFocusNode,
                           maxLength: 14,
                           decoration: const InputDecoration(
                               counterText: "",

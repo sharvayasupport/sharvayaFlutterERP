@@ -115,14 +115,13 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         SharedPrefHelper.instance.getFollowerEmployeeList();
     CompanyID = _offlineCompanyData.details[0].pkId;
     LoginUserID = _offlineLoggedInData.details[0].userID;
+
+    _FollowupBloc = FollowupBloc(baseBloc);
+
     _isForUpdate = widget.arguments != null;
     if (_isForUpdate) {
       NotificationEmpName = widget.arguments.EmployeeName;
-
-      print("sdlfjf" + " Body :" + NotificationEmpName);
     }
-
-    _FollowupBloc = FollowupBloc(baseBloc);
 
     getUserRights(_menuRightsResponse);
 
@@ -156,7 +155,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         edt_FollowupStatus.text,
         FollowupCountRequest(
             CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID.toString(),
+            LoginUserID: edt_FollowupEmployeeUserID.text,
             FollowupStatus: edt_FollowupStatus.text)));
   }
 
@@ -340,14 +339,15 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                         edt_FollowupStatus.text,
                         FollowupFilterListRequest(
                             CompanyId: CompanyID.toString(),
-                            LoginUserID: LoginUserID,
+                            LoginUserID: edt_FollowupEmployeeUserID.text,
                             PageNo: 1,
                             PageSize: 10)));
+
                     _FollowupBloc.add(FollowupCountRequestEvent(
                         edt_FollowupStatus.text,
                         FollowupCountRequest(
                             CompanyId: CompanyID.toString(),
-                            LoginUserID: LoginUserID.toString(),
+                            LoginUserID: edt_FollowupEmployeeUserID.text,
                             FollowupStatus: edt_FollowupStatus.text)));
 
                     getUserRights(_menuRightsResponse);
@@ -486,8 +486,10 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         ),
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             FloatingActionButton(
+              heroTag: "btn-1",
               onPressed: () async {
                 /* edt_FollowupEmployeeList.text = "";
                 _onTapOfSearchView();*/
@@ -534,7 +536,6 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                             children: [
                               Flexible(
                                 child: getCommonButton(baseTheme, () {
-                                  Navigator.pop(context);
                                   _FollowupBloc.add(FollowupFilterListCallEvent(
                                       edt_FollowupStatus.text,
                                       FollowupFilterListRequest(
@@ -548,9 +549,12 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                       edt_FollowupStatus.text,
                                       FollowupCountRequest(
                                           CompanyId: CompanyID.toString(),
-                                          LoginUserID: LoginUserID.toString(),
+                                          LoginUserID:
+                                              edt_FollowupEmployeeUserID.text,
                                           FollowupStatus:
                                               edt_FollowupStatus.text)));
+
+                                  Navigator.pop(context);
                                 }, "Submit", radius: 15),
                               ),
                               SizedBox(
@@ -559,7 +563,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                               Flexible(
                                 child: getCommonButton(baseTheme, () {
                                   Navigator.pop(context);
-                                  edt_FollowupEmployeeList.text = "";
+                                  /*edt_FollowupEmployeeList.text = "";
 
                                   _FollowupBloc.add(FollowupFilterListCallEvent(
                                       "Todays",
@@ -567,7 +571,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                           CompanyId: CompanyID.toString(),
                                           LoginUserID: LoginUserID,
                                           PageNo: 1,
-                                          PageSize: 10)));
+                                          PageSize: 10)));*/
                                 }, "Close", radius: 15),
                               ),
                             ],
@@ -593,6 +597,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
             ),
             IsAddRights == true
                 ? FloatingActionButton(
+                    heroTag: "btn-2",
                     onPressed: () {
                       // Add your onPressed code here!
                       navigateTo(context, FollowUpAddEditScreen.routeName);
@@ -926,7 +931,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
         edt_FollowupStatus.text,
         FollowupFilterListRequest(
             CompanyId: CompanyID.toString(),
-            LoginUserID: LoginUserID,
+            LoginUserID: edt_FollowupEmployeeUserID.text,
             PageNo: _pageNo + 1,
             PageSize: 10)));
 
@@ -1102,8 +1107,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                 vertical: 8.0,
               ),
               child: Container(
-                padding:
-                    EdgeInsets.only(left: 10, right: 10, top: 25, bottom: 25),
+                padding: EdgeInsets.only(top: 10, bottom: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1272,7 +1276,7 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                                 LoginUserID:
                                                     edt_FollowupEmployeeUserID
                                                         .text,
-                                                PageNo: _pageNo,
+                                                PageNo: 1,
                                                 PageSize: 10)));
                                   });
                                 });
@@ -1509,11 +1513,13 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                     ),
                                     Flexible(
                                       child: Text(
-                                          model.nextFollowupDate
-                                                  .getFormattedDate(
+                                          model.nextFollowupDate.getFormattedDate(
                                                       fromFormat:
                                                           "yyyy-MM-ddTHH:mm:ss",
-                                                      toFormat: "dd-MM-yyyy") ??
+                                                      toFormat: "dd-MM-yyyy") +
+                                                  " " +
+                                                  model.preferredTime
+                                                      .toString() ??
                                               "-", //put your own long text here.
                                           maxLines: 3,
                                           overflow: TextOverflow.clip,
@@ -1981,6 +1987,19 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
                                                                   .text,
                                                           PageNo: _pageNo,
                                                           PageSize: 10)));
+
+                                              _FollowupBloc.add(
+                                                  FollowupCountRequestEvent(
+                                                      edt_FollowupStatus.text,
+                                                      FollowupCountRequest(
+                                                          CompanyId: CompanyID
+                                                              .toString(),
+                                                          LoginUserID:
+                                                              edt_FollowupEmployeeUserID
+                                                                  .text,
+                                                          FollowupStatus:
+                                                              edt_FollowupStatus
+                                                                  .text)));
                                             });
                                           });
                                         },
@@ -2131,11 +2150,34 @@ class _FollowupListScreenState extends BaseState<FollowupListScreen>
     /* _FollowupListResponse.details
         .removeWhere((element) => element.pkID == state.id);*/
     print("CustomerDeleted" +
-        state.followupDeleteResponse.details[0].toString() +
+        state.followupDeleteResponse.details[0].column1.toString() +
         "");
+
+    /* navigateTo(buildContext123, FollowupListScreen.routeName,
+        clearAllStack: true);*/
     // baseBloc.refreshScreen();
-    navigateTo(buildContext123, FollowupListScreen.routeName,
-        clearAllStack: true);
+    /*navigateTo(buildContext123, FollowupListScreen.routeName,
+        clearAllStack: true);*/
+
+    showCommonDialogWithSingleOption(
+        context, state.followupDeleteResponse.details[0].column1.toString(),
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      Navigator.pop(context);
+      _FollowupBloc.add(FollowupFilterListCallEvent(
+          edt_FollowupStatus.text,
+          FollowupFilterListRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: edt_FollowupEmployeeUserID.text,
+              PageNo: 1,
+              PageSize: 10)));
+
+      _FollowupBloc.add(FollowupCountRequestEvent(
+          edt_FollowupStatus.text,
+          FollowupCountRequest(
+              CompanyId: CompanyID.toString(),
+              LoginUserID: edt_FollowupEmployeeUserID.text,
+              FollowupStatus: edt_FollowupStatus.text)));
+    });
   }
 
   Future<void> MoveTofollowupHistoryPage(String inquiryNo, String CustomerID) {

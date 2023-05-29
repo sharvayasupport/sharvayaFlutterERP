@@ -361,7 +361,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
       print("multideleteSizedList" + responsemultidelete.toString());
 
       ///ProductSizedList Ins_Upd
-      SizedListInsUpdateApiResponse tempresponse;
+      String tempresponse = "";
 
       for (int i = 0; i < event.dbarraysizedlist.length; i++) {
         if (event.dbarraysizedlist[i].isChecked == "true") {
@@ -381,7 +381,7 @@ class InquiryBloc extends Bloc<InquiryEvents, InquiryStates> {
           SizedListInsUpdateApiResponse response = await userRepository
               .insert_update_sizedListAPI(sizedListInsUpdateApiRequest);
 
-          tempresponse = response;
+          tempresponse = response.details[0].column2;
         }
       }
 

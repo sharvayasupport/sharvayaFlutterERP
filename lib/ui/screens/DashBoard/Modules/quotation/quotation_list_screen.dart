@@ -875,7 +875,20 @@ class _QuotationListScreenState extends BaseState<QuotationListScreen>
                                   model.customerID.toString();
 
                               print("webreqj" + sendemailreq);
-                              _showEmailMyDialog(model);
+
+                              print("customermail" +
+                                  model.emailAddress.toString());
+
+                              if (model.emailAddress.toString() != "") {
+                                _showEmailMyDialog(model);
+                              } else {
+                                showCommonDialogWithSingleOption(context,
+                                    "Customer's Email Not Found\nKindly Update Email From Customer Master !",
+                                    positiveButtonTitle: "OK",
+                                    onTapOfPositiveButton: () {
+                                  Navigator.pop(context);
+                                });
+                              }
                             },
                             child: Column(
                               children: [

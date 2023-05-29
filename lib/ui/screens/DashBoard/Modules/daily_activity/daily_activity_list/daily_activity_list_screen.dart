@@ -1180,64 +1180,59 @@ class _DailyActivityListScreenState extends BaseState<DailyActivityListScreen>
     ReportToEmail = "ashish.rathod@sharvayainfotech.com";
     ReportToCC = "jalpa.shah@sharvayainfotech.com";
 
-    if (_offlineLoggedInData.details[0].employeeID == 67) {
+    if (_offlineLoggedInData.details[0].employeeName == "Dhara") {
       //Dhara
       ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
-    if (_offlineLoggedInData.details[0].employeeID == 62) {
+    if (_offlineLoggedInData.details[0].employeeName == "Bhavini Desai") {
       //Bhavini
       ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
-    if (_offlineLoggedInData.details[0].employeeID == 63) {
+    if (_offlineLoggedInData.details[0].employeeName == "Nisha Desai") {
       //Nisha
       ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
-    if (_offlineLoggedInData.details[0].employeeID == 95) {
+    if (_offlineLoggedInData.details[0].employeeName == "Dev Prajapati") {
       //Dev
       ReportToEmail = "payal.vaghasiya@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "hekanksh.gohel@sharvayainfotech.com";
       ReportToCC2 = "jalpa.shah@sharvayainfotech.com";
     }
-    if (_offlineLoggedInData.details[0].employeeID == 101) {
+    if (_offlineLoggedInData.details[0].employeeName == "Payal Vaghasiya") {
       //Payal
       ReportToEmail = "hekanksh.gohel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
 
-    if (_offlineLoggedInData.details[0].employeeID == 100) {
+    if (_offlineLoggedInData.details[0].employeeName == "Yash Bandhara") {
       //Yash
       ReportToEmail = "akshar.patel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
 
-    if (_offlineLoggedInData.details[0].employeeID == 94) {
+    if (_offlineLoggedInData.details[0].employeeName == "Shivam Bhadoriya") {
       //Shivam
       ReportToEmail = "akshar.patel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
-    if (_offlineLoggedInData.details[0].employeeID == 99) {
+    if (_offlineLoggedInData.details[0].employeeName == "Trilok Patel	") {
       //Trilok
       ReportToEmail = "akshar.patel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";
       ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
     }
-    if (_offlineLoggedInData.details[0].employeeID == 93) {
-      //Krish
-      ReportToEmail = "akshar.patel@sharvayainfotech.com";
-      ReportToCC = "ashish.rathod@sharvayainfotech.com";
-      ReportToCC1 = "jalpa.shah@sharvayainfotech.com";
-    }
-    if (_offlineLoggedInData.details[0].employeeID == 102) {
+
+    if (_offlineLoggedInData.details[0].employeeName == "Vedant Domadiya") {
       //Vedant
       ReportToEmail = "akshar.patel@sharvayainfotech.com";
       ReportToCC = "ashish.rathod@sharvayainfotech.com";

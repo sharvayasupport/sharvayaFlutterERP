@@ -643,32 +643,18 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                       child: Container(
+                        width: 200,
                         padding: EdgeInsets.all(5),
-                        child: Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.mobile_friendly,
-                                  color: Color(0xff108dcf),
-                                  size: 24,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  _expenseListResponse
-                                      .details[index].primaryMobileNo,
-                                  style: TextStyle(
-                                    color: colorPrimary,
-                                    fontSize: _fontSize_Title,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                        child: Text(
+                          "Mo." +
+                              _expenseListResponse
+                                  .details[index].primaryMobileNo,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                          style: TextStyle(
+                            color: colorPrimary,
+                            fontSize: _fontSize_Title,
+                          ),
                         ),
                       ),
                     ),
@@ -1316,6 +1302,35 @@ class _TeleCallerListScreenState extends BaseState<TeleCallerListScreen>
                                       ),
                                       Text(
                                         'Update',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: colorWhite),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(),
+                          IsDeleteRights == true
+                              ? GestureDetector(
+                                  onTap: () {
+                                    // fkdkdsf
+                                    _onTapOfDeleteCustomer(_expenseListResponse
+                                        .details[index].pkId);
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      Image.asset(
+                                        CUSTOM_DELETE,
+                                        height: 24,
+                                        width: 24,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2.0),
+                                      ),
+                                      Text(
+                                        'Delete',
                                         style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,

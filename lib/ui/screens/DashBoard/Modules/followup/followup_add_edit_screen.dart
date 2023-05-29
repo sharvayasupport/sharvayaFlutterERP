@@ -1508,7 +1508,12 @@ class _FollowUpAddEditScreenScreenState extends BaseState<FollowUpAddEditScreen>
 
     if(ReportToToken!="")
       {
-        _FollowupBloc.add(FCMNotificationRequestEvent(request123));
+
+        if(_offlineLoggedInData.details[0].serialKey.toUpperCase()!="BLG3-AF78-TO5F-NW16")
+          {
+            _FollowupBloc.add(FCMNotificationRequestEvent(request123));
+
+          }
 
       }
 

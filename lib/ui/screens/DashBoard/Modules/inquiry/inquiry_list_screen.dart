@@ -1417,7 +1417,7 @@ class _InquiryListScreenState extends BaseState<InquiryListScreen>
 
   void _onTapOfEditInquiry(InquiryDetails model) {
     if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-        "BLG3-AF78-TO5F-NW16") {
+        "BLG3-AF78-TO5F-NW16" ) {
       navigateTo(context, BlueToneInquiryAddEditScreen.routeName,
               arguments: AddUpdateBlueToneInquiryScreenArguments(model))
           .then((value) {

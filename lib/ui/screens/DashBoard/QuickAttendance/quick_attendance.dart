@@ -20,6 +20,7 @@ import 'package:soleoserp/models/api_requests/attendance/attendance_list_request
 import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
+import 'package:soleoserp/models/api_requests/other/menu_rights_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/login/login_user_details_api_response.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
@@ -88,6 +89,8 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
   bool islodding = true;
 
   ContextMenu contextMenu;
+
+  bool isVisibleRights = false;
 
   InAppWebViewController webViewController;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
@@ -180,6 +183,9 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID)));
 
+    _dashBoardScreenBloc.add(MenuRightsCallEvent(MenuRightsRequest(
+        CompanyID: CompanyID.toString(), LoginUserID: LoginUserID)));
+
     if (_offlineLoggedInData.details[0].EmployeeImage != "" ||
         _offlineLoggedInData.details[0].EmployeeImage != null) {
       setState(() {
@@ -205,12 +211,15 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
           if (state is ConstantResponseState) {
             _onGetConstant(state);
           }
-
+          if (state is MenuRightsEventResponseState) {
+            _onMenuRightsResponse(state);
+          }
           return super.build(context);
         },
         buildWhen: (oldState, currentState) {
           if (currentState is AttendanceListCallResponseState ||
-              currentState is ConstantResponseState) {
+              currentState is ConstantResponseState ||
+              currentState is MenuRightsEventResponseState) {
             return true;
           }
           return false;
@@ -273,62 +282,74 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    InkWell(
-                      onTap: () async {
-                        TimeOfDay selectedTime = TimeOfDay.now();
-                        getAddressFromLatLong();
-                        print("sfjsdf8988" + Address);
+                    Visibility(
+                      visible: isVisibleRights,
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: () async {
+                              TimeOfDay selectedTime = TimeOfDay.now();
+                              getAddressFromLatLong();
+                              print("sfjsdf8988" + Address);
 
-                        if (isCurrentTime == true) {
-                          if (isPunchIn == true) {
-                            showCommonDialogWithSingleOption(
-                                context,
-                                _offlineLoggedInData.details[0].employeeName +
-                                    " \n Punch In : " +
-                                    PuchInTime.text,
-                                positiveButtonTitle: "OK");
-                          } else {
-                            if (await Permission.storage.isDenied) {
-                              //await Permission.storage.request();
+                              if (isCurrentTime == true) {
+                                if (isPunchIn == true) {
+                                  showCommonDialogWithSingleOption(
+                                      context,
+                                      _offlineLoggedInData
+                                              .details[0].employeeName +
+                                          " \n Punch In : " +
+                                          PuchInTime.text,
+                                      positiveButtonTitle: "OK");
+                                } else {
+                                  if (await Permission.storage.isDenied) {
+                                    //await Permission.storage.request();
 
-                              checkPhotoPermissionStatus();
-                            } else {
-                              if (ConstantMAster.toString() == "" ||
-                                  ConstantMAster.toString().toLowerCase() ==
-                                      "no") {
-                                _dashBoardScreenBloc.add(
-                                    PunchWithoutImageAttendanceSaveRequestEvent(
-                                        PunchWithoutImageAttendanceSaveRequest(
-                                            Mode: "punchin",
-                                            pkID: "0",
-                                            EmployeeID: _offlineLoggedInData
-                                                .details[0].employeeID
-                                                .toString(),
-                                            PresenceDate: selectedDate.year
-                                                    .toString() +
-                                                "-" +
-                                                selectedDate.month.toString() +
-                                                "-" +
-                                                selectedDate.day.toString(),
-                                            TimeIn: selectedTime.hour
-                                                    .toString() +
-                                                ":" +
-                                                selectedTime.minute.toString(),
-                                            TimeOut: "",
-                                            LunchIn: "",
-                                            LunchOut: "",
-                                            LoginUserID: LoginUserID,
-                                            Notes: "",
-                                            Latitude: SharedPrefHelper.instance
-                                                .getLatitude(),
-                                            Longitude: SharedPrefHelper.instance
-                                                .getLongitude(),
-                                            LocationAddress: Address,
-                                            CompanyId: CompanyID.toString())));
-                              } else {
-                                final imagepicker = ImagePicker();
+                                    checkPhotoPermissionStatus();
+                                  } else {
+                                    if (ConstantMAster.toString() == "" ||
+                                        ConstantMAster.toString()
+                                                .toLowerCase() ==
+                                            "no") {
+                                      _dashBoardScreenBloc.add(
+                                          PunchWithoutImageAttendanceSaveRequestEvent(
+                                              PunchWithoutImageAttendanceSaveRequest(
+                                                  Mode: "punchin",
+                                                  pkID: "0",
+                                                  EmployeeID: _offlineLoggedInData
+                                                      .details[0].employeeID
+                                                      .toString(),
+                                                  PresenceDate: selectedDate.year
+                                                          .toString() +
+                                                      "-" +
+                                                      selectedDate.month
+                                                          .toString() +
+                                                      "-" +
+                                                      selectedDate.day
+                                                          .toString(),
+                                                  TimeIn:
+                                                      selectedTime.hour.toString() +
+                                                          ":" +
+                                                          selectedTime.minute
+                                                              .toString(),
+                                                  TimeOut: "",
+                                                  LunchIn: "",
+                                                  LunchOut: "",
+                                                  LoginUserID: LoginUserID,
+                                                  Notes: "",
+                                                  Latitude: SharedPrefHelper
+                                                      .instance
+                                                      .getLatitude(),
+                                                  Longitude: SharedPrefHelper
+                                                      .instance
+                                                      .getLongitude(),
+                                                  LocationAddress: Address,
+                                                  CompanyId:
+                                                      CompanyID.toString())));
+                                    } else {
+                                      final imagepicker = ImagePicker();
 
-                                /*try {
+                                      /*try {
                                   final file = await imagepicker.pickImage(
                                     source: ImageSource.camera,
                                     imageQuality: 85,
@@ -340,538 +361,589 @@ class _QuickAttendanceScreenState extends BaseState<QuickAttendanceScreen>
                                   print(e);
                                 }*/
 
-                                XFile file = await imagepicker.pickImage(
-                                  source: ImageSource.camera,
-                                  imageQuality: 85,
-                                );
+                                      XFile file = await imagepicker.pickImage(
+                                        source: ImageSource.camera,
+                                        imageQuality: 85,
+                                      );
 
-                                if (file != null) {
-                                  File file1 = File(file.path);
+                                      if (file != null) {
+                                        File file1 = File(file.path);
 
-                                  final dir = await path_provider
-                                      .getTemporaryDirectory();
+                                        final dir = await path_provider
+                                            .getTemporaryDirectory();
 
-                                  final extension = p.extension(file1.path);
+                                        final extension =
+                                            p.extension(file1.path);
 
-                                  int timestamp1 =
-                                      DateTime.now().millisecondsSinceEpoch;
+                                        int timestamp1 = DateTime.now()
+                                            .millisecondsSinceEpoch;
 
-                                  String filenamepunchin = _offlineLoggedInData
-                                          .details[0].employeeID
-                                          .toString() +
-                                      "_" +
-                                      DateTime.now().day.toString() +
-                                      "_" +
-                                      DateTime.now().month.toString() +
-                                      "_" +
-                                      DateTime.now().year.toString() +
-                                      "_" +
-                                      timestamp1.toString() +
-                                      extension;
-
-                                  final targetPath =
-                                      dir.absolute.path + "/" + filenamepunchin;
-                                  File file1231 = await testCompressAndGetFile(
-                                      file1, targetPath);
-                                  final bytes =
-                                      file1.readAsBytesSync().lengthInBytes;
-                                  final kb = bytes / 1024;
-                                  final mb = kb / 1024;
-
-                                  print("Image File Is Largre" +
-                                      " KB : " +
-                                      kb.toString() +
-                                      " MB : " +
-                                      mb.toString());
-                                  final snackBar = SnackBar(
-                                    content: Text(" KB : " +
-                                        kb.toStringAsFixed(2) +
-                                        " MB : " +
-                                        mb.toStringAsFixed(2) +
-                                        " Location : " +
-                                        " Lat : " +
-                                        SharedPrefHelper.instance
-                                            .getLatitude() +
-                                        " Long : " +
-                                        SharedPrefHelper.instance
-                                            .getLongitude() +
-                                        " Address : " +
-                                        Address),
-                                  );
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(snackBar);
-
-                                  _dashBoardScreenBloc
-                                      .add(PunchAttendanceSaveRequestEvent(
-                                          file1231,
-                                          PunchAttendanceSaveRequest(
-                                            pkID: "0",
-                                            CompanyId: CompanyID.toString(),
-                                            Mode: "punchIN",
-                                            EmployeeID: _offlineLoggedInData
-                                                .details[0].employeeID
-                                                .toString(),
-                                            FileName: filenamepunchin,
-                                            PresenceDate: selectedDate.year
+                                        String filenamepunchin =
+                                            _offlineLoggedInData
+                                                    .details[0].employeeID
                                                     .toString() +
-                                                "-" +
-                                                selectedDate.month.toString() +
-                                                "-" +
-                                                selectedDate.day.toString(),
-                                            Time: selectedTime.hour.toString() +
-                                                ":" +
-                                                selectedTime.minute.toString(),
-                                            Notes: "",
-                                            Latitude: SharedPrefHelper.instance
-                                                .getLatitude(),
-                                            Longitude: SharedPrefHelper.instance
-                                                .getLongitude(),
-                                            LocationAddress: Address,
-                                            LoginUserId: LoginUserID,
-                                          )));
-                                } /*else {
+                                                "_" +
+                                                DateTime.now().day.toString() +
+                                                "_" +
+                                                DateTime.now()
+                                                    .month
+                                                    .toString() +
+                                                "_" +
+                                                DateTime.now().year.toString() +
+                                                "_" +
+                                                timestamp1.toString() +
+                                                extension;
+
+                                        final targetPath = dir.absolute.path +
+                                            "/" +
+                                            filenamepunchin;
+                                        File file1231 =
+                                            await testCompressAndGetFile(
+                                                file1, targetPath);
+                                        final bytes = file1
+                                            .readAsBytesSync()
+                                            .lengthInBytes;
+                                        final kb = bytes / 1024;
+                                        final mb = kb / 1024;
+
+                                        print("Image File Is Largre" +
+                                            " KB : " +
+                                            kb.toString() +
+                                            " MB : " +
+                                            mb.toString());
+                                        final snackBar = SnackBar(
+                                          content: Text(" KB : " +
+                                              kb.toStringAsFixed(2) +
+                                              " MB : " +
+                                              mb.toStringAsFixed(2) +
+                                              " Location : " +
+                                              " Lat : " +
+                                              SharedPrefHelper.instance
+                                                  .getLatitude() +
+                                              " Long : " +
+                                              SharedPrefHelper.instance
+                                                  .getLongitude() +
+                                              " Address : " +
+                                              Address),
+                                        );
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+
+                                        _dashBoardScreenBloc.add(
+                                            PunchAttendanceSaveRequestEvent(
+                                                file1231,
+                                                PunchAttendanceSaveRequest(
+                                                  pkID: "0",
+                                                  CompanyId:
+                                                      CompanyID.toString(),
+                                                  Mode: "punchIN",
+                                                  EmployeeID:
+                                                      _offlineLoggedInData
+                                                          .details[0].employeeID
+                                                          .toString(),
+                                                  FileName: filenamepunchin,
+                                                  PresenceDate: selectedDate
+                                                          .year
+                                                          .toString() +
+                                                      "-" +
+                                                      selectedDate.month
+                                                          .toString() +
+                                                      "-" +
+                                                      selectedDate.day
+                                                          .toString(),
+                                                  Time: selectedTime.hour
+                                                          .toString() +
+                                                      ":" +
+                                                      selectedTime.minute
+                                                          .toString(),
+                                                  Notes: "",
+                                                  Latitude: SharedPrefHelper
+                                                      .instance
+                                                      .getLatitude(),
+                                                  Longitude: SharedPrefHelper
+                                                      .instance
+                                                      .getLongitude(),
+                                                  LocationAddress: Address,
+                                                  LoginUserId: LoginUserID,
+                                                )));
+                                      } /*else {
                                               showCommonDialogWithSingleOption(
                                                   context,
                                                   "Something Went Wrong File Not Found Exception!",
                                                   positiveButtonTitle:
                                                       "OK");
                                             }*/
-                              }
-                            }
-                          }
-                        } else {
-                          getcurrentTimeInfoFromMaindfd();
-                        }
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(top: 10, bottom: 10),
-                        child: Row(
-                          children: [
-                            Icon(
-                              isPunchIn == true
-                                  ? Icons.watch_later
-                                  : Icons.watch_later_outlined,
-                              color: isPunchIn == true
-                                  ? colorPresentDay
-                                  : colorRED,
-                              size: 42,
-                            ),
-                            Card(
-                              elevation: 5,
-                              color: PuchInTime.text == ""
-                                  ? colorRED
-                                  : colorPresentDay,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                height: 50,
-                                width: 100,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "Punch In",
-                                          style: TextStyle(
-                                              color: colorWhite,
-                                              // <-- Change this
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            isPunchIn == true
-                                ? Icon(
-                                    Icons.access_alarm,
-                                    color: colorPrimary,
-                                  )
-                                : Container(),
-                            isPunchIn == true
-                                ? Text(
-                                    PuchInTime.text,
-                                    style: TextStyle(
-                                        fontSize: 15, color: colorPrimary),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () async {
-                        TimeOfDay selectedTime = TimeOfDay.now();
-
-                        print("yryry123" + Address.toString());
-
-                        if (isCurrentTime == true) {
-                          if (isPunchIn == true) {
-                            if (isPunchOut == false) {
-                              if (isLunchIn == true) {
-                                showCommonDialogWithSingleOption(
-                                    context,
-                                    _offlineLoggedInData
-                                            .details[0].employeeName +
-                                        " \n Lunch In : " +
-                                        LunchInTime.text,
-                                    positiveButtonTitle: "OK");
-                              } else {
-                                if (ConstantMAster.toString() == "" ||
-                                    ConstantMAster.toString().toLowerCase() ==
-                                        "no") {
-                                  _dashBoardScreenBloc.add(
-                                      PunchWithoutImageAttendanceSaveRequestEvent(
-                                          PunchWithoutImageAttendanceSaveRequest(
-                                              Mode: "lunchin",
-                                              pkID: "0",
-                                              EmployeeID: _offlineLoggedInData
-                                                  .details[0].employeeID
-                                                  .toString(),
-                                              PresenceDate: selectedDate.year
-                                                      .toString() +
-                                                  "-" +
-                                                  selectedDate.month
-                                                      .toString() +
-                                                  "-" +
-                                                  selectedDate.day.toString(),
-                                              TimeIn: "",
-                                              TimeOut: "",
-                                              LunchIn: selectedTime
-                                                      .hour
-                                                      .toString() +
-                                                  ":" +
-                                                  selectedTime
-                                                      .minute
-                                                      .toString(),
-                                              LunchOut: "",
-                                              LoginUserID: LoginUserID,
-                                              Notes: "",
-                                              Latitude: SharedPrefHelper
-                                                  .instance
-                                                  .getLatitude(),
-                                              Longitude: SharedPrefHelper
-                                                  .instance
-                                                  .getLongitude(),
-                                              LocationAddress: Address,
-                                              CompanyId:
-                                                  CompanyID.toString())));
-                                } else {
-                                  final imagepicker = ImagePicker();
-
-                                  XFile file = await imagepicker.pickImage(
-                                    source: ImageSource.camera,
-                                    imageQuality: 85,
-                                  );
-
-                                  if (file != null) {
-                                    File file1 = File(file.path);
-
-                                    final dir = await path_provider
-                                        .getTemporaryDirectory();
-
-                                    final extension = p.extension(file1.path);
-
-                                    int timestamp1 =
-                                        DateTime.now().millisecondsSinceEpoch;
-
-                                    String filenameLunchIn =
-                                        _offlineLoggedInData
-                                                .details[0].employeeID
-                                                .toString() +
-                                            "_" +
-                                            DateTime.now().day.toString() +
-                                            "_" +
-                                            DateTime.now().month.toString() +
-                                            "_" +
-                                            DateTime.now().year.toString() +
-                                            "_" +
-                                            timestamp1.toString() +
-                                            extension;
-
-                                    final targetPath = dir.absolute.path +
-                                        "/" +
-                                        filenameLunchIn;
-                                    File file1231 =
-                                        await testCompressAndGetFile(
-                                            file1, targetPath);
-                                    final bytes =
-                                        file1.readAsBytesSync().lengthInBytes;
-                                    final kb = bytes / 1024;
-                                    final mb = kb / 1024;
-
-                                    print("Image File Is Largre" +
-                                        " KB : " +
-                                        kb.toString() +
-                                        " MB : " +
-                                        mb.toString());
-                                    final snackBar = SnackBar(
-                                      content: Text(" KB : " +
-                                          kb.toStringAsFixed(2) +
-                                          " MB : " +
-                                          mb.toStringAsFixed(2) +
-                                          " Location : " +
-                                          " Lat : " +
-                                          SharedPrefHelper.instance
-                                              .getLatitude() +
-                                          " Long : " +
-                                          SharedPrefHelper.instance
-                                              .getLongitude() +
-                                          " Address : " +
-                                          Address),
-                                    );
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(snackBar);
-
-                                    _dashBoardScreenBloc
-                                        .add(PunchAttendanceSaveRequestEvent(
-                                            file1231,
-                                            PunchAttendanceSaveRequest(
-                                              pkID: "0",
-                                              CompanyId: CompanyID.toString(),
-                                              Mode: "lunchin",
-                                              EmployeeID: _offlineLoggedInData
-                                                  .details[0].employeeID
-                                                  .toString(),
-                                              FileName: filenameLunchIn,
-                                              PresenceDate: selectedDate.year
-                                                      .toString() +
-                                                  "-" +
-                                                  selectedDate.month
-                                                      .toString() +
-                                                  "-" +
-                                                  selectedDate.day.toString(),
-                                              Time:
-                                                  selectedTime.hour.toString() +
-                                                      ":" +
-                                                      selectedTime.minute
-                                                          .toString(),
-                                              Notes: "",
-                                              Latitude: SharedPrefHelper
-                                                  .instance
-                                                  .getLatitude(),
-                                              Longitude: SharedPrefHelper
-                                                  .instance
-                                                  .getLongitude(),
-                                              LocationAddress: Address,
-                                              LoginUserId: LoginUserID,
-                                            )));
+                                    }
                                   }
                                 }
+                              } else {
+                                getcurrentTimeInfoFromMaindfd();
                               }
-                            } else {
-                              if (isLunchIn == false) {
-                                showCommonDialogWithSingleOption(context,
-                                    "After Punch Out, You can't be able to do Lunch In!!",
-                                    positiveButtonTitle: "OK");
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 10, bottom: 10),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isPunchIn == true
+                                        ? Icons.watch_later
+                                        : Icons.watch_later_outlined,
+                                    color: isPunchIn == true
+                                        ? colorPresentDay
+                                        : colorRED,
+                                    size: 42,
+                                  ),
+                                  Card(
+                                    elevation: 5,
+                                    color: PuchInTime.text == ""
+                                        ? colorRED
+                                        : colorPresentDay,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Container(
+                                      height: 50,
+                                      width: 100,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Punch In",
+                                                style: TextStyle(
+                                                    color: colorWhite,
+                                                    // <-- Change this
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  isPunchIn == true
+                                      ? Icon(
+                                          Icons.access_alarm,
+                                          color: colorPrimary,
+                                        )
+                                      : Container(),
+                                  isPunchIn == true
+                                      ? Text(
+                                          PuchInTime.text,
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: colorPrimary),
+                                        )
+                                      : Container(),
+                                ],
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              TimeOfDay selectedTime = TimeOfDay.now();
+
+                              print("yryry123" + Address.toString());
+
+                              if (isCurrentTime == true) {
+                                if (isPunchIn == true) {
+                                  if (isPunchOut == false) {
+                                    if (isLunchIn == true) {
+                                      showCommonDialogWithSingleOption(
+                                          context,
+                                          _offlineLoggedInData
+                                                  .details[0].employeeName +
+                                              " \n Lunch In : " +
+                                              LunchInTime.text,
+                                          positiveButtonTitle: "OK");
+                                    } else {
+                                      if (ConstantMAster.toString() == "" ||
+                                          ConstantMAster.toString()
+                                                  .toLowerCase() ==
+                                              "no") {
+                                        _dashBoardScreenBloc.add(
+                                            PunchWithoutImageAttendanceSaveRequestEvent(
+                                                PunchWithoutImageAttendanceSaveRequest(
+                                                    Mode: "lunchin",
+                                                    pkID: "0",
+                                                    EmployeeID:
+                                                        _offlineLoggedInData
+                                                            .details[0]
+                                                            .employeeID
+                                                            .toString(),
+                                                    PresenceDate: selectedDate.year
+                                                            .toString() +
+                                                        "-" +
+                                                        selectedDate.month
+                                                            .toString() +
+                                                        "-" +
+                                                        selectedDate
+                                                            .day
+                                                            .toString(),
+                                                    TimeIn: "",
+                                                    TimeOut: "",
+                                                    LunchIn:
+                                                        selectedTime
+                                                                .hour
+                                                                .toString() +
+                                                            ":" +
+                                                            selectedTime
+                                                                .minute
+                                                                .toString(),
+                                                    LunchOut: "",
+                                                    LoginUserID: LoginUserID,
+                                                    Notes: "",
+                                                    Latitude: SharedPrefHelper
+                                                        .instance
+                                                        .getLatitude(),
+                                                    Longitude: SharedPrefHelper
+                                                        .instance
+                                                        .getLongitude(),
+                                                    LocationAddress: Address,
+                                                    CompanyId:
+                                                        CompanyID.toString())));
+                                      } else {
+                                        final imagepicker = ImagePicker();
+
+                                        XFile file =
+                                            await imagepicker.pickImage(
+                                          source: ImageSource.camera,
+                                          imageQuality: 85,
+                                        );
+
+                                        if (file != null) {
+                                          File file1 = File(file.path);
+
+                                          final dir = await path_provider
+                                              .getTemporaryDirectory();
+
+                                          final extension =
+                                              p.extension(file1.path);
+
+                                          int timestamp1 = DateTime.now()
+                                              .millisecondsSinceEpoch;
+
+                                          String filenameLunchIn =
+                                              _offlineLoggedInData
+                                                      .details[0].employeeID
+                                                      .toString() +
+                                                  "_" +
+                                                  DateTime.now()
+                                                      .day
+                                                      .toString() +
+                                                  "_" +
+                                                  DateTime.now()
+                                                      .month
+                                                      .toString() +
+                                                  "_" +
+                                                  DateTime.now()
+                                                      .year
+                                                      .toString() +
+                                                  "_" +
+                                                  timestamp1.toString() +
+                                                  extension;
+
+                                          final targetPath = dir.absolute.path +
+                                              "/" +
+                                              filenameLunchIn;
+                                          File file1231 =
+                                              await testCompressAndGetFile(
+                                                  file1, targetPath);
+                                          final bytes = file1
+                                              .readAsBytesSync()
+                                              .lengthInBytes;
+                                          final kb = bytes / 1024;
+                                          final mb = kb / 1024;
+
+                                          print("Image File Is Largre" +
+                                              " KB : " +
+                                              kb.toString() +
+                                              " MB : " +
+                                              mb.toString());
+                                          final snackBar = SnackBar(
+                                            content: Text(" KB : " +
+                                                kb.toStringAsFixed(2) +
+                                                " MB : " +
+                                                mb.toStringAsFixed(2) +
+                                                " Location : " +
+                                                " Lat : " +
+                                                SharedPrefHelper.instance
+                                                    .getLatitude() +
+                                                " Long : " +
+                                                SharedPrefHelper.instance
+                                                    .getLongitude() +
+                                                " Address : " +
+                                                Address),
+                                          );
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
+
+                                          _dashBoardScreenBloc.add(
+                                              PunchAttendanceSaveRequestEvent(
+                                                  file1231,
+                                                  PunchAttendanceSaveRequest(
+                                                    pkID: "0",
+                                                    CompanyId:
+                                                        CompanyID.toString(),
+                                                    Mode: "lunchin",
+                                                    EmployeeID:
+                                                        _offlineLoggedInData
+                                                            .details[0]
+                                                            .employeeID
+                                                            .toString(),
+                                                    FileName: filenameLunchIn,
+                                                    PresenceDate: selectedDate
+                                                            .year
+                                                            .toString() +
+                                                        "-" +
+                                                        selectedDate.month
+                                                            .toString() +
+                                                        "-" +
+                                                        selectedDate.day
+                                                            .toString(),
+                                                    Time: selectedTime.hour
+                                                            .toString() +
+                                                        ":" +
+                                                        selectedTime.minute
+                                                            .toString(),
+                                                    Notes: "",
+                                                    Latitude: SharedPrefHelper
+                                                        .instance
+                                                        .getLatitude(),
+                                                    Longitude: SharedPrefHelper
+                                                        .instance
+                                                        .getLongitude(),
+                                                    LocationAddress: Address,
+                                                    LoginUserId: LoginUserID,
+                                                  )));
+                                        }
+                                      }
+                                    }
+                                  } else {
+                                    if (isLunchIn == false) {
+                                      showCommonDialogWithSingleOption(context,
+                                          "After Punch Out, You can't be able to do Lunch In!!",
+                                          positiveButtonTitle: "OK");
+                                    }
+                                  }
+                                } else {
+                                  showCommonDialogWithSingleOption(
+                                      context, "Punch in Is Required !",
+                                      positiveButtonTitle: "OK");
+                                }
+                              } else {
+                                getcurrentTimeInfoFromMaindfd();
                               }
-                            }
-                          } else {
-                            showCommonDialogWithSingleOption(
-                                context, "Punch in Is Required !",
-                                positiveButtonTitle: "OK");
-                          }
-                        } else {
-                          getcurrentTimeInfoFromMaindfd();
-                        }
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(top: 10, bottom: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              isLunchIn == true
-                                  ? Icons.watch_later
-                                  : Icons.watch_later_outlined,
-                              color: isLunchIn == true
-                                  ? colorPresentDay
-                                  : colorRED,
-                              size: 42,
-                            ),
-                            Card(
-                              elevation: 5,
-                              color: LunchInTime.text == ""
-                                  ? colorRED
-                                  : colorPresentDay,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                height: 50,
-                                width: 100,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "Lunch In",
-                                          style: TextStyle(
-                                              color: colorWhite,
-                                              // <-- Change this
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 10, bottom: 10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    isLunchIn == true
+                                        ? Icons.watch_later
+                                        : Icons.watch_later_outlined,
+                                    color: isLunchIn == true
+                                        ? colorPresentDay
+                                        : colorRED,
+                                    size: 42,
+                                  ),
+                                  Card(
+                                    elevation: 5,
+                                    color: LunchInTime.text == ""
+                                        ? colorRED
+                                        : colorPresentDay,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Container(
+                                      height: 50,
+                                      width: 100,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Lunch In",
+                                                style: TextStyle(
+                                                    color: colorWhite,
+                                                    // <-- Change this
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  isLunchIn == true
+                                      ? Icon(
+                                          Icons.access_alarm,
+                                          color: colorPrimary,
+                                        )
+                                      : Container(),
+                                  isLunchIn == true
+                                      ? Text(
+                                          LunchInTime.text,
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: colorPrimary),
+                                        )
+                                      : Container(),
+                                ],
                               ),
                             ),
-                            isLunchIn == true
-                                ? Icon(
-                                    Icons.access_alarm,
-                                    color: colorPrimary,
-                                  )
-                                : Container(),
-                            isLunchIn == true
-                                ? Text(
-                                    LunchInTime.text,
-                                    style: TextStyle(
-                                        fontSize: 15, color: colorPrimary),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        if (isCurrentTime == true) {
-                          lunchoutLogic();
-                        } else {
-                          getcurrentTimeInfoFromMaindfd();
-                        }
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(top: 10, bottom: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              isLunchOut == true
-                                  ? Icons.watch_later
-                                  : Icons.watch_later_outlined,
-                              color: isLunchOut == true
-                                  ? colorPresentDay
-                                  : colorRED,
-                              size: 42,
-                            ),
-                            Card(
-                              elevation: 5,
-                              color: LunchOutTime.text == ""
-                                  ? colorRED
-                                  : colorPresentDay,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                height: 50,
-                                width: 100,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "Lunch Out",
-                                          style: TextStyle(
-                                              color: colorWhite,
-                                              // <-- Change this
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              if (isCurrentTime == true) {
+                                lunchoutLogic();
+                              } else {
+                                getcurrentTimeInfoFromMaindfd();
+                              }
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 10, bottom: 10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    isLunchOut == true
+                                        ? Icons.watch_later
+                                        : Icons.watch_later_outlined,
+                                    color: isLunchOut == true
+                                        ? colorPresentDay
+                                        : colorRED,
+                                    size: 42,
+                                  ),
+                                  Card(
+                                    elevation: 5,
+                                    color: LunchOutTime.text == ""
+                                        ? colorRED
+                                        : colorPresentDay,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Container(
+                                      height: 50,
+                                      width: 100,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Lunch Out",
+                                                style: TextStyle(
+                                                    color: colorWhite,
+                                                    // <-- Change this
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  isLunchOut == true
+                                      ? Icon(
+                                          Icons.access_alarm,
+                                          color: colorPrimary,
+                                        )
+                                      : Container(),
+                                  isLunchOut == true
+                                      ? Text(
+                                          LunchOutTime.text,
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: colorPrimary),
+                                        )
+                                      : Container(),
+                                ],
                               ),
                             ),
-                            isLunchOut == true
-                                ? Icon(
-                                    Icons.access_alarm,
-                                    color: colorPrimary,
-                                  )
-                                : Container(),
-                            isLunchOut == true
-                                ? Text(
-                                    LunchOutTime.text,
-                                    style: TextStyle(
-                                        fontSize: 15, color: colorPrimary),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        if (isCurrentTime == true) {
-                          punchoutLogic();
-                        } else {
-                          getcurrentTimeInfoFromMaindfd();
-                        }
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(top: 10, bottom: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              isPunchOut == true
-                                  ? Icons.watch_later
-                                  : Icons.watch_later_outlined,
-                              color: isPunchOut == true
-                                  ? colorPresentDay
-                                  : colorRED,
-                              size: 42,
-                            ),
-                            Card(
-                              elevation: 5,
-                              color: PuchOutTime.text == ""
-                                  ? colorRED
-                                  : colorPresentDay,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                height: 50,
-                                width: 100,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "Punch Out",
-                                          style: TextStyle(
-                                              color: colorWhite,
-                                              // <-- Change this
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              if (isCurrentTime == true) {
+                                punchoutLogic();
+                              } else {
+                                getcurrentTimeInfoFromMaindfd();
+                              }
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(top: 10, bottom: 10),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    isPunchOut == true
+                                        ? Icons.watch_later
+                                        : Icons.watch_later_outlined,
+                                    color: isPunchOut == true
+                                        ? colorPresentDay
+                                        : colorRED,
+                                    size: 42,
+                                  ),
+                                  Card(
+                                    elevation: 5,
+                                    color: PuchOutTime.text == ""
+                                        ? colorRED
+                                        : colorPresentDay,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Container(
+                                      height: 50,
+                                      width: 100,
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Align(
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Punch Out",
+                                                style: TextStyle(
+                                                    color: colorWhite,
+                                                    // <-- Change this
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  isPunchOut == true
+                                      ? Icon(
+                                          Icons.access_alarm,
+                                          color: colorPrimary,
+                                        )
+                                      : Container(),
+                                  isPunchOut == true
+                                      ? Text(
+                                          PuchOutTime.text,
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: colorPrimary),
+                                        )
+                                      : Container(),
+                                ],
                               ),
                             ),
-                            isPunchOut == true
-                                ? Icon(
-                                    Icons.access_alarm,
-                                    color: colorPrimary,
-                                  )
-                                : Container(),
-                            isPunchOut == true
-                                ? Text(
-                                    PuchOutTime.text,
-                                    style: TextStyle(
-                                        fontSize: 15, color: colorPrimary),
-                                  )
-                                : Container(),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     InkWell(
@@ -2362,5 +2434,13 @@ Gujarat 360001, India
         ),
       ),
     );
+  }
+
+  void _onMenuRightsResponse(MenuRightsEventResponseState response) {
+    for (var i = 0; i < response.menuRightsResponse.details.length; i++) {
+      if (response.menuRightsResponse.details[i].menuName == "pgAttendance") {
+        isVisibleRights = true;
+      }
+    }
   }
 }

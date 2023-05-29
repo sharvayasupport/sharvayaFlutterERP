@@ -66,84 +66,88 @@ class ExternalLeadDetails {
 
   ExternalLeadDetails(
       {this.pkId,
-        this.rowNum,
-        this.senderName,
-        this.senderMail,
-        this.queryDatetime,
-        this.companyName,
-        this.countryFlagURL,
-        this.message,
-        this.address,
-        this.city,
-        this.pincode,
-        this.state,
-        this.forProduct,
-        this.primaryMobileNo,
-        this.customerId,
-        this.productID,
-        this.customerName,
-        this.productName,
-        this.secondaryMobileNo,
-        this.leadSource,
-        this.employeeID,
-        this.employeeName,
-        this.leadStatus,
-        this.stateCode,
-        this.cityCode,
-        this.inquiryNo,
-        this.inquiryNopkID,
-        this.createdBy,
-        this.createdDate,
-        this.exLeadClosure,
-        this.acid,
-        this.exLeadClosureReason,
-        this.stateName,
-        this.cityName,
-        this.countryCode,
-        this.countryName,
-        this.closureRemark,
-        this.InProcessRemark
-      });
+      this.rowNum,
+      this.senderName,
+      this.senderMail,
+      this.queryDatetime,
+      this.companyName,
+      this.countryFlagURL,
+      this.message,
+      this.address,
+      this.city,
+      this.pincode,
+      this.state,
+      this.forProduct,
+      this.primaryMobileNo,
+      this.customerId,
+      this.productID,
+      this.customerName,
+      this.productName,
+      this.secondaryMobileNo,
+      this.leadSource,
+      this.employeeID,
+      this.employeeName,
+      this.leadStatus,
+      this.stateCode,
+      this.cityCode,
+      this.inquiryNo,
+      this.inquiryNopkID,
+      this.createdBy,
+      this.createdDate,
+      this.exLeadClosure,
+      this.acid,
+      this.exLeadClosureReason,
+      this.stateName,
+      this.cityName,
+      this.countryCode,
+      this.countryName,
+      this.closureRemark,
+      this.InProcessRemark});
 
   ExternalLeadDetails.fromJson(Map<String, dynamic> json) {
-    pkId = json['pkId']== null ?0: json['pkId'];
-    rowNum = json['RowNum']== null ?0: json['RowNum'];
-    senderName = json['SenderName']== null ?"": json['SenderName'];
-    senderMail = json['SenderMail']== null ?"": json['SenderMail'];
-    queryDatetime = json['QueryDatetime']== null ?"": json['QueryDatetime'];
-    companyName = json['CompanyName']== null ?"": json['CompanyName'];
-    countryFlagURL = json['CountryFlagURL']== null ?"": json['CountryFlagURL'];
-    message = json['Message']== null ?"": json['Message'];
-    address = json['Address']== null ?"": json['Address'];
-    city = json['City']== null ?"": json['City'];
-    pincode = json['Pincode']== null ?"": json['Pincode'];
-    state = json['State']== null ?"": json['State'];
-    forProduct = json['ForProduct']== null ?"": json['ForProduct'];
-    primaryMobileNo = json['PrimaryMobileNo']== null ?"": json['PrimaryMobileNo'];
-    customerId = json['CustomerId']== null ?0: json['CustomerId'];
-    productID = json['ProductID']== null ?0: json['ProductID'];
-    customerName = json['CustomerName']== null ?"": json['CustomerName'];
-    productName = json['ProductName']== null ?"": json['ProductName'];
-    secondaryMobileNo = json['SecondaryMobileNo']== null ?"": json['SecondaryMobileNo'];
-    leadSource = json['LeadSource']== null ?"": json['LeadSource'];
-    employeeID = json['EmployeeID']== null ?0: json['EmployeeID'];
-    employeeName = json['EmployeeName']== null ?"": json['EmployeeName'];
-    leadStatus = json['LeadStatus']== null ?"": json['LeadStatus'];
-    stateCode = json['StateCode']== null ?0: json['StateCode'];
-    cityCode = json['CityCode']== null ?0: json['CityCode'];
-    inquiryNo = json['InquiryNo']== null ?"": json['InquiryNo'];
-    inquiryNopkID = json['InquiryNopkID']== null ?0: json['InquiryNopkID'];
-    createdBy = json['CreatedBy']== null ?"": json['CreatedBy'];
-    createdDate = json['CreatedDate']== null ?"": json['CreatedDate'];
-    exLeadClosure = json['ExLeadClosure']== null ?0: json['ExLeadClosure'];
-    acid = json['acid']== null ?"": json['acid'];
-    exLeadClosureReason = json['ExLeadClosureReason']== null ?"": json['ExLeadClosureReason'];
-    stateName = json['StateName']== null ?"": json['StateName'];
-    cityName = json['CityName']== null ?"": json['CityName'];
-    countryCode = json['CountryCode']== null ?"": json['CountryCode'];
-    countryName = json['CountryName']== null ?"": json['CountryName'];
-    closureRemark = json['ClosureRemark']== null ?"": json['ClosureRemark'];
-    InProcessRemark = json['InProcessRemark']==null?"":json['InProcessRemark'];
+    pkId = json['pkId'] == null ? 0 : json['pkId'];
+    rowNum = json['RowNum'] == null ? 0 : json['RowNum'];
+    senderName = json['SenderName'] == null ? "" : json['SenderName'];
+    senderMail = json['SenderMail'] == null ? "" : json['SenderMail'];
+    queryDatetime = json['QueryDatetime'] == null ? "" : json['QueryDatetime'];
+    companyName = json['CompanyName'] == null ? "" : json['CompanyName'];
+    countryFlagURL =
+        json['CountryFlagURL'] == null ? "" : json['CountryFlagURL'];
+    message = json['Message'] == null ? "" : json['Message'];
+    address = json['Address'] == null ? "" : json['Address'];
+    city = json['City'] == null ? "" : json['City'];
+    pincode = json['Pincode'] == null ? "" : json['Pincode'];
+    state = json['State'] == null ? "" : json['State'];
+    forProduct = json['ForProduct'] == null ? "" : json['ForProduct'];
+    primaryMobileNo =
+        json['PrimaryMobileNo'] == null ? "" : json['PrimaryMobileNo'];
+    customerId = json['CustomerId'] == null ? 0 : json['CustomerId'];
+    productID = json['ProductID'] == null ? 0 : json['ProductID'];
+    customerName = json['CustomerName'] == null ? "" : json['CustomerName'];
+    productName = json['ProductName'] == null ? "" : json['ProductName'];
+    secondaryMobileNo =
+        json['SecondaryMobileNo'] == null ? "" : json['SecondaryMobileNo'];
+    leadSource = json['LeadSource'] == null ? "" : json['LeadSource'];
+    employeeID = json['EmployeeID'] == null ? 0 : json['EmployeeID'];
+    employeeName = json['EmployeeName'] == null ? "" : json['EmployeeName'];
+    leadStatus = json['LeadStatus'] == null ? "" : json['LeadStatus'];
+    stateCode = json['StateCode'] == null ? 0 : json['StateCode'];
+    cityCode = json['CityCode'] == null ? 0 : json['CityCode'];
+    inquiryNo = json['InquiryNo'] == null ? "" : json['InquiryNo'];
+    inquiryNopkID = json['InquiryNopkID'] == null ? 0 : json['InquiryNopkID'];
+    createdBy = json['CreatedBy'] == null ? "" : json['CreatedBy'];
+    createdDate = json['CreatedDate'] == null ? "" : json['CreatedDate'];
+    exLeadClosure = json['ExLeadClosure'] == null ? 0 : json['ExLeadClosure'];
+    acid = json['acid'] == null ? "" : json['acid'];
+    exLeadClosureReason =
+        json['ExLeadClosureReason'] == null ? "" : json['ExLeadClosureReason'];
+    stateName = json['StateName'] == null ? "" : json['StateName'];
+    cityName = json['CityName'] == null ? "" : json['CityName'];
+    countryCode = json['CountryCode'] == null ? "" : json['CountryCode'];
+    countryName = json['CountryName'] == null ? "" : json['CountryName'];
+    closureRemark = json['ClosureRemark'] == null ? "" : json['ClosureRemark'];
+    InProcessRemark =
+        json['InProcessRemark'] == null ? "" : json['InProcessRemark'];
   }
 
   Map<String, dynamic> toJson() {

@@ -144,8 +144,10 @@ class SBHeaderSaveRequestEvent extends SalesBillEvents {
   int pkId;
 
   SBHeaderSaveRequest sbHeaderSaveRequest;
-
-  SBHeaderSaveRequestEvent(this.context, this.pkId, this.sbHeaderSaveRequest);
+  SBExportSaveRequest sbExportSaveRequest;
+  SbAllProductDeleteRequest sbAllProductDeleteRequest;
+  SBHeaderSaveRequestEvent(this.context, this.pkId, this.sbHeaderSaveRequest,
+      this.sbExportSaveRequest, this.sbAllProductDeleteRequest);
 }
 
 class GenericOtherChargeCallEvent extends SalesBillEvents {
@@ -235,4 +237,10 @@ class QuotationProjectListCallEvent extends SalesBillEvents {
   final QuotationProjectListRequest request;
 
   QuotationProjectListCallEvent(this.request);
+}
+
+class SbAllProductDeleteRequestCallEvent extends SalesBillEvents {
+  final SbAllProductDeleteRequest request;
+
+  SbAllProductDeleteRequestCallEvent(this.request);
 }

@@ -22,12 +22,24 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabath_qt_assembly/acurabath_qt_assambly_add_edit_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabath_qt_assembly/acurabath_qt_assambly_list_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabath_qt_general_cust_search.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabath_qt_other_charges/acurabath_qt_other_charges.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabath_qt_specification/acurabath_specification_add_edit_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabath_qt_specification/acurabath_specification_list_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabth_qt_add_edit_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabth_qt_products_crud/acurabath_qt_product_add_edit_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/add_edit/acurabth_qt_products_crud/acurabath_qt_product_list.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/list/acurabath_qt_list_screen.dart';
+import 'package:soleoserp/Clients/Acurabath/Quotation/list/acurabath_qt_search_screen.dart';
 import 'package:soleoserp/Clients/BlueTone/Customer/blue_tone_customer_add_edit.dart';
 import 'package:soleoserp/Clients/BlueTone/Customer/bt_country_list_screen.dart';
 import 'package:soleoserp/Clients/BlueTone/Inquiry/AddEdit/bluetone_inquiry_add_edit.dart';
 import 'package:soleoserp/Clients/BlueTone/Inquiry/Product/bluetone_inquiry_product_list.dart';
 import 'package:soleoserp/Clients/BlueTone/Inquiry/Product/product_price_list_screen.dart';
-import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response_service.dart';
+import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_response/FolloupPreviousDateAPI/followup_previous_date_response.dart';
+import 'package:soleoserp/Clients/BlueTone/followup_notification_details/followup_notification_details_screen.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/repositories/api_client.dart';
 import 'package:soleoserp/ui/res/localizations/app_localizations.dart';
@@ -208,6 +220,7 @@ import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller/telecaller_lis
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_add.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/telecaller_new/telecaller_new_pagintion.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_add_edit/vk_sound_complain_add_edit_screen.dart';
+import 'package:soleoserp/ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_list/vk_complaint_history_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_list/vk_sound_complain_list_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/QuickAttendance/quick_attendance.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
@@ -219,7 +232,6 @@ import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/local_notification/local_notification_manager.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 
-import 'ui/screens/DashBoard/Modules/vk_sound_complaint/vk_sound_list/vk_complaint_history_screen.dart';
 import 'ui/screens/contactscrud/add_contact_screen.dart';
 import 'ui/screens/contactscrud/contacts_crud_demo.dart';
 import 'ui/screens/contactscrud/contacts_list_screen.dart';
@@ -283,7 +295,7 @@ Future<void> main() async {
         LogLevel.ERROR,
         LogLevel.SEVERE
       ],
-      timeStampFormat: TimeStampFormat.TIME_FORMAT_READABLE,
+      timeStampFormat:pushNotificationService TimeStampFormat.TIME_FORMAT_READABLE,
       directoryStructure: DirectoryStructure.FOR_DATE,
       logTypesEnabled: ["device", "network", "errors"],
       logFileExtension: LogFileExtension.LOG,
@@ -887,12 +899,47 @@ class MyApp extends StatefulWidget {
         return getMaterialPageRoute(
             VkComplaintAddEditScreen(settings.arguments));
 
-
       case VKComplaintHistoryScreen.routeName:
         return getMaterialPageRoute(
             VKComplaintHistoryScreen(settings.arguments));
-      //
+      //BlueToneFollowupNotificationDetailScreen
+      case BlueToneFollowupNotificationDetailScreen.routeName:
+        return getMaterialPageRoute(
+            BlueToneFollowupNotificationDetailScreen(settings.arguments));
 
+      case AcurabathQuotationListScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathQuotationListScreen());
+      case AcurabathSearchQuotationScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathSearchQuotationScreen());
+      case AcurabathQuotationAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathQuotationAddEditScreen(settings.arguments));
+      case AcurabathSearchQuotationCustomerScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathSearchQuotationCustomerScreen());
+      case AcurabathOldQuotationProductListScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathOldQuotationProductListScreen(settings.arguments));
+      case AccurabathOldAddQuotationProductScreen.routeName:
+        return getMaterialPageRoute(
+            AccurabathOldAddQuotationProductScreen(settings.arguments));
+      case AcurabathNewQuotationOtherChargeScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathNewQuotationOtherChargeScreen(settings.arguments));
+      case AcurabathSpecificationListScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathSpecificationListScreen(settings.arguments));
+      case AcurabathQuotationSpecificationAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathQuotationSpecificationAddEditScreen(settings.arguments));
+      case AcurabathQTAssemblyScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathQTAssemblyScreen(settings.arguments));
+      case AcurabathQTAssemblyAddEditScreen.routeName:
+        return getMaterialPageRoute(
+            AcurabathQTAssemblyAddEditScreen(settings.arguments));
       default:
         return null;
     }
@@ -1001,21 +1048,225 @@ void onStart(ServiceInstance service) async {
       FlutterLocalNotificationsPlugin();
 
   if (service is AndroidServiceInstance) {
-    service.on('setAsForeground').listen((event) {
+    /*service.on('setAsForeground').listen((event) {
       service.setAsForegroundService();
-    });
+    });*/
 
     service.on('setAsBackground').listen((event) {
       service.setAsBackgroundService();
     });
   }
 
-  service.on('stopService').listen((event) {
+  service.on('stopService').listen((event) async {
     service.stopSelf();
+
+    /* String cmpid = await preferences.get("companyID");
+    String userid = await preferences.get("userID");
+    await initializeService(cmpid, userid);*/
   });
 
   // bring to foreground
-  Timer.periodic(const Duration(minutes: 10), (timer) async {
+  Timer.periodic(const Duration(minutes: 15), (timer) async {
+    // if (service is AndroidServiceInstance) {
+    // if (await service.isForegroundService()) {
+    /// OPTIONAL for use custom notification
+    /// the notification id must be equals with AndroidConfiguration when you call configure() method.
+
+    Future<dynamic> callapi1(String companyID, String userid123,
+        String currentDate, String currentTime) async {
+      try {
+        Map<String, String> headers = {
+          'Content-Type': 'application/json; charset=UTF-8',
+        };
+
+        final response = await http
+            .post(
+                Uri.parse(
+                    "http://208.109.14.134:83/Dashboard/FollowupNotificationList"),
+                headers: headers,
+                body: json.encode({
+                  "LoginUserID": userid123,
+                  "CompanyId": companyID,
+                  "CollectionDate": currentDate,
+                  "CollectionTime": currentTime
+                }))
+            .timeout(const Duration(seconds: 60));
+        var responseJson = json.decode(response.body);
+        Map<String, dynamic> json1 = responseJson['Data'];
+        return json1;
+      } catch (e) {
+        print("kjj" + e.toString());
+      }
+    }
+
+    String cmpid = await preferences.get("companyID");
+    String userid = await preferences.get("userID");
+    String CollectionDate = DateTime.now().year.toString() +
+        "-" +
+        DateTime.now().month.toString() +
+        "-" +
+        DateTime.now().day.toString();
+    String CollectionTime =
+        DateTime.now().hour.toString() + ":" + DateTime.now().minute.toString();
+
+    print("dsdffds" + cmpid);
+    Map<String, dynamic> json1 =
+        await callapi1(cmpid, userid, CollectionDate, CollectionTime);
+    FollowupPreviousDateResponse apiresponse =
+        FollowupPreviousDateResponse.fromJson(json1);
+
+    if (apiresponse.details.isNotEmpty) {
+      await NotificationController.cancelNotifications();
+
+      Future<dynamic> callapiNotification(String token123,
+          FollowupPreviousDateResponse apiresponsemodel, int index) async {
+        /*  try {
+          Map<String, String> headers = {
+            'Content-Type': 'application/json; charset=UTF-8',
+            "Authorization":
+                "key =AAAA6_2q1Os:APA91bEmKXQUpXDgMIvRlTJSnWe6eesYX3qmmHFL5d9D74NN_t5UetJD0TH8Ft58p6vqqLJB-VMMPlbt4ZI7FiAR_QMMhAGjLhowt913GfB027K4vOsgntD9RztvGK0yv138bdoNTZaL",
+          };
+
+          var request123 = {
+            "to": token123,
+            "notification": {
+              "body": apiresponsemodel.details[index].CustomerName,
+              "title": "Follow-up"
+            },
+            "data": {
+              "body": apiresponsemodel.details[index].CustomerName,
+              "title": "Follow-up",
+              "click_action": "FLUTTER_NOTIFICATION_CLICK"
+            }
+          };
+
+          final response = await http
+              .post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+                  headers: headers, body: json.encode(request123))
+              .timeout(const Duration(seconds: 60));
+          var responseJson = json.decode(response.body);
+          //Map<String, dynamic> json1 = responseJson['Data'];
+          return responseJson;
+        } catch (e) {
+          print("kjj" + e.toString());
+        }*/
+      }
+
+      String tokenNo = await preferences.get("TokenSP");
+
+      print("getTone" + "Token : " + tokenNo);
+
+      for (int i = 0; i < apiresponse.details.length; i++) {
+        /* Map<String, dynamic> json123 =
+            await callapiNotification(tokenNo, apiresponse, i);*/
+        await NotificationController.createNewNotification("Follow-Up",
+            apiresponse.details[i].CustomerName, apiresponse.details[i].pkID);
+        //print("sdfdsf" + json123.toString());
+      }
+    }
+    // }
+
+    //  }
+
+    /// you can see this log in logcat
+    print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
+
+    // test using external plugin
+    final deviceInfo = DeviceInfoPlugin();
+    String device;
+    if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      device = androidInfo.model;
+    }
+
+    if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      device = iosInfo.model;
+    }
+
+    service.invoke(
+      'update',
+      {
+        "current_date": DateTime.now().toIso8601String(),
+        "device": device,
+      },
+    );
+  });
+}
+
+Future<void> initializeService(String companyID123, String userID) async {
+  print("Comapdkff" + " CompanyDI : " + companyID123);
+
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString("companyID", companyID123);
+  await preferences.setString("userID", userID);
+  final service = FlutterBackgroundService();
+  ServiceInstance service1;
+
+  /// OPTIONAL, using custom notification channel id
+  /* AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'my_foreground', // id
+      'MY FOREGROUND SERVICE', // title
+      description:
+      'This channel is used for important notifications.', // description
+      importance: Importance.low, // importance must be at low or higher level
+    );*/
+
+  AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'my_foreground', // id
+    'MY FOREGROUND SERVICE', // title
+    'This channel is used for important notifications.',
+    importance: Importance.low,
+  );
+
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  if (Platform.isIOS) {
+    await flutterLocalNotificationsPlugin.initialize(
+      InitializationSettings(
+        iOS: IOSInitializationSettings(),
+      ),
+    );
+  }
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      // this will be executed when app is in foreground or background in separated isolate
+      onStart: onStart,
+
+      // auto start service
+      autoStart: true,
+      isForegroundMode: true,
+      autoStartOnBoot: true,
+      notificationChannelId: 'my_foreground',
+      initialNotificationTitle: 'AWESOME SERVICE',
+      initialNotificationContent: 'Initializing',
+      foregroundServiceNotificationId: 888,
+    ),
+    iosConfiguration: IosConfiguration(
+      // auto start service
+      autoStart: true,
+
+      // this will be executed when app is in foreground in separated isolate
+      onForeground: onStart,
+
+      // you have to enable background fetch capability on xcode project
+      onBackground: onIosBackground,
+    ),
+  );
+
+  service.startService();
+}
+
+///FollowupCount API
+/*
+ Timer.periodic(const Duration(minutes: 10), (timer) async {
     //if (service is AndroidServiceInstance) {
     // if (await service.isForegroundService()) {
     /// OPTIONAL for use custom notification
@@ -1052,11 +1303,7 @@ void onStart(ServiceInstance service) async {
         apiresponse.details[0].MissedCount == 0 &&
         apiresponse.details[0].FutureCount == 0) {
     } else {
-      /*service.setForegroundNotificationInfo(
-            title: "API Service",
-            content:
-                "Updated at ${apiresponse.details[0].MissedCount.toString() + " Time : " + DateTime.now().toString()}",
-          );*/
+
 
       Future<dynamic> callapiNotification(
           String token123, API_Response apiresponsemodel) async {
@@ -1145,4 +1392,5 @@ void onStart(ServiceInstance service) async {
       },
     );
   });
-}
+
+*/

@@ -80,8 +80,6 @@ class _VkSoundComplaintPaginationListScreenState
           LoginUserID: LoginUserID,
           CompanyId: CompanyID.toString(),
         )));
-
-
   }
 
   @override
@@ -125,7 +123,8 @@ class _VkSoundComplaintPaginationListScreenState
         },
         listenWhen: (oldState, currentState) {
           if (currentState is VkComplaintDeleteResponseState ||
-              currentState is SearchCustomerListByNumberCallResponseState || currentState is VkComplainPkIDtoDetailsResponseState) {
+              currentState is SearchCustomerListByNumberCallResponseState ||
+              currentState is VkComplainPkIDtoDetailsResponseState) {
             return true;
           }
           return false;
@@ -134,13 +133,14 @@ class _VkSoundComplaintPaginationListScreenState
     );
   }
 
+//http://localhost:1900/ComplaintQuick.aspx?MobilePdf=yes&userid=admin&password=123&pkID=60167
   @override
   Widget buildBody(BuildContext context) {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
         appBar: NewGradientAppBar(
-          title: Text('VkComplaint List'),
+          title: Text('Technical Site Visit'),
           gradient: LinearGradient(colors: [
             Color(0xff108dcf),
             Color(0xff0066b3),
@@ -352,7 +352,7 @@ class _VkSoundComplaintPaginationListScreenState
     VkComplaintListResponseDetails model = _inquiryListResponse.details[index];
 
     return Container(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.all(10),
         child: ExpansionTileCard(
           // key: Key(index.toString()),
           initiallyExpanded: false, //attention
@@ -368,28 +368,50 @@ class _VkSoundComplaintPaginationListScreenState
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
-                        margin: EdgeInsets.only(left: 8),
+                        //margin: EdgeInsets.only(left: 2),
                         child: Icon(
                           Icons.person_outline_rounded,
                           color: Color(0xff0066b3),
                           size: 24,
                         ),
                       ),
-                      Text("Customer",
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            color: Color(0xff0066b3),
-                            fontSize: 7,
-                          ))
+                      Column(
+                        children: [
+                          /* Text("Customer",
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Color(0xff0066b3),
+                                fontSize: 8,
+                              )),*/
+                          Card(
+                            color: model.complaintStatus == "Open"
+                                ? Colors.green
+                                : Colors.red,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Container(
+                              padding: EdgeInsets.all(2),
+                              child: Text(
+                                model.complaintStatus,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
                     ],
                   ),
-                  Flexible(
+                  /*  Flexible(
                     child: Card(
                       color: model.complaintStatus == "Open"
                           ? Colors.green
@@ -407,9 +429,9 @@ class _VkSoundComplaintPaginationListScreenState
                         ),
                       ),
                     ),
-                  ),
+                  ),*/
                   Container(
-                    margin: EdgeInsets.only(top: 5),
+                    //margin: EdgeInsets.only(top: 10),
                     child: Icon(
                       Icons.keyboard_arrow_right,
                       color: Color(0xff0066b3),
@@ -418,7 +440,7 @@ class _VkSoundComplaintPaginationListScreenState
                   ),
                   Flexible(
                     child: Container(
-                      margin: EdgeInsets.only(top: 10),
+                      // margin: EdgeInsets.only(top: 10),
                       child: Text(
                         model.customerName,
                         style: TextStyle(
@@ -439,7 +461,7 @@ class _VkSoundComplaintPaginationListScreenState
               height: 1.0,
             ),
             Container(
-              margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+              margin: EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -752,13 +774,12 @@ class _VkSoundComplaintPaginationListScreenState
                       IsEditRights == true
                           ? GestureDetector(
                               onTap: () {
-                                 _complaintScreenBloc.add(VkComplaintpkIDtoDetailsRequestEvent(
-                                    model.pkID,
-                                    VkComplaintpkIDtoDetailsRequest(
-                                        pkID: model.pkID.toString(), CompanyId: CompanyID.toString())));
-
-
-
+                                _complaintScreenBloc.add(
+                                    VkComplaintpkIDtoDetailsRequestEvent(
+                                        model.pkID,
+                                        VkComplaintpkIDtoDetailsRequest(
+                                            pkID: model.pkID.toString(),
+                                            CompanyId: CompanyID.toString())));
                               },
                               child: Row(
                                 children: <Widget>[
@@ -1580,14 +1601,11 @@ class _VkSoundComplaintPaginationListScreenState
   void _onpkIDtoDetailsAPIResponse(VkComplainPkIDtoDetailsResponseState state) {
     vkComplainPkIDtoDetailsResponseState = state;
 
-    navigateTo(context,
-        VkComplaintAddEditScreen.routeName,
-        arguments:
-        VkAddUpdateComplaintScreenArguments(
-            vkComplainPkIDtoDetailsResponseState))
+    navigateTo(context, VkComplaintAddEditScreen.routeName,
+            arguments: VkAddUpdateComplaintScreenArguments(
+                vkComplainPkIDtoDetailsResponseState))
         .then((value) {
-      _complaintScreenBloc
-          .add(VkComplaintListRequestEvent(
+      _complaintScreenBloc.add(VkComplaintListRequestEvent(
           _pageNo,
           VkComplaintListRequest(
             pkID: "0",

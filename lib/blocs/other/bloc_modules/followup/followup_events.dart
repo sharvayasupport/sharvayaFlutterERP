@@ -201,3 +201,9 @@ class FollowupCountRequestEvent extends FollowupEvents {
   final FollowupCountRequest request;
   FollowupCountRequestEvent(this.Status, this.request);
 }
+
+
+class FollowupPkIdDetailsRequestEvent extends FollowupEvents {
+  final FollowupPkIdDetailsRequest followupPkIdDetailsRequest;
+  FollowupPkIdDetailsRequestEvent(this.followupPkIdDetailsRequest);
+}

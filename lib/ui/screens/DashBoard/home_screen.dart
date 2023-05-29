@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:io' show Directory, File, Platform, exit;
 import 'dart:math';
@@ -8,21 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_shine/flutter_shine.dart';
 import 'package:geolocator/geolocator.dart'
     as geolocator; // or whatever name you want
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
-import 'package:lottie/lottie.dart';
 import 'package:ntp/ntp.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,8 +25,6 @@ import 'package:soleoserp/Clients/BlueTone/bluetone_model/api_request/Logout_Cou
 import 'package:soleoserp/blocs/other/bloc_modules/dashboard/dashboard_user_rights_screen_bloc.dart';
 import 'package:soleoserp/models/api_requests/api_token/api_token_update_request.dart';
 import 'package:soleoserp/models/api_requests/attendance/attendance_list_request.dart';
-import 'package:soleoserp/models/api_requests/attendance/punch_attendence_save_request.dart';
-import 'package:soleoserp/models/api_requests/attendance/punch_without_image_request.dart';
 import 'package:soleoserp/models/api_requests/company_details/company_details_request.dart';
 import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/other/all_employee_list_request.dart';
@@ -66,6 +59,7 @@ import 'package:soleoserp/ui/widgets/common_widgets.dart';
 import 'package:soleoserp/utils/date_time_extensions.dart';
 import 'package:soleoserp/utils/general_utils.dart';
 import 'package:soleoserp/utils/image_full_screen.dart';
+import 'package:soleoserp/utils/local_notification/local_notification_manager.dart';
 import 'package:soleoserp/utils/shared_pref_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -153,7 +147,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
   double progress = 0;
 
-  InAppWebViewController webViewController;
+  /*InAppWebViewController webViewController;
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
       crossPlatform: InAppWebViewOptions(
         useShouldOverrideUrlLoading: true,
@@ -166,7 +160,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         allowsInlineMediaPlayback: true,
       ));
   PullToRefreshController pullToRefreshController;
-  ContextMenu contextMenu;
+  ContextMenu contextMenu;*/
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   var delay = const Duration(seconds: 3);
@@ -213,7 +207,9 @@ class _HomeScreenState extends BaseState<HomeScreen>
   @override
   void initState() {
     super.initState();
+
     _dashBoardScreenBloc = DashBoardScreenBloc(baseBloc);
+
     PuchInboolcontroller.text = "";
     PuchOutboolcontroller.text = "";
     LunchInboolcontroller.text = "";
@@ -229,57 +225,16 @@ class _HomeScreenState extends BaseState<HomeScreen>
     SystemChannels.textInput.invokeMethod('TextInput.hide');
     getcurrentTimeInfoFromMaindfd();
     screenStatusBarColor = colorWhite;
-    contextMenu = ContextMenu(
-        menuItems: [
-          ContextMenuItem(
-              androidId: 1,
-              iosId: "1",
-              title: "Special",
-              action: () async {
-                print("Menu item Special clicked!");
-                print(await webViewController?.getSelectedText());
-                await webViewController?.clearFocus();
-              })
-        ],
-        options: ContextMenuOptions(hideDefaultSystemContextMenuItems: false),
-        onCreateContextMenu: (hitTestResult) async {
-          print("onCreateContextMenu");
-          print(hitTestResult.extra);
-          print(await webViewController?.getSelectedText());
-        },
-        onHideContextMenu: () {
-          print("onHideContextMenu");
-        },
-        onContextMenuActionItemClicked: (contextMenuItemClicked) async {
-          var id = (Platform.isAndroid)
-              ? contextMenuItemClicked.androidId
-              : contextMenuItemClicked.iosId;
-          print("onContextMenuActionItemClicked: " +
-              id.toString() +
-              " " +
-              contextMenuItemClicked.title);
-        });
-    pullToRefreshController = PullToRefreshController(
-      options: PullToRefreshOptions(
-        color: Colors.blue,
-      ),
-      onRefresh: () async {
-        if (Platform.isAndroid) {
-          webViewController?.reload();
-        } else if (Platform.isIOS) {
-          webViewController?.loadUrl(
-              urlRequest: URLRequest(url: await webViewController?.getUrl()));
-        }
-      },
-    );
+
     EmailTO.text = "";
     //normal Notification
-    registerNotification();
+    // registerNotification();
     //When App is in Terminated
     checkIntialMessage();
     pushNotificationService.setupInteractedMessage();
-    pushNotificationService.enableIOSNotifications();
-    pushNotificationService.registerNotificationListeners();
+    //pushNotificationService.enableIOSNotifications();
+    //pushNotificationService.registerNotificationListeners();
+    //pushNotificationService.getmesssageappkillstate();
     pushNotificationService.getToken();
     _offlineLoggedInData = SharedPrefHelper.instance.getLoginUserData();
     _offlineCompanyData = SharedPrefHelper.instance.getCompanyData();
@@ -316,19 +271,17 @@ class _HomeScreenState extends BaseState<HomeScreen>
       SharedPreferences preferences = await SharedPreferences.getInstance();
       await preferences.setString("TokenSP", tokenStr);
 
-      _dashBoardScreenBloc
-        ..add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
-            CompanyId: CompanyID.toString(),
-            UserID: LoginUserID,
-            TokenNo: tokenStr)));
+      _dashBoardScreenBloc.add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
+          CompanyId: CompanyID.toString(),
+          UserID: LoginUserID,
+          TokenNo: tokenStr)));
     });
 
-    _dashBoardScreenBloc
-      ..add(FollowerEmployeeListCallEvent(FollowerEmployeeListRequest(
-          CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
-    _dashBoardScreenBloc
-      ..add(ALLEmployeeNameCallEvent(
-          ALLEmployeeNameRequest(CompanyId: CompanyID.toString())));
+    _dashBoardScreenBloc.add(FollowerEmployeeListCallEvent(
+        FollowerEmployeeListRequest(
+            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    _dashBoardScreenBloc.add(ALLEmployeeNameCallEvent(
+        ALLEmployeeNameRequest(CompanyId: CompanyID.toString())));
 
     getLeadListFromDashBoard(arr_ALL_Name_ID_For_Lead);
     getSaleListFromDashBoard(arr_ALL_Name_ID_For_Sales);
@@ -346,13 +299,13 @@ class _HomeScreenState extends BaseState<HomeScreen>
             ConstantHead: "AttendenceWithImage",
             CompanyId: CompanyID.toString())));
     //ConstantRequestEvent
-    _dashBoardScreenBloc.add(AttendanceCallEvent(AttendanceApiRequest(
+    /* _dashBoardScreenBloc.add(AttendanceCallEvent(AttendanceApiRequest(
         pkID: "",
         EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
         Month: selectedDate.month.toString(),
         Year: selectedDate.year.toString(),
         CompanyId: CompanyID.toString(),
-        LoginUserID: LoginUserID)));
+        LoginUserID: LoginUserID)));*/
 
     if (_offlineLoggedInData.details[0].EmployeeImage != "" ||
         _offlineLoggedInData.details[0].EmployeeImage != null) {
@@ -375,6 +328,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
     PuchOutboolcontroller.addListener(timeChangesEvent);
     LunchInboolcontroller.addListener(timeChangesEvent);
     LunchOutboolcontroller.addListener(timeChangesEvent);
+
+    NotificationController.startListeningNotificationEvents();
+
+    //NotificationController.startListeningNotificationEvents();
   }
 
   @override
@@ -644,7 +601,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
                 GestureDetector(
                   onTap: () {
                     SharedPrefHelper.instance.prefs.setString("Is_Dealer", "");
-                    CompanyID == 4132 || CompanyID == 7189
+                    _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                            "BLG3-AF78-TO5F-NW16"
                         ? _onTaptoLogOutBluetone()
                         : _onTapOfLogOut();
                   },
@@ -688,6 +646,13 @@ class _HomeScreenState extends BaseState<HomeScreen>
                 _dashBoardScreenBloc.add(MenuRightsCallEvent(MenuRightsRequest(
                     CompanyID: CompanyID.toString(),
                     LoginUserID: LoginUserID)));
+
+                _dashBoardScreenBloc.add(FollowerEmployeeListCallEvent(
+                    FollowerEmployeeListRequest(
+                        CompanyId: CompanyID.toString(),
+                        LoginUserID: LoginUserID)));
+                _dashBoardScreenBloc.add(ALLEmployeeNameCallEvent(
+                    ALLEmployeeNameRequest(CompanyId: CompanyID.toString())));
               },
               child: Container(
                 color: colorWhite,
@@ -2383,9 +2348,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
   Future<void> _onTapOfLogOut() async {
     await SharedPrefHelper.instance
         .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
-    _dashBoardScreenBloc
-      ..add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
-          CompanyId: CompanyID.toString(), UserID: LoginUserID, TokenNo: "")));
+    _dashBoardScreenBloc.add(APITokenUpdateRequestEvent(APITokenUpdateRequest(
+        CompanyId: CompanyID.toString(), UserID: LoginUserID, TokenNo: "")));
     navigateTo(context, FirstScreen.routeName, clearAllStack: true);
   }
 
@@ -2424,26 +2388,53 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name = "Inquiry";
         all_name_id.Name1 =
             "http://demo.sharvayainfotech.in/images/gen-lead.png";
-        ALL_Name_ID all_name_id1 = ALL_Name_ID();
-        all_name_id1.Name = "Quick Inquiry";
-        all_name_id1.Name1 =
-            "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
         arr_ALL_Name_ID_For_Lead.add(all_name_id);
-        arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "SI08-SB94-MY45-RY15" ||
+            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "TEST-0000-SI0F-0208") {
+          ALL_Name_ID all_name_id1 = ALL_Name_ID();
+          all_name_id1.Name = "Quick Inquiry";
+          all_name_id1.Name1 =
+              "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
+          arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+        }
       }
 
       if (response.menuRightsResponse.details[i].menuName ==
           "pgInquiryInfoBlue") {
-        ALL_Name_ID all_name_id = ALL_Name_ID();
-        all_name_id.Name = "Inquiry";
-        all_name_id.Name1 =
-            "http://demo.sharvayainfotech.in/images/gen-lead.png";
-        ALL_Name_ID all_name_id1 = ALL_Name_ID();
-        all_name_id1.Name = "Quick Inquiry";
-        all_name_id1.Name1 =
-            "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
-        arr_ALL_Name_ID_For_Lead.add(all_name_id);
-        arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+        if (_offlineLoggedInData.details[0].serialKey ==
+            "TEST-0000-SI0F-0208") {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "BlueToneInquiry";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/gen-lead.png";
+          ALL_Name_ID all_name_id1 = ALL_Name_ID();
+          all_name_id1.Name = "BlueToneQuickInquiry";
+          all_name_id1.Name1 =
+              "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
+          arr_ALL_Name_ID_For_Lead.add(all_name_id);
+          arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+        } else {
+          ALL_Name_ID all_name_id = ALL_Name_ID();
+          all_name_id.Name = "Inquiry";
+          all_name_id.Name1 =
+              "http://demo.sharvayainfotech.in/images/gen-lead.png";
+
+          if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "SI08-SB94-MY45-RY15" ||
+              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                  "TEST-0000-SI0F-0208") {
+            ALL_Name_ID all_name_id1 = ALL_Name_ID();
+            all_name_id1.Name = "Quick Inquiry";
+            all_name_id1.Name1 =
+                "http://demo.sharvayainfotech.in/images/quick_inquiry.jpg";
+            arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+          }
+
+          arr_ALL_Name_ID_For_Lead.add(all_name_id);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgFollowup") {
         /*ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -2452,14 +2443,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
             "http://demo.sharvayainfotech.in/images/contact.png";
         arr_ALL_Name_ID_For_Lead.add(all_name_id);*/
 
-        if (_offlineLoggedInData
-                    .details[0].serialKey
-                    .toUpperCase() ==
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
                 "SW0T-GLA5-IND7-AS71" ||
             _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SI08-SB94-MY45-RY15" ||
-            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "TEST-0000-SI0F-0208") {
+                "SI08-SB94-MY45-RY15") {
           ALL_Name_ID all_name_id1 = ALL_Name_ID();
           all_name_id1.Name = "Quick Follow-up";
           all_name_id1.Name1 =
@@ -2475,11 +2462,26 @@ class _HomeScreenState extends BaseState<HomeScreen>
             arr_ALL_Name_ID_For_Lead.add(all_name_id1);
           }
         } else {
-          ALL_Name_ID all_name_id1 = ALL_Name_ID();
-          all_name_id1.Name = "Follow-up";
-          all_name_id1.Name1 =
-              "http://demo.sharvayainfotech.in/images/contact.png";
-          arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+          if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+              "TEST-0000-SI0F-0208") {
+            ALL_Name_ID all_name_id1 = ALL_Name_ID();
+            all_name_id1.Name = "Quick Follow-up";
+            all_name_id1.Name1 =
+                "http://demo.sharvayainfotech.in/images/contact.png";
+            arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+
+            ALL_Name_ID all_name_id12 = ALL_Name_ID();
+            all_name_id12.Name = "Follow-up";
+            all_name_id12.Name1 =
+                "http://demo.sharvayainfotech.in/images/contact.png";
+            arr_ALL_Name_ID_For_Lead.add(all_name_id12);
+          } else {
+            ALL_Name_ID all_name_id1 = ALL_Name_ID();
+            all_name_id1.Name = "Follow-up";
+            all_name_id1.Name1 =
+                "http://demo.sharvayainfotech.in/images/contact.png";
+            arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+          }
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgQuotation") {
@@ -2488,6 +2490,21 @@ class _HomeScreenState extends BaseState<HomeScreen>
         all_name_id.Name1 =
             "http://demo.sharvayainfotech.in/images/payment.png";
         arr_ALL_Name_ID_For_Lead.add(all_name_id);
+
+        if (_offlineLoggedInData
+                    .details[0].serialKey
+                    .toUpperCase() ==
+                "TEST-0000-SI0F-0208" ||
+            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "TEST-0000-ACBF-0214" ||
+            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "DHSI-09RY-BATH-ACCU") {
+          ALL_Name_ID all_name_id1 = ALL_Name_ID();
+          all_name_id1.Name = "Acura Quotation";
+          all_name_id1.Name1 =
+              "http://demo.sharvayainfotech.in/images/payment.png";
+          arr_ALL_Name_ID_For_Lead.add(all_name_id1);
+        }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgExternalLeads") {
         ALL_Name_ID all_name_id = ALL_Name_ID();
@@ -2550,8 +2567,7 @@ class _HomeScreenState extends BaseState<HomeScreen>
         arr_ALL_Name_ID_For_Sales.add(all_name_id);
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgSalesBill") {
-        if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
-            "dol2-6uh7-ph03-in5h") {
+        {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "SalesBill";
           all_name_id.Name1 = "http://demo.sharvayainfotech.in/images/sale.png";
@@ -2563,7 +2579,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
 
       if (response.menuRightsResponse.details[i].menuName ==
           "pgPackingChecklist") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Packing Checklist";
           all_name_id.Name1 =
@@ -2572,7 +2589,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgChecking") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Final Checking";
           all_name_id.Name1 =
@@ -2581,7 +2599,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgInstallation") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Installation";
           all_name_id.Name1 =
@@ -2590,7 +2609,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgProductionActivity") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Production Activity";
           all_name_id.Name1 =
@@ -2599,7 +2619,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgInward") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Material Inward";
           all_name_id.Name1 =
@@ -2608,7 +2629,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgOutward") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Material Outward";
           all_name_id.Name1 =
@@ -2617,7 +2639,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgMaterialMovementInward") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Store Inward";
           all_name_id.Name1 =
@@ -2626,7 +2649,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgMaterialMovementOutward") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Store Outward";
           all_name_id.Name1 =
@@ -2635,7 +2659,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgMaterialConsumption") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Material Consumption";
           all_name_id.Name1 =
@@ -2644,7 +2669,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgInspection") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Inspection Check List";
           all_name_id.Name1 =
@@ -2653,7 +2679,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgJobCardInward") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Job Card Inward";
           all_name_id.Name1 =
@@ -2662,7 +2689,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgJobCardOutward") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Job Card Outward";
           all_name_id.Name1 =
@@ -2671,7 +2699,8 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgIndent") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Material Indent";
           all_name_id.Name1 =
@@ -2680,7 +2709,10 @@ class _HomeScreenState extends BaseState<HomeScreen>
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgSiteSurvey") {
-        if (_offlineCompanyData.details[0].pkId == 4132) {
+        if (_offlineLoggedInData.details[0].serialKey
+                .toUpperCase()
+                .toString() ==
+            "TEST-0000-SI0F-0208") {
           ALL_Name_ID all_name_id = ALL_Name_ID();
           all_name_id.Name = "Site Survey";
           all_name_id.Name1 =
@@ -2888,30 +2920,58 @@ class _HomeScreenState extends BaseState<HomeScreen>
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
             "acsi-c803-cup0-shel") {
           if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "VK34-SOFG-NDH2-35JK" ||
-              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "TEST-0000-SI0F-0208") {
+              "VK34-SOFG-NDH2-35JK") {
             ALL_Name_ID all_name_id = ALL_Name_ID();
-            all_name_id.Name = "VkComplaint";
+            all_name_id.Name = "Technical Visit";
             all_name_id.Name1 =
                 "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
             arr_ALL_Name_ID_For_Support.add(all_name_id);
           } else {
-            ALL_Name_ID all_name_id = ALL_Name_ID();
-            all_name_id.Name = "Complaint";
-            all_name_id.Name1 =
-                "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
-            arr_ALL_Name_ID_For_Support.add(all_name_id);
+            if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+                "TEST-0000-SI0F-0208") {
+              ALL_Name_ID all_name_id = ALL_Name_ID();
+              all_name_id.Name = "Technical Visit";
+              all_name_id.Name1 =
+                  "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
+              arr_ALL_Name_ID_For_Support.add(all_name_id);
+
+              ALL_Name_ID all_name_id5 = ALL_Name_ID();
+              all_name_id5.Name = "Complaint";
+              all_name_id5.Name1 =
+                  "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
+              arr_ALL_Name_ID_For_Support.add(all_name_id5);
+            } else {
+              ALL_Name_ID all_name_id = ALL_Name_ID();
+              all_name_id.Name = "Complaint";
+              all_name_id.Name1 =
+                  "http://demo.sharvayainfotech.in/images/angry-emoji.jpg";
+              arr_ALL_Name_ID_For_Support.add(all_name_id);
+            }
           }
         }
       } else if (response.menuRightsResponse.details[i].menuName == "pgVisit") {
         if (_offlineLoggedInData.details[0].serialKey.toLowerCase() !=
             "acsi-c803-cup0-shel") {
-          ALL_Name_ID all_name_id = ALL_Name_ID();
-          all_name_id.Name = "Attend Visit";
-          all_name_id.Name1 =
-              "http://demo.sharvayainfotech.in/images/visit.png";
-          arr_ALL_Name_ID_For_Support.add(all_name_id);
+          if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
+              "TEST-0000-SI0F-0208") {
+            ALL_Name_ID all_name_id = ALL_Name_ID();
+            all_name_id.Name = "HemaAttendVisit";
+            all_name_id.Name1 =
+                "http://demo.sharvayainfotech.in/images/visit.png";
+            arr_ALL_Name_ID_For_Support.add(all_name_id);
+
+            ALL_Name_ID all_name_id3 = ALL_Name_ID();
+            all_name_id3.Name = "Attend Visit";
+            all_name_id3.Name1 =
+                "http://demo.sharvayainfotech.in/images/visit.png";
+            arr_ALL_Name_ID_For_Support.add(all_name_id3);
+          } else {
+            ALL_Name_ID all_name_id = ALL_Name_ID();
+            all_name_id.Name = "Attend Visit";
+            all_name_id.Name1 =
+                "http://demo.sharvayainfotech.in/images/visit.png";
+            arr_ALL_Name_ID_For_Support.add(all_name_id);
+          }
         }
       } else if (response.menuRightsResponse.details[i].menuName ==
           "pgContractInfo") {
@@ -3283,860 +3343,6 @@ class _HomeScreenState extends BaseState<HomeScreen>
         Year: selectedDate.year.toString(),
         CompanyId: CompanyID.toString(),
         LoginUserID: LoginUserID)));
-  }
-
-  showcustomdialogSendEmail(
-      {BuildContext context1,
-      String Email,
-      PunchAttendanceSaveRequest att}) async {
-    await showDialog(
-      barrierDismissible: false,
-      context: context1,
-      builder: (BuildContext context123) {
-        return SimpleDialog(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(32.0))),
-          title: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: colorPrimary, //                   <--- border color
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(
-                        15.0) //                 <--- border radius here
-                    ),
-              ),
-              child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: Text(
-                    "Send Email",
-                    style: TextStyle(
-                        color: colorPrimary, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ))),
-          children: [
-            SizedBox(
-                width: MediaQuery.of(context123).size.width,
-                child: Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Text("Email To.",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: colorPrimary,
-                                    fontWeight: FontWeight
-                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Card(
-                              elevation: 5,
-                              color: colorLightGray,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                padding: EdgeInsets.only(left: 20, right: 20),
-                                width: double.maxFinite,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                          controller: EmailTO,
-                                          textInputAction: TextInputAction.next,
-                                          decoration: InputDecoration(
-                                            hintText: "Tap to enter email To",
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFF000000),
-                                            ),
-                                            border: InputBorder.none,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF000000),
-                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    /*  Container(
-                      margin: EdgeInsets.all(5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Text("Email BCC",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: colorPrimary,
-                                    fontWeight: FontWeight
-                                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(left: 20, right: 20),
-                            child: Card(
-                              elevation: 5,
-                              color: colorLightGray,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Container(
-                                padding: EdgeInsets.only(left: 25, right: 20),
-                                width: double.maxFinite,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                          controller: EmailBCC,
-                                          decoration: InputDecoration(
-                                            hintText: "Tap to enter email BCC",
-                                            labelStyle: TextStyle(
-                                              color: Color(0xFF000000),
-                                            ),
-                                            border: InputBorder.none,
-                                          ),
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Color(0xFF000000),
-                                          ) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
-
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),*/
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          child: getCommonButton(
-                            baseTheme,
-                            () async {
-                              if (EmailTO.text != "") {
-                                bool emailValid = RegExp(
-                                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                    .hasMatch(EmailTO.text);
-
-                                if (emailValid == true) {
-                                  String webreq = SiteURL +
-                                      "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
-                                      LoginUserID +
-                                      "&password=" +
-                                      Password +
-                                      "&emailaddress=" +
-                                      EmailTO.text;
-
-                                  print("webreq" + webreq);
-
-                                  _dashBoardScreenBloc
-                                      .add(PunchOutWebMethodEvent(webreq));
-
-                                  //APITokenUpdateRequestEvent
-
-                                  _showMyDialog(EmailTO.text, att);
-                                } else {
-                                  showCommonDialogWithSingleOption(
-                                      context, "Email is not valid !",
-                                      positiveButtonTitle: "OK");
-                                }
-                                // GenerateQT(context123, EmailTO.text);
-                              } else {
-                                showCommonDialogWithSingleOption(
-                                    context, "Email TO is Required !",
-                                    positiveButtonTitle: "OK");
-                              }
-                            },
-                            "YES",
-                            backGroundColor: colorPrimary,
-                            textColor: colorWhite,
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: 100,
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          child: getCommonButton(
-                            baseTheme,
-                            () {
-                              Navigator.pop(context);
-                            },
-                            "NO",
-                            backGroundColor: colorPrimary,
-                            textColor: colorWhite,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                )),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showMyDialog(
-      String textEmaill, PunchAttendanceSaveRequest att) async {
-    return showDialog<int>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context123) {
-        return AlertDialog(
-          title: Text('Please wait ...!'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Visibility(
-                  visible: true,
-                  child: GenerateQT(context123, textEmaill, att),
-                ),
-
-                //GetCircular123(),
-              ],
-            ),
-          ),
-          /*actions: <Widget>[
-            FlatButton(
-                onPressed: () => Navigator.of(context)
-                    .pop(), //  We can return any object from here
-                child: Text('NO')),
-            */ /* prgresss!=100 ? CircularProgressIndicator() :*/ /* FlatButton(
-                onPressed: () => {
-                      Navigator.of(context).pop(),
-                    }, //  We can return any object from here
-                child: Text('YES'))
-          ],*/
-        );
-      },
-    );
-  }
-
-  GenerateQT(BuildContext context123, String emailTOstr,
-      PunchAttendanceSaveRequest att) {
-    return Center(
-      child: Container(
-        child: Stack(
-          children: [
-            Container(
-              height: 20,
-              width: 20,
-              child: Visibility(
-                visible: true,
-                child: InAppWebView(
-                  initialUrlRequest: URLRequest(
-                      url: Uri.parse(SiteURL +
-                          "/DashboardDaily.aspx?MobilePdf=yes&userid=" +
-                          LoginUserID +
-                          "&password=" +
-                          Password +
-                          "&emailaddress=" +
-                          emailTOstr)),
-                  // initialFile: "assets/index.html",
-                  initialUserScripts: UnmodifiableListView<UserScript>([]),
-                  initialOptions: options,
-                  pullToRefreshController: pullToRefreshController,
-
-                  onWebViewCreated: (controller) {
-                    webViewController = controller;
-                  },
-
-                  onLoadStart: (controller, url) {
-                    setState(() {
-                      this.url = url.toString();
-                      urlController.text = this.url;
-                    });
-                  },
-
-                  androidOnPermissionRequest:
-                      (controller, origin, resources) async {
-                    return PermissionRequestResponse(
-                        resources: resources,
-                        action: PermissionRequestResponseAction.GRANT);
-                  },
-                  shouldOverrideUrlLoading:
-                      (controller, navigationAction) async {
-                    var uri = navigationAction.request.url;
-                    if (![
-                      "http",
-                      "https",
-                      "file",
-                      "chrome",
-                      "data",
-                      "javascript",
-                      "about"
-                    ].contains(uri.scheme)) {
-                      if (await canLaunch(url)) {
-                        // Launch the App
-                        await launch(
-                          url,
-                        );
-                        //  islodding = false;
-
-                        // and cancel the request
-                        return NavigationActionPolicy.CANCEL;
-                      }
-                    }
-                    //islodding = false;
-
-                    return NavigationActionPolicy.CANCEL;
-                  },
-                  onLoadStop: (controller, url) async {
-                    pullToRefreshController.endRefreshing();
-                    setState(() {
-                      onWebLoadingStop = true;
-                      islodding = false;
-                    });
-                    print("OnLoad" +
-                        "On Loading Complted" +
-                        onWebLoadingStop.toString());
-                    setState(() {
-                      this.url = url.toString();
-                      urlController.text = this.url;
-                    });
-                    //Navigator.pop(context123);
-
-                    String pageTitle = "";
-
-                    controller.getTitle().then((value) {
-                      setState(() {
-                        pageTitle = value;
-
-                        if (pageTitle == "E-Office-Desk") {
-                          Navigator.pop(context123);
-                          showCommonDialogWithSingleOption(
-                              context, "Email Sent Successfully ",
-                              onTapOfPositiveButton: () {
-                            //Navigator.pop(context);
-
-                            navigateTo(context, HomeScreen.routeName,
-                                clearAllStack: true);
-                          });
-                        } else {
-                          Navigator.pop(context123);
-                          showCommonDialogWithSingleOption(
-                              context, "Please Try Again !");
-                        }
-                      });
-                    });
-
-                    /*showCommonDialogWithSingleOption(
-                        context, "Email Sent Successfully ",
-                        onTapOfPositiveButton: () {
-                      //Navigator.pop(context);
-                      navigateTo(context, HomeScreen.routeName,
-                          clearAllStack: true);
-                    });*/
-                  },
-                  onLoadError: (controller, url, code, message) {
-                    pullToRefreshController.endRefreshing();
-                    isLoading = false;
-                  },
-                  onProgressChanged: (controller, progress) {
-                    if (progress == 100) {
-                      pullToRefreshController.endRefreshing();
-                      this.prgresss = progress;
-
-                      // _QuotationBloc.add(QuotationPDFGenerateCallEvent(QuotationPDFGenerateRequest(CompanyId: CompanyID.toString(),QuotationNo: model.quotationNo)));
-                    }
-
-                    //  EasyLoading.showProgress(progress / 100, status: 'Loading...');
-
-                    setState(() {
-                      this.progress = progress / 100;
-                      this.prgresss = progress;
-
-                      urlController.text = this.url;
-                    });
-                  },
-                  onUpdateVisitedHistory: (controller, url, androidIsReload) {
-                    setState(() {
-                      this.url = url.toString();
-                      urlController.text = this.url;
-                    });
-                  },
-                  onConsoleMessage: (controller, consoleMessage) {
-                    print("LoadWeb" + consoleMessage.message.toString());
-                  },
-                  /*  onPageFinished: (String url) {
-                    print('Page finished loading: $url');
-                    //hide you progressbar here
-                    setState(() {
-                      islodding = false;
-                    });
-                  },*/
-                  onPageCommitVisible: (controller, url) {
-                    setState(() {
-                      islodding = false;
-                    });
-                  },
-                ),
-              ),
-            ),
-            //CircularProgressIndicator(),
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              color: Colors.white,
-              child: Lottie.asset('assets/lang/sample_kishan_two.json',
-                  width: 100, height: 100),
-            )
-            // LinearProgressIndicator(value: this.progress)
-            /* this.progress < 1.0
-                ? LinearProgressIndicator(value: this.progress)
-                : Container(),*/
-            //
-          ],
-        ),
-      ),
-    );
-  }
-
-  punchoutLogic() async {
-    if (isPunchIn == true) {
-      TimeOfDay selectedTime = TimeOfDay.now();
-
-      //EmailTO.text = model.emailAddress;
-
-      /*PunchAttendanceSaveRequest(
-        Mode: "punchout",
-        pkID: "0",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
-        PresenceDate: selectedDate.year.toString() +
-            "-" +
-            selectedDate.month.toString() +
-            "-" +
-            selectedDate.day.toString(),
-        TimeIn:
-            selectedTime.hour.toString() + ":" + selectedTime.minute.toString(),
-        TimeOut:
-            selectedTime.hour.toString() + ":" + selectedTime.minute.toString(),
-        LunchIn: "",
-        LunchOut: "",
-        LoginUserID: LoginUserID,
-        Notes: "",
-        Latitude: Latitude,
-        Longitude: Longitude,
-        LocationAddress: Address,
-        CompanyId: CompanyID.toString(),
-      );*/
-      PunchAttendanceSaveRequest punchAttendanceSaveRequest =
-          PunchAttendanceSaveRequest(
-        pkID: "0",
-        CompanyId: CompanyID.toString(),
-        Mode: "punchout",
-        EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
-        FileName: "demo.png",
-        PresenceDate: selectedDate.year.toString() +
-            "-" +
-            selectedDate.month.toString() +
-            "-" +
-            selectedDate.day.toString(),
-        Time:
-            selectedTime.hour.toString() + ":" + selectedTime.minute.toString(),
-        Notes: "",
-        Latitude: Latitude,
-        Longitude: Longitude,
-        LocationAddress: Address,
-        LoginUserId: LoginUserID,
-      );
-
-      if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "SW0T-GLA5-IND7-AS71" /*||
-          _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-              "SI08-SB94-MY45-RY15"*/
-          ) {
-        showcustomdialogSendEmail(
-            context1: context, att: punchAttendanceSaveRequest);
-      }
-
-      if (isPunchOut == true) {
-        if (_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SW0T-GLA5-IND7-AS71" /*||
-            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                "SI08-SB94-MY45-RY15"*/
-            ) {
-          showcustomdialogSendEmail(
-              context1: context, att: punchAttendanceSaveRequest);
-        } else {
-          showCommonDialogWithSingleOption(
-              context,
-              _offlineLoggedInData.details[0].employeeName +
-                  " \n Punch Out : " +
-                  PuchOutTime.text,
-              positiveButtonTitle: "OK");
-        }
-      } else {
-        if (await Permission.storage.isDenied) {
-          //await Permission.storage.request();
-
-          checkPhotoPermissionStatus();
-        } else {
-          if (ConstantMAster.toString() == "" ||
-              ConstantMAster.toString().toLowerCase() == "no") {
-            _dashBoardScreenBloc.add(
-                PunchWithoutImageAttendanceSaveRequestEvent(
-                    PunchWithoutImageAttendanceSaveRequest(
-                        Mode: "punchout",
-                        pkID: "0",
-                        EmployeeID: _offlineLoggedInData.details[0].employeeID
-                            .toString(),
-                        PresenceDate: selectedDate.year.toString() +
-                            "-" +
-                            selectedDate.month.toString() +
-                            "-" +
-                            selectedDate.day.toString(),
-                        TimeIn: "",
-                        TimeOut: selectedTime.hour.toString() +
-                            ":" +
-                            selectedTime.minute.toString(),
-                        LunchIn: "",
-                        LunchOut: "",
-                        LoginUserID: LoginUserID,
-                        Notes: "",
-                        Latitude: Latitude,
-                        Longitude: Longitude,
-                        LocationAddress: Address,
-                        CompanyId: CompanyID.toString())));
-          } else {
-            final imagepicker = ImagePicker();
-
-            XFile file = await imagepicker.pickImage(
-                source: ImageSource.camera, imageQuality: 85);
-
-            File filerty = File(file.path);
-
-            final extension = p.extension(filerty.path);
-
-            int timestamp1 = DateTime.now().millisecondsSinceEpoch;
-
-            if (file != null) {
-              File file1 = File(file.path);
-
-              final dir = await p.getTemporaryDirectory();
-
-              final extension = p.extension(file1.path);
-
-              int timestamp1 = DateTime.now().millisecondsSinceEpoch;
-
-              String filenamepunchout =
-                  _offlineLoggedInData.details[0].employeeID.toString() +
-                      "_" +
-                      DateTime.now().day.toString() +
-                      "_" +
-                      DateTime.now().month.toString() +
-                      "_" +
-                      DateTime.now().year.toString() +
-                      "_" +
-                      timestamp1.toString() +
-                      extension;
-
-              final targetPath = dir.absolute.path + "/" + filenamepunchout;
-              File file1231 = await testCompressAndGetFile(file1, targetPath);
-              final bytes = file1.readAsBytesSync().lengthInBytes;
-              final kb = bytes / 1024;
-              final mb = kb / 1024;
-
-              print("Image File Is Largre" +
-                  " KB : " +
-                  kb.toString() +
-                  " MB : " +
-                  mb.toString());
-              final snackBar = SnackBar(
-                content:
-                    Text(" KB : " + kb.toString() + " MB : " + mb.toString()),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-              _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                  file1231,
-                  PunchAttendanceSaveRequest(
-                    pkID: "0",
-                    CompanyId: CompanyID.toString(),
-                    Mode: "punchout",
-                    EmployeeID:
-                        _offlineLoggedInData.details[0].employeeID.toString(),
-                    FileName: filenamepunchout,
-                    PresenceDate: selectedDate.year.toString() +
-                        "-" +
-                        selectedDate.month.toString() +
-                        "-" +
-                        selectedDate.day.toString(),
-                    Time: selectedTime.hour.toString() +
-                        ":" +
-                        selectedTime.minute.toString(),
-                    Notes: "",
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    LocationAddress: Address,
-                    LoginUserId: LoginUserID,
-                  )));
-            } /*else {
-              showCommonDialogWithSingleOption(
-                  context, "Something Went Wrong File Not Found Exception !",
-                  positiveButtonTitle: "OK");
-            }*/
-          }
-        }
-      }
-    } else {
-      showCommonDialogWithSingleOption(context, "Punch in Is Required !",
-          positiveButtonTitle: "OK");
-    }
-  }
-
-  lunchoutLogic() async {
-    if (isLunchIn == true) {
-      //EmailTO.text = model.emailAddress;
-      TimeOfDay selectedTime = TimeOfDay.now();
-
-      if (isPunchOut == false) {
-        PunchAttendanceSaveRequest punchAttendanceSaveRequest =
-            PunchAttendanceSaveRequest(
-          pkID: "0",
-          CompanyId: CompanyID.toString(),
-          Mode: "lunchout",
-          EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
-          FileName: "demo.png",
-          PresenceDate: selectedDate.year.toString() +
-              "-" +
-              selectedDate.month.toString() +
-              "-" +
-              selectedDate.day.toString(),
-          Time: selectedTime.hour.toString() +
-              ":" +
-              selectedTime.minute.toString(),
-          Notes: "",
-          Latitude: Latitude,
-          Longitude: Longitude,
-          LocationAddress: Address,
-          LoginUserId: LoginUserID,
-        );
-        /* PunchAttendanceSaveRequest(
-          Mode: "lunchout",
-          pkID: "0",
-          EmployeeID: _offlineLoggedInData.details[0].employeeID.toString(),
-          PresenceDate: selectedDate.year.toString() +
-              "-" +
-              selectedDate.month.toString() +
-              "-" +
-              selectedDate.day.toString(),
-          TimeIn: selectedTime.hour.toString() +
-              ":" +
-              selectedTime.minute.toString(),
-          TimeOut: "",
-          LunchIn: selectedTime.hour.toString() +
-              ":" +
-              selectedTime.minute.toString(),
-          LunchOut: selectedTime.hour.toString() +
-              ":" +
-              selectedTime.minute.toString(),
-          LoginUserID: LoginUserID,
-          Notes: "",
-          Latitude: Latitude,
-          Longitude: Longitude,
-          LocationAddress: Address,
-          CompanyId: CompanyID.toString(),
-        );*/
-
-        /*_offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                    "SW0T-GLA5-IND7-AS71" ||
-                _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                    "SI08-SB94-MY45-RY15" */ /* ||
-              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "TEST-0000-SI0F-0208"*/ /*
-            ? showcustomdialogSendEmail(
-                context1: context, att: punchAttendanceSaveRequest)
-            : Container();*/
-        // _showMyDialog();
-
-        if (isLunchOut == true) {
-          /*if (_offlineLoggedInData
-                      .details[0].serialKey
-                      .toUpperCase() ==
-                  "SW0T-GLA5-IND7-AS71" ||
-              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "SI08-SB94-MY45-RY15" ||
-              _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                  "TEST-0000-SI0F-0208") {
-            showcustomdialogSendEmail(
-                context1: context, att: punchAttendanceSaveRequest);
-          } else {
-            showCommonDialogWithSingleOption(
-                context,
-                _offlineLoggedInData.details[0].employeeName +
-                    " \n Punch Out : " +
-                    PuchOutTime.text,
-                positiveButtonTitle: "OK");
-          }*/
-
-          showCommonDialogWithSingleOption(
-              context,
-              _offlineLoggedInData.details[0].employeeName +
-                  " \n Lunch Out : " +
-                  LunchOutTime.text,
-              positiveButtonTitle: "OK");
-        } else {
-          if (ConstantMAster.toString() == "" ||
-              ConstantMAster.toString().toLowerCase() == "no") {
-            _dashBoardScreenBloc.add(
-                PunchWithoutImageAttendanceSaveRequestEvent(
-                    PunchWithoutImageAttendanceSaveRequest(
-                        Mode: "lunchout",
-                        pkID: "0",
-                        EmployeeID: _offlineLoggedInData.details[0].employeeID
-                            .toString(),
-                        PresenceDate: selectedDate.year.toString() +
-                            "-" +
-                            selectedDate.month.toString() +
-                            "-" +
-                            selectedDate.day.toString(),
-                        TimeIn: "",
-                        TimeOut: "",
-                        LunchIn: "",
-                        LunchOut: selectedTime.hour.toString() +
-                            ":" +
-                            selectedTime.minute.toString(),
-                        LoginUserID: LoginUserID,
-                        Notes: "",
-                        Latitude: Latitude,
-                        Longitude: Longitude,
-                        LocationAddress: Address,
-                        CompanyId: CompanyID.toString())));
-          } else {
-            final imagepicker = ImagePicker();
-
-            XFile file = await imagepicker.pickImage(
-              source: ImageSource.camera,
-              imageQuality: 85,
-            );
-
-            if (file != null) {
-              File file1 = File(file.path);
-
-              final dir = await p.getTemporaryDirectory();
-
-              final extension = p.extension(file1.path);
-
-              int timestamp1 = DateTime.now().millisecondsSinceEpoch;
-
-              String filenameLunchOut =
-                  _offlineLoggedInData.details[0].employeeID.toString() +
-                      "_" +
-                      DateTime.now().day.toString() +
-                      "_" +
-                      DateTime.now().month.toString() +
-                      "_" +
-                      DateTime.now().year.toString() +
-                      "_" +
-                      timestamp1.toString() +
-                      extension;
-
-              final targetPath = dir.absolute.path + "/" + filenameLunchOut;
-              File file1231 = await testCompressAndGetFile(file1, targetPath);
-              final bytes = file1.readAsBytesSync().lengthInBytes;
-              final kb = bytes / 1024;
-              final mb = kb / 1024;
-
-              print("Image File Is Largre" +
-                  " KB : " +
-                  kb.toString() +
-                  " MB : " +
-                  mb.toString());
-              final snackBar = SnackBar(
-                content:
-                    Text(" KB : " + kb.toString() + " MB : " + mb.toString()),
-              );
-              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-              _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                  file1231,
-                  PunchAttendanceSaveRequest(
-                    pkID: "0",
-                    CompanyId: CompanyID.toString(),
-                    Mode: "lunchout",
-                    EmployeeID:
-                        _offlineLoggedInData.details[0].employeeID.toString(),
-                    FileName: filenameLunchOut,
-                    PresenceDate: selectedDate.year.toString() +
-                        "-" +
-                        selectedDate.month.toString() +
-                        "-" +
-                        selectedDate.day.toString(),
-                    Time: selectedTime.hour.toString() +
-                        ":" +
-                        selectedTime.minute.toString(),
-                    Notes: "",
-                    Latitude: Latitude,
-                    Longitude: Longitude,
-                    LocationAddress: Address,
-                    LoginUserId: LoginUserID,
-                  )));
-            }
-          }
-        }
-        /*isLunchOut == true
-            ?
-            _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                        "SW0T-GLA5-IND7-AS71" ||
-                    _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                        "SI08-SB94-MY45-RY15" ||
-                    _offlineLoggedInData.details[0].serialKey.toUpperCase() ==
-                        "TEST-0000-SI0F-0208"
-                ? showcustomdialogSendEmail(
-                    context1: context, att: punchAttendanceSaveRequest)
-                : showCommonDialogWithSingleOption(
-                    context,
-                    _offlineLoggedInData.details[0].employeeName +
-                        " \n Punch Out : " +
-                        PuchOutTime.text,
-                    positiveButtonTitle: "OK")
-            : _dashBoardScreenBloc.add(PunchAttendanceSaveRequestEvent(
-                Lunch_In_OUT_File, punchAttendanceSaveRequest));*/
-      } else {
-        if (isLunchOut == false) {
-          showCommonDialogWithSingleOption(
-              context, "After Punch Out, You can't be able to do Lunch Out!!",
-              positiveButtonTitle: "OK");
-        }
-      }
-    } else {
-      showCommonDialogWithSingleOption(context, "Lunch in Is Required !",
-          positiveButtonTitle: "OK");
-    }
   }
 
   void _OnFethEmployeeImage(EmployeeListResponseState state) {

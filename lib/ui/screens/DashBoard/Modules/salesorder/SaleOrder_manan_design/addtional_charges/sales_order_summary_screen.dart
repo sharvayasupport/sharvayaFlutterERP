@@ -323,7 +323,8 @@ class _NewSalesOrderOtherChargeScreenState
                   : "Additional Charges",
               showBack: true,
               showHome: false, onTapOfBack: () {
-            Navigator.of(context).pop();
+            _onBackPressed();
+            // Navigator.of(context).pop();
           }),
           Expanded(
             child: SingleChildScrollView(
@@ -387,86 +388,129 @@ class _NewSalesOrderOtherChargeScreenState
                                         style: TextStyle(
                                             color: colorPrimary, fontSize: 15)))
                               ]),
-                              Row(children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: OtherChargeDropDown1("Other Charge 1",
-                                      enable1: false,
-                                      title: "Other Charge 1",
-                                      hintTextvalue: "Select Other Charge",
-                                      icon: Icon(Icons.arrow_drop_down),
-                                      controllerForLeft:
-                                          _otherChargeNameController1,
-                                      controllerpkID: _otherChargeIDController1,
-                                      Custom_values1:
-                                          arr_ALL_Name_ID_For_ProjectList1),
-                                ),
-                                Expanded(flex: 1, child: OtherAmount1())
-                              ]),
-                              Row(children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: OtherChargeDropDown2("Other Charge 1",
-                                      enable1: false,
-                                      title: "Other Charge 1",
-                                      hintTextvalue: "Select Other Charge",
-                                      icon: Icon(Icons.arrow_drop_down),
-                                      controllerForLeft:
-                                          _otherChargeNameController2,
-                                      controllerpkID: _otherChargeIDController2,
-                                      Custom_values1:
-                                          arr_ALL_Name_ID_For_ProjectList2),
-                                ),
-                                Expanded(flex: 1, child: OtherAmount2())
-                              ]),
-                              Row(children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: OtherChargeDropDown3("Other Charge 1",
-                                      enable1: false,
-                                      title: "Other Charge 1",
-                                      hintTextvalue: "Select Other Charge",
-                                      icon: Icon(Icons.arrow_drop_down),
-                                      controllerForLeft:
-                                          _otherChargeNameController3,
-                                      controllerpkID: _otherChargeIDController3,
-                                      Custom_values1:
-                                          arr_ALL_Name_ID_For_ProjectList3),
-                                ),
-                                Expanded(flex: 1, child: OtherAmount3())
-                              ]),
-                              Row(children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: OtherChargeDropDown4("Other Charge 1",
-                                      enable1: false,
-                                      title: "Other Charge 1",
-                                      hintTextvalue: "Select Other Charge",
-                                      icon: Icon(Icons.arrow_drop_down),
-                                      controllerForLeft:
-                                          _otherChargeNameController4,
-                                      controllerpkID: _otherChargeIDController4,
-                                      Custom_values1:
-                                          arr_ALL_Name_ID_For_ProjectList4),
-                                ),
-                                Expanded(flex: 1, child: OtherAmount4())
-                              ]),
-                              Row(children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: OtherChargeDropDown5("Other Charge 1",
-                                      enable1: false,
-                                      title: "Other Charge 1",
-                                      hintTextvalue: "Select Other Charge",
-                                      icon: Icon(Icons.arrow_drop_down),
-                                      controllerForLeft:
-                                          _otherChargeNameController5,
-                                      controllerpkID: _otherChargeIDController5,
-                                      Custom_values1:
-                                          arr_ALL_Name_ID_For_ProjectList5),
-                                ),
-                                Expanded(flex: 1, child: OtherAmount5())
-                              ]),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: OtherChargeDropDown1(
+                                          "Other Charge 1",
+                                          enable1: false,
+                                          title: "Other Charge 1",
+                                          hintTextvalue: "Select Other Charge",
+                                          icon: Icon(Icons.arrow_drop_down),
+                                          controllerForLeft:
+                                              _otherChargeNameController1,
+                                          controllerpkID:
+                                              _otherChargeIDController1,
+                                          Custom_values1:
+                                              arr_ALL_Name_ID_For_ProjectList1),
+                                    ),
+                                    Expanded(flex: 1, child: OtherAmount1())
+                                  ]),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: OtherChargeDropDown2(
+                                          "Other Charge 1",
+                                          enable1: false,
+                                          title: "Other Charge 1",
+                                          hintTextvalue: "Select Other Charge",
+                                          icon: Icon(Icons.arrow_drop_down),
+                                          controllerForLeft:
+                                              _otherChargeNameController2,
+                                          controllerpkID:
+                                              _otherChargeIDController2,
+                                          Custom_values1:
+                                              arr_ALL_Name_ID_For_ProjectList2),
+                                    ),
+                                    Expanded(flex: 1, child: OtherAmount2())
+                                  ]),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: OtherChargeDropDown3(
+                                          "Other Charge 1",
+                                          enable1: false,
+                                          title: "Other Charge 1",
+                                          hintTextvalue: "Select Other Charge",
+                                          icon: Icon(Icons.arrow_drop_down),
+                                          controllerForLeft:
+                                              _otherChargeNameController3,
+                                          controllerpkID:
+                                              _otherChargeIDController3,
+                                          Custom_values1:
+                                              arr_ALL_Name_ID_For_ProjectList3),
+                                    ),
+                                    Expanded(flex: 1, child: OtherAmount3())
+                                  ]),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: OtherChargeDropDown4(
+                                          "Other Charge 1",
+                                          enable1: false,
+                                          title: "Other Charge 1",
+                                          hintTextvalue: "Select Other Charge",
+                                          icon: Icon(Icons.arrow_drop_down),
+                                          controllerForLeft:
+                                              _otherChargeNameController4,
+                                          controllerpkID:
+                                              _otherChargeIDController4,
+                                          Custom_values1:
+                                              arr_ALL_Name_ID_For_ProjectList4),
+                                    ),
+                                    Expanded(flex: 1, child: OtherAmount4())
+                                  ]),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: OtherChargeDropDown5(
+                                          "Other Charge 1",
+                                          enable1: false,
+                                          title: "Other Charge 1",
+                                          hintTextvalue: "Select Other Charge",
+                                          icon: Icon(Icons.arrow_drop_down),
+                                          controllerForLeft:
+                                              _otherChargeNameController5,
+                                          controllerpkID:
+                                              _otherChargeIDController5,
+                                          Custom_values1:
+                                              arr_ALL_Name_ID_For_ProjectList5),
+                                    ),
+                                    Expanded(flex: 1, child: OtherAmount5())
+                                  ]),
+                              SizedBox(
+                                height: 30,
+                              ),
                             ],
                           )
                         : Container(),
@@ -488,6 +532,7 @@ class _NewSalesOrderOtherChargeScreenState
   }
 
   Future<bool> _onBackPressed() async {
+    _OnTaptoSave();
     _OnTaptoSave();
 
     AddditionalCharges addditionalCharges = AddditionalCharges(
@@ -1580,7 +1625,7 @@ class _NewSalesOrderOtherChargeScreenState
       TextEditingController controllerpkID,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 3, bottom: 10),
+      //margin: EdgeInsets.only(top: 3, bottom: 10),
       child: Column(
         children: [
           InkWell(
@@ -1602,7 +1647,7 @@ class _NewSalesOrderOtherChargeScreenState
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: CardViewHeight,
+                    // height: CardViewHeight,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -1612,7 +1657,7 @@ class _NewSalesOrderOtherChargeScreenState
                               controller: controllerForLeft,
                               enabled: false,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(bottom: 10),
+                                //contentPadding: EdgeInsets.only(bottom: 10),
                                 hintText: hintTextvalue,
                                 labelStyle: TextStyle(
                                   color: Color(0xFF000000),
@@ -1652,7 +1697,7 @@ class _NewSalesOrderOtherChargeScreenState
       TextEditingController controllerpkID,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
+      //margin: EdgeInsets.only(top: 10, bottom: 10),
       child: Column(
         children: [
           InkWell(
@@ -1674,7 +1719,7 @@ class _NewSalesOrderOtherChargeScreenState
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: CardViewHeight,
+                    // height: CardViewHeight,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -1684,7 +1729,7 @@ class _NewSalesOrderOtherChargeScreenState
                               controller: controllerForLeft,
                               enabled: false,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(bottom: 10),
+                                //contentPadding: EdgeInsets.only(bottom: 10),
                                 hintText: hintTextvalue,
                                 labelStyle: TextStyle(
                                   color: Color(0xFF000000),
@@ -1724,7 +1769,7 @@ class _NewSalesOrderOtherChargeScreenState
       TextEditingController controllerpkID,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
+      //  margin: EdgeInsets.only(top: 10, bottom: 10),
       child: Column(
         children: [
           InkWell(
@@ -1746,7 +1791,7 @@ class _NewSalesOrderOtherChargeScreenState
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: CardViewHeight,
+                    //height: CardViewHeight,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -1756,7 +1801,7 @@ class _NewSalesOrderOtherChargeScreenState
                               controller: controllerForLeft,
                               enabled: false,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(bottom: 10),
+                                //contentPadding: EdgeInsets.only(bottom: 10),
                                 hintText: hintTextvalue,
                                 labelStyle: TextStyle(
                                   color: Color(0xFF000000),
@@ -1796,7 +1841,7 @@ class _NewSalesOrderOtherChargeScreenState
       TextEditingController controllerpkID,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
+      //margin: EdgeInsets.only(top: 10, bottom: 10),
       child: Column(
         children: [
           InkWell(
@@ -1818,7 +1863,7 @@ class _NewSalesOrderOtherChargeScreenState
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: CardViewHeight,
+                    //height: CardViewHeight,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -1828,7 +1873,7 @@ class _NewSalesOrderOtherChargeScreenState
                               controller: controllerForLeft,
                               enabled: false,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(bottom: 10),
+                                // contentPadding: EdgeInsets.only(bottom: 10),
                                 hintText: hintTextvalue,
                                 labelStyle: TextStyle(
                                   color: Color(0xFF000000),
@@ -1868,7 +1913,7 @@ class _NewSalesOrderOtherChargeScreenState
       TextEditingController controllerpkID,
       List<ALL_Name_ID> Custom_values1}) {
     return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
+      //margin: EdgeInsets.only(top: 10, bottom: 10),
       child: Column(
         children: [
           InkWell(
@@ -1890,7 +1935,7 @@ class _NewSalesOrderOtherChargeScreenState
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child: Container(
-                    height: CardViewHeight,
+                    //height: CardViewHeight,
                     padding: EdgeInsets.only(left: 20, right: 20),
                     width: double.maxFinite,
                     child: Row(
@@ -1900,7 +1945,7 @@ class _NewSalesOrderOtherChargeScreenState
                               controller: controllerForLeft,
                               enabled: false,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(bottom: 10),
+                                //  contentPadding: EdgeInsets.only(bottom: 10),
                                 hintText: hintTextvalue,
                                 labelStyle: TextStyle(
                                   color: Color(0xFF000000),
@@ -1940,7 +1985,7 @@ class _NewSalesOrderOtherChargeScreenState
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
-            height: CardViewHeight,
+            // height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
             width: double.maxFinite,
             alignment: Alignment.center,
@@ -1962,7 +2007,7 @@ class _NewSalesOrderOtherChargeScreenState
                         )
                       },
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(bottom: 10),
+                    // contentPadding: EdgeInsets.only(bottom: 10),
                     hintText: "0.00",
                     labelStyle: TextStyle(
                       color: Color(0xFF000000),
@@ -2007,7 +2052,7 @@ class _NewSalesOrderOtherChargeScreenState
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
-            height: CardViewHeight,
+            // height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
             width: double.maxFinite,
             alignment: Alignment.center,
@@ -2029,7 +2074,7 @@ class _NewSalesOrderOtherChargeScreenState
                         )
                       },
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(bottom: 10),
+                    //contentPadding: EdgeInsets.only(bottom: 10),
                     hintText: "0.00",
                     labelStyle: TextStyle(
                       color: Color(0xFF000000),
@@ -2064,7 +2109,7 @@ class _NewSalesOrderOtherChargeScreenState
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
-            height: CardViewHeight,
+            // height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
             width: double.maxFinite,
             alignment: Alignment.center,
@@ -2086,7 +2131,7 @@ class _NewSalesOrderOtherChargeScreenState
                         )
                       },
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(bottom: 10),
+                    // contentPadding: EdgeInsets.only(bottom: 10),
                     hintText: "0.00",
                     labelStyle: TextStyle(
                       color: Color(0xFF000000),
@@ -2123,7 +2168,7 @@ class _NewSalesOrderOtherChargeScreenState
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
-            height: CardViewHeight,
+            //height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
             width: double.maxFinite,
             alignment: Alignment.center,
@@ -2145,7 +2190,7 @@ class _NewSalesOrderOtherChargeScreenState
                         )
                       },
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.only(bottom: 10),
+                    //contentPadding: EdgeInsets.only(bottom: 10),
                     hintText: "0.00",
                     labelStyle: TextStyle(
                       color: Color(0xFF000000),
@@ -2178,7 +2223,7 @@ class _NewSalesOrderOtherChargeScreenState
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: Container(
-            height: CardViewHeight,
+            //height: CardViewHeight,
             padding: EdgeInsets.only(left: 20, right: 20),
             width: double.maxFinite,
             alignment: Alignment.center,
@@ -2199,7 +2244,7 @@ class _NewSalesOrderOtherChargeScreenState
                       )
                     },
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.only(bottom: 10),
+                  //contentPadding: EdgeInsets.only(bottom: 10),
                   hintText: "0.00",
                   labelStyle: TextStyle(
                     color: Color(0xFF000000),

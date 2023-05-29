@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soleoserp/blocs/other/firstscreen/first_screen_bloc.dart';
-import 'package:soleoserp/models/api_requests/constant_master/constant_request.dart';
 import 'package:soleoserp/models/api_requests/login/login_user_details_api_request.dart';
 import 'package:soleoserp/models/api_responses/company_details/company_details_response.dart';
 import 'package:soleoserp/models/api_responses/customer/customer_source_response.dart';
@@ -82,10 +81,10 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
     print("URLLLL:" + SiteUrl + "/images/companylogo/CompanyLogo.png");
 
-    _firstScreenBloc.add(ConstantRequestEvent(
+    /*_firstScreenBloc.add(ConstantRequestEvent(
         CompanyID.toString(),
         ConstantRequest(
-            ConstantHead: "DMSSystem", CompanyId: CompanyID.toString())));
+            ConstantHead: "DMSSystem", CompanyId: CompanyID.toString())));*/
   }
 
   ///listener to multiple states of bloc to handles api responses
@@ -111,10 +110,11 @@ class _FirstScreenState extends BaseState<FirstScreen>
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (BuildContext context) => _firstScreenBloc
-        ..add(ConstantRequestEvent(
+      /* ..add(ConstantRequestEvent(
             CompanyID.toString(),
             ConstantRequest(
-                ConstantHead: "DMSSystem", CompanyId: CompanyID.toString()))),
+                ConstantHead: "DMSSystem", CompanyId: CompanyID.toString())))*/
+      ,
       child: BlocConsumer<FirstScreenBloc, FirstScreenStates>(
         builder: (BuildContext context, FirstScreenStates state) {
           //handle states
@@ -157,73 +157,65 @@ class _FirstScreenState extends BaseState<FirstScreen>
     edt_User_Password.text = "admin!@#";*/
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _firstScreenBloc.add(ConstantRequestEvent(
-              CompanyID.toString(),
-              ConstantRequest(
-                  ConstantHead: "DMSSystem", CompanyId: CompanyID.toString())));
-        },
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.only(
-                left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
-                right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
-                top: 50,
-                bottom: 50),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTopView(),
-                SizedBox(height: 20),
-                _buildDelaerLoginForm(),
-                SizedBox(
-                  height: 20,
-                ),
-                Visibility(
-                  visible: false,
-                  child: ElevatedButton(
-                    child: Text("Start"),
-                    onPressed: () async {
-                      /*final service = FlutterBackgroundService();
-                      var isRunning = await service.isRunning();
-                      if (isRunning) {
-                        service.invoke("stopService");
-                      } else {
-                        service.startService();
-                      }
-
-                      if (!isRunning) {
-                        text = 'Stop Service';
-                      } else {
-                        text = 'Start Service';
-                      }*/
-                      setState(() {});
-                    },
-                  ),
-                ),
-                Visibility(
-                  visible: false,
-                  child: SizedBox(
-                    height: 20,
-                  ),
-                ),
-                Visibility(
-                  visible: false,
-                  child: ElevatedButton(
-                    child: Text("Stop"),
-                    onPressed: () async {
-                      final service = FlutterBackgroundService();
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(
+              left: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+              right: DEFAULT_SCREEN_LEFT_RIGHT_MARGIN,
+              top: 50,
+              bottom: 50),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTopView(),
+              SizedBox(height: 20),
+              _buildDelaerLoginForm(),
+              SizedBox(
+                height: 20,
+              ),
+              Visibility(
+                visible: false,
+                child: ElevatedButton(
+                  child: Text("Start"),
+                  onPressed: () async {
+                    /*final service = FlutterBackgroundService();
+                    var isRunning = await service.isRunning();
+                    if (isRunning) {
                       service.invoke("stopService");
-                      setState(() {});
-                    },
-                  ),
+                    } else {
+                      service.startService();
+                    }
+
+                    if (!isRunning) {
+                      text = 'Stop Service';
+                    } else {
+                      text = 'Start Service';
+                    }*/
+                    setState(() {});
+                  },
                 ),
-                SizedBox(
+              ),
+              Visibility(
+                visible: false,
+                child: SizedBox(
                   height: 20,
                 ),
-              ],
-            ),
+              ),
+              Visibility(
+                visible: false,
+                child: ElevatedButton(
+                  child: Text("Stop"),
+                  onPressed: () async {
+                    final service = FlutterBackgroundService();
+                    service.invoke("stopService");
+                    setState(() {});
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+            ],
           ),
         ),
       ),
@@ -302,9 +294,12 @@ class _FirstScreenState extends BaseState<FirstScreen>
             _offlineCompanyData.details[0].pkId.toString() +
             "LoginUserID : " +
             _offlineLoggedInDetailsData.details[0].userID);
-
-        if (_offlineCompanyData.details[0].pkId ==
-                7189 /* ||
+//BLG3-AF78-TO5F-NW16
+        if (_offlineLoggedInDetailsData.details[0].serialKey.toUpperCase() ==
+                    "TEST-0000-SI0F-0208" ||
+                _offlineLoggedInDetailsData.details[0].serialKey
+                        .toUpperCase() ==
+                    "BLG3-AF78-TO5F-NW16" /* ||
             _offlineCompanyData.details[0].pkId == 4132*/
             ) {
           FirebaseMessaging.instance.getToken().then((token) async {
@@ -408,7 +403,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
           height: 10,
         ),
         Text(
-          "Log in to your existant account",
+          "Log in to your existent account",
           style: TextStyle(
             color: Color(0xff019ee9),
             fontSize: 18,
@@ -510,8 +505,6 @@ class _FirstScreenState extends BaseState<FirstScreen>
               ),
               Expanded(
                 child: getCommonButton(baseTheme, () async {
-                  _onTapOfRegister();
-
                   SharedPreferences preferences =
                       await SharedPreferences.getInstance();
                   await preferences.setString("TokenSP", "");
@@ -519,6 +512,8 @@ class _FirstScreenState extends BaseState<FirstScreen>
                   final service = FlutterBackgroundService();
                   service.invoke("stopService");
                   setState(() {});
+
+                  _onTapOfRegister();
                 }, "LogOut",
                     radius: 15,
                     backGroundColor:
@@ -651,6 +646,8 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
   void _onTapOfLogin() {
     if (_formKey.currentState.validate()) {
+      final service = FlutterBackgroundService();
+      service.invoke("stopService");
       SharedPrefHelper.instance.prefs
           .setString("Is_Dealer", _selectedIndex == 0 ? "Company" : "Dealer");
 
@@ -682,6 +679,8 @@ class _FirstScreenState extends BaseState<FirstScreen>
 
   void _onTapOfRegister() async {
     SharedPrefHelper.instance.putBool(SharedPrefHelper.IS_REGISTERED, false);
+    await SharedPrefHelper.instance
+        .putBool(SharedPrefHelper.IS_LOGGED_IN_DATA, false);
     //SharedPrefHelper.instance.setBaseURL("");
     navigateTo(context, SerialKeyScreen.routeName, clearAllStack: true);
     // navigateTo(context, RegisterScreen.routeName, clearAllStack: true);
@@ -742,7 +741,7 @@ class _FirstScreenState extends BaseState<FirstScreen>
         // auto start service
         autoStart: true,
         isForegroundMode: true,
-
+        autoStartOnBoot: true,
         notificationChannelId: 'my_foreground',
         initialNotificationTitle: 'AWESOME SERVICE',
         initialNotificationContent: 'Initializing',

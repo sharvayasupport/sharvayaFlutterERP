@@ -851,14 +851,17 @@ class _ProductMasterListScreenState extends BaseState<ProductMasterListScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text("Search Customer",
-              style: TextStyle(
-                  fontSize: 12,
-                  color: colorPrimary,
-                  fontWeight: FontWeight
-                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+          Container(
+            margin: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+            child: Text("Search Product",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: colorPrimary,
+                    fontWeight: FontWeight
+                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-              ),
+                ),
+          ),
           Icon(
             Icons.filter_list_alt,
             color: colorPrimary,
@@ -902,7 +905,7 @@ class _ProductMasterListScreenState extends BaseState<ProductMasterListScreen>
                         disabledBorder: InputBorder.none,
                         contentPadding: EdgeInsets.only(
                             left: 15, bottom: 11, top: 11, right: 15),
-                        hintText: "Search Customer"),
+                        hintText: "Search Product"),
                   ),
                   // dropdown()
                 ),

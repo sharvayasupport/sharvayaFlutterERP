@@ -432,7 +432,7 @@ class _BlueToneInquiryProductListScreenState
                       ListTile(title: Unit()),
                       SizedBox(
                         width: 20,
-                        height: 20,
+                        height: 10,
                       ),
                       ListTile(
                         title: InkWell(
@@ -445,22 +445,31 @@ class _BlueToneInquiryProductListScreenState
                                         .getProductPriceList(
                                             _productIDController.text);
 
-                                List<String> sizedModelList =
-                                    await showDialog<List<String>>(
-                                  //<--------|
-                                  context: context,
-                                  builder: (context) => Dialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(15))),
-                                    child: CheckboxListViewDialog(
-                                        arrinquiryShareModel),
-                                  ),
-                                );
-                                edt_SizedListController.text = "";
-                                var stringwe = sizedModelList.join(' | \n');
-                                edt_SizedListController.text =
-                                    stringwe.toString();
+                                if (arrinquiryShareModel.isNotEmpty) {
+                                  List<String> sizedModelList =
+                                      await showDialog<List<String>>(
+                                    //<--------|
+                                    context: context,
+                                    builder: (context) => Dialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(15))),
+                                      child: CheckboxListViewDialog(
+                                          arrinquiryShareModel),
+                                    ),
+                                  );
+                                  edt_SizedListController.text = "";
+                                  var stringwe = sizedModelList.join(' | \n');
+                                  edt_SizedListController.text =
+                                      stringwe.toString();
+                                } else {
+                                  showCommonDialogWithSingleOption(
+                                      context, "ProductSize is not available !",
+                                      positiveButtonTitle: "OK",
+                                      onTapOfPositiveButton: () {
+                                    Navigator.of(context1).pop();
+                                  });
+                                }
                               } else {
                                 showCommonDialogWithSingleOption(
                                     context, "ProductName Is Required!",
@@ -471,6 +480,10 @@ class _BlueToneInquiryProductListScreenState
                               }
                             },
                             child: SizedListControllerview()),
+                      ),
+                      SizedBox(
+                        width: 20,
+                        height: 20,
                       ),
                       ListTile(
                         title: Row(
@@ -575,7 +588,7 @@ class _BlueToneInquiryProductListScreenState
                       ListTile(title: Unit()),
                       SizedBox(
                         width: 20,
-                        height: 20,
+                        height: 10,
                       ),
                       ListTile(
                         title: InkWell(
@@ -587,22 +600,31 @@ class _BlueToneInquiryProductListScreenState
                                       .getProductPriceList(
                                           _productIDController.text);
 
-                              List<String> sizedModelList =
-                                  await showDialog<List<String>>(
-                                //<--------|
-                                context: context,
-                                builder: (context) => Dialog(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(15))),
-                                  child: CheckboxListViewDialog(
-                                      arrinquiryShareModel),
-                                ),
-                              );
+                              if (arrinquiryShareModel.isNotEmpty) {
+                                List<String> sizedModelList =
+                                    await showDialog<List<String>>(
+                                  //<--------|
+                                  context: context,
+                                  builder: (context) => Dialog(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15))),
+                                    child: CheckboxListViewDialog(
+                                        arrinquiryShareModel),
+                                  ),
+                                );
 
-                              var stringwe = sizedModelList.join('\n');
-                              edt_SizedListController.text =
-                                  stringwe.toString();
+                                var stringwe = sizedModelList.join('\n');
+                                edt_SizedListController.text =
+                                    stringwe.toString();
+                              } else {
+                                showCommonDialogWithSingleOption(
+                                    context, "ProductSize is not available !",
+                                    positiveButtonTitle: "OK",
+                                    onTapOfPositiveButton: () {
+                                  Navigator.of(context1).pop();
+                                });
+                              }
                             },
                             child: SizedListControllerview()),
                       ),
@@ -696,14 +718,17 @@ class _BlueToneInquiryProductListScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Select Product * ",
-              style: TextStyle(
-                  fontSize: 12,
-                  color: colorPrimary,
-                  fontWeight: FontWeight
-                      .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
+          Container(
+            margin: EdgeInsets.only(left: 10, right: 20),
+            child: Text("Select Product * ",
+                style: TextStyle(
+                    fontSize: 12,
+                    color: colorPrimary,
+                    fontWeight: FontWeight
+                        .bold) // baseTheme.textTheme.headline2.copyWith(color: colorBlack),
 
-              ),
+                ),
+          ),
           SizedBox(
             height: 5,
           ),

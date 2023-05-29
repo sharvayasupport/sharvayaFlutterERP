@@ -11,6 +11,7 @@ import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:soleoserp/blocs/base/base_bloc.dart';
 import 'package:soleoserp/blocs/other/bloc_modules/salesorder/salesorder_bloc.dart';
 import 'package:soleoserp/models/api_requests/customer/customer_search_by_id_request.dart';
+import 'package:soleoserp/models/api_requests/salesOrder/SO_Export/so_export_list_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_delete_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/sales_order_generate_pdf_request.dart';
 import 'package:soleoserp/models/api_requests/salesOrder/salesorder_list_request.dart';
@@ -22,6 +23,7 @@ import 'package:soleoserp/models/api_responses/login/login_user_details_api_resp
 import 'package:soleoserp/models/api_responses/other/menu_rights_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/salesorder_list_response.dart';
 import 'package:soleoserp/models/api_responses/saleOrder/search_salesorder_list_response.dart';
+import 'package:soleoserp/models/api_responses/saleOrder/shipment/so_shipment_list_response.dart';
 import 'package:soleoserp/models/common/menu_rights/request/user_menu_rights_request.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/res/dimen_resources.dart';
@@ -666,7 +668,6 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                     Password +
                                     "&pQuotID=" +
                                     model.pkID.toString();
-
                                 await _showMyDialog(model);
                               },
                               child: Column(
@@ -717,7 +718,6 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                     Password +
                                     "&pQuotID=" +
                                     model.pkID.toString();
-
                                 await _showMyDialogForPI(model);
                               },
                               child: Column(
@@ -769,7 +769,20 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                       "&pageType=so";
 
                                   print("SO_Email" + sendemailreq);
-                                  _showEmailSOMyDialog(model);
+
+                                  print("customermail" +
+                                      model.emailAddress.toString());
+
+                                  if (model.emailAddress.toString() != "") {
+                                    _showEmailSOMyDialog(model);
+                                  } else {
+                                    showCommonDialogWithSingleOption(context,
+                                        "Customer's Email Not Found\nKindly Update Email From Customer Master !",
+                                        positiveButtonTitle: "OK",
+                                        onTapOfPositiveButton: () {
+                                      Navigator.pop(context);
+                                    });
+                                  }
                                 },
                                 child: Column(
                                   children: [
@@ -817,7 +830,18 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
                                     "&pageType=pro";
 
                                 print("PI_Email" + sendemailreq);
-                                _showEmailPIMyDialog(model);
+                                // _showEmailPIMyDialog(model);
+
+                                if (model.emailAddress.toString() != "") {
+                                  _showEmailPIMyDialog(model);
+                                } else {
+                                  showCommonDialogWithSingleOption(context,
+                                      "Customer's Email Not Found\nKindly Update Email From Customer Master !",
+                                      positiveButtonTitle: "OK",
+                                      onTapOfPositiveButton: () {
+                                    Navigator.pop(context);
+                                  });
+                                }
                               },
                               child: Column(
                                 children: [
@@ -1452,12 +1476,18 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
 
                                           _SalesOrderBloc.add(
                                               SOShipmentListRequestEvent(
-                                                  SOShipmentListRequest(
-                                                      OrderNo: model.orderNo,
-                                                      LoginUserID: LoginUserID,
-                                                      CompanyId:
-                                                          CompanyID.toString()),
-                                                  model));
+                                            SOShipmentListRequest(
+                                                OrderNo: model.orderNo,
+                                                LoginUserID: LoginUserID,
+                                                CompanyId:
+                                                    CompanyID.toString()),
+                                            model,
+                                            SOExportListRequest(
+                                                OrderNo: model.orderNo,
+                                                LoginUserID: LoginUserID,
+                                                CompanyId:
+                                                    CompanyID.toString()),
+                                          ));
 
                                           /*navigateTo(
                                                     context,
@@ -2888,10 +2918,17 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   void _onDeleteSalesOrderResponse(SalesOrderDeleteResponseState state) {
     print(
         "SODeleteResponse" + state.salesOrderDeleteResponse.details[0].column1);
-    _SalesOrderBloc.add(SalesOrderListCallEvent(
-        1,
-        SalesOrderListApiRequest(
-            CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+
+    showCommonDialogWithSingleOption(
+        context, state.salesOrderDeleteResponse.details[0].column1,
+        positiveButtonTitle: "OK", onTapOfPositiveButton: () {
+      Navigator.pop(context);
+
+      _SalesOrderBloc.add(SalesOrderListCallEvent(
+          1,
+          SalesOrderListApiRequest(
+              CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+    });
   }
 
   OneTimeGenerateSO(
@@ -3059,14 +3096,64 @@ class _SalesOrderListScreenState extends BaseState<SalesOrderListScreen>
   }
 
   void _onGetShipmentDetails(SOShipmentlistResponseState state) {
-    navigateTo(context, SaleOrderNewAddEditScreen.routeName,
-            arguments: AddUpdateSalesOrderNewScreenArguments(
-                state.salesOrderDetails, state.response.details[0]))
-        .then((value) {
-      _SalesOrderBloc.add(SalesOrderListCallEvent(
-          1,
-          SalesOrderListApiRequest(
-              CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
-    });
+    if (state.response.details.isNotEmpty) {
+      navigateTo(context, SaleOrderNewAddEditScreen.routeName,
+              arguments: AddUpdateSalesOrderNewScreenArguments(
+                  state.salesOrderDetails,
+                  state.response.details[0],
+                  state.soExportListResponse))
+          .then((value) {
+        _SalesOrderBloc.add(SalesOrderListCallEvent(
+            1,
+            SalesOrderListApiRequest(
+                CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+      });
+    } else {
+      SOShipmentlistResponseDetails soShipmentlistResponseDetails =
+          new SOShipmentlistResponseDetails();
+      soShipmentlistResponseDetails.rowNum = 0;
+      soShipmentlistResponseDetails.pkID = 0;
+
+      soShipmentlistResponseDetails.orderNo = "";
+      soShipmentlistResponseDetails.sCompanyName = "";
+      soShipmentlistResponseDetails.sGSTNo = "";
+      soShipmentlistResponseDetails.sContactNo = "";
+      soShipmentlistResponseDetails.sContactPersonName = "";
+      soShipmentlistResponseDetails.sAddress = "";
+      soShipmentlistResponseDetails.sArea = "";
+      soShipmentlistResponseDetails.sCountryCode = "IND";
+      soShipmentlistResponseDetails.countryName = "India";
+      soShipmentlistResponseDetails.sCityCode =
+          _offlineLoggedInData.details[0].CityCode;
+      soShipmentlistResponseDetails.cityName =
+          _offlineLoggedInData.details[0].CityName;
+      soShipmentlistResponseDetails.sStateCode =
+          _offlineLoggedInData.details[0].stateCode;
+      soShipmentlistResponseDetails.stateName =
+          _offlineLoggedInData.details[0].StateName;
+      soShipmentlistResponseDetails.sPincode = "";
+      soShipmentlistResponseDetails.updatedBy = "";
+      soShipmentlistResponseDetails.updatedDate = "";
+      soShipmentlistResponseDetails.customerID = 0;
+      soShipmentlistResponseDetails.customerName = "";
+      soShipmentlistResponseDetails.employeeID = 0;
+      soShipmentlistResponseDetails.employeeName = "";
+      soShipmentlistResponseDetails.createdBy = "";
+      soShipmentlistResponseDetails.createdDate = "";
+      soShipmentlistResponseDetails.createdEmployeeName = "";
+      soShipmentlistResponseDetails.companyID = CompanyID;
+
+      navigateTo(context, SaleOrderNewAddEditScreen.routeName,
+              arguments: AddUpdateSalesOrderNewScreenArguments(
+                  state.salesOrderDetails,
+                  soShipmentlistResponseDetails,
+                  state.soExportListResponse))
+          .then((value) {
+        _SalesOrderBloc.add(SalesOrderListCallEvent(
+            1,
+            SalesOrderListApiRequest(
+                CompanyId: CompanyID.toString(), LoginUserID: LoginUserID)));
+      });
+    }
   }
 }

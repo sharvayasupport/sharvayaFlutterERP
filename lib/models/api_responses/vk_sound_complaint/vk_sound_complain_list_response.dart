@@ -57,7 +57,7 @@ class VkComplaintListResponseDetails {
     complaintStatus =
         json['ComplaintStatus'] == null ? "" : json['ComplaintStatus'];
     complaintType = json['ComplaintType'] == null ? "" : json['ComplaintType'];
-    CustomerID = json['CustomerID'] == null ? "" : json['CustomerID'];
+    CustomerID = json['CustomerID'] == null ? 0 : json['CustomerID'];
   }
 
   Map<String, dynamic> toJson() {

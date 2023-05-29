@@ -16,7 +16,6 @@ import 'package:soleoserp/models/common/all_name_id_list.dart';
 import 'package:soleoserp/models/common/globals.dart';
 import 'package:soleoserp/ui/res/color_resources.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/complaint_pagination_screen.dart';
-import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/digital_signature.dart';
 import 'package:soleoserp/ui/screens/DashBoard/Modules/Complaint/search_customer_screen.dart';
 import 'package:soleoserp/ui/screens/DashBoard/home_screen.dart';
 import 'package:soleoserp/ui/screens/base/base_screen.dart';
@@ -510,7 +509,7 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
                           width: 20,
                           height: 15,
                         ),
-                        data != null
+                        /* data != null
                             ? Center(
                                 child: Container(
                                   margin: EdgeInsets.all(10),
@@ -529,7 +528,7 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
                           width: 20,
                           height: 15,
                         ),
-                        getCommonButton(baseTheme, () {
+                          getCommonButton(baseTheme, () {
                           // showcustomdialogSignature(context1: context);
 
                           navigateTo(context, MyDigitalSignature.routeName)
@@ -543,7 +542,8 @@ class _ComplaintAddEditScreenState extends BaseState<ComplaintAddEditScreen>
                         SizedBox(
                           width: 20,
                           height: 15,
-                        ),
+                        ),*/
+
                         getCommonButton(baseTheme, () {
                           print("ComplaintDetails" +
                               "ComplaintDate : " +
